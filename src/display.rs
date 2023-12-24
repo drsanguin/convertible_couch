@@ -26,6 +26,10 @@ pub struct MonitorPosition {
     y: i32,
 }
 
+pub struct SetPositionResponse {
+    pub reboot_required: bool,
+}
+
 pub unsafe fn get_primary_monitor_name() -> Result<String, String> {
     let mut display_adapter_index: i32 = -1;
     let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
@@ -221,10 +225,13 @@ pub unsafe fn get_monitor_position(monitor_name: &str) -> Result<MonitorPosition
     ));
 }
 
-pub unsafe fn set_monitors_to_position(position: &MonitorPosition) -> Result<(), String> {
+pub unsafe fn set_monitors_to_position(
+    position: &MonitorPosition,
+) -> Result<SetPositionResponse, String> {
     let mut display_adapter_index: i32 = -1;
     let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
     let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
+    let mut reboot_required = false;
 
     loop {
         display_adapter_index += 1;
@@ -329,8 +336,11 @@ pub unsafe fn set_monitors_to_position(position: &MonitorPosition) -> Result<(),
         );
 
         match change_display_settings_ex_result {
-            DISP_CHANGE_SUCCESSFUL => {}
-            DISP_CHANGE_RESTART => eprintln!("The computer must be restarted"),
+            DISP_CHANGE_SUCCESSFUL => continue,
+            DISP_CHANGE_RESTART => {
+                reboot_required = true;
+                continue;
+            }
             _ => {
                 return Err(map_disp_change_to_string(change_display_settings_ex_result));
             }
@@ -346,10 +356,16 @@ pub unsafe fn set_monitors_to_position(position: &MonitorPosition) -> Result<(),
     );
 
     match change_display_settings_ex_result {
-        DISP_CHANGE_SUCCESSFUL => return Ok(()),
+        DISP_CHANGE_SUCCESSFUL => {
+            return Ok(SetPositionResponse {
+                reboot_required: reboot_required,
+            })
+        }
         DISP_CHANGE_RESTART => {
-            eprintln!("The computer must be restarted");
-            return Ok(());
+            reboot_required = true;
+            return Ok(SetPositionResponse {
+                reboot_required: reboot_required,
+            });
         }
         _ => {
             return Err(map_disp_change_to_string(change_display_settings_ex_result));

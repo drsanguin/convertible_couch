@@ -27,7 +27,11 @@ fn main() {
             display::set_monitors_to_position(&new_primary_monitor_current_position);
 
         match set_monitors_to_position_result {
-            Ok(()) => (),
+            Ok(response) => {
+                if response.reboot_required {
+                    println!("The settings change was successful but the computer must be restarted for the graphics mode to work.");
+                }
+            }
             Err(message) => eprint!("Failed because of {0}", message),
         }
     }
