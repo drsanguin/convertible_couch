@@ -27,193 +27,192 @@ pub struct MonitorPosition {
 }
 
 pub unsafe fn get_primary_monitor_name() -> Result<String, String> {
-    let mut display_adapter_index = 0;
+    let mut display_adapter_index: i32 = -1;
     let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
     let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
 
     loop {
+        display_adapter_index += 1;
+
         let mut display_adapter = DISPLAY_DEVICEW::default();
         display_adapter.cb = size_of_display_devicew;
 
         let is_success_display_adapter_as_win32_bool = EnumDisplayDevicesW(
             PCWSTR::null(),
-            display_adapter_index,
+            u32::try_from(display_adapter_index).unwrap(),
             &mut display_adapter,
             EDD_GET_DEVICE_INTERFACE_NAME,
         );
         let is_success_display_adapter = is_success_display_adapter_as_win32_bool.as_bool();
 
-        if is_success_display_adapter {
-            let mut display_device = DISPLAY_DEVICEW::default();
-            display_device.cb = size_of_display_devicew;
-
-            let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
-            let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
-
-            let is_success_display_device_as_win32_bool = EnumDisplayDevicesW(
-                display_adapter_device_name,
-                0,
-                &mut display_device,
-                EDD_GET_DEVICE_INTERFACE_NAME,
-            );
-            let is_success_display_device = is_success_display_device_as_win32_bool.as_bool();
-
-            if is_success_display_device {
-                let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
-                let display_adapter_device_name =
-                    PCWSTR::from_raw(display_adapter_device_name_as_ptr);
-
-                let size_of_devmode_as_usize = size_of::<DEVMODEW>();
-                let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
-
-                let mut display_adapter_graphics_mode = DEVMODEW::default();
-                display_adapter_graphics_mode.dmSize = size_of_devmode;
-
-                let has_enum_display_settings_succeded_as_win35_bool = EnumDisplaySettingsW(
-                    display_adapter_device_name,
-                    ENUM_CURRENT_SETTINGS,
-                    &mut display_adapter_graphics_mode,
-                );
-                let has_enum_display_settings_succeded =
-                    has_enum_display_settings_succeded_as_win35_bool.as_bool();
-
-                if has_enum_display_settings_succeded {
-                    if display_adapter_graphics_mode
-                        .Anonymous1
-                        .Anonymous2
-                        .dmPosition
-                        .x
-                        == 0
-                        && display_adapter_graphics_mode
-                            .Anonymous1
-                            .Anonymous2
-                            .dmPosition
-                            .y
-                            == 0
-                    {
-                        let display_device_device_id =
-                            String::from_utf16(&display_device.DeviceID).unwrap();
-                        let display_device_device_id_trimed =
-                            display_device_device_id.trim_end_matches('\0');
-                        let current_monitor_name =
-                            get_monitor_name(display_device_device_id_trimed).unwrap();
-
-                        return Ok(current_monitor_name);
-                    }
-                } else {
-                    eprintln!(
-                        "Failed to enum display settings for display device {0}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
-            } else {
-                eprintln!(
-                    "Failed to retrieve display device informations from the display adapter {0}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
-            }
-        } else {
+        if !is_success_display_adapter {
             break;
         }
 
-        display_adapter_index += 1;
+        let mut display_device = DISPLAY_DEVICEW::default();
+        display_device.cb = size_of_display_devicew;
+
+        let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
+        let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
+
+        let is_success_display_device_as_win32_bool = EnumDisplayDevicesW(
+            display_adapter_device_name,
+            0,
+            &mut display_device,
+            EDD_GET_DEVICE_INTERFACE_NAME,
+        );
+        let is_success_display_device = is_success_display_device_as_win32_bool.as_bool();
+
+        if !is_success_display_device {
+            eprintln!(
+                "Failed to retrieve display device informations from the display adapter {0}",
+                display_adapter_device_name.to_string().unwrap()
+            );
+            continue;
+        }
+
+        let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
+        let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
+
+        let size_of_devmode_as_usize = size_of::<DEVMODEW>();
+        let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
+
+        let mut display_adapter_graphics_mode = DEVMODEW::default();
+        display_adapter_graphics_mode.dmSize = size_of_devmode;
+
+        let has_enum_display_settings_succeded_as_win35_bool = EnumDisplaySettingsW(
+            display_adapter_device_name,
+            ENUM_CURRENT_SETTINGS,
+            &mut display_adapter_graphics_mode,
+        );
+        let has_enum_display_settings_succeded =
+            has_enum_display_settings_succeded_as_win35_bool.as_bool();
+
+        if !has_enum_display_settings_succeded {
+            eprintln!(
+                "Failed to enum display settings for display device {0}",
+                display_adapter_device_name.to_string().unwrap()
+            );
+            continue;
+        }
+
+        if display_adapter_graphics_mode
+            .Anonymous1
+            .Anonymous2
+            .dmPosition
+            .x
+            != 0
+            || display_adapter_graphics_mode
+                .Anonymous1
+                .Anonymous2
+                .dmPosition
+                .y
+                != 0
+        {
+            continue;
+        }
+
+        let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
+        let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
+        let current_monitor_name = get_monitor_name(display_device_device_id_trimed).unwrap();
+
+        return Ok(current_monitor_name);
     }
 
     return Err(String::from("Failed to retrieve the primary monitor"));
 }
 
 pub unsafe fn get_monitor_position(monitor_name: &str) -> Result<MonitorPosition, String> {
-    let mut display_adapter_index = 0;
+    let mut display_adapter_index: i32 = -1;
     let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
     let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
 
     loop {
+        display_adapter_index += 1;
         let mut display_adapter = DISPLAY_DEVICEW::default();
         display_adapter.cb = size_of_display_devicew;
 
         let is_success_display_adapter_as_win32_bool = EnumDisplayDevicesW(
             PCWSTR::null(),
-            display_adapter_index,
+            u32::try_from(display_adapter_index).unwrap(),
             &mut display_adapter,
             EDD_GET_DEVICE_INTERFACE_NAME,
         );
         let is_success_display_adapter = is_success_display_adapter_as_win32_bool.as_bool();
 
-        if is_success_display_adapter {
-            let mut display_device = DISPLAY_DEVICEW::default();
-            display_device.cb = size_of_display_devicew;
-
-            let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
-            let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
-
-            let is_success_display_device_as_win32_bool = EnumDisplayDevicesW(
-                display_adapter_device_name,
-                0,
-                &mut display_device,
-                EDD_GET_DEVICE_INTERFACE_NAME,
-            );
-            let is_success_display_device = is_success_display_device_as_win32_bool.as_bool();
-
-            if is_success_display_device {
-                let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
-                let display_adapter_device_name =
-                    PCWSTR::from_raw(display_adapter_device_name_as_ptr);
-
-                let size_of_devmode_as_usize = size_of::<DEVMODEW>();
-                let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
-
-                let mut display_adapter_graphics_mode = DEVMODEW::default();
-                display_adapter_graphics_mode.dmSize = size_of_devmode;
-
-                let has_enum_display_settings_succeded_as_win35_bool = EnumDisplaySettingsW(
-                    display_adapter_device_name,
-                    ENUM_CURRENT_SETTINGS,
-                    &mut display_adapter_graphics_mode,
-                );
-                let has_enum_display_settings_succeded =
-                    has_enum_display_settings_succeded_as_win35_bool.as_bool();
-
-                if has_enum_display_settings_succeded {
-                    let display_device_device_id =
-                        String::from_utf16(&display_device.DeviceID).unwrap();
-                    let display_device_device_id_trimed =
-                        display_device_device_id.trim_end_matches('\0');
-                    let current_monitor_name =
-                        get_monitor_name(display_device_device_id_trimed).unwrap();
-
-                    if current_monitor_name == monitor_name {
-                        let monitor_position = MonitorPosition {
-                            x: display_adapter_graphics_mode
-                                .Anonymous1
-                                .Anonymous2
-                                .dmPosition
-                                .x,
-                            y: display_adapter_graphics_mode
-                                .Anonymous1
-                                .Anonymous2
-                                .dmPosition
-                                .y,
-                        };
-
-                        return Ok(monitor_position);
-                    }
-                } else {
-                    eprintln!(
-                        "Failed to enum display settings for display device {0}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
-            } else {
-                eprintln!(
-                    "Failed to retrieve display device informations from the display adapter {0}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
-            }
-        } else {
+        if !is_success_display_adapter {
             break;
         }
 
-        display_adapter_index += 1;
+        let mut display_device = DISPLAY_DEVICEW::default();
+        display_device.cb = size_of_display_devicew;
+
+        let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
+        let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
+
+        let is_success_display_device_as_win32_bool = EnumDisplayDevicesW(
+            display_adapter_device_name,
+            0,
+            &mut display_device,
+            EDD_GET_DEVICE_INTERFACE_NAME,
+        );
+        let is_success_display_device = is_success_display_device_as_win32_bool.as_bool();
+
+        if !is_success_display_device {
+            eprintln!(
+                "Failed to retrieve display device informations from the display adapter {0}",
+                display_adapter_device_name.to_string().unwrap()
+            );
+            continue;
+        }
+
+        let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
+        let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
+
+        let size_of_devmode_as_usize = size_of::<DEVMODEW>();
+        let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
+
+        let mut display_adapter_graphics_mode = DEVMODEW::default();
+        display_adapter_graphics_mode.dmSize = size_of_devmode;
+
+        let has_enum_display_settings_succeded_as_win35_bool = EnumDisplaySettingsW(
+            display_adapter_device_name,
+            ENUM_CURRENT_SETTINGS,
+            &mut display_adapter_graphics_mode,
+        );
+        let has_enum_display_settings_succeded =
+            has_enum_display_settings_succeded_as_win35_bool.as_bool();
+
+        if !has_enum_display_settings_succeded {
+            eprintln!(
+                "Failed to enum display settings for display device {0}",
+                display_adapter_device_name.to_string().unwrap()
+            );
+            continue;
+        }
+
+        let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
+        let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
+        let current_monitor_name = get_monitor_name(display_device_device_id_trimed).unwrap();
+
+        if current_monitor_name != monitor_name {
+            continue;
+        }
+
+        let monitor_position = MonitorPosition {
+            x: display_adapter_graphics_mode
+                .Anonymous1
+                .Anonymous2
+                .dmPosition
+                .x,
+            y: display_adapter_graphics_mode
+                .Anonymous1
+                .Anonymous2
+                .dmPosition
+                .y,
+        };
+
+        return Ok(monitor_position);
     }
 
     return Err(format!(
@@ -223,121 +222,119 @@ pub unsafe fn get_monitor_position(monitor_name: &str) -> Result<MonitorPosition
 }
 
 pub unsafe fn set_monitors_to_position(position: &MonitorPosition) -> Result<(), String> {
-    let mut display_adapter_index = 0;
+    let mut display_adapter_index: i32 = -1;
     let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
     let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
 
     loop {
+        display_adapter_index += 1;
+
         let mut display_adapter = DISPLAY_DEVICEW::default();
         display_adapter.cb = size_of_display_devicew;
 
         let is_success_display_adapter_as_win32_bool = EnumDisplayDevicesW(
             PCWSTR::null(),
-            display_adapter_index,
+            u32::try_from(display_adapter_index).unwrap(),
             &mut display_adapter,
             EDD_GET_DEVICE_INTERFACE_NAME,
         );
         let is_success_display_adapter = is_success_display_adapter_as_win32_bool.as_bool();
 
-        if is_success_display_adapter {
-            let mut display_device = DISPLAY_DEVICEW::default();
-            display_device.cb = size_of_display_devicew;
-
-            let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
-            let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
-
-            let is_success_display_device_as_win32_bool = EnumDisplayDevicesW(
-                display_adapter_device_name,
-                0,
-                &mut display_device,
-                EDD_GET_DEVICE_INTERFACE_NAME,
-            );
-            let is_success_display_device = is_success_display_device_as_win32_bool.as_bool();
-
-            if is_success_display_device {
-                let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
-                let display_adapter_device_name =
-                    PCWSTR::from_raw(display_adapter_device_name_as_ptr);
-
-                let size_of_devmode_as_usize = size_of::<DEVMODEW>();
-                let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
-
-                let mut display_adapter_graphics_mode = DEVMODEW::default();
-                display_adapter_graphics_mode.dmSize = size_of_devmode;
-
-                let has_enum_display_settings_succeded_as_win35_bool = EnumDisplaySettingsW(
-                    display_adapter_device_name,
-                    ENUM_CURRENT_SETTINGS,
-                    &mut display_adapter_graphics_mode,
-                );
-                let has_enum_display_settings_succeded =
-                    has_enum_display_settings_succeded_as_win35_bool.as_bool();
-
-                if has_enum_display_settings_succeded {
-                    display_adapter_graphics_mode
-                        .Anonymous1
-                        .Anonymous2
-                        .dmPosition
-                        .x -= position.x;
-                    display_adapter_graphics_mode
-                        .Anonymous1
-                        .Anonymous2
-                        .dmPosition
-                        .y -= position.y;
-
-                    let mut dwflags = CDS_UPDATEREGISTRY | CDS_NORESET;
-
-                    if display_adapter_graphics_mode
-                        .Anonymous1
-                        .Anonymous2
-                        .dmPosition
-                        .x
-                        == 0
-                        && display_adapter_graphics_mode
-                            .Anonymous1
-                            .Anonymous2
-                            .dmPosition
-                            .y
-                            == 0
-                    {
-                        dwflags |= CDS_SET_PRIMARY;
-                    }
-
-                    let change_display_settings_ex_result = ChangeDisplaySettingsExW(
-                        display_adapter_device_name,
-                        Some(&display_adapter_graphics_mode),
-                        HWND::default(),
-                        dwflags,
-                        None,
-                    );
-
-                    match change_display_settings_ex_result {
-                        DISP_CHANGE_SUCCESSFUL => {}
-                        DISP_CHANGE_RESTART => eprintln!("The computer must be restarted"),
-                        _ => {
-                            return Err(map_disp_change_to_string(
-                                change_display_settings_ex_result,
-                            ));
-                        }
-                    }
-                } else {
-                    eprintln!(
-                        "Failed to enum display settings for display device {0}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
-            } else {
-                eprintln!(
-                    "Failed to retrieve display device informations from the display adapter {0}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
-                break;
-            }
-        } else {
+        if !is_success_display_adapter {
             break;
         }
 
-        display_adapter_index += 1;
+        let mut display_device = DISPLAY_DEVICEW::default();
+        display_device.cb = size_of_display_devicew;
+
+        let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
+        let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
+
+        let is_success_display_device_as_win32_bool = EnumDisplayDevicesW(
+            display_adapter_device_name,
+            0,
+            &mut display_device,
+            EDD_GET_DEVICE_INTERFACE_NAME,
+        );
+        let is_success_display_device = is_success_display_device_as_win32_bool.as_bool();
+
+        if !is_success_display_device {
+            eprintln!(
+                "Failed to retrieve display device informations from the display adapter {0}",
+                display_adapter_device_name.to_string().unwrap()
+            );
+            continue;
+        }
+
+        let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
+        let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
+
+        let size_of_devmode_as_usize = size_of::<DEVMODEW>();
+        let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
+
+        let mut display_adapter_graphics_mode = DEVMODEW::default();
+        display_adapter_graphics_mode.dmSize = size_of_devmode;
+
+        let has_enum_display_settings_succeded_as_win35_bool = EnumDisplaySettingsW(
+            display_adapter_device_name,
+            ENUM_CURRENT_SETTINGS,
+            &mut display_adapter_graphics_mode,
+        );
+        let has_enum_display_settings_succeded =
+            has_enum_display_settings_succeded_as_win35_bool.as_bool();
+
+        if !has_enum_display_settings_succeded {
+            eprintln!(
+                "Failed to enum display settings for display device {0}",
+                display_adapter_device_name.to_string().unwrap()
+            );
+            continue;
+        }
+
+        display_adapter_graphics_mode
+            .Anonymous1
+            .Anonymous2
+            .dmPosition
+            .x -= position.x;
+        display_adapter_graphics_mode
+            .Anonymous1
+            .Anonymous2
+            .dmPosition
+            .y -= position.y;
+
+        let mut dwflags = CDS_UPDATEREGISTRY | CDS_NORESET;
+
+        if display_adapter_graphics_mode
+            .Anonymous1
+            .Anonymous2
+            .dmPosition
+            .x
+            == 0
+            && display_adapter_graphics_mode
+                .Anonymous1
+                .Anonymous2
+                .dmPosition
+                .y
+                == 0
+        {
+            dwflags |= CDS_SET_PRIMARY;
+        }
+
+        let change_display_settings_ex_result = ChangeDisplaySettingsExW(
+            display_adapter_device_name,
+            Some(&display_adapter_graphics_mode),
+            HWND::default(),
+            dwflags,
+            None,
+        );
+
+        match change_display_settings_ex_result {
+            DISP_CHANGE_SUCCESSFUL => {}
+            DISP_CHANGE_RESTART => eprintln!("The computer must be restarted"),
+            _ => {
+                return Err(map_disp_change_to_string(change_display_settings_ex_result));
+            }
+        }
     }
 
     let change_display_settings_ex_result = ChangeDisplaySettingsExW(
@@ -421,13 +418,13 @@ unsafe fn get_monitor_name(monitor_device_path: &str) -> Result<String, String> 
                                 let current_monitor_device_path = String::from_utf16(&displayconfig_target_device_name.monitorDevicePath).unwrap();
                                 let current_monitor_device_path_trimed = current_monitor_device_path.trim_end_matches('\0');
 
-                                if current_monitor_device_path_trimed == monitor_device_path {
-                                    let monitor_friendly_device_name_trimed = monitor_friendly_device_name.trim_end_matches('\0');
-
-                                    return Ok(String::from(monitor_friendly_device_name_trimed));
-                                } else {
+                                if current_monitor_device_path_trimed != monitor_device_path {
                                     continue;
                                 }
+
+                                let monitor_friendly_device_name_trimed = monitor_friendly_device_name.trim_end_matches('\0');
+
+                                return Ok(String::from(monitor_friendly_device_name_trimed));
                             },
                             error => return Err(format!("Failed to retrieve display configuration information about the device: {0}", error.0))
                         }
