@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies.windows]
-windows = "0.51.1"
+windows = "0.52.0"
 features = [
     "Win32_Devices_Display",
     "Win32_Foundation",
