@@ -41,13 +41,14 @@ pub unsafe fn get_primary_monitor_name() -> Result<String, String> {
         let mut display_adapter = DISPLAY_DEVICEW::default();
         display_adapter.cb = size_of_display_devicew;
 
-        let is_success_display_adapter_as_win32_bool = EnumDisplayDevicesW(
+        let idevnum = u32::try_from(display_adapter_index).unwrap();
+        let is_success_display_adapter = EnumDisplayDevicesW(
             PCWSTR::null(),
-            u32::try_from(display_adapter_index).unwrap(),
+            idevnum,
             &mut display_adapter,
             EDD_GET_DEVICE_INTERFACE_NAME,
-        );
-        let is_success_display_adapter = is_success_display_adapter_as_win32_bool.as_bool();
+        )
+        .as_bool();
 
         if !is_success_display_adapter {
             break;
@@ -59,13 +60,13 @@ pub unsafe fn get_primary_monitor_name() -> Result<String, String> {
         let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
         let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
 
-        let is_success_display_device_as_win32_bool = EnumDisplayDevicesW(
+        let is_success_display_device = EnumDisplayDevicesW(
             display_adapter_device_name,
             0,
             &mut display_device,
             EDD_GET_DEVICE_INTERFACE_NAME,
-        );
-        let is_success_display_device = is_success_display_device_as_win32_bool.as_bool();
+        )
+        .as_bool();
 
         if !is_success_display_device {
             eprintln!(
@@ -84,13 +85,12 @@ pub unsafe fn get_primary_monitor_name() -> Result<String, String> {
         let mut display_adapter_graphics_mode = DEVMODEW::default();
         display_adapter_graphics_mode.dmSize = size_of_devmode;
 
-        let has_enum_display_settings_succeded_as_win35_bool = EnumDisplaySettingsW(
+        let has_enum_display_settings_succeded = EnumDisplaySettingsW(
             display_adapter_device_name,
             ENUM_CURRENT_SETTINGS,
             &mut display_adapter_graphics_mode,
-        );
-        let has_enum_display_settings_succeded =
-            has_enum_display_settings_succeded_as_win35_bool.as_bool();
+        )
+        .as_bool();
 
         if !has_enum_display_settings_succeded {
             eprintln!(
@@ -124,13 +124,14 @@ pub unsafe fn get_monitor_position(monitor_name: &str) -> Result<MonitorPosition
         let mut display_adapter = DISPLAY_DEVICEW::default();
         display_adapter.cb = size_of_display_devicew;
 
-        let is_success_display_adapter_as_win32_bool = EnumDisplayDevicesW(
+        let idevnum = u32::try_from(display_adapter_index).unwrap();
+        let is_success_display_adapter = EnumDisplayDevicesW(
             PCWSTR::null(),
-            u32::try_from(display_adapter_index).unwrap(),
+            idevnum,
             &mut display_adapter,
             EDD_GET_DEVICE_INTERFACE_NAME,
-        );
-        let is_success_display_adapter = is_success_display_adapter_as_win32_bool.as_bool();
+        )
+        .as_bool();
 
         if !is_success_display_adapter {
             break;
@@ -142,13 +143,13 @@ pub unsafe fn get_monitor_position(monitor_name: &str) -> Result<MonitorPosition
         let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
         let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
 
-        let is_success_display_device_as_win32_bool = EnumDisplayDevicesW(
+        let is_success_display_device = EnumDisplayDevicesW(
             display_adapter_device_name,
             0,
             &mut display_device,
             EDD_GET_DEVICE_INTERFACE_NAME,
-        );
-        let is_success_display_device = is_success_display_device_as_win32_bool.as_bool();
+        )
+        .as_bool();
 
         if !is_success_display_device {
             eprintln!(
@@ -167,13 +168,12 @@ pub unsafe fn get_monitor_position(monitor_name: &str) -> Result<MonitorPosition
         let mut display_adapter_graphics_mode = DEVMODEW::default();
         display_adapter_graphics_mode.dmSize = size_of_devmode;
 
-        let has_enum_display_settings_succeded_as_win35_bool = EnumDisplaySettingsW(
+        let has_enum_display_settings_succeded = EnumDisplaySettingsW(
             display_adapter_device_name,
             ENUM_CURRENT_SETTINGS,
             &mut display_adapter_graphics_mode,
-        );
-        let has_enum_display_settings_succeded =
-            has_enum_display_settings_succeded_as_win35_bool.as_bool();
+        )
+        .as_bool();
 
         if !has_enum_display_settings_succeded {
             eprintln!(
@@ -227,13 +227,14 @@ pub unsafe fn set_monitors_to_position(
         let mut display_adapter = DISPLAY_DEVICEW::default();
         display_adapter.cb = size_of_display_devicew;
 
-        let is_success_display_adapter_as_win32_bool = EnumDisplayDevicesW(
+        let idevnum = u32::try_from(display_adapter_index).unwrap();
+        let is_success_display_adapter = EnumDisplayDevicesW(
             PCWSTR::null(),
-            u32::try_from(display_adapter_index).unwrap(),
+            idevnum,
             &mut display_adapter,
             EDD_GET_DEVICE_INTERFACE_NAME,
-        );
-        let is_success_display_adapter = is_success_display_adapter_as_win32_bool.as_bool();
+        )
+        .as_bool();
 
         if !is_success_display_adapter {
             break;
@@ -245,13 +246,13 @@ pub unsafe fn set_monitors_to_position(
         let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
         let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
 
-        let is_success_display_device_as_win32_bool = EnumDisplayDevicesW(
+        let is_success_display_device = EnumDisplayDevicesW(
             display_adapter_device_name,
             0,
             &mut display_device,
             EDD_GET_DEVICE_INTERFACE_NAME,
-        );
-        let is_success_display_device = is_success_display_device_as_win32_bool.as_bool();
+        )
+        .as_bool();
 
         if !is_success_display_device {
             eprintln!(
@@ -270,13 +271,12 @@ pub unsafe fn set_monitors_to_position(
         let mut display_adapter_graphics_mode = DEVMODEW::default();
         display_adapter_graphics_mode.dmSize = size_of_devmode;
 
-        let has_enum_display_settings_succeded_as_win35_bool = EnumDisplaySettingsW(
+        let has_enum_display_settings_succeded = EnumDisplaySettingsW(
             display_adapter_device_name,
             ENUM_CURRENT_SETTINGS,
             &mut display_adapter_graphics_mode,
-        );
-        let has_enum_display_settings_succeded =
-            has_enum_display_settings_succeded_as_win35_bool.as_bool();
+        )
+        .as_bool();
 
         if !has_enum_display_settings_succeded {
             eprintln!(
