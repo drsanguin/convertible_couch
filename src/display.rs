@@ -21,16 +21,32 @@ use windows::{
     },
 };
 
-pub struct MonitorPosition {
+pub struct SwapPrimaryMonitorsResponse {
+    pub reboot_required: bool,
+}
+
+pub unsafe fn swap_primary_monitors(
+    desktop_monitor_name: &str,
+    couch_monitor_name: &str,
+) -> Result<SwapPrimaryMonitorsResponse, String> {
+    let primary_monitor_name = get_primary_monitor_name().unwrap();
+    let new_primary_monitor_name = if primary_monitor_name == desktop_monitor_name {
+        couch_monitor_name
+    } else {
+        desktop_monitor_name
+    };
+    let new_primary_monitor_current_position =
+        get_monitor_position(&new_primary_monitor_name).unwrap();
+
+    return set_monitors_to_position(&new_primary_monitor_current_position);
+}
+
+struct MonitorPosition {
     x: i32,
     y: i32,
 }
 
-pub struct SetPositionResponse {
-    pub reboot_required: bool,
-}
-
-pub unsafe fn get_primary_monitor_name() -> Result<String, String> {
+unsafe fn get_primary_monitor_name() -> Result<String, String> {
     let mut display_adapter_index: i32 = -1;
     let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
     let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -114,7 +130,7 @@ pub unsafe fn get_primary_monitor_name() -> Result<String, String> {
     return Err(String::from("Failed to retrieve the primary monitor"));
 }
 
-pub unsafe fn get_monitor_position(monitor_name: &str) -> Result<MonitorPosition, String> {
+unsafe fn get_monitor_position(monitor_name: &str) -> Result<MonitorPosition, String> {
     let mut display_adapter_index: i32 = -1;
     let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
     let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -213,9 +229,9 @@ pub unsafe fn get_monitor_position(monitor_name: &str) -> Result<MonitorPosition
     ));
 }
 
-pub unsafe fn set_monitors_to_position(
+unsafe fn set_monitors_to_position(
     position: &MonitorPosition,
-) -> Result<SetPositionResponse, String> {
+) -> Result<SwapPrimaryMonitorsResponse, String> {
     let mut display_adapter_index: i32 = -1;
     let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
     let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -333,13 +349,13 @@ pub unsafe fn set_monitors_to_position(
 
     match change_display_settings_ex_result {
         DISP_CHANGE_SUCCESSFUL => {
-            return Ok(SetPositionResponse {
+            return Ok(SwapPrimaryMonitorsResponse {
                 reboot_required: reboot_required,
             })
         }
         DISP_CHANGE_RESTART => {
             reboot_required = true;
-            return Ok(SetPositionResponse {
+            return Ok(SwapPrimaryMonitorsResponse {
                 reboot_required: reboot_required,
             });
         }

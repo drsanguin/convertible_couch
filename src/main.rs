@@ -1,4 +1,5 @@
 use clap::Parser;
+use display::swap_primary_monitors;
 
 mod display;
 
@@ -15,16 +16,8 @@ fn main() {
     let args: Args = Args::parse();
 
     unsafe {
-        let primary_monitor_name = display::get_primary_monitor_name().unwrap();
-        let new_primary_monitor_name = if primary_monitor_name == args.desktop_monitor_name {
-            args.couch_monitor_name
-        } else {
-            args.desktop_monitor_name
-        };
-        let new_primary_monitor_current_position =
-            display::get_monitor_position(&new_primary_monitor_name).unwrap();
         let set_monitors_to_position_result =
-            display::set_monitors_to_position(&new_primary_monitor_current_position);
+            swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name);
 
         match set_monitors_to_position_result {
             Ok(response) => {
