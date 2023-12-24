@@ -21,6 +21,17 @@ use windows::{
     },
 };
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    #[arg(short, long)]
+    desktop_monitor_name: String,
+    #[arg(short, long)]
+    couch_monitor_name: String,
+}
+
 struct MonitorPosition {
     x: i32,
     y: i32,
@@ -33,18 +44,17 @@ impl fmt::Display for MonitorPosition {
 }
 
 fn main() {
-    let desktop_monitor_name = "LG ULTRAWIDE";
-    let couch_monitor_name = "M227WD";
+    let args: Args = Args::parse();
 
     unsafe {
         let primary_monitor_name = get_primary_monitor_name().unwrap();
-        let new_primary_monitor_name = if primary_monitor_name == desktop_monitor_name {
-            couch_monitor_name
+        let new_primary_monitor_name = if primary_monitor_name == args.desktop_monitor_name {
+            args.couch_monitor_name
         } else {
-            desktop_monitor_name
+            args.desktop_monitor_name
         };
         let new_primary_monitor_current_position =
-            get_monitor_position(new_primary_monitor_name).unwrap();
+            get_monitor_position(&new_primary_monitor_name).unwrap();
         let set_monitors_to_position_result =
             set_monitors_to_position(new_primary_monitor_current_position);
 
