@@ -100,19 +100,7 @@ pub unsafe fn get_primary_monitor_name() -> Result<String, String> {
             continue;
         }
 
-        if display_adapter_graphics_mode
-            .Anonymous1
-            .Anonymous2
-            .dmPosition
-            .x
-            != 0
-            || display_adapter_graphics_mode
-                .Anonymous1
-                .Anonymous2
-                .dmPosition
-                .y
-                != 0
-        {
+        if !is_positioned_at_origin(display_adapter_graphics_mode) {
             continue;
         }
 
@@ -311,19 +299,7 @@ pub unsafe fn set_monitors_to_position(
 
         let mut dwflags = CDS_UPDATEREGISTRY | CDS_NORESET;
 
-        if display_adapter_graphics_mode
-            .Anonymous1
-            .Anonymous2
-            .dmPosition
-            .x
-            == 0
-            && display_adapter_graphics_mode
-                .Anonymous1
-                .Anonymous2
-                .dmPosition
-                .y
-                == 0
-        {
+        if is_positioned_at_origin(display_adapter_graphics_mode) {
             dwflags |= CDS_SET_PRIMARY;
         }
 
@@ -371,6 +347,21 @@ pub unsafe fn set_monitors_to_position(
             return Err(map_disp_change_to_string(change_display_settings_ex_result));
         }
     }
+}
+
+unsafe fn is_positioned_at_origin(display_adapter_graphics_mode: DEVMODEW) -> bool {
+    display_adapter_graphics_mode
+        .Anonymous1
+        .Anonymous2
+        .dmPosition
+        .x
+        == 0
+        && display_adapter_graphics_mode
+            .Anonymous1
+            .Anonymous2
+            .dmPosition
+            .y
+            == 0
 }
 
 impl fmt::Display for MonitorPosition {
