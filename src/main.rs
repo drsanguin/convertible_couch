@@ -25,6 +25,11 @@ fn main() {
 
         match set_monitors_to_position_result {
             Ok(response) => {
+                match response.new_primary {
+                    Some(new_primary) => println!("Primary monitor set to {0}", new_primary),
+                    None => eprintln!("Primary monitor has not been changed for an unknow reason"),
+                }
+
                 if response.reboot_required {
                     println!("The settings change was successful but the computer must be restarted for the graphics mode to work.");
                 }

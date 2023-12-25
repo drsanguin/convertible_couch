@@ -26,6 +26,7 @@ pub use win32_graphics_gdi::*;
 
 pub struct SwapPrimaryMonitorsResponse {
     pub reboot_required: bool,
+    pub new_primary: Option<String>,
 }
 
 pub struct DisplaySettings<
@@ -279,6 +280,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
         let mut reboot_required = false;
+        let mut new_primary = None;
 
         loop {
             display_adapter_index += 1;
@@ -365,7 +367,16 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             let mut dwflags = CDS_UPDATEREGISTRY | CDS_NORESET;
 
             if self.is_positioned_at_origin(display_adapter_graphics_mode) {
+                let display_device_device_id =
+                    String::from_utf16(&display_device.DeviceID).unwrap();
+                let display_device_device_id_trimed =
+                    display_device_device_id.trim_end_matches('\0');
+
                 dwflags |= CDS_SET_PRIMARY;
+                new_primary = Some(
+                    self.get_monitor_name(display_device_device_id_trimed)
+                        .unwrap(),
+                )
             }
 
             let change_display_settings_ex_result =
@@ -401,13 +412,15 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
         match change_display_settings_ex_result {
             DISP_CHANGE_SUCCESSFUL => {
                 return Ok(SwapPrimaryMonitorsResponse {
-                    reboot_required: reboot_required,
+                    reboot_required,
+                    new_primary,
                 })
             }
             DISP_CHANGE_RESTART => {
                 reboot_required = true;
                 return Ok(SwapPrimaryMonitorsResponse {
-                    reboot_required: reboot_required,
+                    reboot_required,
+                    new_primary,
                 });
             }
             _ => {
