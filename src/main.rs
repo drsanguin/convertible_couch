@@ -1,7 +1,7 @@
 use clap::Parser;
-use display::swap_primary_monitors;
-
-mod display;
+use convertible_couch::display_settings::{
+    DisplaySettings, Win32DevicesDisplayImpl, Win32GraphicsGdiImpl,
+};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -15,9 +15,13 @@ struct Args {
 fn main() {
     let args: Args = Args::parse();
 
+    let win32_devices_display = Win32DevicesDisplayImpl;
+    let win32_graphics_gdi = Win32GraphicsGdiImpl;
+    let display_settings = DisplaySettings::new(win32_devices_display, win32_graphics_gdi);
+
     unsafe {
-        let set_monitors_to_position_result =
-            swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name);
+        let set_monitors_to_position_result = display_settings
+            .swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name);
 
         match set_monitors_to_position_result {
             Ok(response) => {
