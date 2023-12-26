@@ -123,9 +123,6 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 continue;
             }
 
-            let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
-            let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
-
             let size_of_devmode_as_usize = size_of::<DEVMODEW>();
             let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
 
@@ -213,9 +210,6 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 );
                 continue;
             }
-
-            let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
-            let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
 
             let size_of_devmode_as_usize = size_of::<DEVMODEW>();
             let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
@@ -326,9 +320,6 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 );
                 continue;
             }
-
-            let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
-            let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
 
             let size_of_devmode_as_usize = size_of::<DEVMODEW>();
             let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
