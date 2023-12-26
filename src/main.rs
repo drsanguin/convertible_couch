@@ -1,7 +1,9 @@
 use clap::Parser;
-use convertible_couch::display_settings::{
-    DisplaySettings, Win32DevicesDisplayImpl, Win32GraphicsGdiImpl,
+use convertible_couch::{
+    display_settings::{DisplaySettings, Win32DevicesDisplayImpl, Win32GraphicsGdiImpl},
+    log::{configure_logger, LogLevel},
 };
+use log::{error, info, warn};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -10,10 +12,14 @@ struct Args {
     desktop_monitor_name: String,
     #[arg(short, long)]
     couch_monitor_name: String,
+    #[arg(short, long, value_enum, default_value_t = LogLevel::Info)]
+    log_level: LogLevel,
 }
 
 fn main() {
     let args: Args = Args::parse();
+
+    configure_logger(args.log_level);
 
     let win32_devices_display = Win32DevicesDisplayImpl;
     let win32_graphics_gdi = Win32GraphicsGdiImpl;
@@ -26,15 +32,15 @@ fn main() {
         match set_monitors_to_position_result {
             Ok(response) => {
                 match response.new_primary {
-                    Some(new_primary) => println!("Primary monitor set to {0}", new_primary),
-                    None => eprintln!("Primary monitor has not been changed for an unknow reason"),
+                    Some(new_primary) => info!("Primary monitor set to {0}", new_primary),
+                    None => error!("Primary monitor has not been changed for an unknow reason"),
                 }
 
                 if response.reboot_required {
-                    println!("The settings change was successful but the computer must be restarted for the graphics mode to work.");
+                    warn!("The settings change was successful but the computer must be restarted for the graphics mode to work.");
                 }
             }
-            Err(message) => eprint!("Failed because of {0}", message),
+            Err(message) => error!("Failed because of {0}", message),
         }
     }
 }

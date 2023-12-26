@@ -1,6 +1,7 @@
 pub mod win32_devices_display;
 pub mod win32_graphics_gdi;
 
+use log::warn;
 use std::mem::size_of;
 use windows::{
     core::PCWSTR,
@@ -116,7 +117,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 .as_bool();
 
             if !is_success_display_device {
-                eprintln!(
+                warn!(
                     "Failed to retrieve display device informations from the display adapter {0}",
                     display_adapter_device_name.to_string().unwrap()
                 );
@@ -139,7 +140,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                eprintln!(
+                warn!(
                     "Failed to enum display settings for display device {0}",
                     display_adapter_device_name.to_string().unwrap()
                 );
@@ -204,7 +205,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 .as_bool();
 
             if !is_success_display_device {
-                eprintln!(
+                warn!(
                     "Failed to retrieve display device informations from the display adapter {0}",
                     display_adapter_device_name.to_string().unwrap()
                 );
@@ -227,7 +228,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                eprintln!(
+                warn!(
                     "Failed to enum display settings for display device {0}",
                     display_adapter_device_name.to_string().unwrap()
                 );
@@ -314,7 +315,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 .as_bool();
 
             if !is_success_display_device {
-                eprintln!(
+                warn!(
                     "Failed to retrieve display device informations from the display adapter {0}",
                     display_adapter_device_name.to_string().unwrap()
                 );
@@ -337,7 +338,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                eprintln!(
+                warn!(
                     "Failed to enum display settings for display device {0}",
                     display_adapter_device_name.to_string().unwrap()
                 );
