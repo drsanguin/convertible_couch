@@ -12,8 +12,8 @@ use windows::{
         },
         Foundation::{BOOL, HWND},
         Graphics::Gdi::{
-            CDS_TYPE, DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE, DISP_CHANGE_SUCCESSFUL,
-            ENUM_CURRENT_SETTINGS, ENUM_DISPLAY_SETTINGS_MODE,
+            CDS_SET_PRIMARY, CDS_TYPE, DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE, DISP_CHANGE_RESTART,
+            DISP_CHANGE_SUCCESSFUL, ENUM_CURRENT_SETTINGS, ENUM_DISPLAY_SETTINGS_MODE,
         },
         UI::WindowsAndMessaging::EDD_GET_DEVICE_INTERFACE_NAME,
     },
@@ -87,16 +87,18 @@ impl FuzzedMonitor {
 
 pub struct ComputerFuzzer {
     video_outputs: Vec<FuzzedVideoOutput>,
+    reboot_required: bool,
 }
 
 impl ComputerFuzzer {
     pub fn new() -> Self {
         Self {
             video_outputs: vec![],
+            reboot_required: false,
         }
     }
 
-    pub fn with_two_monitors_or_more(&mut self) -> &ComputerFuzzer {
+    pub fn with_two_monitors_or_more(&mut self) -> &mut ComputerFuzzer {
         let monitor1 = FuzzedMonitor::new(1, "LG ULTRAWIDE", true, 2560, 1080);
         let monitor2 = FuzzedMonitor::new(2, "LG TV SSCR2", false, 4096, 2160);
         let monitor3 = FuzzedMonitor::new(3, "M227WD", false, 1920, 1080);
@@ -143,6 +145,7 @@ impl ComputerFuzzer {
 
         let win32_graphics_gdi = FuzzedWin32GraphicsGdi {
             video_outputs: self.video_outputs.clone(),
+            reboot_required: self.reboot_required,
         };
 
         return FuzzedComputer {
@@ -151,6 +154,12 @@ impl ComputerFuzzer {
             win32_devices_display,
             win32_graphics_gdi,
         };
+    }
+
+    pub fn which_requires_reboot(&mut self) -> &mut ComputerFuzzer {
+        self.reboot_required = true;
+
+        return self;
     }
 }
 
@@ -262,6 +271,7 @@ impl Win32DevicesDisplay for FuzzedWin32DevicesDisplay {
 
 pub struct FuzzedWin32GraphicsGdi {
     video_outputs: Vec<FuzzedVideoOutput>,
+    reboot_required: bool,
 }
 
 impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
@@ -273,6 +283,10 @@ impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
         _dwflags: CDS_TYPE,
         _lparam: Option<*const c_void>,
     ) -> DISP_CHANGE {
+        if _dwflags & CDS_SET_PRIMARY == CDS_TYPE::default() && self.reboot_required {
+            return DISP_CHANGE_RESTART;
+        }
+
         return DISP_CHANGE_SUCCESSFUL;
     }
 
