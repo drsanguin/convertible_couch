@@ -40,22 +40,28 @@ impl ComputerFuzzer {
         let secondary_monitor = self
             .video_outputs
             .iter()
-            .filter(|x| x.monitor.is_some())
-            .map(|x| x.monitor.as_ref().unwrap())
-            .find(|x| !x.primary)
-            .unwrap()
-            .name
-            .clone();
+            .filter_map(|x| match &x.monitor {
+                Some(monitor) => match monitor.primary {
+                    false => Some(monitor.name.clone()),
+                    _ => None,
+                },
+                None => None,
+            })
+            .nth(0)
+            .unwrap();
 
         let primary_monitor = self
             .video_outputs
             .iter()
-            .filter(|x| x.monitor.is_some())
-            .map(|x| x.monitor.as_ref().unwrap())
-            .find(|x| x.primary)
-            .unwrap()
-            .name
-            .clone();
+            .filter_map(|x| match &x.monitor {
+                Some(monitor) => match monitor.primary {
+                    true => Some(monitor.name.clone()),
+                    _ => None,
+                },
+                None => None,
+            })
+            .nth(0)
+            .unwrap();
 
         assert_ne!(
             secondary_monitor, primary_monitor,
