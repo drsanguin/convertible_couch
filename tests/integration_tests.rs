@@ -1,4 +1,7 @@
-use common::Fuzzer;
+use crate::common::{assertions::assert_that_expected_monitor_has_been_set, fuzzing::Fuzzer};
+use common::assertions::{
+    fail_because_an_error_occured, fail_because_primary_monitor_has_not_changed,
+};
 use convertible_couch::display_settings::DisplaySettings;
 
 mod common;
@@ -24,27 +27,20 @@ fn it_should_swap_the_primary_monitors_of_computer() {
         // Assert
         match result {
             Ok(response) => match response.new_primary {
-                Some(new_primary) => {
-                    assert_eq!(
-                        new_primary, computer.secondary_monitor,
-                        "Expected primary monitor to have been set to {} but it has been set to {}",
-                        computer.secondary_monitor, new_primary
+                Some(actual_primary) => {
+                    assert_that_expected_monitor_has_been_set(
+                        &actual_primary,
+                        &computer.secondary_monitor,
                     );
 
-                    assert_eq!(response.reboot_required, false, "Reboot has been required whereas it was not expected")
-                },
-                None => assert!(
-                    false,
-                    "Expected primary monitor to have been set to {} but it has not been changed",
-                    computer.secondary_monitor
-                ),
+                    assert_eq!(
+                        response.reboot_required, false,
+                        "Reboot has been required whereas it was not expected"
+                    )
+                }
+                None => fail_because_primary_monitor_has_not_changed(&computer.secondary_monitor),
             },
-            Err(reason) => assert!(
-                false,
-                "Expected primary monitor to have been set to {} but if failed because of the error {}",
-                    computer.secondary_monitor,
-                    reason
-            ),
+            Err(reason) => fail_because_an_error_occured(reason, &computer.secondary_monitor),
         }
     }
 }
@@ -71,27 +67,20 @@ fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_requi
         // Assert
         match result {
             Ok(response) => match response.new_primary {
-                Some(new_primary) => {
-                    assert_eq!(
-                        new_primary, computer.secondary_monitor,
-                        "Expected primary monitor to have been set to {} but it has been set to {}",
-                        computer.secondary_monitor, new_primary
+                Some(actual_primary) => {
+                    assert_that_expected_monitor_has_been_set(
+                        &actual_primary,
+                        &computer.secondary_monitor,
                     );
 
-                    assert_eq!(response.reboot_required, true, "Reboot has not been required whereas it was expected")
-                },
-                None => assert!(
-                    false,
-                    "Expected primary monitor to have been set to {} but it has not been changed",
-                    computer.secondary_monitor
-                ),
+                    assert_eq!(
+                        response.reboot_required, true,
+                        "Reboot has not been required whereas it was expected"
+                    )
+                }
+                None => fail_because_primary_monitor_has_not_changed(&computer.secondary_monitor),
             },
-            Err(reason) => assert!(
-                false,
-                "Expected primary monitor to have been set to {} but if failed because of the error {}",
-                    computer.secondary_monitor,
-                    reason
-            ),
+            Err(reason) => fail_because_an_error_occured(reason, &computer.secondary_monitor),
         }
     }
 }
@@ -120,7 +109,14 @@ fn it_should_validate_monitors() {
         match result {
             Ok(_) => assert!(false, "Expected system to invalidate the desktop & couch monitor names but actually validate them"),
             Err(reason) => assert!(
-                reason == format!("Desktop and/or couch monitors are invalid, possible values are [{}]", computer.monitors.iter().map(|x| x.clone()).collect::<Vec<String>>().join(", ")),
+                reason == format!(
+                    "Desktop and/or couch monitors are invalid, possible values are [{}]",
+                    computer
+                        .monitors
+                        .iter()
+                        .map(|x| x.clone())
+                        .collect::<Vec<String>>()
+                        .join(", ")),
                 "Expected swap to fail because monitors are invalid but failed because of '{}'",
                     reason
             ),
