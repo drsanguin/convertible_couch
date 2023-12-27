@@ -38,7 +38,7 @@ impl Win32DevicesDisplay for Win32DevicesDisplayImpl {
         &self,
         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
     ) -> i32 {
-        return DisplayConfigGetDeviceInfo(requestpacket);
+        DisplayConfigGetDeviceInfo(requestpacket)
     }
 
     unsafe fn get_display_config_buffer_sizes(
@@ -47,7 +47,7 @@ impl Win32DevicesDisplay for Win32DevicesDisplayImpl {
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
     ) -> Result<(), Error> {
-        return GetDisplayConfigBufferSizes(flags, numpatharrayelements, nummodeinfoarrayelements);
+        GetDisplayConfigBufferSizes(flags, numpatharrayelements, nummodeinfoarrayelements)
     }
 
     unsafe fn query_display_config(
@@ -59,13 +59,13 @@ impl Win32DevicesDisplay for Win32DevicesDisplayImpl {
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> Result<(), Error> {
-        return QueryDisplayConfig(
+        QueryDisplayConfig(
             flags,
             numpatharrayelements,
             patharray,
             nummodeinfoarrayelements,
             modeinfoarray,
             currenttopologyid,
-        );
+        )
     }
 }

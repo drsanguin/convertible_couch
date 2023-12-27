@@ -44,23 +44,23 @@ impl Win32DevicesDisplay for FuzzedWin32DevicesDisplay {
                 return false;
             }
 
-            return match &x.monitor {
+            match &x.monitor {
                 Some(monitor) => monitor.config_mode_info_id == config_mode_info_id,
                 None => false,
-            };
+            }
         });
 
-        return match video_output_result {
+        match video_output_result {
             Some(video_output) => {
                 let monitor = video_output.monitor.as_ref().unwrap();
 
                 (*request_packet).monitorDevicePath = encode_utf16::<128>(&monitor.id);
                 (*request_packet).monitorFriendlyDeviceName = encode_utf16::<64>(&monitor.name);
 
-                return 0;
+                0
             }
             None => 1,
-        };
+        }
     }
 
     unsafe fn get_display_config_buffer_sizes(
@@ -84,7 +84,7 @@ impl Win32DevicesDisplay for FuzzedWin32DevicesDisplay {
         *numpatharrayelements = n_monitors_as_u32;
         *nummodeinfoarrayelements = n_monitors_as_u32 * 2;
 
-        return Ok(());
+        Ok(())
     }
 
     unsafe fn query_display_config(
@@ -102,11 +102,11 @@ impl Win32DevicesDisplay for FuzzedWin32DevicesDisplay {
 
         let mode_informations_size = usize::try_from(*nummodeinfoarrayelements).unwrap();
 
-        for i in 0..mode_informations_size {
+        (0..mode_informations_size).for_each(|i| {
             let mode_information = modeinfoarray.add(i);
 
             if i % 2 != 0 {
-                continue;
+                return;
             }
 
             (*mode_information).infoType = DISPLAYCONFIG_MODE_INFO_TYPE_TARGET;
@@ -115,8 +115,8 @@ impl Win32DevicesDisplay for FuzzedWin32DevicesDisplay {
                 .as_ref()
                 .unwrap()
                 .config_mode_info_id;
-        }
+        });
 
-        return Ok(());
+        Ok(())
     }
 }

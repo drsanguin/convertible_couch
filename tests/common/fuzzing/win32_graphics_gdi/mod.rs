@@ -35,7 +35,7 @@ impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
             return DISP_CHANGE_RESTART;
         }
 
-        return DISP_CHANGE_SUCCESSFUL;
+        DISP_CHANGE_SUCCESSFUL
     }
 
     unsafe fn enum_display_devices_w(
@@ -60,7 +60,7 @@ impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
 
             (*lpdisplaydevice).DeviceName = device_name;
 
-            return BOOL(1);
+            BOOL(1)
         }
         // Iterating though monitors
         else {
@@ -71,19 +71,19 @@ impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
             let video_output_id = String::from_utf16(&lpdevice.as_wide()).unwrap();
             let video_output_option = &self.video_outputs.iter().find(|x| x.id == video_output_id);
 
-            return match video_output_option {
+            match video_output_option {
                 Some(video_output) => match &video_output.monitor {
                     Some(monitor) => {
                         let device_id = encode_utf16::<128>(&monitor.id);
 
                         (*lpdisplaydevice).DeviceID = device_id;
 
-                        return BOOL(1);
+                        BOOL(1)
                     }
                     None => BOOL(0),
                 },
                 None => BOOL(0),
-            };
+            }
         }
     }
 
@@ -100,17 +100,17 @@ impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
         let video_output_id = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
         let video_output_option = &self.video_outputs.iter().find(|x| x.id == video_output_id);
 
-        return match video_output_option {
+        match video_output_option {
             Some(video_output) => match &video_output.monitor {
                 Some(monitor) => {
                     (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = monitor.position.x;
                     (*lpdevmode).Anonymous1.Anonymous2.dmPosition.y = monitor.position.y;
 
-                    return BOOL(1);
+                    BOOL(1)
                 }
                 None => BOOL(0),
             },
             None => BOOL(0),
-        };
+        }
     }
 }

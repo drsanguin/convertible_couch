@@ -25,19 +25,22 @@ impl MonitorPositionFuzzer {
         let mut monitors_positions = vec![FuzzedMonitorPosition { x: 0, y: 0 }; n_monitor];
 
         if primary_monitor_number != 1 {
-            for monitor_resolution_index in (0..=primary_monitor_number - 2).rev() {
-                let monitor_resolution = resolutions[monitor_resolution_index];
-                let monitor_on_right_position = monitors_positions[monitor_resolution_index + 1];
-                let monitor_resolution_width = i32::try_from(monitor_resolution.width).unwrap();
+            (0..=primary_monitor_number - 2)
+                .rev()
+                .for_each(|monitor_resolution_index| {
+                    let monitor_resolution = resolutions[monitor_resolution_index];
+                    let monitor_on_right_position =
+                        monitors_positions[monitor_resolution_index + 1];
+                    let monitor_resolution_width = i32::try_from(monitor_resolution.width).unwrap();
 
-                monitors_positions[monitor_resolution_index] = FuzzedMonitorPosition {
-                    x: monitor_on_right_position.x - monitor_resolution_width,
-                    y: 0,
-                };
-            }
+                    monitors_positions[monitor_resolution_index] = FuzzedMonitorPosition {
+                        x: monitor_on_right_position.x - monitor_resolution_width,
+                        y: 0,
+                    };
+                });
         }
 
-        for monitor_resolution_index in primary_monitor_number..n_monitor {
+        (primary_monitor_number..n_monitor).for_each(|monitor_resolution_index| {
             let monitor_resolution = resolutions[monitor_resolution_index];
             let monitor_on_left_position = monitors_positions[monitor_resolution_index - 1];
             let monitor_resolution_width = i32::try_from(monitor_resolution.width).unwrap();
@@ -46,7 +49,7 @@ impl MonitorPositionFuzzer {
                 x: monitor_on_left_position.x + monitor_resolution_width,
                 y: 0,
             };
-        }
+        });
 
         monitors_positions
     }

@@ -71,7 +71,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             .get_monitor_position(&new_primary_monitor_name)
             .unwrap();
 
-        return self.set_monitors_to_position(&new_primary_monitor_current_position);
+        self.set_monitors_to_position(&new_primary_monitor_current_position)
     }
 
     unsafe fn get_primary_monitor_name(&self) -> Result<String, String> {
@@ -261,10 +261,10 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             return Ok(monitor_position);
         }
 
-        return Err(format!(
+        Err(format!(
             "Failed to retrieve the position of monitor {0}",
             monitor_name
-        ));
+        ))
     }
 
     unsafe fn set_monitors_to_position(
@@ -402,22 +402,19 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             );
 
         match change_display_settings_ex_result {
-            DISP_CHANGE_SUCCESSFUL => {
-                return Ok(SwapPrimaryMonitorsResponse {
+            DISP_CHANGE_SUCCESSFUL => Ok(SwapPrimaryMonitorsResponse {
+                reboot_required,
+                new_primary,
+            }),
+            DISP_CHANGE_RESTART => {
+                reboot_required = true;
+
+                Ok(SwapPrimaryMonitorsResponse {
                     reboot_required,
                     new_primary,
                 })
             }
-            DISP_CHANGE_RESTART => {
-                reboot_required = true;
-                return Ok(SwapPrimaryMonitorsResponse {
-                    reboot_required,
-                    new_primary,
-                });
-            }
-            _ => {
-                return Err(self.map_disp_change_to_string(change_display_settings_ex_result));
-            }
+            _ => Err(self.map_disp_change_to_string(change_display_settings_ex_result)),
         }
     }
 
@@ -510,10 +507,10 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             Err(error) => return Err(format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {0}", error))
         }
 
-        return Err(format!(
+        Err(format!(
             "Failed to retrieve the name of the monitor at the device path {0}",
             monitor_device_path
-        ));
+        ))
     }
 
     fn map_disp_change_to_string(&self, disp_change: DISP_CHANGE) -> String {

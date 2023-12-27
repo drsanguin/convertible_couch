@@ -35,6 +35,6 @@ impl Fuzzer {
     }
 
     pub fn generate_a_computer(&mut self) -> &mut ComputerFuzzer {
-        return &mut self.computer_fuzzer;
+        &mut self.computer_fuzzer
     }
 }

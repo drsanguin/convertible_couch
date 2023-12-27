@@ -46,7 +46,7 @@ impl Win32GraphicsGdi for Win32GraphicsGdiImpl {
         dwflags: CDS_TYPE,
         lparam: core::option::Option<*const core::ffi::c_void>,
     ) -> DISP_CHANGE {
-        return ChangeDisplaySettingsExW(lpszdevicename, lpdevmode, hwnd, dwflags, lparam);
+        ChangeDisplaySettingsExW(lpszdevicename, lpdevmode, hwnd, dwflags, lparam)
     }
 
     unsafe fn enum_display_devices_w(
@@ -56,7 +56,7 @@ impl Win32GraphicsGdi for Win32GraphicsGdiImpl {
         lpdisplaydevice: *mut DISPLAY_DEVICEW,
         dwflags: u32,
     ) -> BOOL {
-        return EnumDisplayDevicesW(lpdevice, idevnum, lpdisplaydevice, dwflags);
+        EnumDisplayDevicesW(lpdevice, idevnum, lpdisplaydevice, dwflags)
     }
 
     unsafe fn enum_display_settings_w(
@@ -65,6 +65,6 @@ impl Win32GraphicsGdi for Win32GraphicsGdiImpl {
         imodenum: ENUM_DISPLAY_SETTINGS_MODE,
         lpdevmode: *mut DEVMODEW,
     ) -> BOOL {
-        return EnumDisplaySettingsW(lpszdevicename, imodenum, lpdevmode);
+        EnumDisplaySettingsW(lpszdevicename, imodenum, lpdevmode)
     }
 }
