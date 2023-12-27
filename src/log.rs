@@ -28,7 +28,7 @@ pub enum LogLevel {
 pub fn configure_logger(log_level: LogLevel) {
     let level = map_to_level_filter(log_level);
     let stdout = ConsoleAppender::builder()
-        .encoder(Box::new(PatternEncoder::new("| {({l}):5.5} | {m}")))
+        .encoder(Box::new(PatternEncoder::new("| {({l}):5.5} | {m}\r\n")))
         .build();
     let config = Config::builder()
         .appender(Appender::builder().build("stdout", Box::new(stdout)))
