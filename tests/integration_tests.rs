@@ -4,7 +4,7 @@ use convertible_couch::display_settings::DisplaySettings;
 mod common;
 
 #[test]
-fn it_swap_the_primary_monitors_of_computer() {
+fn it_should_swap_the_primary_monitors_of_computer() {
     // Arrange
     let mut fuzzer = new_fuzzer!();
 
@@ -50,7 +50,7 @@ fn it_swap_the_primary_monitors_of_computer() {
 }
 
 #[test]
-fn it_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_required() {
+fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_required() {
     // Arrange
     let mut fuzzer = new_fuzzer!();
 

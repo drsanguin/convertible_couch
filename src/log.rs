@@ -123,7 +123,7 @@ mod tests {
     #[test_case(LogLevel::Info => "info"; "when log level is info")]
     #[test_case(LogLevel::Debug => "debug"; "when log level is debug")]
     #[test_case(LogLevel::Trace => "trace"; "when log level is trace")]
-    fn should_provide_the_canonical_argument_value(log_level: LogLevel) -> String {
+    fn it_should_provide_the_canonical_argument_value(log_level: LogLevel) -> String {
         // Act
         let possible_value = log_level.to_possible_value().unwrap();
         let actual_name = possible_value.get_name();
