@@ -20,8 +20,8 @@ pub struct FuzzedVideoOutput {
 impl FuzzedVideoOutput {
     pub fn new(index: usize, monitor: Option<FuzzedMonitor>) -> Self {
         let id = match monitor {
-            Some(_) => format!(r"\\.\DISPLAY{0}\Monitor0", index),
-            None => format!(r"\\.\DISPLAY{0}", index),
+            Some(_) => format!(r"\\.\DISPLAY{}\Monitor0", index),
+            None => format!(r"\\.\DISPLAY{}", index),
         };
 
         Self { id, monitor }

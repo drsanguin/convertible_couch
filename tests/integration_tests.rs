@@ -27,7 +27,7 @@ fn it_should_swap_the_primary_monitors_of_computer() {
                 Some(new_primary) => {
                     assert_eq!(
                         new_primary, computer.secondary_monitor,
-                        "Expected primary monitor to have been set to {0} but it has been set to {1}",
+                        "Expected primary monitor to have been set to {} but it has been set to {}",
                         computer.secondary_monitor, new_primary
                     );
 
@@ -35,13 +35,13 @@ fn it_should_swap_the_primary_monitors_of_computer() {
                 },
                 None => assert!(
                     false,
-                    "Expected primary monitor to have been set to {0} but it has not been changed",
+                    "Expected primary monitor to have been set to {} but it has not been changed",
                     computer.secondary_monitor
                 ),
             },
             Err(reason) => assert!(
                 false,
-                "Expected primary monitor to have been set to {0} but if failed because of the error {1}",
+                "Expected primary monitor to have been set to {} but if failed because of the error {}",
                     computer.secondary_monitor,
                     reason
             ),
@@ -74,7 +74,7 @@ fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_requi
                 Some(new_primary) => {
                     assert_eq!(
                         new_primary, computer.secondary_monitor,
-                        "Expected primary monitor to have been set to {0} but it has been set to {1}",
+                        "Expected primary monitor to have been set to {} but it has been set to {}",
                         computer.secondary_monitor, new_primary
                     );
 
@@ -82,13 +82,13 @@ fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_requi
                 },
                 None => assert!(
                     false,
-                    "Expected primary monitor to have been set to {0} but it has not been changed",
+                    "Expected primary monitor to have been set to {} but it has not been changed",
                     computer.secondary_monitor
                 ),
             },
             Err(reason) => assert!(
                 false,
-                "Expected primary monitor to have been set to {0} but if failed because of the error {1}",
+                "Expected primary monitor to have been set to {} but if failed because of the error {}",
                     computer.secondary_monitor,
                     reason
             ),

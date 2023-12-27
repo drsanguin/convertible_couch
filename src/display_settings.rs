@@ -138,7 +138,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             if !is_success_display_device {
                 warn!(
-                    "Failed to retrieve display device informations from the display adapter {0}",
+                    "Failed to retrieve display device informations from the display adapter {}",
                     display_adapter_device_name.to_string().unwrap()
                 );
                 continue;
@@ -161,7 +161,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             if !has_enum_display_settings_succeded {
                 warn!(
-                    "Failed to enum display settings for display device {0}",
+                    "Failed to enum display settings for display device {}",
                     display_adapter_device_name.to_string().unwrap()
                 );
                 continue;
@@ -226,7 +226,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             if !is_success_display_device {
                 warn!(
-                    "Failed to retrieve display device informations from the display adapter {0}",
+                    "Failed to retrieve display device informations from the display adapter {}",
                     display_adapter_device_name.to_string().unwrap()
                 );
                 continue;
@@ -249,7 +249,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             if !has_enum_display_settings_succeded {
                 warn!(
-                    "Failed to enum display settings for display device {0}",
+                    "Failed to enum display settings for display device {}",
                     display_adapter_device_name.to_string().unwrap()
                 );
                 continue;
@@ -282,7 +282,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
         }
 
         Err(format!(
-            "Failed to retrieve the position of monitor {0}",
+            "Failed to retrieve the position of monitor {}",
             monitor_name
         ))
     }
@@ -336,7 +336,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             if !is_success_display_device {
                 warn!(
-                    "Failed to retrieve display device informations from the display adapter {0}",
+                    "Failed to retrieve display device informations from the display adapter {}",
                     display_adapter_device_name.to_string().unwrap()
                 );
                 continue;
@@ -359,7 +359,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             if !has_enum_display_settings_succeded {
                 warn!(
-                    "Failed to enum display settings for display device {0}",
+                    "Failed to enum display settings for display device {}",
                     display_adapter_device_name.to_string().unwrap()
                 );
                 continue;
@@ -517,18 +517,18 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
                                     return Ok(String::from(monitor_friendly_device_name_trimed));
                                 },
-                                error => return Err(format!("Failed to retrieve display configuration information about the device: {0}", error.0))
+                                error => return Err(format!("Failed to retrieve display configuration information about the device: {}", error.0))
                             }
                         }
                     },
-                    Err(error) => return Err(format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {0}", error))
+                    Err(error) => return Err(format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {}", error))
                 }
             },
-            Err(error) => return Err(format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {0}", error))
+            Err(error) => return Err(format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {}", error))
         }
 
         Err(format!(
-            "Failed to retrieve the name of the monitor at the device path {0}",
+            "Failed to retrieve the name of the monitor at the device path {}",
             monitor_device_path
         ))
     }
@@ -591,7 +591,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             if !is_success_display_device {
                 warn!(
-                    "Failed to retrieve display device informations from the display adapter {0}",
+                    "Failed to retrieve display device informations from the display adapter {}",
                     display_adapter_device_name.to_string().unwrap()
                 );
                 continue;
@@ -614,7 +614,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             if !has_enum_display_settings_succeded {
                 warn!(
-                    "Failed to enum display settings for display device {0}",
+                    "Failed to enum display settings for display device {}",
                     display_adapter_device_name.to_string().unwrap()
                 );
                 continue;
