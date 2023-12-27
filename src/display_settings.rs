@@ -2,7 +2,7 @@ pub mod win32_devices_display;
 pub mod win32_graphics_gdi;
 
 use log::warn;
-use std::mem::size_of;
+use std::{collections::HashSet, mem::size_of};
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -61,6 +61,20 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
         desktop_monitor_name: &str,
         couch_monitor_name: &str,
     ) -> Result<SwapPrimaryMonitorsResponse, String> {
+        let monitors = self.get_all_monitors();
+
+        if !monitors.contains(desktop_monitor_name) || !monitors.contains(couch_monitor_name) {
+            let mut monitors_error_message_friendly =
+                monitors.iter().map(|x| x.clone()).collect::<Vec<String>>();
+
+            monitors_error_message_friendly.sort();
+
+            return Err(format!(
+                "Desktop and/or couch monitors are invalid, possible values are [{}]",
+                monitors_error_message_friendly.join(", ")
+            ));
+        }
+
         match self.get_primary_monitor_name() {
             Ok(primary_monitor_name) => {
                 let new_primary_monitor_name = if primary_monitor_name == desktop_monitor_name {
@@ -530,5 +544,91 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             DISP_CHANGE_RESTART => String::from("The computer must be restarted for the graphics mode to work."),
             _ => String::from("The settings change was successful.")
         }
+    }
+
+    unsafe fn get_all_monitors(&self) -> HashSet<String> {
+        let mut monitors_names = HashSet::new();
+        let mut display_adapter_index: i32 = -1;
+        let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
+        let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
+
+        loop {
+            display_adapter_index += 1;
+
+            let mut display_adapter = DISPLAY_DEVICEW::default();
+            display_adapter.cb = size_of_display_devicew;
+
+            let idevnum = u32::try_from(display_adapter_index).unwrap();
+            let is_success_display_adapter = self
+                .win32_graphics_gdi
+                .enum_display_devices_w(
+                    PCWSTR::null(),
+                    idevnum,
+                    &mut display_adapter,
+                    EDD_GET_DEVICE_INTERFACE_NAME,
+                )
+                .as_bool();
+
+            if !is_success_display_adapter {
+                break;
+            }
+
+            let mut display_device = DISPLAY_DEVICEW::default();
+            display_device.cb = size_of_display_devicew;
+
+            let display_adapter_device_name_as_ptr = display_adapter.DeviceName.as_ptr();
+            let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
+
+            let is_success_display_device = self
+                .win32_graphics_gdi
+                .enum_display_devices_w(
+                    display_adapter_device_name,
+                    0,
+                    &mut display_device,
+                    EDD_GET_DEVICE_INTERFACE_NAME,
+                )
+                .as_bool();
+
+            if !is_success_display_device {
+                warn!(
+                    "Failed to retrieve display device informations from the display adapter {0}",
+                    display_adapter_device_name.to_string().unwrap()
+                );
+                continue;
+            }
+
+            let size_of_devmode_as_usize = size_of::<DEVMODEW>();
+            let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
+
+            let mut display_adapter_graphics_mode = DEVMODEW::default();
+            display_adapter_graphics_mode.dmSize = size_of_devmode;
+
+            let has_enum_display_settings_succeded = self
+                .win32_graphics_gdi
+                .enum_display_settings_w(
+                    display_adapter_device_name,
+                    ENUM_CURRENT_SETTINGS,
+                    &mut display_adapter_graphics_mode,
+                )
+                .as_bool();
+
+            if !has_enum_display_settings_succeded {
+                warn!(
+                    "Failed to enum display settings for display device {0}",
+                    display_adapter_device_name.to_string().unwrap()
+                );
+                continue;
+            }
+
+            let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
+            let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
+            let current_monitor_name = self
+                .get_monitor_name(display_device_device_id_trimed)
+                .unwrap();
+
+            monitors_names.insert(current_monitor_name);
+        }
+
+        monitors_names
     }
 }

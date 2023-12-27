@@ -1,6 +1,6 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
-use self::fuzzing::computer::ComputerFuzzer;
+use self::fuzzing::{computer::ComputerFuzzer, monitor_name::MonitorNameFuzzer};
 
 mod fuzzing;
 mod utils;
@@ -20,6 +20,7 @@ macro_rules! new_fuzzer {
 
 pub struct Fuzzer {
     computer_fuzzer: ComputerFuzzer,
+    monitor_name_fuzzer: MonitorNameFuzzer,
 }
 
 impl Fuzzer {
@@ -31,10 +32,15 @@ impl Fuzzer {
 
         Self {
             computer_fuzzer: ComputerFuzzer::new(StdRng::seed_from_u64(seed)),
+            monitor_name_fuzzer: MonitorNameFuzzer::new(StdRng::seed_from_u64(seed)),
         }
     }
 
     pub fn generate_a_computer(&mut self) -> &mut ComputerFuzzer {
         &mut self.computer_fuzzer
+    }
+
+    pub fn generate_monitor_name(&mut self) -> String {
+        self.monitor_name_fuzzer.generate_name()
     }
 }

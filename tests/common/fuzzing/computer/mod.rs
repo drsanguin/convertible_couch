@@ -11,6 +11,7 @@ pub struct FuzzedComputer {
     pub win32_graphics_gdi: FuzzedWin32GraphicsGdi,
     pub primary_monitor: String,
     pub secondary_monitor: String,
+    pub monitors: Vec<String>,
 }
 pub struct ComputerFuzzer {
     pub video_outputs: Vec<FuzzedVideoOutput>,
@@ -56,6 +57,11 @@ impl ComputerFuzzer {
             .name
             .clone();
 
+        assert_ne!(
+            secondary_monitor, primary_monitor,
+            "Error during fuzzing ! Primary and secondary monitors are the same"
+        );
+
         let win32_devices_display = FuzzedWin32DevicesDisplay {
             video_outputs: self.video_outputs.clone(),
         };
@@ -65,16 +71,23 @@ impl ComputerFuzzer {
             reboot_required: self.reboot_required,
         };
 
-        assert_ne!(
-            secondary_monitor, primary_monitor,
-            "Error during fuzzing ! Primary and secondary monitors are the same"
-        );
+        let mut monitors = self
+            .video_outputs
+            .iter()
+            .filter_map(|x| match &x.monitor {
+                Some(monitor) => Some(monitor.name.clone()),
+                None => None,
+            })
+            .collect::<Vec<String>>();
+
+        monitors.sort();
 
         FuzzedComputer {
             secondary_monitor,
             primary_monitor,
             win32_devices_display,
             win32_graphics_gdi,
+            monitors,
         }
     }
 
