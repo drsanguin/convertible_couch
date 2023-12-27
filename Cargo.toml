@@ -25,4 +25,5 @@ features = [
 ]
 
 [dev-dependencies]
+rand = "0.8.5"
 test-case = "3.3.1"

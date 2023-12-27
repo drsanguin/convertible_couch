@@ -1,0 +1,11 @@
+pub mod computer;
+pub mod config_mod_info_id;
+pub mod gsm_id;
+pub mod guid;
+pub mod monitor;
+pub mod monitor_name;
+pub mod position;
+pub mod resolution;
+pub mod video_output;
+pub mod win32_devices_display;
+pub mod win32_graphics_gdi;

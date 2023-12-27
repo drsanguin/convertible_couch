@@ -6,7 +6,7 @@ mod common;
 #[test]
 fn it_swap_the_primary_monitors_of_computer() {
     // Arrange
-    let fuzzer = Fuzzer {};
+    let mut fuzzer = new_fuzzer!();
 
     let computer = fuzzer
         .generate_a_computer()
@@ -52,7 +52,7 @@ fn it_swap_the_primary_monitors_of_computer() {
 #[test]
 fn it_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_required() {
     // Arrange
-    let fuzzer = Fuzzer {};
+    let mut fuzzer = new_fuzzer!();
 
     let computer = fuzzer
         .generate_a_computer()
