@@ -61,17 +61,23 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
         desktop_monitor_name: &str,
         couch_monitor_name: &str,
     ) -> Result<SwapPrimaryMonitorsResponse, String> {
-        let primary_monitor_name = self.get_primary_monitor_name().unwrap();
-        let new_primary_monitor_name = if primary_monitor_name == desktop_monitor_name {
-            couch_monitor_name
-        } else {
-            desktop_monitor_name
-        };
-        let new_primary_monitor_current_position = self
-            .get_monitor_position(&new_primary_monitor_name)
-            .unwrap();
+        match self.get_primary_monitor_name() {
+            Ok(primary_monitor_name) => {
+                let new_primary_monitor_name = if primary_monitor_name == desktop_monitor_name {
+                    couch_monitor_name
+                } else {
+                    desktop_monitor_name
+                };
 
-        self.set_monitors_to_position(&new_primary_monitor_current_position)
+                match self.get_monitor_position(&new_primary_monitor_name) {
+                    Ok(new_primary_monitor_current_position) => {
+                        self.set_monitors_to_position(&new_primary_monitor_current_position)
+                    }
+                    Err(reason) => Err(reason),
+                }
+            }
+            Err(reason) => Err(reason),
+        }
     }
 
     unsafe fn get_primary_monitor_name(&self) -> Result<String, String> {

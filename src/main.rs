@@ -26,10 +26,9 @@ fn main() {
     let display_settings = DisplaySettings::new(win32_devices_display, win32_graphics_gdi);
 
     unsafe {
-        let set_monitors_to_position_result = display_settings
-            .swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name);
-
-        match set_monitors_to_position_result {
+        match display_settings
+            .swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name)
+        {
             Ok(response) => {
                 match response.new_primary {
                     Some(new_primary) => info!("Primary monitor set to {0}", new_primary),
@@ -40,7 +39,7 @@ fn main() {
                     warn!("The settings change was successful but the computer must be restarted for the graphics mode to work.");
                 }
             }
-            Err(message) => error!("Failed because of {0}", message),
+            Err(message) => error!("{0}", message),
         }
     }
 }
