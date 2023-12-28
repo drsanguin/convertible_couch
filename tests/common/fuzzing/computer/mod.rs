@@ -131,10 +131,7 @@ impl ComputerFuzzer {
             "Error during fuzzing ! Primary and secondary monitors are the same"
         );
 
-        let win32 = FuzzedWin32 {
-            video_outputs: self.video_outputs.clone(),
-            reboot_required: self.reboot_required,
-        };
+        let win32 = FuzzedWin32::new(self.video_outputs.clone(), self.reboot_required);
 
         let mut monitors = self.get_all_monitors();
 

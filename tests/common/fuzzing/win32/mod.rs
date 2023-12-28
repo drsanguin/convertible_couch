@@ -13,8 +13,9 @@ use windows::{
         },
         Foundation::{BOOL, HWND},
         Graphics::Gdi::{
-            CDS_SET_PRIMARY, CDS_TYPE, DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE, DISP_CHANGE_RESTART,
-            DISP_CHANGE_SUCCESSFUL, ENUM_CURRENT_SETTINGS, ENUM_DISPLAY_SETTINGS_MODE,
+            CDS_SET_PRIMARY, CDS_TYPE, DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE,
+            DISP_CHANGE_BADPARAM, DISP_CHANGE_RESTART, DISP_CHANGE_SUCCESSFUL,
+            ENUM_CURRENT_SETTINGS, ENUM_DISPLAY_SETTINGS_MODE,
         },
         UI::WindowsAndMessaging::EDD_GET_DEVICE_INTERFACE_NAME,
     },
@@ -22,11 +23,20 @@ use windows::{
 
 use crate::common::utils::encode_utf16;
 
-use super::video_output::FuzzedVideoOutput;
+use super::{position::FuzzedMonitorPosition, video_output::FuzzedVideoOutput};
 
 pub struct FuzzedWin32 {
     pub video_outputs: Vec<FuzzedVideoOutput>,
     pub reboot_required: bool,
+}
+
+impl FuzzedWin32 {
+    pub fn new(video_outputs: Vec<FuzzedVideoOutput>, reboot_required: bool) -> Self {
+        Self {
+            video_outputs,
+            reboot_required,
+        }
+    }
 }
 
 impl Win32 for FuzzedWin32 {
@@ -140,17 +150,54 @@ impl Win32 for FuzzedWin32 {
 
     unsafe fn change_display_settings_ex_w(
         &self,
-        _lpszdevicename: PCWSTR,
-        _lpdevmode: Option<*const DEVMODEW>,
-        _hwnd: HWND,
-        _dwflags: CDS_TYPE,
-        _lparam: Option<*const c_void>,
+        lpszdevicename: PCWSTR,
+        lpdevmode: Option<*const DEVMODEW>,
+        hwnd: HWND,
+        dwflags: CDS_TYPE,
+        lparam: Option<*const c_void>,
     ) -> DISP_CHANGE {
-        if _dwflags & CDS_SET_PRIMARY == CDS_TYPE::default() && self.reboot_required {
-            return DISP_CHANGE_RESTART;
+        if lpszdevicename == PCWSTR::null()
+            && lpdevmode.is_none()
+            && hwnd == HWND::default()
+            && dwflags == CDS_TYPE::default()
+            && lparam.is_none()
+        {
+            return match self.reboot_required {
+                true => DISP_CHANGE_RESTART,
+                false => DISP_CHANGE_SUCCESSFUL,
+            };
         }
 
-        DISP_CHANGE_SUCCESSFUL
+        let video_output_id = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
+
+        self.video_outputs
+            .iter()
+            .find(|video_output| video_output.id == video_output_id)
+            .and_then(|video_output| video_output.monitor.clone())
+            .and_then(|monitor| {
+                lpdevmode.and_then(|graphic_mode| {
+                    Some((
+                        monitor,
+                        FuzzedMonitorPosition {
+                            x: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.x,
+                            y: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.y,
+                        },
+                    ))
+                })
+            })
+            .and_then(|(monitor, position)| {
+                if hwnd != HWND::default()
+                    || lparam.is_some()
+                    || (position.x == 0
+                        && position.y == 0
+                        && (dwflags & CDS_SET_PRIMARY == CDS_TYPE::default() || monitor.primary))
+                {
+                    return Some(DISP_CHANGE_BADPARAM);
+                }
+
+                Some(DISP_CHANGE_SUCCESSFUL)
+            })
+            .unwrap_or(DISP_CHANGE_BADPARAM)
     }
 
     unsafe fn enum_display_devices_w(
