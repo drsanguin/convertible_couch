@@ -1,7 +1,15 @@
-use rand::{rngs::StdRng, RngCore, SeedableRng};
+use rand::{
+    distributions::{Alphanumeric, DistString},
+    rngs::StdRng,
+    Rng, RngCore, SeedableRng,
+};
 
 use super::{
-    video_output::{FuzzedVideoOutput, MonitorCount, VideoOutputFuzzer},
+    guid::GuidFuzzer,
+    monitor::MonitorFuzzer,
+    position::MonitorPositionFuzzer,
+    resolution::ResolutionFuzzer,
+    video_output::{FuzzedVideoOutput, VideoOutputFuzzer},
     win32_devices_display::FuzzedWin32DevicesDisplay,
     win32_graphics_gdi::FuzzedWin32GraphicsGdi,
 };
@@ -17,24 +25,89 @@ pub struct FuzzedComputer {
 pub struct ComputerFuzzer {
     pub video_outputs: Vec<FuzzedVideoOutput>,
     pub reboot_required: bool,
-    video_output_fuzzer: VideoOutputFuzzer,
+    rand: StdRng,
+    guid_fuzzer: GuidFuzzer,
+    resolution_fuzzer: ResolutionFuzzer,
+    monitor_fuzzer: MonitorFuzzer,
 }
 
 impl ComputerFuzzer {
+    const MAX_VIDEO_OUTPUTS: usize = 5;
+
     pub fn new(mut rand: StdRng) -> Self {
         let seed = rand.next_u64();
 
         Self {
+            rand: rand,
             video_outputs: vec![],
             reboot_required: false,
-            video_output_fuzzer: VideoOutputFuzzer::new(StdRng::seed_from_u64(seed)),
+            guid_fuzzer: GuidFuzzer::new(StdRng::seed_from_u64(seed)),
+            monitor_fuzzer: MonitorFuzzer::new(StdRng::seed_from_u64(seed)),
+            resolution_fuzzer: ResolutionFuzzer::new(StdRng::seed_from_u64(seed)),
         }
     }
 
-    pub fn with_two_monitors_or_more(&mut self) -> &mut ComputerFuzzer {
-        self.video_outputs = self
-            .video_output_fuzzer
-            .generate_video_outputs(MonitorCount::Two);
+    pub fn with_two_monitors_or_more(&mut self) -> &mut Self {
+        let min_n_monitor = 2;
+        let n_video_output = self.rand.gen_range(min_n_monitor..=Self::MAX_VIDEO_OUTPUTS);
+        let n_monitor = self.rand.gen_range(min_n_monitor..=n_video_output);
+        let primary_monitor_number = self.rand.gen_range(1..=n_monitor);
+
+        let monitors_id_common_part_1 = self.rand.gen_range(0..=9);
+        let monitors_id_common_part_2 =
+            Alphanumeric.sample_string(&mut self.rand, 6).to_lowercase();
+        let monitors_id_common_part_3 = self.rand.gen_range(0..=9);
+        let monitors_id_common_part_4 = self.guid_fuzzer.generate_uuid();
+
+        let monitors_resolutions = self.resolution_fuzzer.generate_resolutions(n_monitor);
+
+        let monitors_positions = MonitorPositionFuzzer::generate_positions(
+            &monitors_resolutions,
+            primary_monitor_number,
+        );
+
+        let mut video_outputs = VideoOutputFuzzer::generate_video_outputs(n_video_output);
+
+        (1..=n_monitor).for_each(|monitor_number| {
+            let monitor_index = monitor_number - 1;
+            let position = monitors_positions[monitor_index];
+            let resolution = monitors_resolutions[monitor_index];
+            let primary = monitor_number == primary_monitor_number;
+
+            if primary {
+                assert!(
+                    position.x == 0 && position.y == 0,
+                    "Error during fuzzing ! A primary monitor has been positioned to {}.",
+                    position
+                );
+            } else {
+                assert!(
+                    position.x != 0 || position.y != 0,
+                    "Error during fuzzing ! A non primary monitor has been positioned to {}",
+                    position
+                );
+            }
+
+            let monitor = self.monitor_fuzzer.generate_monitor(
+                monitors_id_common_part_1,
+                &monitors_id_common_part_2,
+                monitors_id_common_part_3,
+                &monitors_id_common_part_4,
+                position,
+                resolution,
+                primary,
+            );
+
+            video_outputs[monitor_index] = video_outputs[monitor_index].plug_monitor(monitor);
+        });
+
+        self.video_outputs = video_outputs;
+
+        self
+    }
+
+    pub fn which_requires_reboot(&mut self) -> &mut Self {
+        self.reboot_required = true;
 
         self
     }
@@ -68,12 +141,6 @@ impl ComputerFuzzer {
             win32_graphics_gdi,
             monitors,
         }
-    }
-
-    pub fn which_requires_reboot(&mut self) -> &mut ComputerFuzzer {
-        self.reboot_required = true;
-
-        self
     }
 
     fn get_monitor(&self, primary: bool) -> String {
