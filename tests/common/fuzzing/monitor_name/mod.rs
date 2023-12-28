@@ -1,7 +1,7 @@
 use rand::{
     distributions::{Alphanumeric, DistString},
     rngs::StdRng,
-    Rng,
+    seq::SliceRandom,
 };
 
 pub struct FuzzedMonitorBrand(String);
@@ -149,8 +149,7 @@ impl MonitorNameFuzzer {
     }
 
     pub fn generate_name(&mut self) -> String {
-        let brand_index = self.rand.gen_range(0..FuzzedMonitorBrand::ALL.len());
-        let brand = FuzzedMonitorBrand::ALL[brand_index];
+        let brand = FuzzedMonitorBrand::ALL.choose(&mut self.rand).unwrap();
         let model_id = Alphanumeric.sample_string(&mut self.rand, 10);
 
         format!("{} {}", brand, model_id)

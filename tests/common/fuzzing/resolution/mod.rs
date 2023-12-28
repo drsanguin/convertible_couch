@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use rand::{rngs::StdRng, Rng};
+use rand::{rngs::StdRng, seq::SliceRandom};
 
 #[derive(Clone, Copy)]
 pub struct FuzzedResolution {
@@ -159,9 +159,10 @@ impl ResolutionFuzzer {
     }
 
     pub fn generate_resolution(&mut self) -> FuzzedResolution {
-        let resolution_index = self.rand.gen_range(0..FuzzedResolution::ALL.len());
-
-        FuzzedResolution::ALL[resolution_index]
+        FuzzedResolution::ALL
+            .choose(&mut self.rand)
+            .unwrap()
+            .clone()
     }
 
     pub fn generate_resolutions(&mut self, count: usize) -> Vec<FuzzedResolution> {
