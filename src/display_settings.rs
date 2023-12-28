@@ -61,31 +61,37 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
         desktop_monitor_name: &str,
         couch_monitor_name: &str,
     ) -> Result<SwapPrimaryMonitorsResponse, String> {
-        let monitors = self.get_all_monitors();
+        match self.get_all_monitors() {
+            Ok(monitors) => {
+                if !monitors.contains(desktop_monitor_name)
+                    || !monitors.contains(couch_monitor_name)
+                {
+                    let mut monitors_error_message_friendly =
+                        monitors.iter().map(|x| x.clone()).collect::<Vec<String>>();
 
-        if !monitors.contains(desktop_monitor_name) || !monitors.contains(couch_monitor_name) {
-            let mut monitors_error_message_friendly =
-                monitors.iter().map(|x| x.clone()).collect::<Vec<String>>();
+                    monitors_error_message_friendly.sort();
 
-            monitors_error_message_friendly.sort();
+                    return Err(format!(
+                        "Desktop and/or couch monitors are invalid, possible values are [{}]",
+                        monitors_error_message_friendly.join(", ")
+                    ));
+                }
 
-            return Err(format!(
-                "Desktop and/or couch monitors are invalid, possible values are [{}]",
-                monitors_error_message_friendly.join(", ")
-            ));
-        }
+                match self.get_primary_monitor_name() {
+                    Ok(primary_monitor_name) => {
+                        let new_primary_monitor_name =
+                            if primary_monitor_name == desktop_monitor_name {
+                                couch_monitor_name
+                            } else {
+                                desktop_monitor_name
+                            };
 
-        match self.get_primary_monitor_name() {
-            Ok(primary_monitor_name) => {
-                let new_primary_monitor_name = if primary_monitor_name == desktop_monitor_name {
-                    couch_monitor_name
-                } else {
-                    desktop_monitor_name
-                };
-
-                match self.get_monitor_position(&new_primary_monitor_name) {
-                    Ok(new_primary_monitor_current_position) => {
-                        self.set_monitors_to_position(&new_primary_monitor_current_position)
+                        match self.get_monitor_position(&new_primary_monitor_name) {
+                            Ok(new_primary_monitor_current_position) => {
+                                self.set_monitors_to_position(&new_primary_monitor_current_position)
+                            }
+                            Err(reason) => Err(reason),
+                        }
                     }
                     Err(reason) => Err(reason),
                 }
@@ -546,7 +552,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
         }
     }
 
-    unsafe fn get_all_monitors(&self) -> HashSet<String> {
+    unsafe fn get_all_monitors(&self) -> Result<HashSet<String>, String> {
         let mut monitors_names = HashSet::new();
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
@@ -622,13 +628,16 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
             let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
-            let current_monitor_name = self
-                .get_monitor_name(display_device_device_id_trimed)
-                .unwrap();
 
-            monitors_names.insert(current_monitor_name);
+            match self.get_monitor_name(display_device_device_id_trimed) {
+                Ok(current_monitor_name) => {
+                    monitors_names.insert(current_monitor_name);
+                    continue;
+                }
+                Err(reason) => return Err(reason),
+            }
         }
 
-        monitors_names
+        Ok(monitors_names)
     }
 }
