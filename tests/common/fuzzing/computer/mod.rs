@@ -1,6 +1,7 @@
 use rand::{
     distributions::{Alphanumeric, DistString},
     rngs::StdRng,
+    seq::IteratorRandom,
     Rng, RngCore, SeedableRng,
 };
 
@@ -38,7 +39,7 @@ impl ComputerFuzzer {
         let seed = rand.next_u64();
 
         Self {
-            rand: rand,
+            rand,
             video_outputs: vec![],
             reboot_required: false,
             guid_fuzzer: GuidFuzzer::new(StdRng::seed_from_u64(seed)),
@@ -68,38 +69,49 @@ impl ComputerFuzzer {
 
         let mut video_outputs = VideoOutputFuzzer::generate_video_outputs(n_video_output);
 
-        (1..=n_monitor).for_each(|monitor_number| {
-            let monitor_index = monitor_number - 1;
-            let position = monitors_positions[monitor_index];
-            let resolution = monitors_resolutions[monitor_index];
-            let primary = monitor_number == primary_monitor_number;
+        let mut video_outputs_to_plug_in_indexes = video_outputs
+            .iter()
+            .enumerate()
+            .map(|(x, _y)| x)
+            .choose_multiple(&mut self.rand, n_monitor);
 
-            if primary {
-                assert!(
-                    position.x == 0 && position.y == 0,
-                    "Error during fuzzing ! A primary monitor has been positioned to {}.",
-                    position
+        video_outputs_to_plug_in_indexes.sort();
+
+        video_outputs_to_plug_in_indexes
+            .iter()
+            .enumerate()
+            .for_each(|(monitor_index, video_output_index)| {
+                let position = monitors_positions[monitor_index];
+                let resolution = monitors_resolutions[monitor_index];
+                let primary = monitor_index + 1 == primary_monitor_number;
+
+                if primary {
+                    assert!(
+                        position.x == 0 && position.y == 0,
+                        "Error during fuzzing ! A primary monitor has been positioned to {}.",
+                        position
+                    );
+                } else {
+                    assert!(
+                        position.x != 0 || position.y != 0,
+                        "Error during fuzzing ! A non primary monitor has been positioned to {}",
+                        position
+                    );
+                }
+
+                let monitor = self.monitor_fuzzer.generate_monitor(
+                    monitors_id_common_part_1,
+                    &monitors_id_common_part_2,
+                    monitors_id_common_part_3,
+                    &monitors_id_common_part_4,
+                    position,
+                    resolution,
+                    primary,
                 );
-            } else {
-                assert!(
-                    position.x != 0 || position.y != 0,
-                    "Error during fuzzing ! A non primary monitor has been positioned to {}",
-                    position
-                );
-            }
 
-            let monitor = self.monitor_fuzzer.generate_monitor(
-                monitors_id_common_part_1,
-                &monitors_id_common_part_2,
-                monitors_id_common_part_3,
-                &monitors_id_common_part_4,
-                position,
-                resolution,
-                primary,
-            );
-
-            video_outputs[monitor_index] = video_outputs[monitor_index].plug_monitor(monitor);
-        });
+                video_outputs[*video_output_index] =
+                    video_outputs[*video_output_index].plug_monitor(monitor);
+            });
 
         self.video_outputs = video_outputs;
 

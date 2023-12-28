@@ -102,20 +102,29 @@ impl Win32DevicesDisplay for FuzzedWin32DevicesDisplay {
 
         let mode_informations_size = usize::try_from(*nummodeinfoarrayelements).unwrap();
 
-        (0..mode_informations_size).for_each(|i| {
+        for i in 0..mode_informations_size {
             let mode_information = modeinfoarray.add(i);
 
             if i % 2 != 0 {
-                return;
+                continue;
             }
 
-            (*mode_information).infoType = DISPLAYCONFIG_MODE_INFO_TYPE_TARGET;
-            (*mode_information).id = self.video_outputs[i / 2]
-                .monitor
-                .as_ref()
-                .unwrap()
-                .config_mode_info_id;
-        });
+            match self
+                .video_outputs
+                .iter()
+                .filter_map(|video_output| match &video_output.monitor {
+                    Some(monitor) => Some(monitor),
+                    None => None,
+                })
+                .nth(i / 2)
+            {
+                Some(monitor) => {
+                    (*mode_information).infoType = DISPLAYCONFIG_MODE_INFO_TYPE_TARGET;
+                    (*mode_information).id = monitor.config_mode_info_id;
+                }
+                None => return Err(Error::from_win32()),
+            }
+        }
 
         Ok(())
     }
