@@ -2,7 +2,7 @@ pub mod win32_devices_display;
 pub mod win32_graphics_gdi;
 
 use log::warn;
-use std::{collections::HashSet, mem::size_of};
+use std::{collections::HashSet, fmt::Display, mem::size_of};
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -25,9 +25,16 @@ use windows::{
 pub use win32_devices_display::*;
 pub use win32_graphics_gdi::*;
 
+#[derive(Debug, PartialEq)]
 pub struct SwapPrimaryMonitorsResponse {
     pub reboot_required: bool,
     pub new_primary: Option<String>,
+}
+
+impl Display for SwapPrimaryMonitorsResponse {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 pub struct DisplaySettings<
