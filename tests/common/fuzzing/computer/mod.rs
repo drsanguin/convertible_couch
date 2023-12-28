@@ -1,7 +1,7 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
 use super::{
-    video_output::{FuzzedVideoOutput, VideoOutputFuzzer},
+    video_output::{FuzzedVideoOutput, MonitorCount, VideoOutputFuzzer},
     win32_devices_display::FuzzedWin32DevicesDisplay,
     win32_graphics_gdi::FuzzedWin32GraphicsGdi,
 };
@@ -13,6 +13,7 @@ pub struct FuzzedComputer {
     pub secondary_monitor: String,
     pub monitors: Vec<String>,
 }
+
 pub struct ComputerFuzzer {
     pub video_outputs: Vec<FuzzedVideoOutput>,
     pub reboot_required: bool,
@@ -31,37 +32,16 @@ impl ComputerFuzzer {
     }
 
     pub fn with_two_monitors_or_more(&mut self) -> &mut ComputerFuzzer {
-        self.video_outputs = self.video_output_fuzzer.generate_video_outputs(2);
+        self.video_outputs = self
+            .video_output_fuzzer
+            .generate_video_outputs(MonitorCount::Two);
 
         self
     }
 
     pub fn build_computer(&self) -> FuzzedComputer {
-        let secondary_monitor = self
-            .video_outputs
-            .iter()
-            .filter_map(|x| match &x.monitor {
-                Some(monitor) => match monitor.primary {
-                    false => Some(monitor.name.clone()),
-                    _ => None,
-                },
-                None => None,
-            })
-            .nth(0)
-            .unwrap();
-
-        let primary_monitor = self
-            .video_outputs
-            .iter()
-            .filter_map(|x| match &x.monitor {
-                Some(monitor) => match monitor.primary {
-                    true => Some(monitor.name.clone()),
-                    _ => None,
-                },
-                None => None,
-            })
-            .nth(0)
-            .unwrap();
+        let secondary_monitor = self.get_monitor(false);
+        let primary_monitor = self.get_monitor(true);
 
         assert_ne!(
             secondary_monitor, primary_monitor,
@@ -77,14 +57,7 @@ impl ComputerFuzzer {
             reboot_required: self.reboot_required,
         };
 
-        let mut monitors = self
-            .video_outputs
-            .iter()
-            .filter_map(|x| match &x.monitor {
-                Some(monitor) => Some(monitor.name.clone()),
-                None => None,
-            })
-            .collect::<Vec<String>>();
+        let mut monitors = self.get_all_monitors();
 
         monitors.sort();
 
@@ -101,5 +74,29 @@ impl ComputerFuzzer {
         self.reboot_required = true;
 
         self
+    }
+
+    fn get_monitor(&self, primary: bool) -> String {
+        self.video_outputs
+            .iter()
+            .filter_map(|video_output| match &video_output.monitor {
+                Some(monitor) => match monitor.primary {
+                    p if p == primary => Some(monitor.name.clone()),
+                    _ => None,
+                },
+                None => None,
+            })
+            .nth(0)
+            .unwrap()
+    }
+
+    fn get_all_monitors(&self) -> Vec<String> {
+        self.video_outputs
+            .iter()
+            .filter_map(|video_output| match &video_output.monitor {
+                Some(monitor) => Some(monitor.name.clone()),
+                None => None,
+            })
+            .collect::<Vec<String>>()
     }
 }

@@ -35,6 +35,27 @@ pub struct VideoOutputFuzzer {
     monitor_fuzzer: MonitorFuzzer,
 }
 
+#[allow(dead_code)]
+pub enum MonitorCount {
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+}
+
+impl MonitorCount {
+    pub fn as_usize(&self) -> usize {
+        match self {
+            MonitorCount::One => 1,
+            MonitorCount::Two => 2,
+            MonitorCount::Three => 3,
+            MonitorCount::Four => 4,
+            MonitorCount::Five => 5,
+        }
+    }
+}
+
 impl VideoOutputFuzzer {
     pub fn new(mut rand: StdRng) -> Self {
         let seed = rand.next_u64();
@@ -47,9 +68,13 @@ impl VideoOutputFuzzer {
         }
     }
 
-    pub fn generate_video_outputs(&mut self, n_monitor: usize) -> Vec<FuzzedVideoOutput> {
-        let n_video_output = self.rand.gen_range(n_monitor..=5);
-        let n_monitor = self.rand.gen_range(n_monitor..=n_video_output);
+    pub fn generate_video_outputs(
+        &mut self,
+        min_n_monitor: MonitorCount,
+    ) -> Vec<FuzzedVideoOutput> {
+        let min_n_monitor_as_usize = min_n_monitor.as_usize();
+        let n_video_output = self.rand.gen_range(min_n_monitor_as_usize..=5);
+        let n_monitor = self.rand.gen_range(min_n_monitor_as_usize..=n_video_output);
         let primary_monitor_number = self.rand.gen_range(1..=n_monitor);
 
         let monitors_id_common_part_1 = self.rand.gen_range(0..=9);
