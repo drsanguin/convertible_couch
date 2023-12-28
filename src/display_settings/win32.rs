@@ -39,7 +39,7 @@ pub trait Win32 {
     ) -> Result<(), Error>;
 
     unsafe fn change_display_settings_ex_w(
-        &self,
+        &mut self,
         lpszdevicename: PCWSTR,
         lpdevmode: ::core::option::Option<*const DEVMODEW>,
         hwnd: HWND,
@@ -102,7 +102,7 @@ impl Win32 for Win32Impl {
     }
 
     unsafe fn change_display_settings_ex_w(
-        &self,
+        &mut self,
         lpszdevicename: PCWSTR,
         lpdevmode: core::option::Option<*const DEVMODEW>,
         hwnd: HWND,

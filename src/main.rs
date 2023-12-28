@@ -21,7 +21,7 @@ fn main() {
 
     configure_logger(args.log_level);
 
-    let display_settings = DisplaySettings::new(Win32Impl);
+    let mut display_settings = DisplaySettings::new(Win32Impl);
 
     unsafe {
         match display_settings

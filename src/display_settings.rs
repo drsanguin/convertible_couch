@@ -50,7 +50,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
     }
 
     pub unsafe fn swap_primary_monitors(
-        &self,
+        &mut self,
         desktop_monitor_name: &str,
         couch_monitor_name: &str,
     ) -> Result<SwapPrimaryMonitorsResponse, String> {
@@ -281,7 +281,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
     }
 
     unsafe fn set_monitors_to_position(
-        &self,
+        &mut self,
         position: &MonitorPosition,
     ) -> Result<SwapPrimaryMonitorsResponse, String> {
         let mut display_adapter_index: i32 = -1;

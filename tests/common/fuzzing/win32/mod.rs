@@ -149,7 +149,7 @@ impl Win32 for FuzzedWin32 {
     }
 
     unsafe fn change_display_settings_ex_w(
-        &self,
+        &mut self,
         lpszdevicename: PCWSTR,
         lpdevmode: Option<*const DEVMODEW>,
         hwnd: HWND,

@@ -14,7 +14,7 @@ fn it_should_swap_the_primary_monitors_of_computer() {
         .with_two_monitors_or_more()
         .build_computer();
 
-    let display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = DisplaySettings::new(computer.win32);
 
     unsafe {
         // Act
@@ -43,7 +43,7 @@ fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_requi
         .which_requires_reboot()
         .build_computer();
 
-    let display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = DisplaySettings::new(computer.win32);
 
     unsafe {
         // Act
@@ -73,7 +73,7 @@ fn it_should_validate_monitors() {
         .with_two_monitors_or_more()
         .build_computer();
 
-    let display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = DisplaySettings::new(computer.win32);
 
     unsafe {
         // Act
