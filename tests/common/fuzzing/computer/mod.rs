@@ -86,14 +86,12 @@ impl ComputerFuzzer {
                 if primary {
                     assert!(
                         position.x == 0 && position.y == 0,
-                        "Error during fuzzing ! A primary monitor has been positioned to {}.",
-                        position
+                        "Error during fuzzing ! A primary monitor has been positioned to {position}."
                     );
                 } else {
                     assert!(
                         position.x != 0 || position.y != 0,
-                        "Error during fuzzing ! A non primary monitor has been positioned to {}",
-                        position
+                        "Error during fuzzing ! A non primary monitor has been positioned to {position}"
                     );
                 }
 

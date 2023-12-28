@@ -152,6 +152,6 @@ impl MonitorNameFuzzer {
         let brand = FuzzedMonitorBrand::ALL.choose(&mut self.rand).unwrap();
         let model_id = Alphanumeric.sample_string(&mut self.rand, 10);
 
-        format!("{} {}", brand, model_id)
+        format!("{brand} {model_id}")
     }
 }

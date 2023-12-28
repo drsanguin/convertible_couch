@@ -29,7 +29,7 @@ fn main() {
         {
             Ok(response) => {
                 match response.new_primary {
-                    Some(new_primary) => info!("Primary monitor set to {}", new_primary),
+                    Some(new_primary) => info!("Primary monitor set to {new_primary}"),
                     None => error!("Primary monitor has not been changed for an unknow reason"),
                 }
 
@@ -37,7 +37,7 @@ fn main() {
                     warn!("The settings change was successful but the computer must be restarted for the graphics mode to work.");
                 }
             }
-            Err(message) => error!("{}", message),
+            Err(message) => error!("{message}"),
         }
     }
 }

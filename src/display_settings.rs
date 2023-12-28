@@ -275,8 +275,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         }
 
         Err(format!(
-            "Failed to retrieve the position of monitor {}",
-            monitor_name
+            "Failed to retrieve the position of monitor {monitor_name}"
         ))
     }
 
@@ -452,7 +451,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
             QDC_ONLY_ACTIVE_PATHS,
             &mut n_path_informations,
             &mut n_mode_informations,
-        ).map_err(|error| format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {}", error))
+        ).map_err(|error| format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {error}"))
         .and_then(|_| {
             let n_path_informations_as_usize = usize::try_from(n_path_informations).unwrap();
             let n_mode_informations_as_usize = usize::try_from(n_mode_informations).unwrap();
@@ -468,7 +467,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 mode_informations.as_mut_ptr(),
                 None
             ).and_then(|_| Ok(mode_informations))
-            .map_err(|error| format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {}", error))
+            .map_err(|error| format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {error}"))
         })
         .and_then(|mode_informations| {
             let size_of_displayconfig_target_device_name_as_usize = size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME>();
@@ -510,8 +509,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
             }
 
             Err(format!(
-                "Failed to retrieve the name of the monitor at the device path {}",
-                monitor_device_path
+                "Failed to retrieve the name of the monitor at the device path {monitor_device_path}"
             ))
         })
     }

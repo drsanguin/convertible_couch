@@ -36,7 +36,7 @@ impl Fuzzer {
         let mut seeder = StdRng::from_entropy();
         let seed = seeder.next_u64();
 
-        println!("seed {} ... {}", test_name, seed);
+        println!("seed {test_name} ... {seed}");
 
         Self {
             computer_fuzzer: ComputerFuzzer::new(StdRng::seed_from_u64(seed)),

@@ -22,9 +22,6 @@ impl GuidFuzzer {
             .sample_string(&mut self.rand, 12)
             .to_lowercase();
 
-        format!(
-            "{}-{}-{}-{}-{}",
-            low_time, mid_time, high_time_and_version, clock_sequence_and_variant, node
-        )
+        format!("{low_time}-{mid_time}-{high_time_and_version}-{clock_sequence_and_variant}-{node}")
     }
 }
