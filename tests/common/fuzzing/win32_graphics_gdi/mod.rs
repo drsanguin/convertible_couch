@@ -69,21 +69,19 @@ impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
             }
 
             let video_output_id = String::from_utf16(&lpdevice.as_wide()).unwrap();
-            let video_output_option = &self.video_outputs.iter().find(|x| x.id == video_output_id);
 
-            match video_output_option {
-                Some(video_output) => match &video_output.monitor {
-                    Some(monitor) => {
-                        let device_id = encode_utf16::<128>(&monitor.id);
+            self.video_outputs
+                .iter()
+                .find(|x| x.id == video_output_id)
+                .and_then(|video_output| video_output.monitor.clone())
+                .and_then(|monitor| {
+                    let device_id = encode_utf16::<128>(&monitor.id);
 
-                        (*lpdisplaydevice).DeviceID = device_id;
+                    (*lpdisplaydevice).DeviceID = device_id;
 
-                        BOOL(1)
-                    }
-                    None => BOOL(0),
-                },
-                None => BOOL(0),
-            }
+                    Some(BOOL(1))
+                })
+                .unwrap_or(BOOL(0))
         }
     }
 
@@ -98,19 +96,17 @@ impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
         }
 
         let video_output_id = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
-        let video_output_option = &self.video_outputs.iter().find(|x| x.id == video_output_id);
 
-        match video_output_option {
-            Some(video_output) => match &video_output.monitor {
-                Some(monitor) => {
-                    (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = monitor.position.x;
-                    (*lpdevmode).Anonymous1.Anonymous2.dmPosition.y = monitor.position.y;
+        self.video_outputs
+            .iter()
+            .find(|x| x.id == video_output_id)
+            .and_then(|video_output| video_output.monitor.clone())
+            .and_then(|monitor| {
+                (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = monitor.position.x;
+                (*lpdevmode).Anonymous1.Anonymous2.dmPosition.y = monitor.position.y;
 
-                    BOOL(1)
-                }
-                None => BOOL(0),
-            },
-            None => BOOL(0),
-        }
+                Some(BOOL(1))
+            })
+            .unwrap_or(BOOL(0))
     }
 }

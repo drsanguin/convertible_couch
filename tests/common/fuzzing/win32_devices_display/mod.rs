@@ -39,28 +39,27 @@ impl Win32DevicesDisplay for FuzzedWin32DevicesDisplay {
 
         let config_mode_info_id = (*request_packet).header.id;
 
-        let video_output_result = self.video_outputs.iter().find(|x| {
-            if x.monitor.is_none() {
-                return false;
-            }
+        self.video_outputs
+            .iter()
+            .find(|x| {
+                if x.monitor.is_none() {
+                    return false;
+                }
 
-            match &x.monitor {
-                Some(monitor) => monitor.config_mode_info_id == config_mode_info_id,
-                None => false,
-            }
-        });
-
-        match video_output_result {
-            Some(video_output) => {
+                match &x.monitor {
+                    Some(monitor) => monitor.config_mode_info_id == config_mode_info_id,
+                    None => false,
+                }
+            })
+            .and_then(|video_output| {
                 let monitor = video_output.monitor.as_ref().unwrap();
 
                 (*request_packet).monitorDevicePath = encode_utf16::<128>(&monitor.id);
                 (*request_packet).monitorFriendlyDeviceName = encode_utf16::<64>(&monitor.name);
 
-                0
-            }
-            None => 1,
-        }
+                Some(0)
+            })
+            .unwrap_or(1)
     }
 
     unsafe fn get_display_config_buffer_sizes(
