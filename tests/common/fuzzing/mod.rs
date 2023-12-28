@@ -11,8 +11,7 @@ pub mod monitor_name;
 pub mod position;
 pub mod resolution;
 pub mod video_output;
-pub mod win32_devices_display;
-pub mod win32_graphics_gdi;
+pub mod win32;
 
 #[macro_export]
 macro_rules! new_fuzzer {

@@ -1,6 +1,6 @@
 use clap::Parser;
 use convertible_couch::{
-    display_settings::{DisplaySettings, Win32DevicesDisplayImpl, Win32GraphicsGdiImpl},
+    display_settings::{DisplaySettings, Win32Impl},
     log::{configure_logger, LogLevel},
 };
 use log::{error, info, warn};
@@ -21,9 +21,7 @@ fn main() {
 
     configure_logger(args.log_level);
 
-    let win32_devices_display = Win32DevicesDisplayImpl;
-    let win32_graphics_gdi = Win32GraphicsGdiImpl;
-    let display_settings = DisplaySettings::new(win32_devices_display, win32_graphics_gdi);
+    let display_settings = DisplaySettings::new(Win32Impl);
 
     unsafe {
         match display_settings

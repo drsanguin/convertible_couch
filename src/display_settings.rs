@@ -1,5 +1,4 @@
-pub mod win32_devices_display;
-pub mod win32_graphics_gdi;
+pub mod win32;
 
 use log::warn;
 use std::{collections::HashSet, fmt::Display, mem::size_of};
@@ -22,8 +21,7 @@ use windows::{
     },
 };
 
-pub use win32_devices_display::*;
-pub use win32_graphics_gdi::*;
+pub use win32::*;
 
 #[derive(Debug, PartialEq)]
 pub struct SwapPrimaryMonitorsResponse {
@@ -37,12 +35,8 @@ impl Display for SwapPrimaryMonitorsResponse {
     }
 }
 
-pub struct DisplaySettings<
-    TWin32DevicesDisplay: Win32DevicesDisplay,
-    TWin32GraphicsGdi: Win32GraphicsGdi,
-> {
-    win32_devices_display: TWin32DevicesDisplay,
-    win32_graphics_gdi: TWin32GraphicsGdi,
+pub struct DisplaySettings<TWin32: Win32> {
+    win32: TWin32,
 }
 
 struct MonitorPosition {
@@ -50,17 +44,9 @@ struct MonitorPosition {
     y: i32,
 }
 
-impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32GraphicsGdi>
-    DisplaySettings<TWin32DevicesDisplay, TWin32GraphicsGdi>
-{
-    pub fn new(
-        win32_devices_display: TWin32DevicesDisplay,
-        win32_graphics_gdi: TWin32GraphicsGdi,
-    ) -> Self {
-        Self {
-            win32_devices_display,
-            win32_graphics_gdi,
-        }
+impl<TWin32: Win32> DisplaySettings<TWin32> {
+    pub fn new(win32: TWin32) -> Self {
+        Self { win32 }
     }
 
     pub unsafe fn swap_primary_monitors(
@@ -114,7 +100,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             let idevnum = u32::try_from(display_adapter_index).unwrap();
             let is_success_display_adapter = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_devices_w(
                     PCWSTR::null(),
                     idevnum,
@@ -134,7 +120,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
 
             let is_success_display_device = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_devices_w(
                     display_adapter_device_name,
                     0,
@@ -158,7 +144,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             display_adapter_graphics_mode.dmSize = size_of_devmode;
 
             let has_enum_display_settings_succeded = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_settings_w(
                     display_adapter_device_name,
                     ENUM_CURRENT_SETTINGS,
@@ -202,7 +188,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             let idevnum = u32::try_from(display_adapter_index).unwrap();
             let is_success_display_adapter = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_devices_w(
                     PCWSTR::null(),
                     idevnum,
@@ -222,7 +208,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
 
             let is_success_display_device = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_devices_w(
                     display_adapter_device_name,
                     0,
@@ -246,7 +232,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             display_adapter_graphics_mode.dmSize = size_of_devmode;
 
             let has_enum_display_settings_succeded = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_settings_w(
                     display_adapter_device_name,
                     ENUM_CURRENT_SETTINGS,
@@ -312,7 +298,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             let idevnum = u32::try_from(display_adapter_index).unwrap();
             let is_success_display_adapter = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_devices_w(
                     PCWSTR::null(),
                     idevnum,
@@ -332,7 +318,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
 
             let is_success_display_device = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_devices_w(
                     display_adapter_device_name,
                     0,
@@ -356,7 +342,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             display_adapter_graphics_mode.dmSize = size_of_devmode;
 
             let has_enum_display_settings_succeded = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_settings_w(
                     display_adapter_device_name,
                     ENUM_CURRENT_SETTINGS,
@@ -398,14 +384,13 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 )
             }
 
-            let change_display_settings_ex_result =
-                self.win32_graphics_gdi.change_display_settings_ex_w(
-                    display_adapter_device_name,
-                    Some(&display_adapter_graphics_mode),
-                    HWND::default(),
-                    dwflags,
-                    None,
-                );
+            let change_display_settings_ex_result = self.win32.change_display_settings_ex_w(
+                display_adapter_device_name,
+                Some(&display_adapter_graphics_mode),
+                HWND::default(),
+                dwflags,
+                None,
+            );
 
             match change_display_settings_ex_result {
                 DISP_CHANGE_SUCCESSFUL => continue,
@@ -419,14 +404,13 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             }
         }
 
-        let change_display_settings_ex_result =
-            self.win32_graphics_gdi.change_display_settings_ex_w(
-                PCWSTR::null(),
-                None,
-                HWND::default(),
-                CDS_TYPE::default(),
-                None,
-            );
+        let change_display_settings_ex_result = self.win32.change_display_settings_ex_w(
+            PCWSTR::null(),
+            None,
+            HWND::default(),
+            CDS_TYPE::default(),
+            None,
+        );
 
         match change_display_settings_ex_result {
             DISP_CHANGE_SUCCESSFUL => Ok(SwapPrimaryMonitorsResponse {
@@ -464,7 +448,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
         let mut n_path_informations = u32::default();
         let mut n_mode_informations = u32::default();
 
-        self.win32_devices_display.get_display_config_buffer_sizes(
+        self.win32.get_display_config_buffer_sizes(
             QDC_ONLY_ACTIVE_PATHS,
             &mut n_path_informations,
             &mut n_mode_informations,
@@ -476,7 +460,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             let mut path_informations = vec![DISPLAYCONFIG_PATH_INFO::default(); n_path_informations_as_usize];
             let mut mode_informations = vec![DISPLAYCONFIG_MODE_INFO::default(); n_mode_informations_as_usize];
 
-            self.win32_devices_display.query_display_config(
+            self.win32.query_display_config(
                 QDC_ONLY_ACTIVE_PATHS,
                 &mut n_path_informations,
                 path_informations.as_mut_ptr(),
@@ -503,7 +487,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                     id: mode_information.id
                 };
 
-                let display_config_get_device_info_result_as_i32 = self.win32_devices_display.display_config_get_device_info(&mut displayconfig_target_device_name.header);
+                let display_config_get_device_info_result_as_i32 = self.win32.display_config_get_device_info(&mut displayconfig_target_device_name.header);
                 let display_config_get_device_info_result_as_u32 = u32::try_from(display_config_get_device_info_result_as_i32).unwrap();
                 let display_config_get_device_info_result = WIN32_ERROR(display_config_get_device_info_result_as_u32);
 
@@ -559,7 +543,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
 
             let idevnum = u32::try_from(display_adapter_index).unwrap();
             let is_success_display_adapter = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_devices_w(
                     PCWSTR::null(),
                     idevnum,
@@ -579,7 +563,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             let display_adapter_device_name = PCWSTR::from_raw(display_adapter_device_name_as_ptr);
 
             let is_success_display_device = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_devices_w(
                     display_adapter_device_name,
                     0,
@@ -603,7 +587,7 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
             display_adapter_graphics_mode.dmSize = size_of_devmode;
 
             let has_enum_display_settings_succeded = self
-                .win32_graphics_gdi
+                .win32
                 .enum_display_settings_w(
                     display_adapter_device_name,
                     ENUM_CURRENT_SETTINGS,

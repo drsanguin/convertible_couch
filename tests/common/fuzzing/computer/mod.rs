@@ -11,13 +11,11 @@ use super::{
     position::MonitorPositionFuzzer,
     resolution::ResolutionFuzzer,
     video_output::{FuzzedVideoOutput, VideoOutputFuzzer},
-    win32_devices_display::FuzzedWin32DevicesDisplay,
-    win32_graphics_gdi::FuzzedWin32GraphicsGdi,
+    win32::FuzzedWin32,
 };
 
 pub struct FuzzedComputer {
-    pub win32_devices_display: FuzzedWin32DevicesDisplay,
-    pub win32_graphics_gdi: FuzzedWin32GraphicsGdi,
+    pub win32: FuzzedWin32,
     pub primary_monitor: String,
     pub secondary_monitor: String,
     pub monitors: Vec<String>,
@@ -133,11 +131,7 @@ impl ComputerFuzzer {
             "Error during fuzzing ! Primary and secondary monitors are the same"
         );
 
-        let win32_devices_display = FuzzedWin32DevicesDisplay {
-            video_outputs: self.video_outputs.clone(),
-        };
-
-        let win32_graphics_gdi = FuzzedWin32GraphicsGdi {
+        let win32 = FuzzedWin32 {
             video_outputs: self.video_outputs.clone(),
             reboot_required: self.reboot_required,
         };
@@ -149,8 +143,7 @@ impl ComputerFuzzer {
         FuzzedComputer {
             secondary_monitor,
             primary_monitor,
-            win32_devices_display,
-            win32_graphics_gdi,
+            win32,
             monitors,
         }
     }
