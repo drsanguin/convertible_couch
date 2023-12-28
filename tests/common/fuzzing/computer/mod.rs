@@ -72,7 +72,7 @@ impl ComputerFuzzer {
         let mut video_outputs_to_plug_in_indexes = video_outputs
             .iter()
             .enumerate()
-            .map(|(x, _y)| x)
+            .map(|(index, _video_output)| index)
             .choose_multiple(&mut self.rand, n_monitor);
 
         video_outputs_to_plug_in_indexes.sort();

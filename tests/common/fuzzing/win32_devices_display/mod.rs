@@ -41,12 +41,12 @@ impl Win32DevicesDisplay for FuzzedWin32DevicesDisplay {
 
         self.video_outputs
             .iter()
-            .find(|x| {
-                if x.monitor.is_none() {
+            .find(|video_output| {
+                if video_output.monitor.is_none() {
                     return false;
                 }
 
-                match &x.monitor {
+                match &video_output.monitor {
                     Some(monitor) => monitor.config_mode_info_id == config_mode_info_id,
                     None => false,
                 }
@@ -75,7 +75,7 @@ impl Win32DevicesDisplay for FuzzedWin32DevicesDisplay {
         let n_monitors = self
             .video_outputs
             .iter()
-            .filter(|v| v.monitor.is_some())
+            .filter(|video_output| video_output.monitor.is_some())
             .count();
 
         let n_monitors_as_u32 = u32::try_from(n_monitors).unwrap();

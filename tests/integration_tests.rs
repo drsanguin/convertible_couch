@@ -91,7 +91,7 @@ fn it_should_validate_monitors() {
                 computer
                     .monitors
                     .iter()
-                    .map(|x| x.clone())
+                    .map(|monitor_name| monitor_name.clone())
                     .collect::<Vec<String>>()
                     .join(", ")
             ))

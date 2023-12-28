@@ -73,8 +73,10 @@ impl<TWin32DevicesDisplay: Win32DevicesDisplay, TWin32GraphicsGdi: Win32Graphics
                 if !monitors.contains(desktop_monitor_name)
                     || !monitors.contains(couch_monitor_name)
                 {
-                    let mut monitors_error_message_friendly =
-                        monitors.iter().map(|x| x.clone()).collect::<Vec<String>>();
+                    let mut monitors_error_message_friendly = monitors
+                        .iter()
+                        .map(|monitor_name| monitor_name.clone())
+                        .collect::<Vec<String>>();
 
                     monitors_error_message_friendly.sort();
 

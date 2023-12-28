@@ -72,7 +72,7 @@ impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
 
             self.video_outputs
                 .iter()
-                .find(|x| x.id == video_output_id)
+                .find(|video_output| video_output.id == video_output_id)
                 .and_then(|video_output| video_output.monitor.clone())
                 .and_then(|monitor| {
                     let device_id = encode_utf16::<128>(&monitor.id);
@@ -99,7 +99,7 @@ impl Win32GraphicsGdi for FuzzedWin32GraphicsGdi {
 
         self.video_outputs
             .iter()
-            .find(|x| x.id == video_output_id)
+            .find(|video_output| video_output.id == video_output_id)
             .and_then(|video_output| video_output.monitor.clone())
             .and_then(|monitor| {
                 (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = monitor.position.x;
