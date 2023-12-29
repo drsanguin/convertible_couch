@@ -10,7 +10,7 @@ pub struct FuzzedMonitor {
     pub name: String,
     pub primary: bool,
     pub config_mode_info_id: u32,
-    pub id: String,
+    pub device_id: String,
     pub resolution: FuzzedResolution,
     pub position: FuzzedMonitorPosition,
 }
@@ -42,19 +42,19 @@ impl MonitorFuzzer {
         resolution: FuzzedResolution,
         primary: bool,
     ) -> FuzzedMonitor {
-        let monitor_config_mode_info_id = self.config_mode_info_id_fuzzer.generate_config_mode_id();
+        let config_mode_info_id = self.config_mode_info_id_fuzzer.generate_config_mode_id();
         let monitor_id_gsm_part = self.gsm_id_fuzzer.generate_gsm_id();
-        let monitor_id = format!(
+        let device_id = format!(
             r"\\?\DISPLAY#{monitor_id_gsm_part}#{monitors_id_common_part_1}&{monitors_id_common_part_2}&{monitors_id_common_part_3}&UID{:0>5}#{{{monitors_id_common_part_4}}}",
-            monitor_config_mode_info_id
+            config_mode_info_id
         );
 
-        let monitor_name = self.monitor_name_fuzzer.generate_name();
+        let name = self.monitor_name_fuzzer.generate_name();
 
         FuzzedMonitor {
-            config_mode_info_id: monitor_config_mode_info_id,
-            id: monitor_id,
-            name: monitor_name,
+            config_mode_info_id,
+            device_id,
+            name,
             position,
             primary,
             resolution,

@@ -76,7 +76,7 @@ impl ComputerFuzzer {
             .choose_multiple(&mut self.rand, n_monitor);
 
         let mut monitor_config_mode_info_ids: HashSet<u32> = HashSet::with_capacity(n_monitor);
-        let mut monitor_ids: HashSet<String> = HashSet::with_capacity(n_monitor);
+        let mut monitor_device_ids: HashSet<String> = HashSet::with_capacity(n_monitor);
         let mut monitor_names: HashSet<String> = HashSet::with_capacity(n_monitor);
 
         video_outputs_to_plug_in_indexes.sort();
@@ -111,15 +111,15 @@ impl ComputerFuzzer {
                     );
 
                     monitor_is_unique = !monitor_config_mode_info_ids.contains(&possible_monitor.config_mode_info_id)
-                        && !monitor_ids.contains(&possible_monitor.id)
+                        && !monitor_device_ids.contains(&possible_monitor.device_id)
                         && !monitor_names.contains(&possible_monitor.name);
-                    monitor_opt = Some(possible_monitor);
+                    monitor_opt = if monitor_is_unique { Some(possible_monitor) } else { None };
                 }
 
                 let monitor = monitor_opt.unwrap();
 
                 monitor_config_mode_info_ids.insert(monitor.config_mode_info_id.clone());
-                monitor_ids.insert(monitor.id.clone());
+                monitor_device_ids.insert(monitor.device_id.clone());
                 monitor_names.insert(monitor.name.clone());
 
                 video_outputs[*video_output_index] =

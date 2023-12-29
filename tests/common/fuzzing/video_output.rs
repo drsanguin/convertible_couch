@@ -2,24 +2,28 @@ use super::monitor::FuzzedMonitor;
 
 #[derive(Clone)]
 pub struct FuzzedVideoOutput {
-    pub id: String,
+    pub device_name: String,
     pub monitor: Option<FuzzedMonitor>,
     index: usize,
 }
 
 impl FuzzedVideoOutput {
     pub fn new(index: usize, monitor: Option<FuzzedMonitor>) -> Self {
-        let id = match monitor {
+        let device_name = match monitor {
             Some(_) => format!(r"\\.\DISPLAY{index}\Monitor0"),
             None => format!(r"\\.\DISPLAY{index}"),
         };
 
-        Self { id, monitor, index }
+        Self {
+            device_name,
+            monitor,
+            index,
+        }
     }
 
     pub fn plug_monitor(&self, monitor: FuzzedMonitor) -> Self {
         Self {
-            id: format!(r"\\.\DISPLAY{}\Monitor0", self.index),
+            device_name: format!(r"\\.\DISPLAY{}\Monitor0", self.index),
             monitor: Some(monitor),
             index: self.index,
         }

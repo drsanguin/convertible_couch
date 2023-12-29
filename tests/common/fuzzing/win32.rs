@@ -74,7 +74,7 @@ impl Win32 for FuzzedWin32 {
             .and_then(|video_output| {
                 let monitor = video_output.monitor.as_ref().unwrap();
 
-                (*request_packet).monitorDevicePath = encode_utf16::<128>(&monitor.id);
+                (*request_packet).monitorDevicePath = encode_utf16::<128>(&monitor.device_id);
                 (*request_packet).monitorFriendlyDeviceName = encode_utf16::<64>(&monitor.name);
 
                 Some(0)
@@ -168,11 +168,11 @@ impl Win32 for FuzzedWin32 {
             };
         }
 
-        let video_output_id = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
+        let device_name = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
 
         self.video_outputs
             .iter()
-            .find(|video_output| video_output.id == video_output_id)
+            .find(|video_output| video_output.device_name == device_name)
             .and_then(|video_output| video_output.monitor.clone())
             .and_then(|monitor| {
                 lpdevmode.and_then(|graphic_mode| {
@@ -218,7 +218,7 @@ impl Win32 for FuzzedWin32 {
             }
 
             let video_output = &self.video_outputs[video_output_index];
-            let device_name = encode_utf16::<32>(&video_output.id);
+            let device_name = encode_utf16::<32>(&video_output.device_name);
 
             (*lpdisplaydevice).DeviceName = device_name;
 
@@ -230,14 +230,14 @@ impl Win32 for FuzzedWin32 {
                 return BOOL(0);
             }
 
-            let video_output_id = String::from_utf16(&lpdevice.as_wide()).unwrap();
+            let device_name = String::from_utf16(&lpdevice.as_wide()).unwrap();
 
             self.video_outputs
                 .iter()
-                .find(|video_output| video_output.id == video_output_id)
+                .find(|video_output| video_output.device_name == device_name)
                 .and_then(|video_output| video_output.monitor.clone())
                 .and_then(|monitor| {
-                    let device_id = encode_utf16::<128>(&monitor.id);
+                    let device_id = encode_utf16::<128>(&monitor.device_id);
 
                     (*lpdisplaydevice).DeviceID = device_id;
 
@@ -257,11 +257,11 @@ impl Win32 for FuzzedWin32 {
             return BOOL(0);
         }
 
-        let video_output_id = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
+        let device_name = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
 
         self.video_outputs
             .iter()
-            .find(|video_output| video_output.id == video_output_id)
+            .find(|video_output| video_output.device_name == device_name)
             .and_then(|video_output| video_output.monitor.clone())
             .and_then(|monitor| {
                 (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = monitor.position.x;
