@@ -45,7 +45,8 @@ impl MonitorFuzzer {
         let monitor_config_mode_info_id = self.config_mode_info_id_fuzzer.generate_config_mode_id();
         let monitor_id_gsm_part = self.gsm_id_fuzzer.generate_gsm_id();
         let monitor_id = format!(
-            r"\\?\DISPLAY#{monitor_id_gsm_part}#{monitors_id_common_part_1}&{monitors_id_common_part_2}&{monitors_id_common_part_3}&UID{monitor_config_mode_info_id}#{{{monitors_id_common_part_4}}}"
+            r"\\?\DISPLAY#{monitor_id_gsm_part}#{monitors_id_common_part_1}&{monitors_id_common_part_2}&{monitors_id_common_part_3}&UID{:0>5}#{{{monitors_id_common_part_4}}}",
+            monitor_config_mode_info_id
         );
 
         let monitor_name = self.monitor_name_fuzzer.generate_name();

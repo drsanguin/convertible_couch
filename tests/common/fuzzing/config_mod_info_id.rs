@@ -10,6 +10,6 @@ impl ConfigModeInfoIdFuzzer {
     }
 
     pub fn generate_config_mode_id(&mut self) -> u32 {
-        self.rand.gen_range(10000..=99999)
+        self.rand.gen_range(0..99999)
     }
 }
