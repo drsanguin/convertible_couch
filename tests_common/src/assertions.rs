@@ -1,4 +1,4 @@
-use convertible_couch::display_settings::SwapPrimaryMonitorsResponse;
+use convertible_couch_lib::display_settings::SwapPrimaryMonitorsResponse;
 
 pub fn assert_that_primary_monitors_have_been_swap_as_expected(
     actual_response: Result<SwapPrimaryMonitorsResponse, String>,

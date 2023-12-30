@@ -1,5 +1,5 @@
 use clap::Parser;
-use convertible_couch::{
+use convertible_couch_lib::{
     display_settings::{DisplaySettings, Win32Impl},
     log::{configure_logger, LogLevel},
 };

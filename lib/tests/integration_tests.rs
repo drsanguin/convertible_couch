@@ -1,8 +1,7 @@
-use common::assertions::assert_that_primary_monitors_have_been_swap_as_expected;
-use common::fuzzing::Fuzzer;
-use convertible_couch::display_settings::{DisplaySettings, SwapPrimaryMonitorsResponse};
-
-mod common;
+use convertible_couch_lib::display_settings::{DisplaySettings, SwapPrimaryMonitorsResponse};
+use convertible_couch_tests_common::{
+    assertions::assert_that_primary_monitors_have_been_swap_as_expected, new_fuzzer,
+};
 
 #[test]
 fn it_should_swap_the_primary_monitors_of_computer() {

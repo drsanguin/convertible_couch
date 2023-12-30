@@ -16,6 +16,7 @@ pub mod win32;
 #[macro_export]
 macro_rules! new_fuzzer {
     () => {{
+        use convertible_couch_tests_common::fuzzing::Fuzzer;
         fn f() {}
         fn type_name_of<T>(_: T) -> &'static str {
             std::any::type_name::<T>()

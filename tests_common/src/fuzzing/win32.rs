@@ -1,6 +1,6 @@
 use std::{ffi::c_void, mem::size_of};
 
-use convertible_couch::display_settings::Win32;
+use convertible_couch_lib::display_settings::Win32;
 use windows::{
     core::Error,
     core::PCWSTR,
@@ -21,7 +21,7 @@ use windows::{
     },
 };
 
-use crate::common::utils::encode_utf16;
+use crate::utils::encode_utf16;
 
 use super::{position::FuzzedMonitorPosition, video_output::FuzzedVideoOutput};
 
