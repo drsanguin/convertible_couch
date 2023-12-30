@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use rand::{
     distributions::{Alphanumeric, DistString},
     rngs::StdRng,
@@ -142,19 +144,37 @@ impl FuzzedMonitorBrand {
 
 pub struct MonitorNameFuzzer {
     rand: StdRng,
+    names: HashSet<String>,
 }
 
 impl MonitorNameFuzzer {
     pub fn new(rand: StdRng) -> Self {
-        Self { rand }
+        Self {
+            rand,
+            names: HashSet::new(),
+        }
     }
 
     pub fn generate_name(&mut self) -> String {
-        let brand = FuzzedMonitorBrand::ALL.choose(&mut self.rand).unwrap();
-        let model_id_max_len = 62 - brand.len();
-        let model_id_len = self.rand.gen_range(8..model_id_max_len);
-        let model_id_part_1 = Alphanumeric.sample_string(&mut self.rand, model_id_len);
+        let mut name_opt = None;
 
-        format!("{brand} {model_id_part_1}")
+        while name_opt.is_none() {
+            let brand = FuzzedMonitorBrand::ALL.choose(&mut self.rand).unwrap();
+            let model_id_max_len = 62 - brand.len();
+            let model_id_len = self.rand.gen_range(8..model_id_max_len);
+            let model_id_part_1 = Alphanumeric.sample_string(&mut self.rand, model_id_len);
+            let name: String = format!("{brand} {model_id_part_1}");
+
+            name_opt = if !self.names.contains(&name) {
+                Some(name)
+            } else {
+                None
+            };
+        }
+
+        let name = name_opt.unwrap();
+        self.names.insert(name.clone());
+
+        name
     }
 }

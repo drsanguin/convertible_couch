@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use rand::{
     distributions::{Alphanumeric, DistString},
     rngs::StdRng,
@@ -26,10 +24,10 @@ pub struct FuzzedComputer {
 pub struct ComputerFuzzer {
     pub video_outputs: Vec<FuzzedVideoOutput>,
     pub reboot_required: bool,
+    pub monitor_fuzzer: MonitorFuzzer,
     rand: StdRng,
     guid_fuzzer: GuidFuzzer,
     resolution_fuzzer: ResolutionFuzzer,
-    monitor_fuzzer: MonitorFuzzer,
     monitor_position_fuzzer: MonitorPositionFuzzer,
 }
 
@@ -75,10 +73,6 @@ impl ComputerFuzzer {
             .map(|(index, _video_output)| index)
             .choose_multiple(&mut self.rand, n_monitor);
 
-        let mut monitor_config_mode_info_ids: HashSet<u32> = HashSet::with_capacity(n_monitor);
-        let mut monitor_device_ids: HashSet<String> = HashSet::with_capacity(n_monitor);
-        let mut monitor_names: HashSet<String> = HashSet::with_capacity(n_monitor);
-
         video_outputs_to_plug_in_indexes.sort();
 
         video_outputs_to_plug_in_indexes
@@ -96,31 +90,15 @@ impl ComputerFuzzer {
                     );
                 }
 
-                let mut monitor_is_unique = false;
-                let mut monitor_opt = None;
-
-                while !monitor_is_unique {
-                    let possible_monitor = self.monitor_fuzzer.generate_monitor(
-                        monitors_id_common_part_1,
-                        &monitors_id_common_part_2,
-                        monitors_id_common_part_3,
-                        &monitors_id_common_part_4,
-                        position,
-                        resolution,
-                        primary,
-                    );
-
-                    monitor_is_unique = !monitor_config_mode_info_ids.contains(&possible_monitor.config_mode_info_id)
-                        && !monitor_device_ids.contains(&possible_monitor.device_id)
-                        && !monitor_names.contains(&possible_monitor.name);
-                    monitor_opt = if monitor_is_unique { Some(possible_monitor) } else { None };
-                }
-
-                let monitor = monitor_opt.unwrap();
-
-                monitor_config_mode_info_ids.insert(monitor.config_mode_info_id.clone());
-                monitor_device_ids.insert(monitor.device_id.clone());
-                monitor_names.insert(monitor.name.clone());
+                let monitor = self.monitor_fuzzer.generate_monitor(
+                    monitors_id_common_part_1,
+                    &monitors_id_common_part_2,
+                    monitors_id_common_part_3,
+                    &monitors_id_common_part_4,
+                    position,
+                    resolution,
+                    primary,
+                );
 
                 video_outputs[*video_output_index] =
                     video_outputs[*video_output_index].plug_monitor(monitor);

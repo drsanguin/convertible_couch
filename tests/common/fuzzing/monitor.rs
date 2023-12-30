@@ -18,7 +18,7 @@ pub struct FuzzedMonitor {
 pub struct MonitorFuzzer {
     config_mode_info_id_fuzzer: ConfigModeInfoIdFuzzer,
     gsm_id_fuzzer: GsmIdFuzzer,
-    monitor_name_fuzzer: MonitorNameFuzzer,
+    pub monitor_name_fuzzer: MonitorNameFuzzer,
 }
 
 impl MonitorFuzzer {
