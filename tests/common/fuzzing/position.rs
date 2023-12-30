@@ -11,7 +11,7 @@ pub struct FuzzedMonitorPosition {
 }
 
 #[derive(Clone, Copy)]
-pub struct FuzzedMonitorResolutionPositioned {
+pub struct FuzzedMonitorPositionedResolution {
     pub resolution: FuzzedResolution,
     pub position: FuzzedMonitorPosition,
 }
@@ -34,7 +34,7 @@ impl MonitorPositionFuzzer {
     pub fn generate_positions(
         &mut self,
         resolutions: &Vec<FuzzedResolution>,
-    ) -> Vec<FuzzedMonitorResolutionPositioned> {
+    ) -> Vec<FuzzedMonitorPositionedResolution> {
         let n_monitor = resolutions.len();
 
         let primary_monitor_index = self.rand.gen_range(0..n_monitor);
@@ -101,7 +101,7 @@ impl MonitorPositionFuzzer {
         let mut mon_res_pos_left = Vec::with_capacity(n_mon_res_pos_left);
         let mut mon_res_pos_left_up = Vec::with_capacity(n_mon_res_pos_left_up);
 
-        let primary_monitor_positioned = FuzzedMonitorResolutionPositioned {
+        let primary_monitor_positioned = FuzzedMonitorPositionedResolution {
             position: primary_monitor_position,
             resolution: primary_monitor_resolution,
         };
@@ -169,16 +169,16 @@ impl MonitorPositionFuzzer {
         mon_res_pos_left_down_lim: usize,
         mon_res_pos_left_lim: usize,
         mon_res_pos_left_up_lim: usize,
-        mon_res_pos_up: &mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_right_up: &mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_right: &mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_right_down: &mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_down: &mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_left_down: &mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_left: &mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_left_up: &mut Vec<FuzzedMonitorResolutionPositioned>,
+        mon_res_pos_up: &mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_right_up: &mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_right: &mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_right_down: &mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_down: &mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_left_down: &mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_left: &mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_left_up: &mut Vec<FuzzedMonitorPositionedResolution>,
         resolution: &FuzzedResolution,
-        primary_monitor_positioned: FuzzedMonitorResolutionPositioned,
+        primary_monitor_positioned: FuzzedMonitorPositionedResolution,
     ) {
         let position_resolution_parameters = Self::get_position_resolution_parameters(
             resolution_index,
@@ -211,8 +211,8 @@ impl MonitorPositionFuzzer {
 
     fn position_resolution_with_parameters(
         resolution: &FuzzedResolution,
-        mon_pos_res: &mut Vec<FuzzedMonitorResolutionPositioned>,
-        primary_monitor_positioned: &FuzzedMonitorResolutionPositioned,
+        mon_pos_res: &mut Vec<FuzzedMonitorPositionedResolution>,
+        primary_monitor_positioned: &FuzzedMonitorPositionedResolution,
         move_horizontally: MoveHorizontally,
         move_vertically: MoveVertically,
     ) {
@@ -239,7 +239,7 @@ impl MonitorPositionFuzzer {
             }
         };
 
-        mon_pos_res.push(FuzzedMonitorResolutionPositioned {
+        mon_pos_res.push(FuzzedMonitorPositionedResolution {
             resolution: *resolution,
             position: FuzzedMonitorPosition { x, y },
         });
@@ -255,16 +255,16 @@ impl MonitorPositionFuzzer {
         mon_res_pos_left_down_lim: usize,
         mon_res_pos_left_lim: usize,
         mon_res_pos_left_up_lim: usize,
-        mon_res_pos_up: &'a mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_right_up: &'a mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_right: &'a mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_right_down: &'a mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_down: &'a mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_left_down: &'a mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_left: &'a mut Vec<FuzzedMonitorResolutionPositioned>,
-        mon_res_pos_left_up: &'a mut Vec<FuzzedMonitorResolutionPositioned>,
+        mon_res_pos_up: &'a mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_right_up: &'a mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_right: &'a mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_right_down: &'a mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_down: &'a mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_left_down: &'a mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_left: &'a mut Vec<FuzzedMonitorPositionedResolution>,
+        mon_res_pos_left_up: &'a mut Vec<FuzzedMonitorPositionedResolution>,
     ) -> (
-        &'a mut Vec<FuzzedMonitorResolutionPositioned>,
+        &'a mut Vec<FuzzedMonitorPositionedResolution>,
         MoveHorizontally,
         MoveVertically,
     ) {

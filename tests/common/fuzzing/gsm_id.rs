@@ -36,4 +36,8 @@ impl GsmIdFuzzer {
 
         gsm_id
     }
+
+    pub fn generate_gsm_ids(&mut self, count: usize) -> Vec<String> {
+        (0..count).map(|_| self.generate_gsm_id()).collect()
+    }
 }

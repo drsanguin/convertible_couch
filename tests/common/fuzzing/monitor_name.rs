@@ -177,4 +177,8 @@ impl MonitorNameFuzzer {
 
         name
     }
+
+    pub fn generate_names(&mut self, count: usize) -> Vec<String> {
+        (0..count).map(|_| self.generate_name()).collect()
+    }
 }

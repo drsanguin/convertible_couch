@@ -61,9 +61,23 @@ impl ComputerFuzzer {
 
         let monitors_resolutions = self.resolution_fuzzer.generate_resolutions(n_monitor);
 
-        let monitors_positions = self
+        let positioned_resolutions = self
             .monitor_position_fuzzer
             .generate_positions(&monitors_resolutions);
+
+        let monitors = self.monitor_fuzzer.generate_monitors(
+            monitors_id_common_part_1,
+            &monitors_id_common_part_2,
+            monitors_id_common_part_3,
+            &monitors_id_common_part_4,
+            &positioned_resolutions,
+        );
+
+        assert_eq!(
+            monitors.iter().filter(|monitor| monitor.primary).count(),
+            1,
+            "More than one primary monitor has been generated"
+        );
 
         let mut video_outputs = VideoOutputFuzzer::generate_video_outputs(n_video_output);
 
@@ -79,26 +93,7 @@ impl ComputerFuzzer {
             .iter()
             .enumerate()
             .for_each(|(monitor_index, video_output_index)| {
-                let position = monitors_positions[monitor_index].position;
-                let resolution = monitors_positions[monitor_index].resolution;
-                let primary = position.x == 0 && position.y == 0;
-
-                if !primary {
-                    assert!(
-                        position.x != 0 || position.y != 0,
-                        "Error during fuzzing ! A non primary monitor has been positioned to {position}"
-                    );
-                }
-
-                let monitor = self.monitor_fuzzer.generate_monitor(
-                    monitors_id_common_part_1,
-                    &monitors_id_common_part_2,
-                    monitors_id_common_part_3,
-                    &monitors_id_common_part_4,
-                    position,
-                    resolution,
-                    primary,
-                );
+                let monitor = monitors[monitor_index].to_owned();
 
                 video_outputs[*video_output_index] =
                     video_outputs[*video_output_index].plug_monitor(monitor);
