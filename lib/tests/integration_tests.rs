@@ -6,7 +6,7 @@ use convertible_couch_tests_common::{
 #[test]
 fn it_should_swap_the_primary_monitors_of_computer() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = new_fuzzer!(true);
 
     let computer = fuzzer
         .generate_a_computer()
@@ -34,7 +34,7 @@ fn it_should_swap_the_primary_monitors_of_computer() {
 #[test]
 fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_required() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = new_fuzzer!(true);
 
     let computer = fuzzer
         .generate_a_computer()
@@ -63,7 +63,7 @@ fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_requi
 #[test]
 fn it_should_validate_monitors() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = new_fuzzer!(true);
 
     let wrong_desktop_monitor_name = fuzzer.generate_monitor_name();
     let wrong_couch_monitor_name = fuzzer.generate_monitor_name();

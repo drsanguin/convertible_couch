@@ -15,7 +15,7 @@ pub mod win32;
 
 #[macro_export]
 macro_rules! new_fuzzer {
-    () => {{
+    ($expression:expr) => {{
         use convertible_couch_tests_common::fuzzing::Fuzzer;
         fn f() {}
         fn type_name_of<T>(_: T) -> &'static str {
@@ -23,7 +23,7 @@ macro_rules! new_fuzzer {
         }
         let name = type_name_of(f);
 
-        Fuzzer::new(&name[19..name.len() - 3])
+        Fuzzer::new(&name[19..name.len() - 3], $expression)
     }};
 }
 
@@ -32,11 +32,13 @@ pub struct Fuzzer {
 }
 
 impl Fuzzer {
-    pub fn new(test_name: &str) -> Self {
+    pub fn new(test_name: &str, print_seed: bool) -> Self {
         let mut seeder = StdRng::from_entropy();
         let seed = seeder.next_u64();
 
-        println!("seed {test_name} ... {seed}");
+        if print_seed {
+            println!("seed {test_name} ... {seed}");
+        }
 
         Self {
             computer_fuzzer: ComputerFuzzer::new(StdRng::seed_from_u64(seed)),

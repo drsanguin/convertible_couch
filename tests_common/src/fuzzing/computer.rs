@@ -32,7 +32,9 @@ pub struct ComputerFuzzer {
 }
 
 impl ComputerFuzzer {
-    const MAX_VIDEO_OUTPUTS: usize = 5;
+    /// According to the answer of this question https://learn.microsoft.com/en-us/answers/questions/1324305/what-is-the-maximum-horizontal-resolution-size-rec Windows has a hard limit of 128 million pixels.
+    /// Which implies that the theoretical maximum is 162 monitors with a 1024x768 resolution.
+    const MAX_VIDEO_OUTPUTS: usize = 162;
 
     pub fn new(mut rand: StdRng) -> Self {
         let seed = rand.next_u64();
@@ -49,9 +51,45 @@ impl ComputerFuzzer {
     }
 
     pub fn with_two_monitors_or_more(&mut self) -> &mut Self {
-        let min_n_monitor = 2;
-        let n_video_output = self.rand.gen_range(min_n_monitor..=Self::MAX_VIDEO_OUTPUTS);
-        let n_monitor = self.rand.gen_range(min_n_monitor..=n_video_output);
+        self.with_a_range_of_monitors(2, Self::MAX_VIDEO_OUTPUTS)
+    }
+
+    pub fn with_n_monitors(&mut self, n_monitor: usize) -> &mut Self {
+        self.with_a_range_of_monitors(n_monitor, n_monitor)
+    }
+
+    pub fn which_requires_reboot(&mut self) -> &mut Self {
+        self.reboot_required = true;
+
+        self
+    }
+
+    pub fn build_computer(&self) -> FuzzedComputer {
+        let secondary_monitor = self.get_monitor(false);
+        let primary_monitor = self.get_monitor(true);
+
+        assert_ne!(
+            secondary_monitor, primary_monitor,
+            "Error during fuzzing ! Primary and secondary monitors are the same"
+        );
+
+        let win32 = FuzzedWin32::new(self.video_outputs.clone(), self.reboot_required);
+
+        let mut monitors = self.get_all_monitors();
+
+        monitors.sort();
+
+        FuzzedComputer {
+            secondary_monitor,
+            primary_monitor,
+            win32,
+            monitors,
+        }
+    }
+
+    fn with_a_range_of_monitors(&mut self, min: usize, max: usize) -> &mut Self {
+        let n_video_output = self.rand.gen_range(min..=max);
+        let n_monitor = self.rand.gen_range(min..=n_video_output);
 
         let monitors_id_common_part_1 = self.rand.gen_range(0..=9);
         let monitors_id_common_part_2 =
@@ -102,35 +140,6 @@ impl ComputerFuzzer {
         self.video_outputs = video_outputs;
 
         self
-    }
-
-    pub fn which_requires_reboot(&mut self) -> &mut Self {
-        self.reboot_required = true;
-
-        self
-    }
-
-    pub fn build_computer(&self) -> FuzzedComputer {
-        let secondary_monitor = self.get_monitor(false);
-        let primary_monitor = self.get_monitor(true);
-
-        assert_ne!(
-            secondary_monitor, primary_monitor,
-            "Error during fuzzing ! Primary and secondary monitors are the same"
-        );
-
-        let win32 = FuzzedWin32::new(self.video_outputs.clone(), self.reboot_required);
-
-        let mut monitors = self.get_all_monitors();
-
-        monitors.sort();
-
-        FuzzedComputer {
-            secondary_monitor,
-            primary_monitor,
-            win32,
-            monitors,
-        }
     }
 
     fn get_monitor(&self, primary: bool) -> String {
