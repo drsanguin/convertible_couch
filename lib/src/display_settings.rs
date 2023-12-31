@@ -55,19 +55,32 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         couch_monitor_name: &str,
     ) -> Result<SwapPrimaryMonitorsResponse, String> {
         self.validate_monitors(desktop_monitor_name, couch_monitor_name)
-            .and_then(|_| self.get_primary_monitor_name())
-            .and_then(|primary_monitor_name| {
-                let new_primary_monitor_name = if primary_monitor_name == desktop_monitor_name {
-                    couch_monitor_name
-                } else {
-                    desktop_monitor_name
-                };
-
+            .and_then(|_| self.get_current_primary_monitor_name())
+            .and_then(|current_primary_monitor_name| {
+                Self::get_new_primary_monitor(
+                    current_primary_monitor_name,
+                    desktop_monitor_name,
+                    couch_monitor_name,
+                )
+            })
+            .and_then(|new_primary_monitor_name| {
                 self.get_monitor_position(&new_primary_monitor_name)
             })
             .and_then(|new_primary_monitor_current_position| {
                 self.set_monitors_to_position(&new_primary_monitor_current_position)
             })
+    }
+
+    fn get_new_primary_monitor<'a>(
+        current_primary_monitor_name: String,
+        desktop_monitor_name: &'a str,
+        couch_monitor_name: &'a str,
+    ) -> Result<&'a str, String> {
+        Ok(if current_primary_monitor_name == desktop_monitor_name {
+            couch_monitor_name
+        } else {
+            desktop_monitor_name
+        })
     }
 
     fn validate_monitors(
@@ -76,40 +89,38 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         couch_monitor_name: &str,
     ) -> Result<(), String> {
         self.get_all_monitors().and_then(|monitors| {
-            if !monitors.contains(desktop_monitor_name) || !monitors.contains(couch_monitor_name) {
-                let mut monitors_error_message_friendly = monitors
-                    .iter()
-                    .map(|monitor_name| monitor_name.clone())
-                    .collect::<Vec<String>>();
-
-                monitors_error_message_friendly.sort();
-
-                if !monitors.contains(desktop_monitor_name) && monitors.contains(couch_monitor_name)
-                {
-                    return Err(format!(
-                        "Desktop monitor is invalid, possible values are [{}]",
-                        monitors_error_message_friendly.join(", ")
-                    ));
-                } else if monitors.contains(desktop_monitor_name)
-                    && !monitors.contains(couch_monitor_name)
-                {
-                    return Err(format!(
-                        "Couch monitor is invalid, possible values are [{}]",
-                        monitors_error_message_friendly.join(", ")
-                    ));
-                }
-
-                return Err(format!(
+            match (
+                monitors.contains(desktop_monitor_name),
+                monitors.contains(couch_monitor_name),
+            ) {
+                (true, true) => Ok(()),
+                (true, false) => Err(format!(
+                    "Couch monitor is invalid, possible values are [{}]",
+                    Self::stringify_monitors_names(&monitors)
+                )),
+                (false, true) => Err(format!(
+                    "Desktop monitor is invalid, possible values are [{}]",
+                    Self::stringify_monitors_names(&monitors)
+                )),
+                (false, false) => Err(format!(
                     "Desktop and couch monitors are invalid, possible values are [{}]",
-                    monitors_error_message_friendly.join(", ")
-                ));
-            } else {
-                Ok(())
+                    Self::stringify_monitors_names(&monitors)
+                )),
             }
         })
     }
 
-    fn get_primary_monitor_name(&self) -> Result<String, String> {
+    fn stringify_monitors_names(monitors: &HashSet<String>) -> String {
+        let mut monitors_error_message_friendly = monitors
+            .iter()
+            .map(|monitor_name| monitor_name.clone())
+            .collect::<Vec<String>>();
+
+        monitors_error_message_friendly.sort();
+        monitors_error_message_friendly.join(", ")
+    }
+
+    fn get_current_primary_monitor_name(&self) -> Result<String, String> {
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
