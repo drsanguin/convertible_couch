@@ -49,7 +49,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         Self { win32 }
     }
 
-    pub unsafe fn swap_primary_monitors(
+    pub fn swap_primary_monitors(
         &mut self,
         desktop_monitor_name: &str,
         couch_monitor_name: &str,
@@ -87,7 +87,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
             })
     }
 
-    unsafe fn get_primary_monitor_name(&self) -> Result<String, String> {
+    fn get_primary_monitor_name(&self) -> Result<String, String> {
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -130,10 +130,13 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 .as_bool();
 
             if !is_success_display_device {
-                warn!(
-                    "Failed to retrieve display device informations from the display adapter {}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
+                unsafe {
+                    warn!(
+                        "Failed to retrieve display device informations from the display adapter {}",
+                        display_adapter_device_name.to_string().unwrap()
+                    );
+                }
+
                 continue;
             }
 
@@ -153,10 +156,13 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                warn!(
-                    "Failed to enum display settings for display device {}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
+                unsafe {
+                    warn!(
+                        "Failed to enum display settings for display device {}",
+                        display_adapter_device_name.to_string().unwrap()
+                    );
+                }
+
                 continue;
             }
 
@@ -176,7 +182,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         return Err(String::from("Failed to retrieve the primary monitor"));
     }
 
-    unsafe fn get_monitor_position(&self, monitor_name: &str) -> Result<MonitorPosition, String> {
+    fn get_monitor_position(&self, monitor_name: &str) -> Result<MonitorPosition, String> {
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -218,10 +224,13 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 .as_bool();
 
             if !is_success_display_device {
-                warn!(
-                    "Failed to retrieve display device informations from the display adapter {}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
+                unsafe {
+                    warn!(
+                        "Failed to retrieve display device informations from the display adapter {}",
+                        display_adapter_device_name.to_string().unwrap()
+                    );
+                }
+
                 continue;
             }
 
@@ -241,10 +250,13 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                warn!(
-                    "Failed to enum display settings for display device {}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
+                unsafe {
+                    warn!(
+                        "Failed to enum display settings for display device {}",
+                        display_adapter_device_name.to_string().unwrap()
+                    );
+                }
+
                 continue;
             }
 
@@ -258,20 +270,22 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 continue;
             }
 
-            let monitor_position = MonitorPosition {
-                x: display_adapter_graphics_mode
-                    .Anonymous1
-                    .Anonymous2
-                    .dmPosition
-                    .x,
-                y: display_adapter_graphics_mode
-                    .Anonymous1
-                    .Anonymous2
-                    .dmPosition
-                    .y,
-            };
+            unsafe {
+                let monitor_position = MonitorPosition {
+                    x: display_adapter_graphics_mode
+                        .Anonymous1
+                        .Anonymous2
+                        .dmPosition
+                        .x,
+                    y: display_adapter_graphics_mode
+                        .Anonymous1
+                        .Anonymous2
+                        .dmPosition
+                        .y,
+                };
 
-            return Ok(monitor_position);
+                return Ok(monitor_position);
+            }
         }
 
         Err(format!(
@@ -279,7 +293,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         ))
     }
 
-    unsafe fn set_monitors_to_position(
+    fn set_monitors_to_position(
         &mut self,
         position: &MonitorPosition,
     ) -> Result<SwapPrimaryMonitorsResponse, String> {
@@ -327,11 +341,13 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 .as_bool();
 
             if !is_success_display_device {
-                warn!(
-                    "Failed to retrieve display device informations from the display adapter {}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
-                continue;
+                unsafe {
+                    warn!(
+                        "Failed to retrieve display device informations from the display adapter {}",
+                        display_adapter_device_name.to_string().unwrap()
+                    );
+                    continue;
+                }
             }
 
             let size_of_devmode_as_usize = size_of::<DEVMODEW>();
@@ -350,23 +366,28 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                warn!(
-                    "Failed to enum display settings for display device {}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
+                unsafe {
+                    warn!(
+                        "Failed to enum display settings for display device {}",
+                        display_adapter_device_name.to_string().unwrap()
+                    );
+                }
+
                 continue;
             }
 
-            display_adapter_graphics_mode
-                .Anonymous1
-                .Anonymous2
-                .dmPosition
-                .x -= position.x;
-            display_adapter_graphics_mode
-                .Anonymous1
-                .Anonymous2
-                .dmPosition
-                .y -= position.y;
+            unsafe {
+                display_adapter_graphics_mode
+                    .Anonymous1
+                    .Anonymous2
+                    .dmPosition
+                    .x -= position.x;
+                display_adapter_graphics_mode
+                    .Anonymous1
+                    .Anonymous2
+                    .dmPosition
+                    .y -= position.y;
+            }
 
             let mut dwflags = CDS_UPDATEREGISTRY | CDS_NORESET;
 
@@ -428,22 +449,24 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         }
     }
 
-    unsafe fn is_positioned_at_origin(&self, display_adapter_graphics_mode: DEVMODEW) -> bool {
-        display_adapter_graphics_mode
-            .Anonymous1
-            .Anonymous2
-            .dmPosition
-            .x
-            == 0
-            && display_adapter_graphics_mode
+    fn is_positioned_at_origin(&self, display_adapter_graphics_mode: DEVMODEW) -> bool {
+        unsafe {
+            display_adapter_graphics_mode
                 .Anonymous1
                 .Anonymous2
                 .dmPosition
-                .y
+                .x
                 == 0
+                && display_adapter_graphics_mode
+                    .Anonymous1
+                    .Anonymous2
+                    .dmPosition
+                    .y
+                    == 0
+        }
     }
 
-    unsafe fn get_monitor_name(&self, monitor_device_path: &str) -> Result<String, String> {
+    fn get_monitor_name(&self, monitor_device_path: &str) -> Result<String, String> {
         let mut n_path_informations = u32::default();
         let mut n_mode_informations = u32::default();
 
@@ -527,7 +550,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         }
     }
 
-    unsafe fn get_all_monitors(&self) -> Result<HashSet<String>, String> {
+    fn get_all_monitors(&self) -> Result<HashSet<String>, String> {
         let mut monitors_names = HashSet::new();
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
@@ -571,10 +594,13 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 .as_bool();
 
             if !is_success_display_device {
-                warn!(
-                    "Failed to retrieve display device informations from the display adapter {}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
+                unsafe {
+                    warn!(
+                        "Failed to retrieve display device informations from the display adapter {}",
+                        display_adapter_device_name.to_string().unwrap()
+                    );
+                }
+
                 continue;
             }
 
@@ -594,10 +620,13 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                warn!(
-                    "Failed to enum display settings for display device {}",
-                    display_adapter_device_name.to_string().unwrap()
-                );
+                unsafe {
+                    warn!(
+                        "Failed to enum display settings for display device {}",
+                        display_adapter_device_name.to_string().unwrap()
+                    );
+                }
+
                 continue;
             }
 

@@ -32,7 +32,7 @@ fn swap_primary_monitors(c: &mut Criterion) {
                             computer.secondary_monitor,
                         )
                     },
-                    |(mut display_settings, primary_monitor, secondary_monitor)| unsafe {
+                    |(mut display_settings, primary_monitor, secondary_monitor)| {
                         display_settings.swap_primary_monitors(&primary_monitor, &secondary_monitor)
                     },
                     BatchSize::SmallInput,

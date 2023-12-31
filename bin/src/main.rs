@@ -23,21 +23,19 @@ fn main() {
 
     let mut display_settings = DisplaySettings::new(Win32Impl);
 
-    unsafe {
-        match display_settings
-            .swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name)
-        {
-            Ok(response) => {
-                match response.new_primary {
-                    Some(new_primary) => info!("Primary monitor set to {new_primary}"),
-                    None => error!("Primary monitor has not been changed for an unknow reason"),
-                }
-
-                if response.reboot_required {
-                    warn!("The settings change was successful but the computer must be restarted for the graphics mode to work.");
-                }
+    match display_settings
+        .swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name)
+    {
+        Ok(response) => {
+            match response.new_primary {
+                Some(new_primary) => info!("Primary monitor set to {new_primary}"),
+                None => error!("Primary monitor has not been changed for an unknow reason"),
             }
-            Err(message) => error!("{message}"),
+
+            if response.reboot_required {
+                warn!("The settings change was successful but the computer must be restarted for the graphics mode to work.");
+            }
         }
+        Err(message) => error!("{message}"),
     }
 }
