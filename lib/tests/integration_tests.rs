@@ -57,7 +57,71 @@ fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_requi
 }
 
 #[test]
-fn it_should_validate_monitors() {
+fn it_should_validate_the_desktop_monitor() {
+    // Arrange
+    let mut fuzzer = new_fuzzer!(true);
+
+    let wrong_desktop_monitor_name = fuzzer.generate_monitor_name();
+    let computer = fuzzer
+        .generate_a_computer()
+        .with_two_monitors_or_more()
+        .build_computer();
+
+    let mut display_settings = DisplaySettings::new(computer.win32);
+
+    // Act
+    let actual_response = display_settings
+        .swap_primary_monitors(&wrong_desktop_monitor_name, &computer.secondary_monitor);
+
+    // Assert
+    assert_eq!(
+        actual_response,
+        Err(format!(
+            "Desktop monitor is invalid, possible values are [{}]",
+            computer
+                .monitors
+                .iter()
+                .map(|monitor_name| monitor_name.clone())
+                .collect::<Vec<String>>()
+                .join(", ")
+        ))
+    );
+}
+
+#[test]
+fn it_should_validate_the_couch_monitor() {
+    // Arrange
+    let mut fuzzer = new_fuzzer!(true);
+
+    let wrong_couch_monitor_name = fuzzer.generate_monitor_name();
+    let computer = fuzzer
+        .generate_a_computer()
+        .with_two_monitors_or_more()
+        .build_computer();
+
+    let mut display_settings = DisplaySettings::new(computer.win32);
+
+    // Act
+    let actual_response = display_settings
+        .swap_primary_monitors(&computer.primary_monitor, &wrong_couch_monitor_name);
+
+    // Assert
+    assert_eq!(
+        actual_response,
+        Err(format!(
+            "Couch monitor is invalid, possible values are [{}]",
+            computer
+                .monitors
+                .iter()
+                .map(|monitor_name| monitor_name.clone())
+                .collect::<Vec<String>>()
+                .join(", ")
+        ))
+    );
+}
+
+#[test]
+fn it_should_validate_both_desktop_and_couch_monitors() {
     // Arrange
     let mut fuzzer = new_fuzzer!(true);
 
@@ -78,7 +142,7 @@ fn it_should_validate_monitors() {
     assert_eq!(
         actual_response,
         Err(format!(
-            "Desktop and/or couch monitors are invalid, possible values are [{}]",
+            "Desktop and couch monitors are invalid, possible values are [{}]",
             computer
                 .monitors
                 .iter()

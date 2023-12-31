@@ -54,25 +54,8 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         desktop_monitor_name: &str,
         couch_monitor_name: &str,
     ) -> Result<SwapPrimaryMonitorsResponse, String> {
-        self.get_all_monitors()
-            .and_then(|monitors| {
-                if !monitors.contains(desktop_monitor_name)
-                    || !monitors.contains(couch_monitor_name)
-                {
-                    let mut monitors_error_message_friendly = monitors
-                        .iter()
-                        .map(|monitor_name| monitor_name.clone())
-                        .collect::<Vec<String>>();
-
-                    monitors_error_message_friendly.sort();
-
-                    return Err(format!(
-                        "Desktop and/or couch monitors are invalid, possible values are [{}]",
-                        monitors_error_message_friendly.join(", ")
-                    ));
-                }
-                self.get_primary_monitor_name()
-            })
+        self.validate_monitors(desktop_monitor_name, couch_monitor_name)
+            .and_then(|_| self.get_primary_monitor_name())
             .and_then(|primary_monitor_name| {
                 let new_primary_monitor_name = if primary_monitor_name == desktop_monitor_name {
                     couch_monitor_name
@@ -85,6 +68,45 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
             .and_then(|new_primary_monitor_current_position| {
                 self.set_monitors_to_position(&new_primary_monitor_current_position)
             })
+    }
+
+    fn validate_monitors(
+        &mut self,
+        desktop_monitor_name: &str,
+        couch_monitor_name: &str,
+    ) -> Result<(), String> {
+        self.get_all_monitors().and_then(|monitors| {
+            if !monitors.contains(desktop_monitor_name) || !monitors.contains(couch_monitor_name) {
+                let mut monitors_error_message_friendly = monitors
+                    .iter()
+                    .map(|monitor_name| monitor_name.clone())
+                    .collect::<Vec<String>>();
+
+                monitors_error_message_friendly.sort();
+
+                if !monitors.contains(desktop_monitor_name) && monitors.contains(couch_monitor_name)
+                {
+                    return Err(format!(
+                        "Desktop monitor is invalid, possible values are [{}]",
+                        monitors_error_message_friendly.join(", ")
+                    ));
+                } else if monitors.contains(desktop_monitor_name)
+                    && !monitors.contains(couch_monitor_name)
+                {
+                    return Err(format!(
+                        "Couch monitor is invalid, possible values are [{}]",
+                        monitors_error_message_friendly.join(", ")
+                    ));
+                }
+
+                return Err(format!(
+                    "Desktop and couch monitors are invalid, possible values are [{}]",
+                    monitors_error_message_friendly.join(", ")
+                ));
+            } else {
+                Ok(())
+            }
+        })
     }
 
     fn get_primary_monitor_name(&self) -> Result<String, String> {
