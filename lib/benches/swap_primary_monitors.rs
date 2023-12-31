@@ -21,7 +21,6 @@ fn swap_primary_monitors(c: &mut Criterion) {
                         let computer = fuzzer
                             .generate_a_computer()
                             .with_n_monitors(usize::try_from(*n_monitor).unwrap())
-                            .which_requires_reboot()
                             .build_computer();
 
                         let display_settings = DisplaySettings::new(computer.win32);
