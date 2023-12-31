@@ -10,7 +10,15 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  check-coding-style:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Check coding style
+      run: cargo fmt --check --all
+
   build:
+    needs: [check-coding-style]
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
