@@ -23,8 +23,8 @@ pub struct FuzzedComputer {
 }
 
 pub struct ComputerFuzzer {
-    pub video_outputs: Vec<FuzzedVideoOutput>,
     pub monitor_fuzzer: MonitorFuzzer,
+    video_outputs: Vec<FuzzedVideoOutput>,
     change_display_settings_error: Option<DISP_CHANGE>,
     rand: StdRng,
     guid_fuzzer: GuidFuzzer,
