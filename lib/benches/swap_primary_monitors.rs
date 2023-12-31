@@ -1,5 +1,5 @@
 use convertible_couch_lib::display_settings::DisplaySettings;
-use convertible_couch_tests_common::new_fuzzer;
+use convertible_couch_tests_common::new_fuzzer_no_seed_print;
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
 
 fn swap_primary_monitors(c: &mut Criterion) {
@@ -16,7 +16,7 @@ fn swap_primary_monitors(c: &mut Criterion) {
             |b, n_monitor| {
                 b.iter_batched(
                     || {
-                        let mut fuzzer = new_fuzzer!(false);
+                        let mut fuzzer = new_fuzzer_no_seed_print!();
 
                         let computer = fuzzer
                             .generate_a_computer()

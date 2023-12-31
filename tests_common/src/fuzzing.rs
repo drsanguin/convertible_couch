@@ -16,6 +16,26 @@ pub mod win32;
 #[macro_export]
 macro_rules! new_fuzzer {
     ($expression:expr) => {{
+        use convertible_couch_tests_common::func;
+        use convertible_couch_tests_common::fuzzing::Fuzzer;
+
+        Fuzzer::new(func!(), true)
+    }};
+}
+
+#[macro_export]
+macro_rules! new_fuzzer_no_seed_print {
+    () => {{
+        use convertible_couch_tests_common::func;
+        use convertible_couch_tests_common::fuzzing::Fuzzer;
+
+        Fuzzer::new(func!(), false)
+    }};
+}
+
+#[macro_export]
+macro_rules! func {
+    () => {{
         use convertible_couch_tests_common::fuzzing::Fuzzer;
         fn f() {}
         fn type_name_of<T>(_: T) -> &'static str {
@@ -23,7 +43,7 @@ macro_rules! new_fuzzer {
         }
         let name = type_name_of(f);
 
-        Fuzzer::new(&name[19..name.len() - 3], $expression)
+        &name[19..name.len() - 3]
     }};
 }
 
