@@ -1,7 +1,7 @@
 pub mod win32;
 
 use log::warn;
-use std::{collections::HashSet, fmt::Display, mem::size_of};
+use std::{collections::HashSet, mem::size_of};
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -27,12 +27,6 @@ pub use win32::*;
 pub struct SwapPrimaryMonitorsResponse {
     pub reboot_required: bool,
     pub new_primary: Option<String>,
-}
-
-impl Display for SwapPrimaryMonitorsResponse {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
 }
 
 pub struct DisplaySettings<TWin32: Win32> {
