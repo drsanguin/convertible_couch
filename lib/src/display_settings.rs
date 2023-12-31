@@ -572,12 +572,12 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
 
     fn map_disp_change_to_string(&self, disp_change: DISP_CHANGE) -> String {
         match disp_change {
-            DISP_CHANGE_BADDUALVIEW => String::from("The settings change was unsuccessful because the system is DualView capable. "),
-            DISP_CHANGE_BADFLAGS => String::from("An invalid set of flags was passed in. "),
+            DISP_CHANGE_BADDUALVIEW => String::from("The settings change was unsuccessful because the system is DualView capable."),
+            DISP_CHANGE_BADFLAGS => String::from("An invalid set of flags was passed in."),
             DISP_CHANGE_BADMODE => String::from("The graphics mode is not supported."),
             DISP_CHANGE_BADPARAM => String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."),
             DISP_CHANGE_FAILED => String::from("The display driver failed the specified graphics mode."),
-            DISP_CHANGE_NOTUPDATED => String::from("Unable to write settings to the registry. "),
+            DISP_CHANGE_NOTUPDATED => String::from("Unable to write settings to the registry."),
             DISP_CHANGE_RESTART => String::from("The computer must be restarted for the graphics mode to work."),
             _ => String::from("The settings change was successful.")
         }

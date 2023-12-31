@@ -14,8 +14,8 @@ use windows::{
         Foundation::{BOOL, HWND},
         Graphics::Gdi::{
             CDS_SET_PRIMARY, CDS_TYPE, DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE,
-            DISP_CHANGE_BADPARAM, DISP_CHANGE_RESTART, DISP_CHANGE_SUCCESSFUL,
-            ENUM_CURRENT_SETTINGS, ENUM_DISPLAY_SETTINGS_MODE,
+            DISP_CHANGE_BADPARAM, DISP_CHANGE_SUCCESSFUL, ENUM_CURRENT_SETTINGS,
+            ENUM_DISPLAY_SETTINGS_MODE,
         },
         UI::WindowsAndMessaging::EDD_GET_DEVICE_INTERFACE_NAME,
     },
@@ -27,14 +27,17 @@ use super::{position::FuzzedMonitorPosition, video_output::FuzzedVideoOutput};
 
 pub struct FuzzedWin32 {
     pub video_outputs: Vec<FuzzedVideoOutput>,
-    pub reboot_required: bool,
+    change_display_settings_error: Option<DISP_CHANGE>,
 }
 
 impl FuzzedWin32 {
-    pub fn new(video_outputs: Vec<FuzzedVideoOutput>, reboot_required: bool) -> Self {
+    pub fn new(
+        video_outputs: Vec<FuzzedVideoOutput>,
+        change_display_settings_error: Option<DISP_CHANGE>,
+    ) -> Self {
         Self {
             video_outputs,
-            reboot_required,
+            change_display_settings_error,
         }
     }
 }
@@ -168,9 +171,9 @@ impl Win32 for FuzzedWin32 {
             && dwflags == CDS_TYPE::default()
             && lparam.is_none()
         {
-            return match self.reboot_required {
-                true => DISP_CHANGE_RESTART,
-                false => DISP_CHANGE_SUCCESSFUL,
+            return match self.change_display_settings_error {
+                Some(change_display_settings_error) => change_display_settings_error,
+                _ => DISP_CHANGE_SUCCESSFUL,
             };
         }
 

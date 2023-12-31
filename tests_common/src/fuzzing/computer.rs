@@ -4,6 +4,7 @@ use rand::{
     seq::IteratorRandom,
     Rng, RngCore, SeedableRng,
 };
+use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
 use super::{
     guid::GuidFuzzer,
@@ -23,8 +24,8 @@ pub struct FuzzedComputer {
 
 pub struct ComputerFuzzer {
     pub video_outputs: Vec<FuzzedVideoOutput>,
-    pub reboot_required: bool,
     pub monitor_fuzzer: MonitorFuzzer,
+    change_display_settings_error: Option<DISP_CHANGE>,
     rand: StdRng,
     guid_fuzzer: GuidFuzzer,
     resolution_fuzzer: ResolutionFuzzer,
@@ -42,7 +43,7 @@ impl ComputerFuzzer {
         Self {
             rand,
             video_outputs: vec![],
-            reboot_required: false,
+            change_display_settings_error: None,
             guid_fuzzer: GuidFuzzer::new(StdRng::seed_from_u64(seed)),
             monitor_fuzzer: MonitorFuzzer::new(StdRng::seed_from_u64(seed)),
             resolution_fuzzer: ResolutionFuzzer::new(StdRng::seed_from_u64(seed)),
@@ -58,9 +59,11 @@ impl ComputerFuzzer {
         self.with_a_range_of_monitors(n_monitor, n_monitor)
     }
 
-    pub fn which_requires_reboot(&mut self) -> &mut Self {
-        self.reboot_required = true;
-
+    pub fn for_which_changing_the_display_settings_fails_with(
+        &mut self,
+        change_display_settings_error: DISP_CHANGE,
+    ) -> &mut Self {
+        self.change_display_settings_error = Some(change_display_settings_error);
         self
     }
 
@@ -73,7 +76,10 @@ impl ComputerFuzzer {
             "Error during fuzzing ! Primary and secondary monitors are the same"
         );
 
-        let win32 = FuzzedWin32::new(self.video_outputs.clone(), self.reboot_required);
+        let win32 = FuzzedWin32::new(
+            self.video_outputs.clone(),
+            self.change_display_settings_error,
+        );
 
         let mut monitors = self.get_all_monitors();
 
