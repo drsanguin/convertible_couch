@@ -1,0 +1,2 @@
+examine_globs = ["lib/src/display_settings.rs", "lib/src/log.rs"]
+exclude_re = ["configure_logger"]
