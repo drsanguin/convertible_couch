@@ -15,7 +15,7 @@ pub mod win32;
 
 #[macro_export]
 macro_rules! new_fuzzer {
-    ($expression:expr) => {{
+    () => {{
         use convertible_couch_tests_common::func;
         use convertible_couch_tests_common::fuzzing::Fuzzer;
 

@@ -8,7 +8,7 @@ use windows::Win32::Graphics::Gdi::{DISP_CHANGE, DISP_CHANGE_RESTART};
 #[test]
 fn it_should_swap_the_primary_monitors_of_computer() {
     // Arrange
-    let mut fuzzer = new_fuzzer!(true);
+    let mut fuzzer = new_fuzzer!();
 
     let computer = fuzzer
         .generate_a_computer()
@@ -34,7 +34,7 @@ fn it_should_swap_the_primary_monitors_of_computer() {
 #[test]
 fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_required() {
     // Arrange
-    let mut fuzzer = new_fuzzer!(true);
+    let mut fuzzer = new_fuzzer!();
 
     let computer = fuzzer
         .generate_a_computer()
@@ -61,7 +61,7 @@ fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_requi
 #[test]
 fn it_should_validate_the_desktop_monitor() {
     // Arrange
-    let mut fuzzer = new_fuzzer!(true);
+    let mut fuzzer = new_fuzzer!();
 
     let wrong_desktop_monitor_name = fuzzer.generate_monitor_name();
     let computer = fuzzer
@@ -93,7 +93,7 @@ fn it_should_validate_the_desktop_monitor() {
 #[test]
 fn it_should_validate_the_couch_monitor() {
     // Arrange
-    let mut fuzzer = new_fuzzer!(true);
+    let mut fuzzer = new_fuzzer!();
 
     let wrong_couch_monitor_name = fuzzer.generate_monitor_name();
     let computer = fuzzer
@@ -125,7 +125,7 @@ fn it_should_validate_the_couch_monitor() {
 #[test]
 fn it_should_validate_both_desktop_and_couch_monitors() {
     // Arrange
-    let mut fuzzer = new_fuzzer!(true);
+    let mut fuzzer = new_fuzzer!();
 
     let wrong_desktop_monitor_name = fuzzer.generate_monitor_name();
     let wrong_couch_monitor_name = fuzzer.generate_monitor_name();
@@ -163,7 +163,7 @@ fn it_should_validate_both_desktop_and_couch_monitors() {
 #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => "Unable to write settings to the registry."; "when the error is DISP_CHANGE_NOTUPDATED")]
 fn it_should_report_display_change_errors(disp_change: DISP_CHANGE) -> String {
     // Arrange
-    let mut fuzzer = new_fuzzer!(true);
+    let mut fuzzer = new_fuzzer!();
 
     let computer = fuzzer
         .generate_a_computer()
