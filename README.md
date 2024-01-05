@@ -8,6 +8,3 @@ Automate Windows display configuration to play from your couch
   - https://github.com/rust-lang/rust-bindgen
   - https://docs.rs/cpp/latest/cpp/
 - Refactor display_settings to reduce code duplication
-- Bench based on windows limit which is 128 million pixels acording to:
-  - https://learn.microsoft.com/en-us/answers/questions/1324305/what-is-the-maximum-horizontal-resolution-size-rec
-  - https://community.spiceworks.com/topic/1260249-how-many-monitors-can-a-single-pc-run
