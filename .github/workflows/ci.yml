@@ -35,6 +35,17 @@ jobs:
     - uses: actions/checkout@v4
     - name: Run tests
       run: cargo test --verbose -- --nocapture
+
+  upload-coverage:
+    name: Upload Coverage 📈
+    needs: [tests]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Tarpaulin
+        run: cargo install cargo-tarpaulin
+      - name: Upload Coverage
+        run: cargo tarpaulin --coveralls ${{ secrets.COVERALLS_TOKEN }}
     
   mutation-tests:
     name: Mutation Tests 🧟‍♂️
