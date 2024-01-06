@@ -67,7 +67,7 @@ impl MonitorFuzzer {
                 device_id,
                 name,
                 position,
-                primary: position.x == 0 && position.y == 0,
+                primary: position.is_positioned_at_origin(),
                 resolution,
             }
         }).collect()

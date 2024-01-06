@@ -10,6 +10,12 @@ pub struct FuzzedMonitorPosition {
     pub y: i32,
 }
 
+impl FuzzedMonitorPosition {
+    pub fn is_positioned_at_origin(&self) -> bool {
+        self.x == 0 && self.y == 0
+    }
+}
+
 #[derive(Clone, Copy)]
 pub struct FuzzedMonitorPositionedResolution {
     pub resolution: FuzzedResolution,

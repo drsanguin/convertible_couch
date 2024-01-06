@@ -6,7 +6,7 @@ use test_case::test_case;
 use windows::Win32::Graphics::Gdi::{DISP_CHANGE, DISP_CHANGE_RESTART};
 
 #[test]
-fn it_should_swap_the_primary_monitors_of_computer() {
+fn it_should_swap_the_desktop_monitor_with_the_couch_monitor() {
     // Arrange
     let mut fuzzer = new_fuzzer!();
 
@@ -26,6 +26,36 @@ fn it_should_swap_the_primary_monitors_of_computer() {
         actual_response,
         Ok(SwapPrimaryMonitorsResponse {
             new_primary: Some(computer.secondary_monitor),
+            reboot_required: false,
+        }),
+    );
+}
+
+#[test]
+fn it_should_swap_the_couch_monitor_with_the_desktop_monitor() {
+    // Arrange
+    let mut fuzzer = new_fuzzer!();
+
+    let computer = fuzzer
+        .generate_a_computer()
+        .with_two_monitors_or_more()
+        .build_computer();
+
+    let mut display_settings = DisplaySettings::new(computer.win32);
+
+    // Act
+    let actual_response = display_settings
+        .swap_primary_monitors(&computer.primary_monitor, &computer.secondary_monitor)
+        .and_then(|_| {
+            display_settings
+                .swap_primary_monitors(&computer.primary_monitor, &computer.secondary_monitor)
+        });
+
+    // Assert
+    assert_that_primary_monitors_have_been_swap_as_expected(
+        actual_response,
+        Ok(SwapPrimaryMonitorsResponse {
+            new_primary: Some(computer.primary_monitor),
             reboot_required: false,
         }),
     );

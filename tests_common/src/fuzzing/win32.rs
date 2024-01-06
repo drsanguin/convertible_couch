@@ -1,4 +1,4 @@
-use std::{ffi::c_void, mem::size_of};
+use std::{collections::HashMap, ffi::c_void, mem::size_of};
 
 use convertible_couch_lib::display_settings::Win32;
 use windows::{
@@ -28,6 +28,7 @@ use super::{position::FuzzedMonitorPosition, video_output::FuzzedVideoOutput};
 pub struct FuzzedWin32 {
     pub video_outputs: Vec<FuzzedVideoOutput>,
     change_display_settings_error: Option<DISP_CHANGE>,
+    display_changes_to_commit: HashMap<String, FuzzedMonitorPosition>,
 }
 
 impl FuzzedWin32 {
@@ -35,9 +36,15 @@ impl FuzzedWin32 {
         video_outputs: Vec<FuzzedVideoOutput>,
         change_display_settings_error: Option<DISP_CHANGE>,
     ) -> Self {
+        let n_monitor = video_outputs
+            .iter()
+            .filter(|video_output| video_output.monitor.is_some())
+            .count();
+
         Self {
             video_outputs,
             change_display_settings_error,
+            display_changes_to_commit: HashMap::with_capacity(n_monitor),
         }
     }
 }
@@ -173,7 +180,24 @@ impl Win32 for FuzzedWin32 {
         {
             return match self.change_display_settings_error {
                 Some(change_display_settings_error) => change_display_settings_error,
-                _ => DISP_CHANGE_SUCCESSFUL,
+                _ => {
+                    for (device_name, position) in self.display_changes_to_commit.iter() {
+                        let video_output = self
+                            .video_outputs
+                            .iter_mut()
+                            .find(|video_output| video_output.device_name == *device_name)
+                            .unwrap();
+
+                        let monitor = video_output.monitor.as_mut().unwrap();
+
+                        monitor.position = *position;
+                        monitor.primary = position.is_positioned_at_origin();
+                    }
+
+                    self.display_changes_to_commit.clear();
+
+                    DISP_CHANGE_SUCCESSFUL
+                }
             };
         }
 
@@ -198,13 +222,14 @@ impl Win32 for FuzzedWin32 {
                 .and_then(|(monitor, position)| {
                     if hwnd != HWND::default()
                         || lparam.is_some()
-                        || (position.x == 0
-                            && position.y == 0
+                        || (position.is_positioned_at_origin()
                             && (dwflags & CDS_SET_PRIMARY == CDS_TYPE::default()
                                 || monitor.primary))
                     {
                         return Some(DISP_CHANGE_BADPARAM);
                     }
+
+                    self.display_changes_to_commit.insert(device_name, position);
 
                     Some(DISP_CHANGE_SUCCESSFUL)
                 })
