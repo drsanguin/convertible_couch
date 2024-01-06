@@ -40,6 +40,7 @@ jobs:
     name: Upload Coverage 📈
     needs: [tests]
     runs-on: windows-latest
+    if: false
     steps:
       - uses: actions/checkout@v4
       - name: Install Tarpaulin
