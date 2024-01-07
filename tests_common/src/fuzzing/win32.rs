@@ -27,14 +27,16 @@ use super::{position::FuzzedMonitorPosition, video_output::FuzzedVideoOutput};
 
 pub struct FuzzedWin32 {
     pub video_outputs: Vec<FuzzedVideoOutput>,
-    change_display_settings_error: Option<DISP_CHANGE>,
+    change_display_settings_error_on_commit: Option<DISP_CHANGE>,
+    change_display_settings_error_by_monitor: HashMap<String, DISP_CHANGE>,
     display_changes_to_commit: HashMap<String, FuzzedMonitorPosition>,
 }
 
 impl FuzzedWin32 {
     pub fn new(
         video_outputs: Vec<FuzzedVideoOutput>,
-        change_display_settings_error: Option<DISP_CHANGE>,
+        change_display_settings_error_on_commit: Option<DISP_CHANGE>,
+        change_display_settings_error_by_monitor: HashMap<String, DISP_CHANGE>,
     ) -> Self {
         let n_monitor = video_outputs
             .iter()
@@ -43,7 +45,8 @@ impl FuzzedWin32 {
 
         Self {
             video_outputs,
-            change_display_settings_error,
+            change_display_settings_error_on_commit,
+            change_display_settings_error_by_monitor,
             display_changes_to_commit: HashMap::with_capacity(n_monitor),
         }
     }
@@ -178,7 +181,7 @@ impl Win32 for FuzzedWin32 {
             && dwflags == CDS_TYPE::default()
             && lparam.is_none()
         {
-            return match self.change_display_settings_error {
+            return match self.change_display_settings_error_on_commit {
                 Some(change_display_settings_error) => change_display_settings_error,
                 _ => {
                     for (device_name, position) in self.display_changes_to_commit.iter() {
@@ -204,36 +207,43 @@ impl Win32 for FuzzedWin32 {
         unsafe {
             let device_name = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
 
-            self.video_outputs
-                .iter()
-                .find(|video_output| video_output.device_name == device_name)
-                .and_then(|video_output| video_output.monitor.clone())
-                .and_then(|monitor| {
-                    lpdevmode.and_then(|graphic_mode| {
-                        Some((
-                            monitor,
-                            FuzzedMonitorPosition {
-                                x: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.x,
-                                y: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.y,
-                            },
-                        ))
+            match self
+                .change_display_settings_error_by_monitor
+                .get(&device_name)
+            {
+                Some(disp_change) => *disp_change,
+                None => self
+                    .video_outputs
+                    .iter()
+                    .find(|video_output| video_output.device_name == device_name)
+                    .and_then(|video_output| video_output.monitor.clone())
+                    .and_then(|monitor| {
+                        lpdevmode.and_then(|graphic_mode| {
+                            Some((
+                                monitor,
+                                FuzzedMonitorPosition {
+                                    x: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.x,
+                                    y: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.y,
+                                },
+                            ))
+                        })
                     })
-                })
-                .and_then(|(monitor, position)| {
-                    if hwnd != HWND::default()
-                        || lparam.is_some()
-                        || (position.is_positioned_at_origin()
-                            && (dwflags & CDS_SET_PRIMARY == CDS_TYPE::default()
-                                || monitor.primary))
-                    {
-                        return Some(DISP_CHANGE_BADPARAM);
-                    }
+                    .and_then(|(monitor, position)| {
+                        if hwnd != HWND::default()
+                            || lparam.is_some()
+                            || (position.is_positioned_at_origin()
+                                && (dwflags & CDS_SET_PRIMARY == CDS_TYPE::default()
+                                    || monitor.primary))
+                        {
+                            return Some(DISP_CHANGE_BADPARAM);
+                        }
 
-                    self.display_changes_to_commit.insert(device_name, position);
+                        self.display_changes_to_commit.insert(device_name, position);
 
-                    Some(DISP_CHANGE_SUCCESSFUL)
-                })
-                .unwrap_or(DISP_CHANGE_BADPARAM)
+                        Some(DISP_CHANGE_SUCCESSFUL)
+                    })
+                    .unwrap_or(DISP_CHANGE_BADPARAM),
+            }
         }
     }
 

@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use rand::{
     distributions::{Alphanumeric, DistString},
     rngs::StdRng,
-    seq::IteratorRandom,
+    seq::{IteratorRandom, SliceRandom},
     Rng, RngCore, SeedableRng,
 };
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
@@ -25,7 +27,8 @@ pub struct FuzzedComputer {
 pub struct ComputerFuzzer {
     pub monitor_fuzzer: MonitorFuzzer,
     video_outputs: Vec<FuzzedVideoOutput>,
-    change_display_settings_error: Option<DISP_CHANGE>,
+    change_display_settings_error_on_commit: Option<DISP_CHANGE>,
+    change_display_settings_error_by_monitor: HashMap<String, DISP_CHANGE>,
     rand: StdRng,
     guid_fuzzer: GuidFuzzer,
     resolution_fuzzer: ResolutionFuzzer,
@@ -43,7 +46,8 @@ impl ComputerFuzzer {
         Self {
             rand,
             video_outputs: vec![],
-            change_display_settings_error: None,
+            change_display_settings_error_on_commit: None,
+            change_display_settings_error_by_monitor: HashMap::new(),
             guid_fuzzer: GuidFuzzer::new(StdRng::seed_from_u64(seed)),
             monitor_fuzzer: MonitorFuzzer::new(StdRng::seed_from_u64(seed)),
             resolution_fuzzer: ResolutionFuzzer::new(StdRng::seed_from_u64(seed)),
@@ -59,11 +63,36 @@ impl ComputerFuzzer {
         self.with_a_range_of_monitors(n_monitor, n_monitor)
     }
 
-    pub fn for_which_changing_the_display_settings_fails_with(
+    pub fn for_which_committing_the_display_changes_fails_with(
         &mut self,
         change_display_settings_error: DISP_CHANGE,
     ) -> &mut Self {
-        self.change_display_settings_error = Some(change_display_settings_error);
+        self.change_display_settings_error_on_commit = Some(change_display_settings_error);
+        self
+    }
+
+    pub fn for_which_changing_the_display_settings_fails_for_some_monitors(
+        &mut self,
+        change_display_settings_error: DISP_CHANGE,
+    ) -> &mut Self {
+        let possible_devices_paths = self
+            .video_outputs
+            .iter()
+            .filter_map(|video_output| match &video_output.monitor {
+                Some(_) => Some(video_output.device_name.clone()),
+                None => None,
+            })
+            .collect::<Vec<String>>();
+
+        let n_monitor_on_error = self.rand.gen_range(1..possible_devices_paths.len());
+
+        possible_devices_paths
+            .choose_multiple(&mut self.rand, n_monitor_on_error)
+            .for_each(|device_path| {
+                self.change_display_settings_error_by_monitor
+                    .insert(String::from(device_path), change_display_settings_error);
+            });
+
         self
     }
 
@@ -78,7 +107,8 @@ impl ComputerFuzzer {
 
         let win32 = FuzzedWin32::new(
             self.video_outputs.clone(),
-            self.change_display_settings_error,
+            self.change_display_settings_error_on_commit,
+            self.change_display_settings_error_by_monitor.clone(),
         );
 
         let mut monitors = self.get_all_monitors();
