@@ -1,6 +1,10 @@
 use convertible_couch_lib::display_settings::{DisplaySettings, SwapPrimaryMonitorsResponse};
 use convertible_couch_tests_common::{
-    assertions::assert_that_primary_monitors_have_been_swap_as_expected, new_fuzzer,
+    assertions::{
+        assert_that_monitors_have_been_validated,
+        assert_that_primary_monitors_have_been_swap_as_expected,
+    },
+    new_fuzzer,
 };
 use test_case::test_case;
 use windows::Win32::Graphics::Gdi::{DISP_CHANGE, DISP_CHANGE_RESTART};
@@ -135,17 +139,10 @@ fn it_should_validate_the_desktop_monitor() {
         .swap_primary_monitors(&wrong_desktop_monitor_name, &computer.secondary_monitor);
 
     // Assert
-    assert_eq!(
+    assert_that_monitors_have_been_validated(
         actual_response,
-        Err(format!(
-            "Desktop monitor is invalid, possible values are [{}]",
-            computer
-                .monitors
-                .iter()
-                .map(|monitor_name| monitor_name.clone())
-                .collect::<Vec<String>>()
-                .join(", ")
-        ))
+        &computer.monitors,
+        "Desktop monitor is invalid",
     );
 }
 
@@ -167,17 +164,10 @@ fn it_should_validate_the_couch_monitor() {
         .swap_primary_monitors(&computer.primary_monitor, &wrong_couch_monitor_name);
 
     // Assert
-    assert_eq!(
+    assert_that_monitors_have_been_validated(
         actual_response,
-        Err(format!(
-            "Couch monitor is invalid, possible values are [{}]",
-            computer
-                .monitors
-                .iter()
-                .map(|monitor_name| monitor_name.clone())
-                .collect::<Vec<String>>()
-                .join(", ")
-        ))
+        &computer.monitors,
+        "Couch monitor is invalid",
     );
 }
 
@@ -200,17 +190,10 @@ fn it_should_validate_both_desktop_and_couch_monitors() {
         .swap_primary_monitors(&wrong_desktop_monitor_name, &wrong_couch_monitor_name);
 
     // Assert
-    assert_eq!(
+    assert_that_monitors_have_been_validated(
         actual_response,
-        Err(format!(
-            "Desktop and couch monitors are invalid, possible values are [{}]",
-            computer
-                .monitors
-                .iter()
-                .map(|monitor_name| monitor_name.clone())
-                .collect::<Vec<String>>()
-                .join(", ")
-        ))
+        &computer.monitors,
+        "Desktop and couch monitors are invalid",
     );
 }
 
