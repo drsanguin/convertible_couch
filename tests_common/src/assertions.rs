@@ -7,7 +7,7 @@ pub fn assert_that_primary_monitors_have_been_swap_as_expected(
     assert_eq!(
         actual_response, expected_response,
         "Primary monitors where not swapped as expected"
-    )
+    );
 }
 
 pub fn assert_that_monitors_have_been_validated(
@@ -15,15 +15,16 @@ pub fn assert_that_monitors_have_been_validated(
     actual_monitors: &Vec<String>,
     expected_error_message_prefix: &str,
 ) {
-    assert_eq!(
-        actual_response,
-        Err(format!(
-            "{expected_error_message_prefix}, possible values are [{}]",
-            actual_monitors
-                .iter()
-                .map(|monitor_name| monitor_name.clone())
-                .collect::<Vec<String>>()
-                .join(", ")
-        ))
-    )
+    let possible_monitors = actual_monitors
+        .iter()
+        .map(|monitor_name| monitor_name.clone())
+        .collect::<Vec<String>>()
+        .join(", ");
+
+    let expected_error_message =
+        format!("{expected_error_message_prefix}, possible values are [{possible_monitors}]");
+
+    let expected_response = Err(expected_error_message);
+
+    assert_eq!(actual_response, expected_response);
 }
