@@ -33,6 +33,7 @@ impl GsmIdFuzzer {
         }
 
         let gsm_id = gsm_id_opt.unwrap();
+        self.gsm_ids.insert(gsm_id.clone());
 
         gsm_id
     }
