@@ -197,15 +197,15 @@ fn it_should_validate_both_desktop_and_couch_monitors() {
     );
 }
 
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => "The settings change was unsuccessful because the system is DualView capable."; "when the error is BADDUALVIEW")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADFLAGS => "An invalid set of flags was passed in."; "when the error is DISP_CHANGE_BADFLAGS")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADMODE => "The graphics mode is not supported."; "when the error is DISP_CHANGE_BADMODE")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM => "An invalid parameter was passed in. This can include an invalid flag or combination of flags."; "when the error is DISP_CHANGE_BADPARAM")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_FAILED => "The display driver failed the specified graphics mode."; "when the error is DISP_CHANGE_FAILED")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => "Unable to write settings to the registry."; "when the error is DISP_CHANGE_NOTUPDATED")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADFLAGS => Err(String::from("An invalid set of flags was passed in.")); "when the error is DISP_CHANGE_BADFLAGS")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADMODE => Err(String::from("The graphics mode is not supported.")); "when the error is DISP_CHANGE_BADMODE")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM => Err(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags.")); "when the error is DISP_CHANGE_BADPARAM")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_FAILED => Err(String::from("The display driver failed the specified graphics mode.")); "when the error is DISP_CHANGE_FAILED")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
 fn it_should_report_display_change_errors_that_happens_when_committing_changes(
     disp_change: DISP_CHANGE,
-) -> String {
+) -> Result<SwapPrimaryMonitorsResponse, String> {
     // Arrange
     let mut fuzzer = new_fuzzer!();
 
@@ -218,21 +218,18 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
     let mut display_settings = DisplaySettings::new(computer.win32);
 
     // Act
-    let actual_response = display_settings
-        .swap_primary_monitors(&computer.primary_monitor, &computer.secondary_monitor);
-
-    actual_response.unwrap_err()
+    display_settings.swap_primary_monitors(&computer.primary_monitor, &computer.secondary_monitor)
 }
 
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => "The settings change was unsuccessful because the system is DualView capable."; "when the error is BADDUALVIEW")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADFLAGS => "An invalid set of flags was passed in."; "when the error is DISP_CHANGE_BADFLAGS")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADMODE => "The graphics mode is not supported."; "when the error is DISP_CHANGE_BADMODE")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM => "An invalid parameter was passed in. This can include an invalid flag or combination of flags."; "when the error is DISP_CHANGE_BADPARAM")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_FAILED => "The display driver failed the specified graphics mode."; "when the error is DISP_CHANGE_FAILED")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => "Unable to write settings to the registry."; "when the error is DISP_CHANGE_NOTUPDATED")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADFLAGS => Err(String::from("An invalid set of flags was passed in.")); "when the error is DISP_CHANGE_BADFLAGS")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADMODE => Err(String::from("The graphics mode is not supported.")); "when the error is DISP_CHANGE_BADMODE")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM => Err(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags.")); "when the error is DISP_CHANGE_BADPARAM")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_FAILED => Err(String::from("The display driver failed the specified graphics mode.")); "when the error is DISP_CHANGE_FAILED")]
+#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
 fn it_should_report_display_change_errors_that_happens_for_some_monitors(
     disp_change: DISP_CHANGE,
-) -> String {
+) -> Result<SwapPrimaryMonitorsResponse, String> {
     // Arrange
     let mut fuzzer = new_fuzzer!();
 
@@ -245,8 +242,5 @@ fn it_should_report_display_change_errors_that_happens_for_some_monitors(
     let mut display_settings = DisplaySettings::new(computer.win32);
 
     // Act
-    let actual_response = display_settings
-        .swap_primary_monitors(&computer.primary_monitor, &computer.secondary_monitor);
-
-    actual_response.unwrap_err()
+    display_settings.swap_primary_monitors(&computer.primary_monitor, &computer.secondary_monitor)
 }
