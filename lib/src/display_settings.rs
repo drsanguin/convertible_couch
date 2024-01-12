@@ -39,6 +39,8 @@ struct MonitorPosition {
 }
 
 impl<TWin32: Win32> DisplaySettings<TWin32> {
+    pub const INTERNAL_DISPLAY: &'static str = "Internal Display";
+
     pub fn new(win32: TWin32) -> Self {
         Self { win32 }
     }
@@ -199,9 +201,10 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
 
             let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
             let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
-            let current_monitor_name = self
+            let current_raw_monitor_name = self
                 .get_monitor_name(display_device_device_id_trimed)
                 .unwrap();
+            let current_monitor_name = Self::from_raw_monitor_name(&current_raw_monitor_name);
 
             return Ok(current_monitor_name);
         }
@@ -550,9 +553,9 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                             continue;
                         }
 
-                        let monitor_friendly_device_name_trimed = monitor_friendly_device_name.trim_end_matches('\0');
+                        let raw_monitor_friendly_device_name_trimed = monitor_friendly_device_name.trim_end_matches('\0');
 
-                        return Ok(String::from(monitor_friendly_device_name_trimed));
+                        return Ok(Self::from_raw_monitor_name(raw_monitor_friendly_device_name_trimed));
                     },
                     error => return Err(format!("Failed to retrieve display configuration information about the device: {}", error.0))
                 }
@@ -661,7 +664,9 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
             let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
 
             match self.get_monitor_name(display_device_device_id_trimed) {
-                Ok(current_monitor_name) => {
+                Ok(current_raw_monitor_name) => {
+                    let current_monitor_name =
+                        Self::from_raw_monitor_name(&current_raw_monitor_name);
                     monitors_names.insert(current_monitor_name);
                     continue;
                 }
@@ -670,5 +675,15 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         }
 
         Ok(monitors_names)
+    }
+
+    fn from_raw_monitor_name(raw_monitor_name: &str) -> String {
+        let monitor_name = if raw_monitor_name == "" {
+            Self::INTERNAL_DISPLAY
+        } else {
+            raw_monitor_name
+        };
+
+        String::from(monitor_name)
     }
 }

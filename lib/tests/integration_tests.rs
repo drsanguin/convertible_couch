@@ -4,6 +4,7 @@ use convertible_couch_tests_common::{
         assert_that_monitors_have_been_validated,
         assert_that_primary_monitors_have_been_swap_as_expected,
     },
+    fuzzing::win32::FuzzedWin32,
     new_fuzzer,
 };
 use test_case::test_case;
@@ -60,6 +61,72 @@ fn it_should_swap_the_couch_monitor_with_the_desktop_monitor() {
         actual_response,
         Ok(SwapPrimaryMonitorsResponse {
             new_primary: Some(computer.primary_monitor),
+            reboot_required: false,
+        }),
+    );
+}
+
+#[test]
+fn it_should_swap_the_desktop_monitor_with_the_couch_monitor_when_the_computer_has_an_internal_display(
+) {
+    // Arrange
+    let mut fuzzer = new_fuzzer!();
+
+    let computer = fuzzer
+        .generate_a_computer()
+        .with_an_internal_display_and_at_least_one_more_monitor()
+        .build_computer();
+
+    let mut display_settings = DisplaySettings::new(computer.win32);
+
+    // Act
+    let actual_response = display_settings.swap_primary_monitors(
+        DisplaySettings::<FuzzedWin32>::INTERNAL_DISPLAY,
+        &computer.secondary_monitor,
+    );
+
+    // Assert
+    assert_that_primary_monitors_have_been_swap_as_expected(
+        actual_response,
+        Ok(SwapPrimaryMonitorsResponse {
+            new_primary: Some(computer.secondary_monitor),
+            reboot_required: false,
+        }),
+    );
+}
+
+#[test]
+fn it_should_swap_the_couch_monitor_with_the_desktop_monitor_has_an_internal_display() {
+    // Arrange
+    let mut fuzzer = new_fuzzer!();
+
+    let computer = fuzzer
+        .generate_a_computer()
+        .with_an_internal_display_and_at_least_one_more_monitor()
+        .build_computer();
+
+    let mut display_settings = DisplaySettings::new(computer.win32);
+
+    // Act
+    let actual_response = display_settings
+        .swap_primary_monitors(
+            DisplaySettings::<FuzzedWin32>::INTERNAL_DISPLAY,
+            &computer.secondary_monitor,
+        )
+        .and_then(|_| {
+            display_settings.swap_primary_monitors(
+                DisplaySettings::<FuzzedWin32>::INTERNAL_DISPLAY,
+                &computer.secondary_monitor,
+            )
+        });
+
+    // Assert
+    assert_that_primary_monitors_have_been_swap_as_expected(
+        actual_response,
+        Ok(SwapPrimaryMonitorsResponse {
+            new_primary: Some(String::from(
+                DisplaySettings::<FuzzedWin32>::INTERNAL_DISPLAY,
+            )),
             reboot_required: false,
         }),
     );

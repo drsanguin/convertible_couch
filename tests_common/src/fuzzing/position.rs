@@ -40,10 +40,15 @@ impl MonitorPositionFuzzer {
     pub fn generate_positions(
         &mut self,
         resolutions: &Vec<FuzzedResolution>,
+        has_an_internal_display: bool,
     ) -> Vec<FuzzedMonitorPositionedResolution> {
         let n_monitor = resolutions.len();
 
-        let primary_monitor_index = self.rand.gen_range(0..n_monitor);
+        let primary_monitor_index = if has_an_internal_display {
+            0
+        } else {
+            self.rand.gen_range(0..n_monitor)
+        };
         let primary_monitor_resolution = resolutions[primary_monitor_index];
         let primary_monitor_position = FuzzedMonitorPosition { x: 0, y: 0 };
 
@@ -113,7 +118,6 @@ impl MonitorPositionFuzzer {
         };
 
         let mut positions = Vec::with_capacity(n_monitor);
-        positions.push(primary_monitor_positioned);
 
         resolutions
             .iter()
@@ -154,13 +158,19 @@ impl MonitorPositionFuzzer {
         positions.append(&mut mon_res_pos_left);
         positions.append(&mut mon_res_pos_left_up);
 
+        if has_an_internal_display {
+            positions.shuffle(&mut self.rand);
+            positions.insert(0, primary_monitor_positioned);
+        } else {
+            positions.push(primary_monitor_positioned);
+            positions.shuffle(&mut self.rand);
+        }
+
         assert_eq!(
             positions.len(),
             resolutions.len(),
             "Not all resolutions have been positioned"
         );
-
-        positions.shuffle(&mut self.rand);
 
         positions
     }

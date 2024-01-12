@@ -33,6 +33,7 @@ pub struct ComputerFuzzer {
     guid_fuzzer: GuidFuzzer,
     resolution_fuzzer: ResolutionFuzzer,
     monitor_position_fuzzer: MonitorPositionFuzzer,
+    has_an_internal_display: bool,
 }
 
 impl ComputerFuzzer {
@@ -52,6 +53,7 @@ impl ComputerFuzzer {
             monitor_fuzzer: MonitorFuzzer::new(StdRng::seed_from_u64(seed)),
             resolution_fuzzer: ResolutionFuzzer::new(StdRng::seed_from_u64(seed)),
             monitor_position_fuzzer: MonitorPositionFuzzer::new(StdRng::seed_from_u64(seed)),
+            has_an_internal_display: false,
         }
     }
 
@@ -61,6 +63,11 @@ impl ComputerFuzzer {
 
     pub fn with_n_monitors(&mut self, n_monitor: usize) -> &mut Self {
         self.with_a_range_of_monitors(n_monitor, n_monitor)
+    }
+
+    pub fn with_an_internal_display_and_at_least_one_more_monitor(&mut self) -> &mut Self {
+        self.has_an_internal_display = true;
+        self.with_two_monitors_or_more()
     }
 
     pub fn for_which_committing_the_display_changes_fails_with(
@@ -137,13 +144,14 @@ impl ComputerFuzzer {
 
         let positioned_resolutions = self
             .monitor_position_fuzzer
-            .generate_positions(&monitors_resolutions);
+            .generate_positions(&monitors_resolutions, self.has_an_internal_display);
 
         let monitors = self.monitor_fuzzer.generate_monitors(
             monitors_id_common_part_1,
             &monitors_id_common_part_2,
             monitors_id_common_part_3,
             &monitors_id_common_part_4,
+            self.has_an_internal_display,
             &positioned_resolutions,
         );
 
