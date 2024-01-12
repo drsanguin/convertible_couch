@@ -45,7 +45,7 @@ jobs:
       - name: Install Tarpaulin
         run: cargo install cargo-tarpaulin
       - name: Upload Coverage
-        run: cargo tarpaulin --coveralls ${{ secrets.COVERALLS_TOKEN }}
+        run: cargo tarpaulin --workspace --exclude convertible_couch_tests_common --exclude-files lib\tests\integration_tests.rs --coveralls ${{ secrets.COVERALLS_TOKEN }}
     
   mutation-tests:
     name: Mutation Tests 🧟‍♂️

@@ -1,4 +1,4 @@
-# convertible_couch
+# convertible_couch [![Coverage Status](https://coveralls.io/repos/github/drsanguin/convertible_couch/badge.svg?branch=main)](https://coveralls.io/github/drsanguin/convertible_couch?branch=main)
 Automate Windows display configuration to play from your couch
 
 ## TODO
