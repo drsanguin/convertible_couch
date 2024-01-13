@@ -4,7 +4,7 @@ use log4rs::{
     append::console::ConsoleAppender,
     config::{Appender, Root},
     encode::pattern::PatternEncoder,
-    Config,
+    init_config, Config,
 };
 
 /// An enum representing the available verbosity level filters of the logger.
@@ -35,7 +35,7 @@ pub fn configure_logger(log_level: LogLevel) {
         .build(Root::builder().appender("stdout").build(level))
         .unwrap();
 
-    let _ = log4rs::init_config(config).unwrap();
+    let _ = init_config(config).unwrap();
 }
 
 fn map_to_level_filter(log_level: LogLevel) -> LevelFilter {
