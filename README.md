@@ -13,3 +13,6 @@ Automate Windows display configuration to play from your couch
   - https://github.com/rust-lang/rust-bindgen
   - https://docs.rs/cpp/latest/cpp/
 - Refactor display_settings to reduce code duplication
+
+## Acknowledgments
+- [Icon Source](https://www.flaticon.com/free-icon/couch_1010398)

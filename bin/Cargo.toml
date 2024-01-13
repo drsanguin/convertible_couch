@@ -8,7 +8,14 @@ readme = "../README.md"
 repository = "https://github.com/drsanguin/convertible_couch"
 license-file = "../LICENSE"
 
+[package.metadata.winresource]
+LegalCopyright = "Copyright © 2024 convertible_couch"
+OriginalFilename = "convertible_couch.exe"
+
 [dependencies]
 clap = { version = "4.4.11", features = ["derive"] }
 log = "0.4.20"
 convertible_couch_lib = { path = "../lib"}
+
+[build-dependencies]
+winresource = "0.1.17"
