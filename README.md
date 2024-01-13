@@ -1,5 +1,10 @@
-# convertible_couch [![Coverage Status](https://coveralls.io/repos/github/drsanguin/convertible_couch/badge.svg?branch=main)](https://coveralls.io/github/drsanguin/convertible_couch?branch=main)
+# convertible_couch
+
 Automate Windows display configuration to play from your couch
+
+[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+ ![ci workflow](https://github.com/drsanguin/convertible_couch/actions/workflows/ci.yml/badge.svg)
+ [![Coverage Status](https://coveralls.io/repos/github/drsanguin/convertible_couch/badge.svg?branch=main)](https://coveralls.io/github/drsanguin/convertible_couch?branch=main)
 
 ## TODO
 - Switch audio output, usefull ressources:
