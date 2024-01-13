@@ -12,6 +12,7 @@ license-file = "../LICENSE"
 clap = "4.4.11"
 log = "0.4.20"
 log4rs = "1.2.0"
+convertible_couch_common = { path = "../common"}
 
 [dependencies.windows]
 windows = "0.52.0"

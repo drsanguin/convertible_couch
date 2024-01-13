@@ -1,5 +1,4 @@
-pub mod win32;
-
+use convertible_couch_common::{win32::Win32, SwapPrimaryMonitorsResponse};
 use log::warn;
 use std::{collections::HashSet, mem::size_of};
 use windows::{
@@ -20,14 +19,6 @@ use windows::{
         UI::WindowsAndMessaging::EDD_GET_DEVICE_INTERFACE_NAME,
     },
 };
-
-pub use win32::*;
-
-#[derive(Debug, PartialEq)]
-pub struct SwapPrimaryMonitorsResponse {
-    pub reboot_required: bool,
-    pub new_primary: Option<String>,
-}
 
 pub struct DisplaySettings<TWin32: Win32> {
     win32: TWin32,

@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ffi::c_void, mem::size_of};
 
-use convertible_couch_lib::display_settings::Win32;
+use convertible_couch_common::win32::Win32;
 use windows::{
     core::Error,
     core::PCWSTR,

@@ -16,6 +16,7 @@ OriginalFilename = "convertible_couch.exe"
 clap = { version = "4.4.11", features = ["derive"] }
 log = "0.4.20"
 convertible_couch_lib = { path = "../lib"}
+convertible_couch_common = { path = "../common"}
 
 [build-dependencies]
 winresource = "0.1.17"

@@ -1,4 +1,5 @@
-use convertible_couch_lib::display_settings::{DisplaySettings, SwapPrimaryMonitorsResponse};
+use convertible_couch_common::SwapPrimaryMonitorsResponse;
+use convertible_couch_lib::display_settings::DisplaySettings;
 use convertible_couch_tests_common::{
     assertions::{
         assert_that_monitors_have_been_validated,
