@@ -75,7 +75,7 @@ impl ValueEnum for LogLevel {
 
 #[cfg(test)]
 mod tests {
-    use clap::ValueEnum;
+    use clap::{builder::PossibleValue, ValueEnum};
     use log::LevelFilter;
     use test_case::test_case;
 
@@ -117,17 +117,16 @@ mod tests {
         );
     }
 
-    #[test_case(LogLevel::Off => "off"; "when log level is off")]
-    #[test_case(LogLevel::Error => "error"; "when log level is error")]
-    #[test_case(LogLevel::Warn => "warn"; "when log level is warn")]
-    #[test_case(LogLevel::Info => "info"; "when log level is info")]
-    #[test_case(LogLevel::Debug => "debug"; "when log level is debug")]
-    #[test_case(LogLevel::Trace => "trace"; "when log level is trace")]
-    fn it_should_provide_the_canonical_argument_value(log_level: LogLevel) -> String {
+    #[test_case(LogLevel::Off => Some(PossibleValue::new("off")); "when log level is off")]
+    #[test_case(LogLevel::Error => Some(PossibleValue::new("error")); "when log level is error")]
+    #[test_case(LogLevel::Warn => Some(PossibleValue::new("warn")); "when log level is warn")]
+    #[test_case(LogLevel::Info => Some(PossibleValue::new("info")); "when log level is info")]
+    #[test_case(LogLevel::Debug => Some(PossibleValue::new("debug")); "when log level is debug")]
+    #[test_case(LogLevel::Trace => Some(PossibleValue::new("trace")); "when log level is trace")]
+    fn it_should_provide_the_canonical_argument_value(
+        log_level: LogLevel,
+    ) -> Option<PossibleValue> {
         // Act
-        let possible_value = log_level.to_possible_value().unwrap();
-        let actual_name = possible_value.get_name();
-
-        String::from(actual_name)
+        log_level.to_possible_value()
     }
 }
