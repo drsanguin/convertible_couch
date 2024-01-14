@@ -20,13 +20,10 @@ struct Args {
 fn main() {
     let args: Args = Args::parse();
 
-    configure_logger(args.log_level);
-
-    let mut display_settings = DisplaySettings::new(Win32Impl);
-
-    match display_settings
-        .swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name)
-    {
+    match configure_logger(args.log_level).and_then(|_| {
+        DisplaySettings::new(Win32Impl)
+            .swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name)
+    }) {
         Ok(response) => {
             match response.new_primary {
                 Some(new_primary) => info!("Primary monitor set to {new_primary}"),

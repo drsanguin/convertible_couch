@@ -25,7 +25,7 @@ pub enum LogLevel {
 }
 
 /// Initializes the global logger with the provided level.
-pub fn configure_logger(log_level: LogLevel) {
+pub fn configure_logger(log_level: LogLevel) -> Result<(), String> {
     let level = map_to_level_filter(log_level);
     let stdout = ConsoleAppender::builder()
         .encoder(Box::new(PatternEncoder::new("| {({l}):5.5} | {m}\r\n")))
@@ -35,7 +35,9 @@ pub fn configure_logger(log_level: LogLevel) {
         .build(Root::builder().appender("stdout").build(level))
         .unwrap();
 
-    let _ = init_config(config).unwrap();
+    init_config(config)
+        .map(|_| ())
+        .map_err(|error| error.to_string())
 }
 
 fn map_to_level_filter(log_level: LogLevel) -> LevelFilter {
@@ -84,7 +86,9 @@ mod tests {
     #[test]
     fn if_should_configure_the_logger() {
         // Act
-        configure_logger(LogLevel::Off);
+        let result = configure_logger(LogLevel::Off);
+
+        assert_eq!(result, Ok(()));
     }
 
     #[test_case(LogLevel::Off => LevelFilter::Off; "when log level is off")]
