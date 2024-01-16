@@ -13,8 +13,8 @@ use windows::{
         },
         Foundation::{BOOL, HWND},
         Graphics::Gdi::{
-            CDS_SET_PRIMARY, CDS_TYPE, DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE,
-            DISP_CHANGE_BADPARAM, DISP_CHANGE_SUCCESSFUL, ENUM_CURRENT_SETTINGS,
+            CDS_NORESET, CDS_SET_PRIMARY, CDS_TYPE, CDS_UPDATEREGISTRY, DEVMODEW, DISPLAY_DEVICEW,
+            DISP_CHANGE, DISP_CHANGE_BADPARAM, DISP_CHANGE_SUCCESSFUL, ENUM_CURRENT_SETTINGS,
             ENUM_DISPLAY_SETTINGS_MODE,
         },
         UI::WindowsAndMessaging::EDD_GET_DEVICE_INTERFACE_NAME,
@@ -231,6 +231,8 @@ impl Win32 for FuzzedWin32 {
                     .and_then(|(monitor, position)| {
                         if hwnd != HWND::default()
                             || lparam.is_some()
+                            || (dwflags & CDS_UPDATEREGISTRY == CDS_TYPE::default())
+                            || (dwflags & CDS_NORESET == CDS_TYPE::default())
                             || (position.is_positioned_at_origin()
                                 && (dwflags & CDS_SET_PRIMARY == CDS_TYPE::default()
                                     || monitor.primary))
