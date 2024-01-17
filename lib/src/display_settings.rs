@@ -200,7 +200,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
             return Ok(current_monitor_name);
         }
 
-        return Err(String::from("Failed to retrieve the primary monitor"));
+        Err(String::from("Failed to retrieve the primary monitor"))
     }
 
     fn get_monitor_position(&self, monitor_name: &str) -> Result<MonitorPosition, String> {
