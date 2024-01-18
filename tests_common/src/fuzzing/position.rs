@@ -52,47 +52,25 @@ impl MonitorPositionFuzzer {
         let primary_monitor_resolution = resolutions[primary_monitor_index];
         let primary_monitor_position = FuzzedMonitorPosition { x: 0, y: 0 };
 
-        let n_mon_res_pos_up = self.rand.gen_range(0..n_monitor);
-        let n_mon_res_pos_right_up = self.rand.gen_range(0..n_monitor - n_mon_res_pos_up);
-        let n_mon_res_pos_right = self
-            .rand
-            .gen_range(0..n_monitor - n_mon_res_pos_up - n_mon_res_pos_right_up);
-        let n_mon_res_pos_right_down = self.rand.gen_range(
-            0..n_monitor - n_mon_res_pos_up - n_mon_res_pos_right_up - n_mon_res_pos_right,
-        );
-        let n_mon_res_pos_down = self.rand.gen_range(
-            0..n_monitor
-                - n_mon_res_pos_up
-                - n_mon_res_pos_right_up
-                - n_mon_res_pos_right
-                - n_mon_res_pos_right_down,
-        );
-        let n_mon_res_pos_left_down = self.rand.gen_range(
-            0..n_monitor
-                - n_mon_res_pos_up
-                - n_mon_res_pos_right_up
-                - n_mon_res_pos_right
-                - n_mon_res_pos_right_down
-                - n_mon_res_pos_down,
-        );
-        let n_mon_res_pos_left = self.rand.gen_range(
-            0..n_monitor
-                - n_mon_res_pos_up
-                - n_mon_res_pos_right_up
-                - n_mon_res_pos_right
-                - n_mon_res_pos_right_down
-                - n_mon_res_pos_down
-                - n_mon_res_pos_left_down,
-        );
-        let n_mon_res_pos_left_up = n_monitor
-            - 1
-            - n_mon_res_pos_up
-            - n_mon_res_pos_right_up
-            - n_mon_res_pos_right
-            - n_mon_res_pos_right_down
-            - n_mon_res_pos_down
-            - n_mon_res_pos_left_down
-            - n_mon_res_pos_left;
+        let mut n_mon_res_pos_up = 0;
+        let mut n_mon_res_pos_right_up = 0;
+        let mut n_mon_res_pos_right = 0;
+        let mut n_mon_res_pos_right_down = 0;
+        let mut n_mon_res_pos_down = 0;
+        let mut n_mon_res_pos_left_down = 0;
+        let mut n_mon_res_pos_left = 0;
+        let mut n_mon_res_pos_left_up = 0;
+
+        (0..n_monitor).for_each(|i| match i {
+            i if i % 7 == 0 => n_mon_res_pos_left_up += 1,
+            i if i % 6 == 0 => n_mon_res_pos_left += 1,
+            i if i % 5 == 0 => n_mon_res_pos_left_down += 1,
+            i if i % 4 == 0 => n_mon_res_pos_down += 1,
+            i if i % 3 == 0 => n_mon_res_pos_right_down += 1,
+            i if i % 2 == 0 => n_mon_res_pos_right += 1,
+            i if i % 1 == 0 => n_mon_res_pos_right_up += 1,
+            _ => n_mon_res_pos_up += 1,
+        });
 
         let mon_res_pos_up_lim = n_mon_res_pos_up;
         let mon_res_pos_right_up_lim = mon_res_pos_up_lim + n_mon_res_pos_right_up;
