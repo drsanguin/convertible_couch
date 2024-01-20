@@ -43,7 +43,6 @@ impl MonitorPositionFuzzer {
         has_an_internal_display: bool,
     ) -> Vec<FuzzedMonitorPositionedResolution> {
         let n_monitor = resolutions.len();
-
         let primary_monitor_index = if has_an_internal_display {
             0
         } else {
@@ -51,81 +50,86 @@ impl MonitorPositionFuzzer {
         };
         let primary_monitor_resolution = resolutions[primary_monitor_index];
         let primary_monitor_position = FuzzedMonitorPosition { x: 0, y: 0 };
-
-        let mut n_mon_res_pos_up = 0;
-        let mut n_mon_res_pos_right_up = 0;
-        let mut n_mon_res_pos_right = 0;
-        let mut n_mon_res_pos_right_down = 0;
-        let mut n_mon_res_pos_down = 0;
-        let mut n_mon_res_pos_left_down = 0;
-        let mut n_mon_res_pos_left = 0;
-        let mut n_mon_res_pos_left_up = 0;
-
-        (0..n_monitor).for_each(|i| match i {
-            i if i % 7 == 0 => n_mon_res_pos_left_up += 1,
-            i if i % 6 == 0 => n_mon_res_pos_left += 1,
-            i if i % 5 == 0 => n_mon_res_pos_left_down += 1,
-            i if i % 4 == 0 => n_mon_res_pos_down += 1,
-            i if i % 3 == 0 => n_mon_res_pos_right_down += 1,
-            i if i % 2 == 0 => n_mon_res_pos_right += 1,
-            i if i % 1 == 0 => n_mon_res_pos_right_up += 1,
-            _ => n_mon_res_pos_up += 1,
-        });
-
-        let mon_res_pos_up_lim = n_mon_res_pos_up;
-        let mon_res_pos_right_up_lim = mon_res_pos_up_lim + n_mon_res_pos_right_up;
-        let mon_res_pos_right_lim = mon_res_pos_right_up_lim + n_mon_res_pos_right;
-        let mon_res_pos_right_down_lim = mon_res_pos_right_lim + n_mon_res_pos_right_down;
-        let mon_res_pos_down_lim = mon_res_pos_right_down_lim + n_mon_res_pos_down;
-        let mon_res_pos_left_down_lim = mon_res_pos_down_lim + n_mon_res_pos_left_down;
-        let mon_res_pos_left_lim = mon_res_pos_left_down_lim + n_mon_res_pos_left;
-        let mon_res_pos_left_up_lim = mon_res_pos_left_lim + n_mon_res_pos_left_up;
-
-        let mut mon_res_pos_up = Vec::with_capacity(n_mon_res_pos_up);
-        let mut mon_res_pos_right_up = Vec::with_capacity(n_mon_res_pos_right_up);
-        let mut mon_res_pos_right = Vec::with_capacity(n_mon_res_pos_right);
-        let mut mon_res_pos_right_down = Vec::with_capacity(n_mon_res_pos_right_down);
-        let mut mon_res_pos_down = Vec::with_capacity(n_mon_res_pos_down);
-        let mut mon_res_pos_left_down = Vec::with_capacity(n_mon_res_pos_left_down);
-        let mut mon_res_pos_left = Vec::with_capacity(n_mon_res_pos_left);
-        let mut mon_res_pos_left_up = Vec::with_capacity(n_mon_res_pos_left_up);
-
         let primary_monitor_positioned = FuzzedMonitorPositionedResolution {
             position: primary_monitor_position,
             resolution: primary_monitor_resolution,
         };
 
-        let mut positions = Vec::with_capacity(n_monitor);
+        let n_monitor_by_axis = (n_monitor / 8) + 1;
+
+        let mut mon_res_pos_up = Vec::with_capacity(n_monitor_by_axis);
+        let mut mon_res_pos_right_up = Vec::with_capacity(n_monitor_by_axis);
+        let mut mon_res_pos_right = Vec::with_capacity(n_monitor_by_axis);
+        let mut mon_res_pos_right_down = Vec::with_capacity(n_monitor_by_axis);
+        let mut mon_res_pos_down = Vec::with_capacity(n_monitor_by_axis);
+        let mut mon_res_pos_left_down = Vec::with_capacity(n_monitor_by_axis);
+        let mut mon_res_pos_left = Vec::with_capacity(n_monitor_by_axis);
+        let mut mon_res_pos_left_up = Vec::with_capacity(n_monitor_by_axis);
 
         resolutions
             .iter()
             .enumerate()
-            .filter(|(resolution_index, _resolution)| *resolution_index != primary_monitor_index)
-            .enumerate()
-            .map(|(resolution_index, (_, resolution))| (resolution_index, resolution))
-            .for_each(|(resolution_index, resolution)| {
-                Self::position_resolution(
-                    resolution_index,
-                    mon_res_pos_up_lim,
-                    mon_res_pos_right_up_lim,
-                    mon_res_pos_right_lim,
-                    mon_res_pos_right_down_lim,
-                    mon_res_pos_down_lim,
-                    mon_res_pos_left_down_lim,
-                    mon_res_pos_left_lim,
-                    mon_res_pos_left_up_lim,
-                    &mut mon_res_pos_up,
-                    &mut mon_res_pos_right_up,
-                    &mut mon_res_pos_right,
-                    &mut mon_res_pos_right_down,
-                    &mut mon_res_pos_down,
-                    &mut mon_res_pos_left_down,
-                    &mut mon_res_pos_left,
-                    &mut mon_res_pos_left_up,
+            .for_each(|(i, resolution)| match i {
+                i if i == primary_monitor_index => {}
+                i if i & 7 == 7 => Self::position_resolution(
                     resolution,
-                    primary_monitor_positioned,
-                )
+                    &mut mon_res_pos_left_up,
+                    &primary_monitor_positioned,
+                    MoveHorizontally::Left,
+                    MoveVertically::Up,
+                ),
+                i if i & 7 == 6 => Self::position_resolution(
+                    resolution,
+                    &mut mon_res_pos_left,
+                    &primary_monitor_positioned,
+                    MoveHorizontally::Left,
+                    MoveVertically::None,
+                ),
+                i if i & 7 == 5 => Self::position_resolution(
+                    resolution,
+                    &mut mon_res_pos_left_down,
+                    &primary_monitor_positioned,
+                    MoveHorizontally::Left,
+                    MoveVertically::Down,
+                ),
+                i if i & 7 == 4 => Self::position_resolution(
+                    resolution,
+                    &mut mon_res_pos_down,
+                    &primary_monitor_positioned,
+                    MoveHorizontally::None,
+                    MoveVertically::Down,
+                ),
+                i if i & 7 == 3 => Self::position_resolution(
+                    resolution,
+                    &mut mon_res_pos_right_down,
+                    &primary_monitor_positioned,
+                    MoveHorizontally::Right,
+                    MoveVertically::Down,
+                ),
+                i if i & 7 == 2 => Self::position_resolution(
+                    resolution,
+                    &mut mon_res_pos_right,
+                    &primary_monitor_positioned,
+                    MoveHorizontally::Right,
+                    MoveVertically::None,
+                ),
+                i if i & 7 == 1 => Self::position_resolution(
+                    resolution,
+                    &mut mon_res_pos_right_up,
+                    &primary_monitor_positioned,
+                    MoveHorizontally::Right,
+                    MoveVertically::Up,
+                ),
+                _ => Self::position_resolution(
+                    resolution,
+                    &mut mon_res_pos_up,
+                    &primary_monitor_positioned,
+                    MoveHorizontally::None,
+                    MoveVertically::Up,
+                ),
             });
+
+        let mut positions = Vec::with_capacity(n_monitor);
 
         positions.append(&mut mon_res_pos_up);
         positions.append(&mut mon_res_pos_right_up);
@@ -154,56 +158,6 @@ impl MonitorPositionFuzzer {
     }
 
     fn position_resolution(
-        resolution_index: usize,
-        mon_res_pos_up_lim: usize,
-        mon_res_pos_right_up_lim: usize,
-        mon_res_pos_right_lim: usize,
-        mon_res_pos_right_down_lim: usize,
-        mon_res_pos_down_lim: usize,
-        mon_res_pos_left_down_lim: usize,
-        mon_res_pos_left_lim: usize,
-        mon_res_pos_left_up_lim: usize,
-        mon_res_pos_up: &mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_right_up: &mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_right: &mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_right_down: &mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_down: &mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_left_down: &mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_left: &mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_left_up: &mut Vec<FuzzedMonitorPositionedResolution>,
-        resolution: &FuzzedResolution,
-        primary_monitor_positioned: FuzzedMonitorPositionedResolution,
-    ) {
-        let position_resolution_parameters = Self::get_position_resolution_parameters(
-            resolution_index,
-            mon_res_pos_up_lim,
-            mon_res_pos_right_up_lim,
-            mon_res_pos_right_lim,
-            mon_res_pos_right_down_lim,
-            mon_res_pos_down_lim,
-            mon_res_pos_left_down_lim,
-            mon_res_pos_left_lim,
-            mon_res_pos_left_up_lim,
-            mon_res_pos_up,
-            mon_res_pos_right_up,
-            mon_res_pos_right,
-            mon_res_pos_right_down,
-            mon_res_pos_down,
-            mon_res_pos_left_down,
-            mon_res_pos_left,
-            mon_res_pos_left_up,
-        );
-
-        Self::position_resolution_with_parameters(
-            resolution,
-            position_resolution_parameters.0,
-            &primary_monitor_positioned,
-            position_resolution_parameters.1,
-            position_resolution_parameters.2,
-        );
-    }
-
-    fn position_resolution_with_parameters(
         resolution: &FuzzedResolution,
         mon_pos_res: &mut Vec<FuzzedMonitorPositionedResolution>,
         primary_monitor_positioned: &FuzzedMonitorPositionedResolution,
@@ -237,72 +191,6 @@ impl MonitorPositionFuzzer {
             resolution: *resolution,
             position: FuzzedMonitorPosition { x, y },
         });
-    }
-
-    fn get_position_resolution_parameters<'a>(
-        resolution_index: usize,
-        mon_res_pos_up_lim: usize,
-        mon_res_pos_right_up_lim: usize,
-        mon_res_pos_right_lim: usize,
-        mon_res_pos_right_down_lim: usize,
-        mon_res_pos_down_lim: usize,
-        mon_res_pos_left_down_lim: usize,
-        mon_res_pos_left_lim: usize,
-        mon_res_pos_left_up_lim: usize,
-        mon_res_pos_up: &'a mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_right_up: &'a mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_right: &'a mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_right_down: &'a mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_down: &'a mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_left_down: &'a mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_left: &'a mut Vec<FuzzedMonitorPositionedResolution>,
-        mon_res_pos_left_up: &'a mut Vec<FuzzedMonitorPositionedResolution>,
-    ) -> (
-        &'a mut Vec<FuzzedMonitorPositionedResolution>,
-        MoveHorizontally,
-        MoveVertically,
-    ) {
-        match resolution_index {
-            resolution_index if resolution_index < mon_res_pos_up_lim => {
-                (mon_res_pos_up, MoveHorizontally::None, MoveVertically::Up)
-            }
-            resolution_index if resolution_index < mon_res_pos_right_up_lim => (
-                mon_res_pos_right_up,
-                MoveHorizontally::Right,
-                MoveVertically::Up,
-            ),
-            resolution_index if resolution_index < mon_res_pos_right_lim => (
-                mon_res_pos_right,
-                MoveHorizontally::Right,
-                MoveVertically::None,
-            ),
-            resolution_index if resolution_index < mon_res_pos_right_down_lim => (
-                mon_res_pos_right_down,
-                MoveHorizontally::Right,
-                MoveVertically::Down,
-            ),
-            resolution_index if resolution_index < mon_res_pos_down_lim => (
-                mon_res_pos_down,
-                MoveHorizontally::None,
-                MoveVertically::Down,
-            ),
-            resolution_index if resolution_index < mon_res_pos_left_down_lim => (
-                mon_res_pos_left_down,
-                MoveHorizontally::Left,
-                MoveVertically::None,
-            ),
-            resolution_index if resolution_index < mon_res_pos_left_lim => (
-                mon_res_pos_left,
-                MoveHorizontally::Left,
-                MoveVertically::None,
-            ),
-            resolution_index if resolution_index < mon_res_pos_left_up_lim => (
-                mon_res_pos_left_up,
-                MoveHorizontally::Left,
-                MoveVertically::Up,
-            ),
-            _ => panic!("Positioning resolutions failed, index went out of the expected value"),
-        }
     }
 }
 
