@@ -9,7 +9,7 @@ fn swap_primary_monitors(c: &mut Criterion) {
         3, 6, 8, 11, 13, 14, 15, 17, 20, 25, 27, 30, 31, 34, 46, 55, 61, 66, 72, 88, 97, 98, 122,
         162,
     ] {
-        group.throughput(Throughput::Elements(n_monitor));
+        group.throughput(Throughput::Elements(u64::try_from(n_monitor).unwrap()));
         group.bench_with_input(
             BenchmarkId::from_parameter(n_monitor),
             &n_monitor,
@@ -20,7 +20,7 @@ fn swap_primary_monitors(c: &mut Criterion) {
 
                         let computer = fuzzer
                             .generate_a_computer()
-                            .with_n_monitors(usize::try_from(*n_monitor).unwrap())
+                            .with_n_monitors(*n_monitor)
                             .build_computer();
 
                         let display_settings = DisplaySettings::new(computer.win32);
