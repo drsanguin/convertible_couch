@@ -28,13 +28,13 @@ pub struct MonitorFuzzer {
 
 impl MonitorFuzzer {
     pub fn new(mut rand: StdRng) -> Self {
-        let seed = rand.next_u64();
-
         Self {
-            monitor_name_fuzzer: MonitorNameFuzzer::new(StdRng::seed_from_u64(seed)),
-            device_id_fuzzer: DeviceIdFuzzer::new(StdRng::seed_from_u64(seed)),
-            config_mode_info_id_fuzzer: ConfigModeInfoIdFuzzer::new(StdRng::seed_from_u64(seed)),
-            gsm_id_fuzzer: GsmIdFuzzer::new(StdRng::seed_from_u64(seed)),
+            monitor_name_fuzzer: MonitorNameFuzzer::new(StdRng::seed_from_u64(rand.next_u64())),
+            device_id_fuzzer: DeviceIdFuzzer::new(StdRng::seed_from_u64(rand.next_u64())),
+            config_mode_info_id_fuzzer: ConfigModeInfoIdFuzzer::new(StdRng::seed_from_u64(
+                rand.next_u64(),
+            )),
+            gsm_id_fuzzer: GsmIdFuzzer::new(StdRng::seed_from_u64(rand.next_u64())),
         }
     }
 

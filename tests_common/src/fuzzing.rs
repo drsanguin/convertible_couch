@@ -56,8 +56,7 @@ pub struct Fuzzer {
 
 impl Fuzzer {
     pub fn new(test_name: &str, print_seed: bool) -> Self {
-        let mut seeder = StdRng::from_entropy();
-        let seed = seeder.next_u64();
+        let seed = StdRng::from_entropy().next_u64();
 
         if print_seed {
             println!("seed {test_name} ... {seed}");
