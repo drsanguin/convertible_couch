@@ -4,6 +4,7 @@ use self::computer::ComputerFuzzer;
 
 pub mod computer;
 pub mod config_mod_info_id;
+pub mod device_id;
 pub mod gsm_id;
 pub mod guid;
 pub mod monitor;
@@ -74,5 +75,12 @@ impl Fuzzer {
             .monitor_fuzzer
             .monitor_name_fuzzer
             .generate_name()
+    }
+
+    pub fn generate_device_id(&mut self) -> String {
+        self.computer_fuzzer
+            .monitor_fuzzer
+            .device_id_fuzzer
+            .generate()
     }
 }

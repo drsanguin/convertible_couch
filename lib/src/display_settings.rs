@@ -24,6 +24,7 @@ pub struct DisplaySettings<TWin32: Win32> {
     win32: TWin32,
 }
 
+#[derive(Debug, PartialEq)]
 struct MonitorPosition {
     x: i32,
     y: i32,
@@ -440,7 +441,9 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                     continue;
                 }
                 _ => {
-                    return Err(self.map_disp_change_to_string(change_display_settings_ex_result));
+                    return Err(Self::map_disp_change_to_string(
+                        change_display_settings_ex_result,
+                    ));
                 }
             }
         }
@@ -466,7 +469,9 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                     new_primary,
                 })
             }
-            _ => Err(self.map_disp_change_to_string(change_display_settings_ex_result)),
+            _ => Err(Self::map_disp_change_to_string(
+                change_display_settings_ex_result,
+            )),
         }
     }
 
@@ -548,7 +553,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
 
                         return Ok(Self::from_raw_monitor_name(raw_monitor_friendly_device_name_trimed));
                     },
-                    error => return Err(format!("Failed to retrieve display configuration information about the device: {}", error.0))
+                    error => return Err(format!("Failed to retrieve display configuration information about the device {} because of error {}", mode_information.id, error.0))
                 }
             }
 
@@ -558,7 +563,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         })
     }
 
-    fn map_disp_change_to_string(&self, disp_change: DISP_CHANGE) -> String {
+    fn map_disp_change_to_string(disp_change: DISP_CHANGE) -> String {
         match disp_change {
             DISP_CHANGE_BADDUALVIEW => String::from("The settings change was unsuccessful because the system is DualView capable."),
             DISP_CHANGE_BADFLAGS => String::from("An invalid set of flags was passed in."),
@@ -676,5 +681,120 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         };
 
         String::from(monitor_name)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use convertible_couch_tests_common::{fuzzing::win32::FuzzedWin32, new_fuzzer};
+    use test_case::test_case;
+    use windows::Win32::Graphics::Gdi::DISP_CHANGE;
+
+    use super::DisplaySettings;
+
+    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_RESTART => String::from("The computer must be restarted for the graphics mode to work."); "when the error is DISP_CHANGE_RESTART")]
+    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_SUCCESSFUL => String::from("The settings change was successful."); "when the error is DISP_CHANGE_SUCCESSFUL")]
+    fn it_should_map_display_change_errors_to_a_human_friendly_message(
+        disp_change: DISP_CHANGE,
+    ) -> String {
+        // Act
+        DisplaySettings::<FuzzedWin32>::map_disp_change_to_string(disp_change)
+    }
+
+    #[test]
+    fn it_should_handle_the_case_of_getting_current_primary_monitor_name_when_the_computer_has_no_monitor(
+    ) {
+        // Arrange
+        let mut fuzzer = new_fuzzer!();
+
+        let computer = fuzzer.generate_a_computer().build_computer();
+
+        let display_settings = DisplaySettings::new(computer.win32);
+
+        // Act
+        let result = display_settings.get_current_primary_monitor_name();
+
+        //Assert
+        assert_eq!(
+            result,
+            Err(String::from("Failed to retrieve the primary monitor"))
+        );
+    }
+
+    #[test]
+    fn it_should_handle_the_case_of_getting_the_position_of_a_non_existing_monitor() {
+        // Arrange
+        let mut fuzzer = new_fuzzer!();
+
+        let computer = fuzzer
+            .generate_a_computer()
+            .with_two_monitors_or_more()
+            .build_computer();
+        let another_monitor_name = fuzzer.generate_monitor_name();
+
+        let display_settings = DisplaySettings::new(computer.win32);
+
+        // Act
+        let result = display_settings.get_monitor_position(&another_monitor_name);
+
+        //Assert
+        assert_eq!(
+            result,
+            Err(format!(
+                "Failed to retrieve the position of monitor {another_monitor_name}"
+            ))
+        );
+    }
+
+    #[test]
+    fn it_should_handle_the_case_of_getting_the_name_of_a_monitor_at_a_non_existing_device_path() {
+        // Arrange
+        let mut fuzzer = new_fuzzer!();
+
+        let computer = fuzzer
+            .generate_a_computer()
+            .with_two_monitors_or_more()
+            .build_computer();
+        let non_existing_monitor_device_path = fuzzer.generate_device_id();
+
+        let display_settings = DisplaySettings::new(computer.win32);
+
+        // Act
+        let result = display_settings.get_monitor_name(&non_existing_monitor_device_path);
+
+        //Assert
+        assert_eq!(
+            result,
+            Err(format!(
+                "Failed to retrieve the name of the monitor at the device path {non_existing_monitor_device_path}"
+            ))
+        );
+    }
+
+    #[test]
+    fn it() {
+        // Arrange
+        let mut fuzzer = new_fuzzer!();
+
+        let computer = fuzzer
+            .generate_a_computer()
+            .with_two_monitors_or_more()
+            .for_which_querying_the_display_config_of_the_primary_monitor_fails()
+            .build_computer();
+
+        let display_settings = DisplaySettings::new(computer.win32);
+
+        // Act
+        let result = display_settings.get_all_monitors();
+
+        // Assert
+        assert!(
+            result.as_ref().is_err_and(|error_message| error_message
+                .starts_with("Failed to retrieve the name of the monitor at the device path")),
+            "  left: {:?}",
+            result
+        );
     }
 }

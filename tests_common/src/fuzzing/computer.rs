@@ -34,6 +34,8 @@ pub struct ComputerFuzzer {
     resolution_fuzzer: ResolutionFuzzer,
     monitor_position_fuzzer: MonitorPositionFuzzer,
     has_an_internal_display: bool,
+    getting_primary_monitor_name_fails: bool,
+    querying_the_display_config_of_the_primary_monitor_fails: bool,
 }
 
 impl ComputerFuzzer {
@@ -54,6 +56,8 @@ impl ComputerFuzzer {
             resolution_fuzzer: ResolutionFuzzer::new(StdRng::seed_from_u64(seed)),
             monitor_position_fuzzer: MonitorPositionFuzzer::new(StdRng::seed_from_u64(seed)),
             has_an_internal_display: false,
+            getting_primary_monitor_name_fails: false,
+            querying_the_display_config_of_the_primary_monitor_fails: false,
         }
     }
 
@@ -116,6 +120,8 @@ impl ComputerFuzzer {
             self.video_outputs.clone(),
             self.change_display_settings_error_on_commit,
             self.change_display_settings_error_by_monitor.clone(),
+            self.getting_primary_monitor_name_fails,
+            self.querying_the_display_config_of_the_primary_monitor_fails,
         );
 
         let mut monitors = self.get_all_monitors();
@@ -128,6 +134,20 @@ impl ComputerFuzzer {
             win32,
             monitors,
         }
+    }
+
+    pub fn for_which_getting_the_primary_monitor_fails(&mut self) -> &mut Self {
+        self.getting_primary_monitor_name_fails = true;
+
+        self
+    }
+
+    pub fn for_which_querying_the_display_config_of_the_primary_monitor_fails(
+        &mut self,
+    ) -> &mut Self {
+        self.querying_the_display_config_of_the_primary_monitor_fails = true;
+
+        self
     }
 
     fn with_a_range_of_monitors(&mut self, min: usize, max: usize) -> &mut Self {
@@ -197,7 +217,11 @@ impl ComputerFuzzer {
                 None => None,
             })
             .nth(0)
-            .unwrap()
+            .unwrap_or(if primary {
+                String::from("<primary>")
+            } else {
+                String::from("<secondary>")
+            })
     }
 
     fn get_all_monitors(&self) -> Vec<String> {
