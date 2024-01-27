@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use rand::{
-    distributions::{Alphanumeric, DistString},
     rngs::StdRng,
     seq::{IteratorRandom, SliceRandom},
     Rng, RngCore, SeedableRng,
@@ -9,7 +8,6 @@ use rand::{
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
 use super::{
-    guid::GuidFuzzer,
     monitor::MonitorFuzzer,
     position::MonitorPositionFuzzer,
     resolution::ResolutionFuzzer,
@@ -30,7 +28,6 @@ pub struct ComputerFuzzer {
     change_display_settings_error_on_commit: Option<DISP_CHANGE>,
     change_display_settings_error_by_monitor: HashMap<String, DISP_CHANGE>,
     rand: StdRng,
-    guid_fuzzer: GuidFuzzer,
     resolution_fuzzer: ResolutionFuzzer,
     monitor_position_fuzzer: MonitorPositionFuzzer,
     has_an_internal_display: bool,
@@ -51,7 +48,6 @@ impl ComputerFuzzer {
             video_outputs: vec![],
             change_display_settings_error_on_commit: None,
             change_display_settings_error_by_monitor: HashMap::new(),
-            guid_fuzzer: GuidFuzzer::new(StdRng::seed_from_u64(seed)),
             monitor_fuzzer: MonitorFuzzer::new(StdRng::seed_from_u64(seed)),
             resolution_fuzzer: ResolutionFuzzer::new(StdRng::seed_from_u64(seed)),
             monitor_position_fuzzer: MonitorPositionFuzzer::new(StdRng::seed_from_u64(seed)),
@@ -154,11 +150,10 @@ impl ComputerFuzzer {
         let n_video_output = self.rand.gen_range(min..=max);
         let n_monitor = self.rand.gen_range(min..=n_video_output);
 
-        let monitors_id_common_part_1 = self.rand.gen_range(0..=9);
-        let monitors_id_common_part_2 =
-            Alphanumeric.sample_string(&mut self.rand, 6).to_lowercase();
-        let monitors_id_common_part_3 = self.rand.gen_range(0..=9);
-        let monitors_id_common_part_4 = self.guid_fuzzer.generate_uuid();
+        let monitors_id_common_parts = self
+            .monitor_fuzzer
+            .device_id_fuzzer
+            .generate_computer_common_parts();
 
         let monitors_resolutions = self.resolution_fuzzer.generate_resolutions(n_monitor);
 
@@ -167,10 +162,10 @@ impl ComputerFuzzer {
             .generate_positions(&monitors_resolutions, self.has_an_internal_display);
 
         let monitors = self.monitor_fuzzer.generate_monitors(
-            monitors_id_common_part_1,
-            &monitors_id_common_part_2,
-            monitors_id_common_part_3,
-            &monitors_id_common_part_4,
+            monitors_id_common_parts.part_1,
+            &monitors_id_common_parts.part_2,
+            monitors_id_common_parts.part_3,
+            &monitors_id_common_parts.part_4,
             self.has_an_internal_display,
             &positioned_resolutions,
         );
