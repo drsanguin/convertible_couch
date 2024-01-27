@@ -35,7 +35,7 @@ impl DeviceIdFuzzer {
         }
     }
 
-    pub fn generate_using_common_parts(
+    pub fn generate_from_parts(
         &mut self,
         gsm_id: &str,
         monitors_id_part_1: i32,
@@ -55,7 +55,7 @@ impl DeviceIdFuzzer {
         let monitors_id_common_parts = self.generate_computer_common_parts();
         let config_mode_info_id = self.config_mode_info_id_fuzzer.generate_one();
 
-        self.generate_using_common_parts(
+        self.generate_from_parts(
             &gsm_id,
             monitors_id_common_parts.part_1,
             &monitors_id_common_parts.part_2,

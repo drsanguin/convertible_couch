@@ -1,6 +1,6 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
-use self::computer::ComputerFuzzer;
+use self::{computer::ComputerFuzzer, device_id::DeviceIdFuzzer, monitor_name::MonitorNameFuzzer};
 
 pub mod computer;
 pub mod config_mod_info_id;
@@ -50,6 +50,8 @@ macro_rules! func {
 
 pub struct Fuzzer {
     computer_fuzzer: ComputerFuzzer,
+    monitor_name_fuzzer: MonitorNameFuzzer,
+    device_id_fuzzer: DeviceIdFuzzer,
 }
 
 impl Fuzzer {
@@ -61,8 +63,12 @@ impl Fuzzer {
             println!("seed {test_name} ... {seed}");
         }
 
+        let mut rand = StdRng::seed_from_u64(seed);
+
         Self {
-            computer_fuzzer: ComputerFuzzer::new(StdRng::seed_from_u64(seed)),
+            computer_fuzzer: ComputerFuzzer::new(StdRng::seed_from_u64(rand.next_u64())),
+            device_id_fuzzer: DeviceIdFuzzer::new(StdRng::seed_from_u64(rand.next_u64())),
+            monitor_name_fuzzer: MonitorNameFuzzer::new(StdRng::seed_from_u64(rand.next_u64())),
         }
     }
 
@@ -71,16 +77,14 @@ impl Fuzzer {
     }
 
     pub fn generate_monitor_name(&mut self) -> String {
-        self.computer_fuzzer
-            .monitor_fuzzer
-            .monitor_name_fuzzer
-            .generate_one()
+        self.monitor_name_fuzzer.generate_one()
+    }
+
+    pub fn generate_two_monitor_names(&mut self) -> (String, String) {
+        self.monitor_name_fuzzer.generate_two()
     }
 
     pub fn generate_device_id(&mut self) -> String {
-        self.computer_fuzzer
-            .monitor_fuzzer
-            .device_id_fuzzer
-            .generate_one()
+        self.device_id_fuzzer.generate_one()
     }
 }

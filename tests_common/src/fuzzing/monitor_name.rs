@@ -144,41 +144,36 @@ impl FuzzedMonitorBrand {
 
 pub struct MonitorNameFuzzer {
     rand: StdRng,
-    names: HashSet<String>,
 }
 
 impl MonitorNameFuzzer {
     pub fn new(rand: StdRng) -> Self {
-        Self {
-            rand,
-            names: HashSet::new(),
-        }
+        Self { rand }
     }
 
     pub fn generate_one(&mut self) -> String {
-        let mut name_opt = None;
+        let brand = FuzzedMonitorBrand::ALL.choose(&mut self.rand).unwrap();
+        let model_id_max_len = 62 - brand.len();
+        let model_id_len = self.rand.gen_range(8..model_id_max_len);
+        let model_id_part_1 = Alphanumeric.sample_string(&mut self.rand, model_id_len);
 
-        while name_opt.is_none() {
-            let brand = FuzzedMonitorBrand::ALL.choose(&mut self.rand).unwrap();
-            let model_id_max_len = 62 - brand.len();
-            let model_id_len = self.rand.gen_range(8..model_id_max_len);
-            let model_id_part_1 = Alphanumeric.sample_string(&mut self.rand, model_id_len);
-            let name: String = format!("{brand} {model_id_part_1}");
+        format!("{brand} {model_id_part_1}")
+    }
 
-            name_opt = if !self.names.contains(&name) {
-                Some(name)
-            } else {
-                None
-            };
-        }
+    pub fn generate_two(&mut self) -> (String, String) {
+        let several = self.generate_several(2);
 
-        let name = name_opt.unwrap();
-        self.names.insert(name.clone());
-
-        name
+        (several[0].clone(), several[1].clone())
     }
 
     pub fn generate_several(&mut self, count: usize) -> Vec<String> {
-        (0..count).map(|_| self.generate_one()).collect()
+        let mut names = HashSet::with_capacity(count);
+
+        while names.len() != count {
+            let name = self.generate_one();
+            names.insert(name);
+        }
+
+        Vec::from_iter(names)
     }
 }

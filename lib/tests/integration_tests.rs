@@ -197,7 +197,7 @@ fn it_should_validate_the_desktop_monitor() {
     let wrong_desktop_monitor_name = fuzzer.generate_monitor_name();
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
+        .with_two_monitors_or_more_with_names_different_than(&[wrong_desktop_monitor_name.as_str()])
         .build();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
@@ -222,7 +222,7 @@ fn it_should_validate_the_couch_monitor() {
     let wrong_couch_monitor_name = fuzzer.generate_monitor_name();
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
+        .with_two_monitors_or_more_with_names_different_than(&[wrong_couch_monitor_name.as_ref()])
         .build();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
@@ -244,11 +244,14 @@ fn it_should_validate_both_desktop_and_couch_monitors() {
     // Arrange
     let mut fuzzer = new_fuzzer!();
 
-    let wrong_desktop_monitor_name = fuzzer.generate_monitor_name();
-    let wrong_couch_monitor_name = fuzzer.generate_monitor_name();
+    let (wrong_desktop_monitor_name, wrong_couch_monitor_name) =
+        fuzzer.generate_two_monitor_names();
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
+        .with_two_monitors_or_more_with_names_different_than(&[
+            wrong_desktop_monitor_name.as_ref(),
+            wrong_couch_monitor_name.as_ref(),
+        ])
         .build();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
