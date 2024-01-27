@@ -770,29 +770,4 @@ mod tests {
             ))
         );
     }
-
-    #[test]
-    fn it() {
-        // Arrange
-        let mut fuzzer = new_fuzzer!();
-
-        let computer = fuzzer
-            .generate_a_computer()
-            .with_two_monitors_or_more()
-            .for_which_querying_the_display_config_of_the_primary_monitor_fails()
-            .build_computer();
-
-        let display_settings = DisplaySettings::new(computer.win32);
-
-        // Act
-        let result = display_settings.get_all_monitors();
-
-        // Assert
-        assert!(
-            result.as_ref().is_err_and(|error_message| error_message
-                .starts_with("Failed to retrieve the name of the monitor at the device path")),
-            "  left: {:?}",
-            result
-        );
-    }
 }

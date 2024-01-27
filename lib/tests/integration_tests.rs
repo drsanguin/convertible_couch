@@ -341,3 +341,31 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_monitor_name() {
         actual_response
     );
 }
+
+#[test]
+fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_monitor_fails() {
+    // Arrange
+    let mut fuzzer = new_fuzzer!();
+
+    let computer = fuzzer
+        .generate_a_computer()
+        .with_two_monitors_or_more()
+        .for_which_querying_the_display_config_of_the_primary_monitor_fails()
+        .build_computer();
+
+    let mut display_settings = DisplaySettings::new(computer.win32);
+
+    // Act
+    let actual_response = display_settings
+        .swap_primary_monitors(&computer.primary_monitor, &computer.secondary_monitor);
+
+    // Assert
+    assert!(
+        actual_response
+            .as_ref()
+            .is_err_and(|error_message| error_message
+                .starts_with("Failed to retrieve the name of the monitor at the device path")),
+        "  left: {:?}",
+        actual_response
+    );
+}
