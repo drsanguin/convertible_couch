@@ -4,6 +4,7 @@ use convertible_couch_tests_common::{
     assertions::{
         assert_that_monitors_have_been_validated,
         assert_that_primary_monitors_have_been_swap_as_expected,
+        assert_that_response_is_an_error_who_starts_with,
     },
     fuzzing::win32::FuzzedWin32,
     new_fuzzer,
@@ -334,14 +335,9 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_monitor_name() {
         .swap_primary_monitors(&computer.primary_monitor, &computer.secondary_monitor);
 
     // Assert
-    assert!(
-        actual_response
-            .as_ref()
-            .is_err_and(|error_message| error_message.starts_with(
-                "Failed to retrieve display configuration information about the device"
-            )),
-        "  left: {:?}",
-        actual_response
+    assert_that_response_is_an_error_who_starts_with(
+        actual_response,
+        "Failed to retrieve display configuration information about the device",
     );
 }
 
@@ -363,12 +359,8 @@ fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_mon
         .swap_primary_monitors(&computer.primary_monitor, &computer.secondary_monitor);
 
     // Assert
-    assert!(
-        actual_response
-            .as_ref()
-            .is_err_and(|error_message| error_message
-                .starts_with("Failed to retrieve the name of the monitor at the device path")),
-        "  left: {:?}",
-        actual_response
+    assert_that_response_is_an_error_who_starts_with(
+        actual_response,
+        "Failed to retrieve the name of the monitor at the device path",
     );
 }
