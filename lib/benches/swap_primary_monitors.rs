@@ -19,9 +19,9 @@ fn swap_primary_monitors(c: &mut Criterion) {
                         let mut fuzzer = new_fuzzer_no_seed_print!();
 
                         let computer = fuzzer
-                            .generate_a_computer()
+                            .generate_computer()
                             .with_n_monitors(*n_monitor)
-                            .build_computer();
+                            .build();
 
                         let display_settings = DisplaySettings::new(computer.win32);
 

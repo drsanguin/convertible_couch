@@ -37,7 +37,7 @@ impl MonitorPositionFuzzer {
         Self { rand }
     }
 
-    pub fn generate_positions(
+    pub fn generate_several(
         &mut self,
         resolutions: &Vec<FuzzedResolution>,
         has_an_internal_display: bool,

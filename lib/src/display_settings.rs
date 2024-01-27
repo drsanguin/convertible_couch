@@ -707,7 +707,7 @@ mod tests {
         // Arrange
         let mut fuzzer = new_fuzzer!();
 
-        let computer = fuzzer.generate_a_computer().build_computer();
+        let computer = fuzzer.generate_computer().build();
 
         let display_settings = DisplaySettings::new(computer.win32);
 
@@ -727,9 +727,9 @@ mod tests {
         let mut fuzzer = new_fuzzer!();
 
         let computer = fuzzer
-            .generate_a_computer()
+            .generate_computer()
             .with_two_monitors_or_more()
-            .build_computer();
+            .build();
         let another_monitor_name = fuzzer.generate_monitor_name();
 
         let display_settings = DisplaySettings::new(computer.win32);
@@ -752,9 +752,9 @@ mod tests {
         let mut fuzzer = new_fuzzer!();
 
         let computer = fuzzer
-            .generate_a_computer()
+            .generate_computer()
             .with_two_monitors_or_more()
-            .build_computer();
+            .build();
         let non_existing_monitor_device_path = fuzzer.generate_device_id();
 
         let display_settings = DisplaySettings::new(computer.win32);

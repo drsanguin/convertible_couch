@@ -38,7 +38,7 @@ impl MonitorFuzzer {
         }
     }
 
-    pub fn generate_monitors(
+    pub fn generate_several(
         &mut self,
         monitors_id_common_part_1: i32,
         monitors_id_common_part_2: &str,
@@ -49,11 +49,9 @@ impl MonitorFuzzer {
     ) -> Vec<FuzzedMonitor> {
         let n_monitor = positioned_resolutions.len();
 
-        let names = self.monitor_name_fuzzer.generate_names(n_monitor);
-        let config_mode_info_ids = self
-            .config_mode_info_id_fuzzer
-            .generate_config_mode_ids(n_monitor);
-        let monitor_id_gsm_parts = self.gsm_id_fuzzer.generate_gsm_ids(n_monitor);
+        let names = self.monitor_name_fuzzer.generate_several(n_monitor);
+        let config_mode_info_ids = self.config_mode_info_id_fuzzer.generate_several(n_monitor);
+        let monitor_id_gsm_parts = self.gsm_id_fuzzer.generate_several(n_monitor);
 
         (0..n_monitor)
             .map(|monitor_index| {

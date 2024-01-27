@@ -18,7 +18,7 @@ impl GsmIdFuzzer {
         }
     }
 
-    pub fn generate_gsm_id(&mut self) -> String {
+    pub fn generate_one(&mut self) -> String {
         let mut gsm_id_opt = None;
 
         while gsm_id_opt.is_none() {
@@ -38,7 +38,7 @@ impl GsmIdFuzzer {
         gsm_id
     }
 
-    pub fn generate_gsm_ids(&mut self, count: usize) -> Vec<String> {
-        (0..count).map(|_| self.generate_gsm_id()).collect()
+    pub fn generate_several(&mut self, count: usize) -> Vec<String> {
+        (0..count).map(|_| self.generate_one()).collect()
     }
 }

@@ -158,14 +158,14 @@ impl ResolutionFuzzer {
         Self { rand }
     }
 
-    pub fn generate_resolution(&mut self) -> FuzzedResolution {
+    pub fn generate_one(&mut self) -> FuzzedResolution {
         FuzzedResolution::ALL
             .choose(&mut self.rand)
             .unwrap()
             .clone()
     }
 
-    pub fn generate_resolutions(&mut self, count: usize) -> Vec<FuzzedResolution> {
-        (0..count).map(|_| self.generate_resolution()).collect()
+    pub fn generate_several(&mut self, count: usize) -> Vec<FuzzedResolution> {
+        (0..count).map(|_| self.generate_one()).collect()
     }
 }

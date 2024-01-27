@@ -66,7 +66,7 @@ impl Fuzzer {
         }
     }
 
-    pub fn generate_a_computer(&mut self) -> &mut ComputerFuzzer {
+    pub fn generate_computer(&mut self) -> &mut ComputerFuzzer {
         &mut self.computer_fuzzer
     }
 
@@ -74,13 +74,13 @@ impl Fuzzer {
         self.computer_fuzzer
             .monitor_fuzzer
             .monitor_name_fuzzer
-            .generate_name()
+            .generate_one()
     }
 
     pub fn generate_device_id(&mut self) -> String {
         self.computer_fuzzer
             .monitor_fuzzer
             .device_id_fuzzer
-            .generate()
+            .generate_one()
     }
 }

@@ -103,7 +103,7 @@ impl ComputerFuzzer {
         self
     }
 
-    pub fn build_computer(&self) -> FuzzedComputer {
+    pub fn build(&self) -> FuzzedComputer {
         let secondary_monitor = self.get_monitor(false);
         let primary_monitor = self.get_monitor(true);
 
@@ -155,13 +155,13 @@ impl ComputerFuzzer {
             .device_id_fuzzer
             .generate_computer_common_parts();
 
-        let monitors_resolutions = self.resolution_fuzzer.generate_resolutions(n_monitor);
+        let monitors_resolutions = self.resolution_fuzzer.generate_several(n_monitor);
 
         let positioned_resolutions = self
             .monitor_position_fuzzer
-            .generate_positions(&monitors_resolutions, self.has_an_internal_display);
+            .generate_several(&monitors_resolutions, self.has_an_internal_display);
 
-        let monitors = self.monitor_fuzzer.generate_monitors(
+        let monitors = self.monitor_fuzzer.generate_several(
             monitors_id_common_parts.part_1,
             &monitors_id_common_parts.part_2,
             monitors_id_common_parts.part_3,
@@ -176,7 +176,7 @@ impl ComputerFuzzer {
             "More than one primary monitor has been generated"
         );
 
-        let mut video_outputs = VideoOutputFuzzer::generate_video_outputs(n_video_output);
+        let mut video_outputs = VideoOutputFuzzer::generate_several(n_video_output);
 
         let mut video_outputs_to_plug_in_indexes = video_outputs
             .iter()

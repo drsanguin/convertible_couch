@@ -155,7 +155,7 @@ impl MonitorNameFuzzer {
         }
     }
 
-    pub fn generate_name(&mut self) -> String {
+    pub fn generate_one(&mut self) -> String {
         let mut name_opt = None;
 
         while name_opt.is_none() {
@@ -178,7 +178,7 @@ impl MonitorNameFuzzer {
         name
     }
 
-    pub fn generate_names(&mut self, count: usize) -> Vec<String> {
-        (0..count).map(|_| self.generate_name()).collect()
+    pub fn generate_several(&mut self, count: usize) -> Vec<String> {
+        (0..count).map(|_| self.generate_one()).collect()
     }
 }

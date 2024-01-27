@@ -22,13 +22,16 @@ pub struct DeviceIdFuzzer {
 
 impl DeviceIdFuzzer {
     pub fn new(mut rand: StdRng) -> Self {
-        let seed = rand.next_u64();
+        let gsm_id_fuzzer = GsmIdFuzzer::new(StdRng::seed_from_u64(rand.next_u64()));
+        let guid_fuzzer = GuidFuzzer::new(StdRng::seed_from_u64(rand.next_u64()));
+        let config_mode_info_id_fuzzer =
+            ConfigModeInfoIdFuzzer::new(StdRng::seed_from_u64(rand.next_u64()));
 
         Self {
             rand,
-            gsm_id_fuzzer: GsmIdFuzzer::new(StdRng::seed_from_u64(seed)),
-            guid_fuzzer: GuidFuzzer::new(StdRng::seed_from_u64(seed)),
-            config_mode_info_id_fuzzer: ConfigModeInfoIdFuzzer::new(StdRng::seed_from_u64(seed)),
+            gsm_id_fuzzer,
+            guid_fuzzer,
+            config_mode_info_id_fuzzer,
         }
     }
 
@@ -47,10 +50,10 @@ impl DeviceIdFuzzer {
         )
     }
 
-    pub fn generate(&mut self) -> String {
-        let gsm_id = self.gsm_id_fuzzer.generate_gsm_id();
+    pub fn generate_one(&mut self) -> String {
+        let gsm_id = self.gsm_id_fuzzer.generate_one();
         let monitors_id_common_parts = self.generate_computer_common_parts();
-        let config_mode_info_id = self.config_mode_info_id_fuzzer.generate_config_mode_ids(1)[0];
+        let config_mode_info_id = self.config_mode_info_id_fuzzer.generate_one();
 
         self.generate_using_common_parts(
             &gsm_id,
@@ -66,7 +69,7 @@ impl DeviceIdFuzzer {
         let part_1 = self.rand.gen_range(0..=9);
         let part_2 = Alphanumeric.sample_string(&mut self.rand, 6).to_lowercase();
         let part_3 = self.rand.gen_range(0..=9);
-        let part_4 = self.guid_fuzzer.generate_uuid();
+        let part_4 = self.guid_fuzzer.generate_one();
 
         CommonDeviceIdPartsByComputer {
             part_1,

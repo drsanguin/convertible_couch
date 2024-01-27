@@ -12,7 +12,7 @@ impl GuidFuzzer {
         Self { rand }
     }
 
-    pub fn generate_uuid(&mut self) -> String {
+    pub fn generate_one(&mut self) -> String {
         let low_time = Alphanumeric.sample_string(&mut self.rand, 8).to_lowercase();
         let mid_time = Alphanumeric.sample_string(&mut self.rand, 4).to_lowercase();
         let high_time_and_version = Alphanumeric.sample_string(&mut self.rand, 4).to_lowercase();

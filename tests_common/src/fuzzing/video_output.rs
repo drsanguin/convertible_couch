@@ -33,7 +33,7 @@ impl FuzzedVideoOutput {
 pub struct VideoOutputFuzzer {}
 
 impl VideoOutputFuzzer {
-    pub fn generate_video_outputs(count: usize) -> Vec<FuzzedVideoOutput> {
+    pub fn generate_several(count: usize) -> Vec<FuzzedVideoOutput> {
         (1..=count)
             .map(|video_output_number| FuzzedVideoOutput::new(video_output_number, None))
             .collect()
