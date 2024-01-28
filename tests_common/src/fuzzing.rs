@@ -16,36 +16,22 @@ pub mod win32;
 
 #[macro_export]
 macro_rules! new_fuzzer {
-    () => {{
-        use convertible_couch_tests_common::func;
-        use convertible_couch_tests_common::fuzzing::Fuzzer;
-
-        Fuzzer::new(func!(), true)
-    }};
+    () => {
+        convertible_couch_tests_common::fuzzing::Fuzzer::new(
+            convertible_couch_tests_common::func!(),
+            true,
+        )
+    };
 }
 
 #[macro_export]
 macro_rules! new_fuzzer_no_seed_print {
-    () => {{
-        use convertible_couch_tests_common::func;
-        use convertible_couch_tests_common::fuzzing::Fuzzer;
-
-        Fuzzer::new(func!(), false)
-    }};
-}
-
-#[macro_export]
-macro_rules! func {
-    () => {{
-        use convertible_couch_tests_common::fuzzing::Fuzzer;
-        fn f() {}
-        fn type_name_of<T>(_: T) -> &'static str {
-            std::any::type_name::<T>()
-        }
-        let name = type_name_of(f);
-
-        &name[19..name.len() - 3]
-    }};
+    () => {
+        convertible_couch_tests_common::fuzzing::Fuzzer::new(
+            convertible_couch_tests_common::func!(),
+            false,
+        )
+    };
 }
 
 pub struct Fuzzer {
