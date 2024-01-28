@@ -26,7 +26,7 @@ use crate::utils::encode_utf16;
 use super::{position::FuzzedMonitorPosition, video_output::FuzzedVideoOutput};
 
 pub struct FuzzedWin32 {
-    pub video_outputs: Vec<FuzzedVideoOutput>,
+    video_outputs: Vec<FuzzedVideoOutput>,
     change_display_settings_error_on_commit: Option<DISP_CHANGE>,
     change_display_settings_error_by_monitor: HashMap<String, DISP_CHANGE>,
     display_changes_to_commit: HashMap<String, FuzzedMonitorPosition>,
