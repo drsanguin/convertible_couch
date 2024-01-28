@@ -34,7 +34,7 @@ pub struct ComputerFuzzer {
 }
 
 impl ComputerFuzzer {
-    /// According to the answer of this question https://learn.microsoft.com/en-us/answers/questions/1324305/what-is-the-maximum-horizontal-resolution-size-rec Windows has a hard limit of 128 million pixels.
+    /// According to the answer of [this question](https://learn.microsoft.com/en-us/answers/questions/1324305/what-is-the-maximum-horizontal-resolution-size-rec), Windows has a hard limit of 128 million pixels.
     /// Which implies that the theoretical maximum is 162 monitors with a 1024x768 resolution.
     const MAX_VIDEO_OUTPUTS: usize = 162;
 
