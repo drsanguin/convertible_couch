@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use rand::{
     distributions::{Alphanumeric, DistString},
     rngs::StdRng,
@@ -12,16 +14,27 @@ impl GuidFuzzer {
         Self { rand }
     }
 
-    pub fn generate_one(&mut self) -> String {
-        let low_time = Alphanumeric.sample_string(&mut self.rand, 8).to_lowercase();
-        let mid_time = Alphanumeric.sample_string(&mut self.rand, 4).to_lowercase();
-        let high_time_and_version = Alphanumeric.sample_string(&mut self.rand, 4).to_lowercase();
-        let clock_sequence_and_variant =
-            Alphanumeric.sample_string(&mut self.rand, 4).to_lowercase();
-        let node = Alphanumeric
-            .sample_string(&mut self.rand, 12)
-            .to_lowercase();
+    pub fn generate_one(&mut self, forbidden_uuids: &HashSet<&str>) -> String {
+        loop {
+            let low_time = Alphanumeric.sample_string(&mut self.rand, 8).to_lowercase();
+            let mid_time = Alphanumeric.sample_string(&mut self.rand, 4).to_lowercase();
+            let high_time_and_version =
+                Alphanumeric.sample_string(&mut self.rand, 4).to_lowercase();
+            let clock_sequence_and_variant =
+                Alphanumeric.sample_string(&mut self.rand, 4).to_lowercase();
+            let node = Alphanumeric
+                .sample_string(&mut self.rand, 12)
+                .to_lowercase();
 
-        format!("{low_time}-{mid_time}-{high_time_and_version}-{clock_sequence_and_variant}-{node}")
+            let uuid = format!(
+                "{low_time}-{mid_time}-{high_time_and_version}-{clock_sequence_and_variant}-{node}"
+            );
+
+            if forbidden_uuids.contains(uuid.as_str()) {
+                continue;
+            }
+
+            return uuid;
+        }
     }
 }

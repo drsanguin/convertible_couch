@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use rand::{
     rngs::StdRng,
@@ -49,11 +49,11 @@ impl ComputerFuzzer {
     }
 
     pub fn with_two_monitors_or_more(&mut self) -> &mut Self {
-        self.with_a_range_of_monitors(2, Self::MAX_VIDEO_OUTPUTS, &[], &[])
+        self.with_a_range_of_monitors(2, Self::MAX_VIDEO_OUTPUTS, &HashSet::new(), &HashSet::new())
     }
 
     pub fn with_n_monitors(&mut self, n_monitor: usize) -> &mut Self {
-        self.with_a_range_of_monitors(n_monitor, n_monitor, &[], &[])
+        self.with_a_range_of_monitors(n_monitor, n_monitor, &HashSet::new(), &HashSet::new())
     }
 
     pub fn with_an_internal_display_and_at_least_one_more_monitor(&mut self) -> &mut Self {
@@ -139,53 +139,46 @@ impl ComputerFuzzer {
 
     pub fn with_two_monitors_or_more_with_device_ids_different_than(
         &mut self,
-        non_existing_monitor_device_path: &DeviceId,
+        forbidden_device_ids: &HashSet<&DeviceId>,
     ) -> &mut Self {
         self.with_a_range_of_monitors(
             2,
             Self::MAX_VIDEO_OUTPUTS,
-            &[non_existing_monitor_device_path],
-            &[],
+            &HashSet::new(),
+            forbidden_device_ids,
         )
     }
 
     pub fn with_two_monitors_or_more_with_names_different_than(
         &mut self,
-        forbidden_monitor_names: &[&str],
+        forbidden_monitor_names: &HashSet<&str>,
     ) -> &mut Self {
-        self.with_a_range_of_monitors(2, Self::MAX_VIDEO_OUTPUTS, &[], forbidden_monitor_names)
+        self.with_a_range_of_monitors(
+            2,
+            Self::MAX_VIDEO_OUTPUTS,
+            forbidden_monitor_names,
+            &HashSet::new(),
+        )
     }
 
     fn with_a_range_of_monitors(
         &mut self,
         min: usize,
         max: usize,
-        forbidden_device_ids: &[&DeviceId],
-        forbidden_monitor_names: &[&str],
+        forbidden_monitor_names: &HashSet<&str>,
+        forbidden_device_ids: &HashSet<&DeviceId>,
     ) -> &mut Self {
         let mut monitor_fuzzer = MonitorFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()));
 
         let n_video_output = self.rand.gen_range(min..=max);
         let n_monitor = self.rand.gen_range(min..=n_video_output);
 
-        let mut monitors_opt = None;
-
-        while monitors_opt.is_none() {
-            let possible_monitors =
-                monitor_fuzzer.generate_several(n_monitor, self.has_an_internal_display);
-
-            monitors_opt = if possible_monitors.iter().any(|possible_monitor| {
-                forbidden_device_ids.iter().any(|forbidden_device_id| {
-                    forbidden_device_id.full_id == possible_monitor.device_id
-                }) || forbidden_monitor_names.contains(&possible_monitor.name.as_str())
-            }) {
-                None
-            } else {
-                Some(possible_monitors)
-            };
-        }
-
-        let monitors = monitors_opt.unwrap();
+        let monitors = monitor_fuzzer.generate_several(
+            n_monitor,
+            self.has_an_internal_display,
+            forbidden_monitor_names,
+            forbidden_device_ids,
+        );
 
         assert_eq!(
             monitors.iter().filter(|monitor| monitor.primary).count(),

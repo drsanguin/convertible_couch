@@ -161,16 +161,25 @@ impl MonitorNameFuzzer {
     }
 
     pub fn generate_two(&mut self) -> (String, String) {
-        let several = self.generate_several(2);
+        let several = self.generate_several(2, &HashSet::new());
 
         (several[0].clone(), several[1].clone())
     }
 
-    pub fn generate_several(&mut self, count: usize) -> Vec<String> {
+    pub fn generate_several(
+        &mut self,
+        count: usize,
+        forbidden_monitor_names: &HashSet<&str>,
+    ) -> Vec<String> {
         let mut names = HashSet::with_capacity(count);
 
         while names.len() != count {
             let name = self.generate_one();
+
+            if forbidden_monitor_names.contains(&name.as_str()) {
+                continue;
+            }
+
             names.insert(name);
         }
 

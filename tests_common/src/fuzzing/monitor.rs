@@ -1,7 +1,9 @@
+use std::collections::HashSet;
+
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
 use super::{
-    device_id::DeviceIdFuzzer,
+    device_id::{DeviceId, DeviceIdFuzzer},
     monitor_name::MonitorNameFuzzer,
     position::{FuzzedMonitorPosition, MonitorPositionFuzzer},
     resolution::{FuzzedResolution, ResolutionFuzzer},
@@ -30,6 +32,8 @@ impl MonitorFuzzer {
         &mut self,
         n_monitor: usize,
         has_an_internal_display: bool,
+        forbidden_monitor_names: &HashSet<&str>,
+        forbidden_device_ids: &HashSet<&DeviceId>,
     ) -> Vec<FuzzedMonitor> {
         let monitors_resolutions =
             ResolutionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
@@ -38,9 +42,9 @@ impl MonitorFuzzer {
             MonitorPositionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
                 .generate_several(&monitors_resolutions, has_an_internal_display);
         let names = MonitorNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-            .generate_several(n_monitor);
+            .generate_several(n_monitor, forbidden_monitor_names);
         let device_ids = DeviceIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-            .generate_several(n_monitor);
+            .generate_several(n_monitor, forbidden_device_ids);
 
         (0..n_monitor)
             .map(|monitor_index| {

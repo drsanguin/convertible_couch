@@ -686,6 +686,8 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
     use convertible_couch_tests_common::{fuzzing::win32::FuzzedWin32, new_fuzzer};
     use test_case::test_case;
     use windows::Win32::Graphics::Gdi::DISP_CHANGE;
@@ -726,22 +728,25 @@ mod tests {
         // Arrange
         let mut fuzzer = new_fuzzer!();
 
-        let another_monitor_name = fuzzer.generate_monitor_name();
+        let forbidden_monitor_name = fuzzer.generate_monitor_name();
+        let mut forbidden_monitor_names = HashSet::with_capacity(1);
+        forbidden_monitor_names.insert(forbidden_monitor_name.as_str());
+
         let computer = fuzzer
             .generate_computer()
-            .with_two_monitors_or_more_with_names_different_than(&[another_monitor_name.as_ref()])
+            .with_two_monitors_or_more_with_names_different_than(&forbidden_monitor_names)
             .build();
 
         let display_settings = DisplaySettings::new(computer.win32);
 
         // Act
-        let result = display_settings.get_monitor_position(&another_monitor_name);
+        let result = display_settings.get_monitor_position(&forbidden_monitor_name);
 
         //Assert
         assert_eq!(
             result,
             Err(format!(
-                "Failed to retrieve the position of monitor {another_monitor_name}"
+                "Failed to retrieve the position of monitor {forbidden_monitor_name}"
             ))
         );
     }
@@ -751,24 +756,25 @@ mod tests {
         // Arrange
         let mut fuzzer = new_fuzzer!();
 
-        let non_existing_monitor_device_id = fuzzer.generate_device_id();
+        let forbidden_device_id = fuzzer.generate_device_id();
+        let mut forbidden_device_ids = HashSet::with_capacity(1);
+        forbidden_device_ids.insert(&forbidden_device_id);
+
         let computer = fuzzer
             .generate_computer()
-            .with_two_monitors_or_more_with_device_ids_different_than(
-                &non_existing_monitor_device_id,
-            )
+            .with_two_monitors_or_more_with_device_ids_different_than(&forbidden_device_ids)
             .build();
 
         let display_settings = DisplaySettings::new(computer.win32);
 
         // Act
-        let result = display_settings.get_monitor_name(&non_existing_monitor_device_id.full_id);
+        let result = display_settings.get_monitor_name(&forbidden_device_id.full_id);
 
         //Assert
         assert_eq!(
             result,
             Err(format!(
-                "Failed to retrieve the name of the monitor at the device path {non_existing_monitor_device_id}"
+                "Failed to retrieve the name of the monitor at the device path {forbidden_device_id}"
             ))
         );
     }
