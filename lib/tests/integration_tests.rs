@@ -21,8 +21,10 @@ fn it_should_swap_the_desktop_monitor_with_the_couch_monitor() {
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
-        .build();
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .build_monitors()
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -47,8 +49,10 @@ fn it_should_swap_the_couch_monitor_with_the_desktop_monitor() {
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
-        .build();
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .build_monitors()
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -78,8 +82,11 @@ fn it_should_swap_the_desktop_monitor_with_the_couch_monitor_when_the_computer_h
 
     let computer = fuzzer
         .generate_computer()
-        .with_an_internal_display_and_at_least_one_more_monitor()
-        .build();
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .including_an_internal_display()
+        .build_monitors()
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -106,8 +113,11 @@ fn it_should_swap_the_couch_monitor_with_the_desktop_monitor_has_an_internal_dis
 
     let computer = fuzzer
         .generate_computer()
-        .with_an_internal_display_and_at_least_one_more_monitor()
-        .build();
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .including_an_internal_display()
+        .build_monitors()
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -144,9 +154,11 @@ fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_requi
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .build_monitors()
         .for_which_committing_the_display_changes_fails_with(DISP_CHANGE_RESTART)
-        .build();
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -172,9 +184,11 @@ fn it_should_swap_the_primary_monitors_of_computer_and_ask_for_reboot_when_requi
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .build_monitors()
         .for_which_changing_the_display_settings_fails_for_some_monitors(DISP_CHANGE_RESTART)
-        .build();
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -203,8 +217,11 @@ fn it_should_validate_the_desktop_monitor() {
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more_with_names_different_than(&forbidden_monitor_names)
-        .build();
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .whose_names_are_different_from(forbidden_monitor_names)
+        .build_monitors()
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -231,8 +248,11 @@ fn it_should_validate_the_couch_monitor() {
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more_with_names_different_than(&forbidden_monitor_names)
-        .build();
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .whose_names_are_different_from(forbidden_monitor_names)
+        .build_monitors()
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -262,8 +282,11 @@ fn it_should_validate_both_desktop_and_couch_monitors() {
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more_with_names_different_than(&forbidden_monitor_names)
-        .build();
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .whose_names_are_different_from(forbidden_monitor_names)
+        .build_monitors()
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -293,9 +316,11 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .build_monitors()
         .for_which_committing_the_display_changes_fails_with(disp_change)
-        .build();
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -317,9 +342,11 @@ fn it_should_report_display_change_errors_that_happens_for_some_monitors(
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .build_monitors()
         .for_which_changing_the_display_settings_fails_for_some_monitors(disp_change)
-        .build();
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -334,9 +361,11 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_monitor_name() {
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .build_monitors()
         .for_which_getting_the_primary_monitor_fails()
-        .build();
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 
@@ -358,9 +387,11 @@ fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_mon
 
     let computer = fuzzer
         .generate_computer()
-        .with_two_monitors_or_more()
+        .with_monitors()
+        .of_which_there_are_at_least(2)
+        .build_monitors()
         .for_which_querying_the_display_config_of_the_primary_monitor_fails()
-        .build();
+        .build_computer();
 
     let mut display_settings = DisplaySettings::new(computer.win32);
 

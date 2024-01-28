@@ -1,4 +1,4 @@
-use super::monitor::FuzzedMonitor;
+use super::monitors::FuzzedMonitor;
 
 #[derive(Clone)]
 pub struct FuzzedVideoOutput {

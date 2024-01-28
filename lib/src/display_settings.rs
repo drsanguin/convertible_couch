@@ -709,7 +709,7 @@ mod tests {
         // Arrange
         let mut fuzzer = new_fuzzer!();
 
-        let computer = fuzzer.generate_computer().build();
+        let computer = fuzzer.generate_computer().build_computer();
 
         let display_settings = DisplaySettings::new(computer.win32);
 
@@ -734,8 +734,11 @@ mod tests {
 
         let computer = fuzzer
             .generate_computer()
-            .with_two_monitors_or_more_with_names_different_than(&forbidden_monitor_names)
-            .build();
+            .with_monitors()
+            .of_which_there_are_at_least(2)
+            .whose_names_are_different_from(forbidden_monitor_names)
+            .build_monitors()
+            .build_computer();
 
         let display_settings = DisplaySettings::new(computer.win32);
 
@@ -762,8 +765,11 @@ mod tests {
 
         let computer = fuzzer
             .generate_computer()
-            .with_two_monitors_or_more_with_device_ids_different_than(&forbidden_device_ids)
-            .build();
+            .with_monitors()
+            .of_which_there_are_at_least(2)
+            .whose_device_ids_are_different_from(forbidden_device_ids)
+            .build_monitors()
+            .build_computer();
 
         let display_settings = DisplaySettings::new(computer.win32);
 
