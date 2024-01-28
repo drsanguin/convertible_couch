@@ -20,22 +20,12 @@ pub struct FuzzedMonitor {
 }
 
 pub struct MonitorFuzzer {
-    monitor_name_fuzzer: MonitorNameFuzzer,
-    device_id_fuzzer: DeviceIdFuzzer,
-    config_mode_info_id_fuzzer: ConfigModeInfoIdFuzzer,
-    gsm_id_fuzzer: GsmIdFuzzer,
+    rand: StdRng,
 }
 
 impl MonitorFuzzer {
-    pub fn new(mut rand: StdRng) -> Self {
-        Self {
-            monitor_name_fuzzer: MonitorNameFuzzer::new(StdRng::seed_from_u64(rand.next_u64())),
-            device_id_fuzzer: DeviceIdFuzzer::new(StdRng::seed_from_u64(rand.next_u64())),
-            config_mode_info_id_fuzzer: ConfigModeInfoIdFuzzer::new(StdRng::seed_from_u64(
-                rand.next_u64(),
-            )),
-            gsm_id_fuzzer: GsmIdFuzzer::new(StdRng::seed_from_u64(rand.next_u64())),
-        }
+    pub fn new(rand: StdRng) -> Self {
+        Self { rand }
     }
 
     pub fn generate_several(
@@ -49,9 +39,13 @@ impl MonitorFuzzer {
     ) -> Vec<FuzzedMonitor> {
         let n_monitor = positioned_resolutions.len();
 
-        let names = self.monitor_name_fuzzer.generate_several(n_monitor);
-        let config_mode_info_ids = self.config_mode_info_id_fuzzer.generate_several(n_monitor);
-        let monitor_id_gsm_parts = self.gsm_id_fuzzer.generate_several(n_monitor);
+        let names = MonitorNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+            .generate_several(n_monitor);
+        let config_mode_info_ids =
+            ConfigModeInfoIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+                .generate_several(n_monitor);
+        let monitor_id_gsm_parts = GsmIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+            .generate_several(n_monitor);
 
         (0..n_monitor)
             .map(|monitor_index| {
@@ -65,7 +59,7 @@ impl MonitorFuzzer {
                 };
                 let config_mode_info_id = config_mode_info_ids[monitor_index];
                 let monitor_id_gsm_part = &monitor_id_gsm_parts[monitor_index];
-                let device_id = self.device_id_fuzzer.generate_from_parts(
+                let device_id = DeviceIdFuzzer::generate_from_parts(
                     monitor_id_gsm_part,
                     monitors_id_common_part_1,
                     monitors_id_common_part_2,

@@ -24,14 +24,10 @@ pub struct FuzzedComputer {
 }
 
 pub struct ComputerFuzzer {
-    monitor_fuzzer: MonitorFuzzer,
-    device_id_fuzzer: DeviceIdFuzzer,
+    rand: StdRng,
     video_outputs: Vec<FuzzedVideoOutput>,
     change_display_settings_error_on_commit: Option<DISP_CHANGE>,
     change_display_settings_error_by_monitor: HashMap<String, DISP_CHANGE>,
-    rand: StdRng,
-    resolution_fuzzer: ResolutionFuzzer,
-    monitor_position_fuzzer: MonitorPositionFuzzer,
     has_an_internal_display: bool,
     getting_primary_monitor_name_fails: bool,
     querying_the_display_config_of_the_primary_monitor_fails: bool,
@@ -42,22 +38,12 @@ impl ComputerFuzzer {
     /// Which implies that the theoretical maximum is 162 monitors with a 1024x768 resolution.
     const MAX_VIDEO_OUTPUTS: usize = 162;
 
-    pub fn new(mut rand: StdRng) -> Self {
-        let monitor_fuzzer = MonitorFuzzer::new(StdRng::seed_from_u64(rand.next_u64()));
-        let resolution_fuzzer = ResolutionFuzzer::new(StdRng::seed_from_u64(rand.next_u64()));
-        let monitor_position_fuzzer =
-            MonitorPositionFuzzer::new(StdRng::seed_from_u64(rand.next_u64()));
-        let device_id_fuzzer = DeviceIdFuzzer::new(StdRng::seed_from_u64(rand.next_u64()));
-
+    pub fn new(rand: StdRng) -> Self {
         Self {
             rand,
             video_outputs: vec![],
             change_display_settings_error_on_commit: None,
             change_display_settings_error_by_monitor: HashMap::new(),
-            monitor_fuzzer,
-            resolution_fuzzer,
-            monitor_position_fuzzer,
-            device_id_fuzzer,
             has_an_internal_display: false,
             getting_primary_monitor_name_fails: false,
             querying_the_display_config_of_the_primary_monitor_fails: false,
@@ -179,21 +165,27 @@ impl ComputerFuzzer {
         forbidden_device_ids: &[&str],
         forbidden_monitor_names: &[&str],
     ) -> &mut Self {
+        let mut monitor_fuzzer = MonitorFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()));
+
         let n_video_output = self.rand.gen_range(min..=max);
         let n_monitor = self.rand.gen_range(min..=n_video_output);
 
-        let monitors_id_common_parts = self.device_id_fuzzer.generate_computer_common_parts();
+        let monitors_id_common_parts =
+            DeviceIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+                .generate_computer_common_parts();
 
-        let monitors_resolutions = self.resolution_fuzzer.generate_several(n_monitor);
+        let monitors_resolutions =
+            ResolutionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+                .generate_several(n_monitor);
 
-        let positioned_resolutions = self
-            .monitor_position_fuzzer
-            .generate_several(&monitors_resolutions, self.has_an_internal_display);
+        let positioned_resolutions =
+            MonitorPositionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+                .generate_several(&monitors_resolutions, self.has_an_internal_display);
 
         let mut monitors_opt = None;
 
         while monitors_opt.is_none() {
-            let possible_monitors = self.monitor_fuzzer.generate_several(
+            let possible_monitors = monitor_fuzzer.generate_several(
                 monitors_id_common_parts.part_1,
                 &monitors_id_common_parts.part_2,
                 monitors_id_common_parts.part_3,
