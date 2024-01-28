@@ -1,6 +1,10 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
-use self::{computer::ComputerFuzzer, device_id::DeviceIdFuzzer, monitor_name::MonitorNameFuzzer};
+use self::{
+    computer::ComputerFuzzer,
+    device_id::{DeviceId, DeviceIdFuzzer},
+    monitor_name::MonitorNameFuzzer,
+};
 
 pub mod computer;
 pub mod config_mod_info_id;
@@ -63,7 +67,7 @@ impl Fuzzer {
         MonitorNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_two()
     }
 
-    pub fn generate_device_id(&mut self) -> String {
+    pub fn generate_device_id(&mut self) -> DeviceId {
         DeviceIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_one()
     }
 }

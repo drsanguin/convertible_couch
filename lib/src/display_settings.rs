@@ -751,24 +751,24 @@ mod tests {
         // Arrange
         let mut fuzzer = new_fuzzer!();
 
-        let non_existing_monitor_device_path = fuzzer.generate_device_id();
+        let non_existing_monitor_device_id = fuzzer.generate_device_id();
         let computer = fuzzer
             .generate_computer()
             .with_two_monitors_or_more_with_device_ids_different_than(
-                &non_existing_monitor_device_path,
+                &non_existing_monitor_device_id,
             )
             .build();
 
         let display_settings = DisplaySettings::new(computer.win32);
 
         // Act
-        let result = display_settings.get_monitor_name(&non_existing_monitor_device_path);
+        let result = display_settings.get_monitor_name(&non_existing_monitor_device_id.full_id);
 
         //Assert
         assert_eq!(
             result,
             Err(format!(
-                "Failed to retrieve the name of the monitor at the device path {non_existing_monitor_device_path}"
+                "Failed to retrieve the name of the monitor at the device path {non_existing_monitor_device_id}"
             ))
         );
     }

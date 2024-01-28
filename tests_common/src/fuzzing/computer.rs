@@ -8,10 +8,8 @@ use rand::{
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
 use super::{
-    device_id::DeviceIdFuzzer,
+    device_id::DeviceId,
     monitor::MonitorFuzzer,
-    position::MonitorPositionFuzzer,
-    resolution::ResolutionFuzzer,
     video_output::{FuzzedVideoOutput, VideoOutputFuzzer},
     win32::FuzzedWin32,
 };
@@ -141,7 +139,7 @@ impl ComputerFuzzer {
 
     pub fn with_two_monitors_or_more_with_device_ids_different_than(
         &mut self,
-        non_existing_monitor_device_path: &str,
+        non_existing_monitor_device_path: &DeviceId,
     ) -> &mut Self {
         self.with_a_range_of_monitors(
             2,
@@ -162,7 +160,7 @@ impl ComputerFuzzer {
         &mut self,
         min: usize,
         max: usize,
-        forbidden_device_ids: &[&str],
+        forbidden_device_ids: &[&DeviceId],
         forbidden_monitor_names: &[&str],
     ) -> &mut Self {
         let mut monitor_fuzzer = MonitorFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()));
@@ -170,33 +168,16 @@ impl ComputerFuzzer {
         let n_video_output = self.rand.gen_range(min..=max);
         let n_monitor = self.rand.gen_range(min..=n_video_output);
 
-        let monitors_id_common_parts =
-            DeviceIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-                .generate_computer_common_parts();
-
-        let monitors_resolutions =
-            ResolutionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-                .generate_several(n_monitor);
-
-        let positioned_resolutions =
-            MonitorPositionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-                .generate_several(&monitors_resolutions, self.has_an_internal_display);
-
         let mut monitors_opt = None;
 
         while monitors_opt.is_none() {
-            let possible_monitors = monitor_fuzzer.generate_several(
-                monitors_id_common_parts.part_1,
-                &monitors_id_common_parts.part_2,
-                monitors_id_common_parts.part_3,
-                &monitors_id_common_parts.part_4,
-                self.has_an_internal_display,
-                &positioned_resolutions,
-            );
+            let possible_monitors =
+                monitor_fuzzer.generate_several(n_monitor, self.has_an_internal_display);
 
             monitors_opt = if possible_monitors.iter().any(|possible_monitor| {
-                forbidden_device_ids.contains(&possible_monitor.device_id.as_str())
-                    || forbidden_monitor_names.contains(&possible_monitor.name.as_str())
+                forbidden_device_ids.iter().any(|forbidden_device_id| {
+                    forbidden_device_id.full_id == possible_monitor.device_id
+                }) || forbidden_monitor_names.contains(&possible_monitor.name.as_str())
             }) {
                 None
             } else {
