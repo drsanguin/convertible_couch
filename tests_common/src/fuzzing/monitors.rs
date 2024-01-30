@@ -6,7 +6,7 @@ use crate::fuzzing::video_output::VideoOutputFuzzer;
 
 use super::{
     computer::ComputerFuzzer,
-    device_id::{DeviceId, DeviceIdFuzzer},
+    device_id::{DeviceIdFuzzer, FuzzedDeviceId},
     monitor_name::MonitorNameFuzzer,
     position::{FuzzedMonitorPosition, MonitorPositionFuzzer},
     resolution::{FuzzedResolution, ResolutionFuzzer},
@@ -29,7 +29,7 @@ pub struct MonitorsFuzzer<'a> {
     max_n_monitor: usize,
     includes_an_internal_display: bool,
     forbidden_monitor_names: HashSet<&'a str>,
-    forbidden_device_ids: HashSet<&'a DeviceId>,
+    forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
 }
 
 impl<'a> MonitorsFuzzer<'a> {
@@ -102,7 +102,7 @@ impl<'a> MonitorsFuzzer<'a> {
 
     pub fn whose_device_ids_are_different_from(
         &mut self,
-        forbidden_device_ids: HashSet<&'a DeviceId>,
+        forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
     ) -> Self {
         Self {
             rand: StdRng::seed_from_u64(self.rand.next_u64()),

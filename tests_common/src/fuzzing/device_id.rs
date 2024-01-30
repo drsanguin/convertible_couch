@@ -19,7 +19,7 @@ pub struct CommonDeviceIdPartsByComputer {
 }
 
 #[derive(Clone, Eq, Hash, PartialEq)]
-pub struct DeviceId {
+pub struct FuzzedDeviceId {
     pub uuid: String,
     pub config_mode_info_id: u32,
     pub full_id: String,
@@ -29,7 +29,7 @@ pub struct DeviceIdFuzzer {
     rand: StdRng,
 }
 
-impl DeviceId {
+impl FuzzedDeviceId {
     pub fn new(
         gsm_id: &str,
         monitors_id_part_1: i32,
@@ -49,7 +49,7 @@ impl DeviceId {
     }
 }
 
-impl Display for DeviceId {
+impl Display for FuzzedDeviceId {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         write!(formatter, "{}", self.full_id)
     }
@@ -60,15 +60,15 @@ impl DeviceIdFuzzer {
         Self { rand }
     }
 
-    pub fn generate_one(&mut self) -> DeviceId {
+    pub fn generate_one(&mut self) -> FuzzedDeviceId {
         self.generate_several(1, &HashSet::new())[0].clone()
     }
 
     pub fn generate_several(
         &mut self,
         count: usize,
-        forbidden_device_ids: &HashSet<&DeviceId>,
-    ) -> Vec<DeviceId> {
+        forbidden_device_ids: &HashSet<&FuzzedDeviceId>,
+    ) -> Vec<FuzzedDeviceId> {
         let monitor_id_gsm_parts =
             GsmIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_several(count);
 
@@ -85,7 +85,7 @@ impl DeviceIdFuzzer {
                 let config_mode_info_id = config_mode_info_ids[monitor_index];
                 let monitor_id_gsm_part = &monitor_id_gsm_parts[monitor_index];
 
-                DeviceId::new(
+                FuzzedDeviceId::new(
                     monitor_id_gsm_part,
                     monitors_id_common_parts.part_1,
                     &monitors_id_common_parts.part_2,
@@ -99,7 +99,7 @@ impl DeviceIdFuzzer {
 
     fn generate_computer_common_parts(
         &mut self,
-        forbidden_device_ids: &HashSet<&DeviceId>,
+        forbidden_device_ids: &HashSet<&FuzzedDeviceId>,
     ) -> CommonDeviceIdPartsByComputer {
         let forbidden_uuids = HashSet::<&str>::from_iter(
             forbidden_device_ids
