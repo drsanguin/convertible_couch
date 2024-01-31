@@ -84,18 +84,27 @@ impl ComputerFuzzer {
         }
     }
 
-    pub fn for_which_getting_the_primary_monitor_fails(&mut self) -> &mut Self {
-        self.getting_primary_monitor_name_fails = true;
-
-        self
+    pub fn for_which_getting_the_primary_monitor_fails(&mut self) -> Self {
+        Self {
+            rand: StdRng::seed_from_u64(self.rand.next_u64()),
+            video_outputs: self.video_outputs.clone(),
+            change_display_settings_error: self.change_display_settings_error,
+            change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
+            getting_primary_monitor_name_fails: true,
+            querying_the_display_config_of_the_primary_monitor_fails: self
+                .querying_the_display_config_of_the_primary_monitor_fails,
+        }
     }
 
-    pub fn for_which_querying_the_display_config_of_the_primary_monitor_fails(
-        &mut self,
-    ) -> &mut Self {
-        self.querying_the_display_config_of_the_primary_monitor_fails = true;
-
-        self
+    pub fn for_which_querying_the_display_config_of_the_primary_monitor_fails(&mut self) -> Self {
+        Self {
+            rand: StdRng::seed_from_u64(self.rand.next_u64()),
+            video_outputs: self.video_outputs.clone(),
+            change_display_settings_error: self.change_display_settings_error,
+            change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
+            getting_primary_monitor_name_fails: self.getting_primary_monitor_name_fails,
+            querying_the_display_config_of_the_primary_monitor_fails: true,
+        }
     }
 
     pub fn build_computer(&mut self) -> FuzzedComputer {
