@@ -18,7 +18,7 @@ struct Args {
 }
 
 fn main() {
-    let args: Args = Args::parse();
+    let args = Args::parse();
 
     match configure_logger(args.log_level).and_then(|_| {
         DisplaySettings::new(Win32Impl)
