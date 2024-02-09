@@ -12,6 +12,7 @@ Automate Windows display configuration to play from your couch
   - https://github.com/Belphemur/SoundSwitch
   - https://github.com/rust-lang/rust-bindgen
   - https://docs.rs/cpp/latest/cpp/
+  - https://github.com/rust-qt/ritual
 - Refactor display_settings to reduce code duplication
 
 ## Acknowledgments
