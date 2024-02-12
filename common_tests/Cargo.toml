@@ -1,5 +1,5 @@
 [package]
-name = "convertible_couch_tests_common"
+name = "convertible_couch_common_tests"
 version = "0.5.0"
 edition = "2021"
 authors = ["Thomas PEREZ"]

@@ -1,5 +1,5 @@
+use convertible_couch_common_tests::new_fuzzer_no_seed_print;
 use convertible_couch_lib::display_settings::DisplaySettings;
-use convertible_couch_tests_common::new_fuzzer_no_seed_print;
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
 
 fn swap_primary_monitors(c: &mut Criterion) {

@@ -21,8 +21,8 @@ pub mod win32;
 #[macro_export]
 macro_rules! new_fuzzer {
     () => {
-        convertible_couch_tests_common::fuzzing::Fuzzer::new(
-            convertible_couch_tests_common::func!(),
+        convertible_couch_common_tests::fuzzing::Fuzzer::new(
+            convertible_couch_common_tests::func!(),
             true,
         )
     };
@@ -31,8 +31,8 @@ macro_rules! new_fuzzer {
 #[macro_export]
 macro_rules! new_fuzzer_no_seed_print {
     () => {
-        convertible_couch_tests_common::fuzzing::Fuzzer::new(
-            convertible_couch_tests_common::func!(),
+        convertible_couch_common_tests::fuzzing::Fuzzer::new(
+            convertible_couch_common_tests::func!(),
             false,
         )
     };

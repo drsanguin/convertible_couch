@@ -25,7 +25,7 @@ features = [
 
 [dev-dependencies]
 test-case = "3.3.1"
-convertible_couch_tests_common = { path = "../tests_common"}
+convertible_couch_common_tests = { path = "../common_tests"}
 criterion = { version = "0.5.1", features = ["html_reports"] }
 
 [[bench]]

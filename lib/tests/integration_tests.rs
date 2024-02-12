@@ -1,8 +1,7 @@
 use std::collections::HashSet;
 
 use convertible_couch_common::SwapPrimaryMonitorsResponse;
-use convertible_couch_lib::display_settings::DisplaySettings;
-use convertible_couch_tests_common::{
+use convertible_couch_common_tests::{
     assertions::{
         assert_that_monitors_have_been_validated,
         assert_that_primary_monitors_have_been_swap_as_expected,
@@ -11,6 +10,7 @@ use convertible_couch_tests_common::{
     fuzzing::win32::FuzzedWin32,
     new_fuzzer,
 };
+use convertible_couch_lib::display_settings::DisplaySettings;
 use test_case::test_case;
 use windows::Win32::Graphics::Gdi::{DISP_CHANGE, DISP_CHANGE_RESTART};
 

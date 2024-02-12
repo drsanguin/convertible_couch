@@ -688,7 +688,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
 mod tests {
     use std::collections::HashSet;
 
-    use convertible_couch_tests_common::{fuzzing::win32::FuzzedWin32, new_fuzzer};
+    use convertible_couch_common_tests::{fuzzing::win32::FuzzedWin32, new_fuzzer};
     use test_case::test_case;
     use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
