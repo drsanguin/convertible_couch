@@ -108,57 +108,57 @@ impl MonitorPositionFuzzer {
                 resolution,
                 &mut monitors_positions_by_axis.left_up,
                 &primary_monitor_positioned,
-                MoveHorizontally::Left,
-                MoveVertically::Up,
+                HorizontalMove::Left,
+                VerticalMove::Up,
             ),
             i if i & 7 == 6 => Self::move_resolution(
                 resolution,
                 &mut monitors_positions_by_axis.left,
                 &primary_monitor_positioned,
-                MoveHorizontally::Left,
-                MoveVertically::None,
+                HorizontalMove::Left,
+                VerticalMove::None,
             ),
             i if i & 7 == 5 => Self::move_resolution(
                 resolution,
                 &mut monitors_positions_by_axis.left_down,
                 &primary_monitor_positioned,
-                MoveHorizontally::Left,
-                MoveVertically::Down,
+                HorizontalMove::Left,
+                VerticalMove::Down,
             ),
             i if i & 7 == 4 => Self::move_resolution(
                 resolution,
                 &mut monitors_positions_by_axis.down,
                 &primary_monitor_positioned,
-                MoveHorizontally::None,
-                MoveVertically::Down,
+                HorizontalMove::None,
+                VerticalMove::Down,
             ),
             i if i & 7 == 3 => Self::move_resolution(
                 resolution,
                 &mut monitors_positions_by_axis.right_down,
                 &primary_monitor_positioned,
-                MoveHorizontally::Right,
-                MoveVertically::Down,
+                HorizontalMove::Right,
+                VerticalMove::Down,
             ),
             i if i & 7 == 2 => Self::move_resolution(
                 resolution,
                 &mut monitors_positions_by_axis.right,
                 &primary_monitor_positioned,
-                MoveHorizontally::Right,
-                MoveVertically::None,
+                HorizontalMove::Right,
+                VerticalMove::None,
             ),
             i if i & 7 == 1 => Self::move_resolution(
                 resolution,
                 &mut monitors_positions_by_axis.right_up,
                 &primary_monitor_positioned,
-                MoveHorizontally::Right,
-                MoveVertically::Up,
+                HorizontalMove::Right,
+                VerticalMove::Up,
             ),
             _ => Self::move_resolution(
                 resolution,
                 &mut monitors_positions_by_axis.up,
                 &primary_monitor_positioned,
-                MoveHorizontally::None,
-                MoveVertically::Up,
+                HorizontalMove::None,
+                VerticalMove::Up,
             ),
         }
     }
@@ -167,29 +167,29 @@ impl MonitorPositionFuzzer {
         resolution: &FuzzedResolution,
         axis_monitors_positions: &mut Vec<FuzzedMonitorPositionedResolution>,
         primary_monitor_positioned: &FuzzedMonitorPositionedResolution,
-        move_horizontally: MoveHorizontally,
-        move_vertically: MoveVertically,
+        horizontal_move: HorizontalMove,
+        vertical_move: VerticalMove,
     ) {
         let previous_resolution_position = axis_monitors_positions
             .last()
             .unwrap_or(&primary_monitor_positioned);
 
-        let x = match move_horizontally {
-            MoveHorizontally::None => 0,
-            MoveHorizontally::Left => {
+        let x = match horizontal_move {
+            HorizontalMove::None => 0,
+            HorizontalMove::Left => {
                 previous_resolution_position.position.x + i32::try_from(resolution.width).unwrap()
             }
-            MoveHorizontally::Right => {
+            HorizontalMove::Right => {
                 previous_resolution_position.position.x - i32::try_from(resolution.width).unwrap()
             }
         };
 
-        let y = match move_vertically {
-            MoveVertically::None => 0,
-            MoveVertically::Up => {
+        let y = match vertical_move {
+            VerticalMove::None => 0,
+            VerticalMove::Up => {
                 previous_resolution_position.position.y + i32::try_from(resolution.height).unwrap()
             }
-            MoveVertically::Down => {
+            VerticalMove::Down => {
                 previous_resolution_position.position.y - i32::try_from(resolution.height).unwrap()
             }
         };
@@ -201,13 +201,13 @@ impl MonitorPositionFuzzer {
     }
 }
 
-enum MoveHorizontally {
+enum HorizontalMove {
     None,
     Left,
     Right,
 }
 
-enum MoveVertically {
+enum VerticalMove {
     None,
     Up,
     Down,
