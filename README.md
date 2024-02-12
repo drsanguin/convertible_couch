@@ -6,6 +6,23 @@ Automate Windows display configuration to play from your couch
  ![ci workflow](https://github.com/drsanguin/convertible_couch/actions/workflows/ci.yml/badge.svg)
  [![Coverage Status](https://coveralls.io/repos/github/drsanguin/convertible_couch/badge.svg?branch=main)](https://coveralls.io/github/drsanguin/convertible_couch?branch=main)
 
+## Project Organisation
+```mermaid
+flowchart TD
+bin
+common
+common_tests
+lib
+
+bin --> lib
+bin --> common
+
+common_tests --> common
+
+lib --> common
+lib --> common_tests
+```
+
 ## TODO
 - Switch audio output, usefull ressources:
   - https://github.com/Belphemur/AudioEndPointLibrary
