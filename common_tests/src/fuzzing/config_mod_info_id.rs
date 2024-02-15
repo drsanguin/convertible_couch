@@ -1,4 +1,4 @@
-use rand::{rngs::StdRng, seq::index::sample, RngCore};
+use rand::{rngs::StdRng, seq::index::sample};
 
 pub struct ConfigModeInfoIdFuzzer {
     rand: StdRng,
@@ -7,10 +7,6 @@ pub struct ConfigModeInfoIdFuzzer {
 impl ConfigModeInfoIdFuzzer {
     pub fn new(rand: StdRng) -> Self {
         Self { rand }
-    }
-
-    pub fn generate_one(&mut self) -> u32 {
-        self.rand.next_u32()
     }
 
     pub fn generate_several(&mut self, count: usize) -> Vec<u32> {
