@@ -2,7 +2,6 @@ use std::{collections::HashMap, ffi::c_void, mem::size_of};
 
 use convertible_couch_common::win32::Win32;
 use windows::{
-    core::Error,
     core::PCWSTR,
     Win32::{
         Devices::Display::{
@@ -11,7 +10,7 @@ use windows::{
             DISPLAYCONFIG_TARGET_DEVICE_NAME, DISPLAYCONFIG_TOPOLOGY_ID, QDC_ONLY_ACTIVE_PATHS,
             QUERY_DISPLAY_CONFIG_FLAGS,
         },
-        Foundation::{BOOL, HWND},
+        Foundation::{BOOL, ERROR_INVALID_PARAMETER, ERROR_SUCCESS, HWND, WIN32_ERROR},
         Graphics::Gdi::{
             CDS_NORESET, CDS_SET_PRIMARY, CDS_TYPE, CDS_UPDATEREGISTRY, DEVMODEW, DISPLAY_DEVICEW,
             DISP_CHANGE, DISP_CHANGE_BADPARAM, DISP_CHANGE_SUCCESSFUL, ENUM_CURRENT_SETTINGS,
@@ -114,9 +113,9 @@ impl Win32 for FuzzedWin32 {
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
-    ) -> Result<(), Error> {
+    ) -> WIN32_ERROR {
         if flags != QDC_ONLY_ACTIVE_PATHS {
-            return Err(Error::from_win32());
+            return ERROR_INVALID_PARAMETER;
         }
 
         let n_monitors = self
@@ -131,7 +130,7 @@ impl Win32 for FuzzedWin32 {
             *numpatharrayelements = n_monitors_as_u32;
             *nummodeinfoarrayelements = n_monitors_as_u32 * 2;
 
-            Ok(())
+            ERROR_SUCCESS
         }
     }
 
@@ -143,9 +142,9 @@ impl Win32 for FuzzedWin32 {
         nummodeinfoarrayelements: *mut u32,
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
-    ) -> Result<(), Error> {
+    ) -> WIN32_ERROR {
         if flags != QDC_ONLY_ACTIVE_PATHS || currenttopologyid.is_some() {
-            return Err(Error::from_win32());
+            return ERROR_INVALID_PARAMETER;
         }
 
         unsafe {
@@ -177,11 +176,11 @@ impl Win32 for FuzzedWin32 {
                         (*mode_information).infoType = DISPLAYCONFIG_MODE_INFO_TYPE_TARGET;
                         (*mode_information).id = monitor.config_mode_info_id;
                     }
-                    None => return Err(Error::from_win32()),
+                    None => return ERROR_INVALID_PARAMETER,
                 }
             }
 
-            Ok(())
+            ERROR_SUCCESS
         }
     }
 

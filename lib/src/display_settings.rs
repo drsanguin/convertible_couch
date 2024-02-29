@@ -496,27 +496,44 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         let mut n_path_informations = u32::default();
         let mut n_mode_informations = u32::default();
 
-        self.win32.get_display_config_buffer_sizes(
-            QDC_ONLY_ACTIVE_PATHS,
-            &mut n_path_informations,
-            &mut n_mode_informations,
-        ).map_err(|error| format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {error}"))
-        .and_then(|_| {
+        let get_display_config_buffer_sizes_return_code =
+            self.win32.get_display_config_buffer_sizes(
+                QDC_ONLY_ACTIVE_PATHS,
+                &mut n_path_informations,
+                &mut n_mode_informations,
+            );
+
+        (match get_display_config_buffer_sizes_return_code {
+            ERROR_SUCCESS => Ok(()),
+            error_return_code => {
+                let error_return_code_value = error_return_code.0;
+
+                Err(format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {error_return_code_value}"))
+            }
+        }).and_then(|_| {
             let n_path_informations_as_usize = usize::try_from(n_path_informations).unwrap();
             let n_mode_informations_as_usize = usize::try_from(n_mode_informations).unwrap();
 
             let mut path_informations = vec![DISPLAYCONFIG_PATH_INFO::default(); n_path_informations_as_usize];
             let mut mode_informations = vec![DISPLAYCONFIG_MODE_INFO::default(); n_mode_informations_as_usize];
 
-            self.win32.query_display_config(
+            let query_display_config_return_code = self.win32.query_display_config(
                 QDC_ONLY_ACTIVE_PATHS,
                 &mut n_path_informations,
                 path_informations.as_mut_ptr(),
                 &mut n_mode_informations,
                 mode_informations.as_mut_ptr(),
                 None
-            ).and_then(|_| Ok(mode_informations))
-            .map_err(|error| format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {error}"))
+            );
+
+            match query_display_config_return_code {
+                ERROR_SUCCESS => Ok(mode_informations),
+                error_return_code => {
+                    let error_return_code_value = error_return_code.0;
+
+                    Err(format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {error_return_code_value}"))
+                }
+            }
         })
         .and_then(|mode_informations| {
             let size_of_displayconfig_target_device_name_as_usize = size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME>();

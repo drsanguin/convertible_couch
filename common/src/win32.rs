@@ -1,5 +1,4 @@
 use windows::{
-    core::Error,
     core::PCWSTR,
     Win32::{
         Devices::Display::{
@@ -7,7 +6,7 @@ use windows::{
             DISPLAYCONFIG_DEVICE_INFO_HEADER, DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_PATH_INFO,
             DISPLAYCONFIG_TOPOLOGY_ID, QUERY_DISPLAY_CONFIG_FLAGS,
         },
-        Foundation::{BOOL, HWND},
+        Foundation::{BOOL, HWND, WIN32_ERROR},
         Graphics::Gdi::{
             ChangeDisplaySettingsExW, EnumDisplayDevicesW, EnumDisplaySettingsW, CDS_TYPE,
             DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE, ENUM_DISPLAY_SETTINGS_MODE,
@@ -26,7 +25,7 @@ pub trait Win32 {
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
-    ) -> Result<(), Error>;
+    ) -> WIN32_ERROR;
 
     fn query_display_config(
         &self,
@@ -36,7 +35,7 @@ pub trait Win32 {
         nummodeinfoarrayelements: *mut u32,
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: ::core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
-    ) -> Result<(), Error>;
+    ) -> WIN32_ERROR;
 
     fn change_display_settings_ex_w(
         &mut self,
@@ -78,7 +77,7 @@ impl Win32 for Win32Impl {
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
-    ) -> Result<(), Error> {
+    ) -> WIN32_ERROR {
         unsafe {
             GetDisplayConfigBufferSizes(flags, numpatharrayelements, nummodeinfoarrayelements)
         }
@@ -92,7 +91,7 @@ impl Win32 for Win32Impl {
         nummodeinfoarrayelements: *mut u32,
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
-    ) -> Result<(), Error> {
+    ) -> WIN32_ERROR {
         unsafe {
             QueryDisplayConfig(
                 flags,
