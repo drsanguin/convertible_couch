@@ -7,7 +7,7 @@ use rand::{
     Rng,
 };
 
-pub struct FuzzedMonitorBrand(String);
+pub struct FuzzedMonitorBrand;
 
 impl FuzzedMonitorBrand {
     pub const ACER: &'static str = "ACER";
