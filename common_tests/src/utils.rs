@@ -17,7 +17,8 @@ pub fn encode_utf16<const T: usize>(string: &str) -> [u16; T] {
     string
         .encode_utf16()
         .enumerate()
-        .for_each(|(byte_index, byte)| bytes[byte_index] = byte);
+        .take(T)
+        .for_each(|(index, byte)| bytes[index] = byte);
 
     bytes
 }
