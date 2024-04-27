@@ -5,16 +5,13 @@ use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criteri
 fn swap_primary_monitors(c: &mut Criterion) {
     let mut group = c.benchmark_group("swap_primary_monitors");
 
-    for n_monitor in [
-        3, 6, 8, 11, 13, 14, 15, 17, 20, 25, 27, 30, 31, 34, 46, 55, 61, 66, 72, 88, 97, 98, 122,
-        162,
-    ] {
+    for n_monitor in [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144] {
         group.throughput(Throughput::Elements(u64::try_from(n_monitor).unwrap()));
         group.bench_with_input(
             BenchmarkId::from_parameter(n_monitor),
             &n_monitor,
-            |b, n_monitor| {
-                b.iter_batched(
+            |bencher, n_monitor| {
+                bencher.iter_batched(
                     || {
                         let mut fuzzer = new_fuzzer_no_seed_print!();
 
