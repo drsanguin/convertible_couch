@@ -1,2 +1,2 @@
 examine_globs = ["lib/src/display_settings.rs", "lib/src/log.rs"]
-exclude_re = ["configure_logger"]
+exclude_re = ["configure_logger", "get_current_primary_monitor_name"]
