@@ -9,13 +9,13 @@ repository = "https://github.com/drsanguin/convertible_couch"
 license-file = "../LICENSE"
 
 [dependencies]
-clap = "4.4.11"
-log = "0.4.20"
+clap = { version = "4.5.7", features = ["derive"] }
+log = "0.4.21"
 log4rs = "1.2.0"
 convertible_couch_common = { path = "../common"}
 
 [dependencies.windows]
-windows = "0.52.0"
+windows = "0.57.0"
 version = "*"
 features = [
     "Win32_Devices_Display",

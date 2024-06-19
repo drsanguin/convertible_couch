@@ -13,5 +13,5 @@ rand = "0.8.5"
 convertible_couch_common = { path = "../common"}
 
 [dependencies.windows]
-windows = "0.52.0"
+windows = "0.57.0"
 version = "*"
