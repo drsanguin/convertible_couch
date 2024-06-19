@@ -10,6 +10,7 @@ license-file = "../LICENSE"
 
 [dependencies.windows]
 windows = "0.52.0"
+version = "*"
 features = [
     "Win32_Devices_Display",
     "Win32_Foundation",
