@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
 use rand::{
-    distributions::{Alphanumeric, DistString},
+    distr::{Alphanumeric, SampleString},
     rngs::StdRng,
-    seq::SliceRandom,
+    seq::IndexedRandom,
     Rng,
 };
 
@@ -154,7 +154,7 @@ impl MonitorNameFuzzer {
     pub fn generate_one(&mut self) -> String {
         let brand = FuzzedMonitorBrand::ALL.choose(&mut self.rand).unwrap();
         let model_id_max_len = 62 - brand.len();
-        let model_id_len = self.rand.gen_range(8..model_id_max_len);
+        let model_id_len = self.rand.random_range(8..model_id_max_len);
         let model_id_part_1 = Alphanumeric.sample_string(&mut self.rand, model_id_len);
 
         format!("{brand} {model_id_part_1}")

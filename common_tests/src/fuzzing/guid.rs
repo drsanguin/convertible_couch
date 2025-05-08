@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use rand::{
-    distributions::{Alphanumeric, DistString},
+    distr::{Alphanumeric, SampleString},
     rngs::StdRng,
 };
 

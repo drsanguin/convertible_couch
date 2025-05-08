@@ -46,7 +46,7 @@ impl MonitorPositionFuzzer {
         let primary_monitor_index = if has_an_internal_display {
             0
         } else {
-            self.rand.gen_range(0..n_monitor)
+            self.rand.random_range(0..n_monitor)
         };
         let primary_monitor_resolution = resolutions[primary_monitor_index];
         let primary_monitor_position = FuzzedMonitorPosition { x: 0, y: 0 };

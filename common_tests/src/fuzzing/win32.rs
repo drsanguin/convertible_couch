@@ -2,7 +2,7 @@ use std::{collections::HashMap, ffi::c_void, mem::size_of};
 
 use convertible_couch_common::win32::Win32;
 use windows::{
-    core::PCWSTR,
+    core::{BOOL, PCWSTR},
     Win32::{
         Devices::Display::{
             DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME, DISPLAYCONFIG_DEVICE_INFO_HEADER,
@@ -10,7 +10,7 @@ use windows::{
             DISPLAYCONFIG_TARGET_DEVICE_NAME, DISPLAYCONFIG_TOPOLOGY_ID, QDC_ONLY_ACTIVE_PATHS,
             QUERY_DISPLAY_CONFIG_FLAGS,
         },
-        Foundation::{BOOL, ERROR_INVALID_PARAMETER, ERROR_SUCCESS, HWND, WIN32_ERROR},
+        Foundation::{ERROR_INVALID_PARAMETER, ERROR_SUCCESS, HWND, WIN32_ERROR},
         Graphics::Gdi::{
             CDS_NORESET, CDS_SET_PRIMARY, CDS_TYPE, CDS_UPDATEREGISTRY, DEVMODEW, DISPLAY_DEVICEW,
             DISP_CHANGE, DISP_CHANGE_BADPARAM, DISP_CHANGE_SUCCESSFUL, ENUM_CURRENT_SETTINGS,
@@ -188,13 +188,13 @@ impl Win32 for FuzzedWin32 {
         &mut self,
         lpszdevicename: PCWSTR,
         lpdevmode: Option<*const DEVMODEW>,
-        hwnd: HWND,
+        hwnd: Option<HWND>,
         dwflags: CDS_TYPE,
         lparam: Option<*const c_void>,
     ) -> DISP_CHANGE {
         if lpszdevicename == PCWSTR::null()
             && lpdevmode.is_none()
-            && hwnd == HWND::default()
+            && hwnd == None
             && dwflags == CDS_TYPE::default()
             && lparam.is_none()
         {
@@ -246,7 +246,7 @@ impl Win32 for FuzzedWin32 {
                         })
                     })
                     .and_then(|(monitor, position)| {
-                        if hwnd != HWND::default()
+                        if hwnd != None
                             || lparam.is_some()
                             || (dwflags & CDS_UPDATEREGISTRY == CDS_TYPE::default())
                             || (dwflags & CDS_NORESET == CDS_TYPE::default())

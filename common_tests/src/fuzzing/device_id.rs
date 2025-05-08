@@ -4,7 +4,7 @@ use std::{
 };
 
 use rand::{
-    distributions::{Alphanumeric, DistString},
+    distr::{Alphanumeric, SampleString},
     rngs::StdRng,
     Rng, RngCore, SeedableRng,
 };
@@ -107,9 +107,9 @@ impl DeviceIdFuzzer {
                 .map(|forbidden_device_id| forbidden_device_id.uuid.as_str()),
         );
 
-        let part_1 = self.rand.gen_range(0..=9);
+        let part_1 = self.rand.random_range(0..=9);
         let part_2 = Alphanumeric.sample_string(&mut self.rand, 6).to_lowercase();
-        let part_3 = self.rand.gen_range(0..=9);
+        let part_3 = self.rand.random_range(0..=9);
         let uuid = GuidFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
             .generate_one(&forbidden_uuids);
 

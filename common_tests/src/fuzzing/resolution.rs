@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use rand::{rngs::StdRng, seq::SliceRandom};
+use rand::{rngs::StdRng, seq::IndexedRandom};
 
 #[derive(Clone, Copy)]
 pub struct FuzzedResolution {

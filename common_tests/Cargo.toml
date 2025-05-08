@@ -9,9 +9,9 @@ repository = "https://github.com/drsanguin/convertible_couch"
 license-file = "../LICENSE"
 
 [dependencies]
-rand = "0.8.5"
+rand = "0.9.1"
 convertible_couch_common = { path = "../common"}
 
 [dependencies.windows]
-windows = "0.57.0"
+windows = "0.61.1"
 version = "*"

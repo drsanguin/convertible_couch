@@ -9,7 +9,7 @@ use windows::{
             DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_TYPE_TARGET, DISPLAYCONFIG_PATH_INFO,
             DISPLAYCONFIG_TARGET_DEVICE_NAME, QDC_ONLY_ACTIVE_PATHS,
         },
-        Foundation::{ERROR_SUCCESS, HWND, WIN32_ERROR},
+        Foundation::{ERROR_SUCCESS, WIN32_ERROR},
         Graphics::Gdi::{
             CDS_NORESET, CDS_SET_PRIMARY, CDS_TYPE, CDS_UPDATEREGISTRY, DEVMODEW, DISPLAY_DEVICEW,
             DISP_CHANGE, DISP_CHANGE_BADDUALVIEW, DISP_CHANGE_BADFLAGS, DISP_CHANGE_BADMODE,
@@ -429,7 +429,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
             let change_display_settings_ex_result = self.win32.change_display_settings_ex_w(
                 display_adapter_device_name,
                 Some(&display_adapter_graphics_mode),
-                HWND::default(),
+                None,
                 dwflags,
                 None,
             );
@@ -451,7 +451,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         let change_display_settings_ex_result = self.win32.change_display_settings_ex_w(
             PCWSTR::null(),
             None,
-            HWND::default(),
+            None,
             CDS_TYPE::default(),
             None,
         );

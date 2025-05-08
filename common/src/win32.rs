@@ -1,12 +1,12 @@
 use windows::{
-    core::PCWSTR,
+    core::{BOOL, PCWSTR},
     Win32::{
         Devices::Display::{
             DisplayConfigGetDeviceInfo, GetDisplayConfigBufferSizes, QueryDisplayConfig,
             DISPLAYCONFIG_DEVICE_INFO_HEADER, DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_PATH_INFO,
             DISPLAYCONFIG_TOPOLOGY_ID, QUERY_DISPLAY_CONFIG_FLAGS,
         },
-        Foundation::{BOOL, HWND, WIN32_ERROR},
+        Foundation::{HWND, WIN32_ERROR},
         Graphics::Gdi::{
             ChangeDisplaySettingsExW, EnumDisplayDevicesW, EnumDisplaySettingsW, CDS_TYPE,
             DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE, ENUM_DISPLAY_SETTINGS_MODE,
@@ -41,7 +41,7 @@ pub trait Win32 {
         &mut self,
         lpszdevicename: PCWSTR,
         lpdevmode: ::core::option::Option<*const DEVMODEW>,
-        hwnd: HWND,
+        hwnd: Option<HWND>,
         dwflags: CDS_TYPE,
         lparam: ::core::option::Option<*const ::core::ffi::c_void>,
     ) -> DISP_CHANGE;
@@ -108,7 +108,7 @@ impl Win32 for Win32Impl {
         &mut self,
         lpszdevicename: PCWSTR,
         lpdevmode: core::option::Option<*const DEVMODEW>,
-        hwnd: HWND,
+        hwnd: Option<HWND>,
         dwflags: CDS_TYPE,
         lparam: core::option::Option<*const core::ffi::c_void>,
     ) -> DISP_CHANGE {

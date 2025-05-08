@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use rand::{rngs::StdRng, seq::SliceRandom, Rng, RngCore, SeedableRng};
+use rand::{rngs::StdRng, seq::IndexedRandom, Rng, RngCore, SeedableRng};
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
 use super::{monitors::MonitorsFuzzer, video_output::FuzzedVideoOutput, win32::FuzzedWin32};
@@ -128,7 +128,7 @@ impl ComputerFuzzer {
                 })
                 .collect::<Vec<String>>();
 
-            let n_monitor_on_error = self.rand.gen_range(1..possible_devices_paths.len());
+            let n_monitor_on_error = self.rand.random_range(1..possible_devices_paths.len());
 
             possible_devices_paths
                 .choose_multiple(&mut self.rand, n_monitor_on_error)

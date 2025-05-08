@@ -116,8 +116,10 @@ impl<'a> MonitorsFuzzer<'a> {
     }
 
     pub fn build_monitors(&mut self) -> ComputerFuzzer {
-        let n_video_output = self.rand.gen_range(self.min_n_monitor..=self.max_n_monitor);
-        let n_monitor = self.rand.gen_range(self.min_n_monitor..=n_video_output);
+        let n_video_output = self
+            .rand
+            .random_range(self.min_n_monitor..=self.max_n_monitor);
+        let n_monitor = self.rand.random_range(self.min_n_monitor..=n_video_output);
 
         let monitors = self.generate_several(n_monitor);
 
