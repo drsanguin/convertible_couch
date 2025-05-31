@@ -26,18 +26,23 @@ pub enum LogLevel {
 
 /// Initializes the global logger with the provided level.
 pub fn configure_logger(log_level: LogLevel) -> Result<(), String> {
-    let level = map_to_level_filter(log_level);
+    let encoder = PatternEncoder::new("| {({l}):5.5} | {m}\r\n");
     let stdout = ConsoleAppender::builder()
-        .encoder(Box::new(PatternEncoder::new("| {({l}):5.5} | {m}\r\n")))
+        .encoder(Box::new(encoder))
         .build();
-    let config = Config::builder()
-        .appender(Appender::builder().build("stdout", Box::new(stdout)))
-        .build(Root::builder().appender("stdout").build(level))
-        .unwrap();
+    let appender = Appender::builder().build("stdout", Box::new(stdout));
+    let level = map_to_level_filter(log_level);
+    let root = Root::builder().appender("stdout").build(level);
 
-    init_config(config)
-        .map(|_| ())
-        .map_err(|error| error.to_string())
+    Config::builder()
+        .appender(appender)
+        .build(root)
+        .map_err(|errors| errors.to_string())
+        .and_then(|config| {
+            init_config(config)
+                .map(|_| ())
+                .map_err(|error| error.to_string())
+        })
 }
 
 fn map_to_level_filter(log_level: LogLevel) -> LevelFilter {
