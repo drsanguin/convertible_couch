@@ -30,5 +30,5 @@ convertible_couch_common_tests = { path = "../common_tests"}
 criterion = { version = "0.5.1", features = ["html_reports"] }
 
 [[bench]]
-name = "swap_primary_monitors"
+name = "swap_primary_displays"
 harness = false

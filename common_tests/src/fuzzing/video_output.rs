@@ -1,30 +1,30 @@
-use super::monitors::FuzzedMonitor;
+use super::displays::FuzzedDisplay;
 
 #[derive(Clone)]
 pub struct FuzzedVideoOutput {
     pub device_name: String,
-    pub monitor: Option<FuzzedMonitor>,
+    pub display: Option<FuzzedDisplay>,
     index: usize,
 }
 
 impl FuzzedVideoOutput {
-    pub fn new(index: usize, monitor: Option<FuzzedMonitor>) -> Self {
-        let device_name = match monitor {
+    pub fn new(index: usize, display: Option<FuzzedDisplay>) -> Self {
+        let device_name = match display {
             Some(_) => format!(r"\\.\DISPLAY{index}\Monitor0"),
             None => format!(r"\\.\DISPLAY{index}"),
         };
 
         Self {
             device_name,
-            monitor,
+            display,
             index,
         }
     }
 
-    pub fn plug_monitor(&self, monitor: FuzzedMonitor) -> Self {
+    pub fn plug_display(&self, display: FuzzedDisplay) -> Self {
         Self {
             device_name: format!(r"\\.\DISPLAY{}\Monitor0", self.index),
-            monitor: Some(monitor),
+            display: Some(display),
             index: self.index,
         }
     }

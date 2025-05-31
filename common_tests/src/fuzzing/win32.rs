@@ -22,37 +22,37 @@ use windows::{
 
 use crate::utils::encode_utf16;
 
-use super::{position::FuzzedMonitorPosition, video_output::FuzzedVideoOutput};
+use super::{position::FuzzedDisplayPosition, video_output::FuzzedVideoOutput};
 
 pub struct FuzzedWin32 {
     video_outputs: Vec<FuzzedVideoOutput>,
     change_display_settings_error_on_commit: Option<DISP_CHANGE>,
-    change_display_settings_error_by_monitor: HashMap<String, DISP_CHANGE>,
-    display_changes_to_commit: HashMap<String, FuzzedMonitorPosition>,
-    getting_primary_monitor_name_fails: bool,
-    querying_the_display_config_of_the_primary_monitor_fails: bool,
+    change_display_settings_error_by_display: HashMap<String, DISP_CHANGE>,
+    display_changes_to_commit: HashMap<String, FuzzedDisplayPosition>,
+    getting_primary_display_name_fails: bool,
+    querying_the_display_config_of_the_primary_display_fails: bool,
 }
 
 impl FuzzedWin32 {
     pub fn new(
         video_outputs: Vec<FuzzedVideoOutput>,
         change_display_settings_error_on_commit: Option<DISP_CHANGE>,
-        change_display_settings_error_by_monitor: HashMap<String, DISP_CHANGE>,
-        getting_primary_monitor_name_fails: bool,
-        querying_the_display_config_of_the_primary_monitor_fails: bool,
+        change_display_settings_error_by_display: HashMap<String, DISP_CHANGE>,
+        getting_primary_display_name_fails: bool,
+        querying_the_display_config_of_the_primary_display_fails: bool,
     ) -> Self {
-        let n_monitor = video_outputs
+        let n_display = video_outputs
             .iter()
-            .filter(|video_output| video_output.monitor.is_some())
+            .filter(|video_output| video_output.display.is_some())
             .count();
 
         Self {
             video_outputs,
             change_display_settings_error_on_commit,
-            change_display_settings_error_by_monitor,
-            display_changes_to_commit: HashMap::with_capacity(n_monitor),
-            getting_primary_monitor_name_fails,
-            querying_the_display_config_of_the_primary_monitor_fails,
+            change_display_settings_error_by_display,
+            display_changes_to_commit: HashMap::with_capacity(n_display),
+            getting_primary_display_name_fails,
+            querying_the_display_config_of_the_primary_display_fails,
         }
     }
 }
@@ -81,26 +81,26 @@ impl Win32 for FuzzedWin32 {
             self.video_outputs
                 .iter()
                 .find(|video_output| {
-                    if video_output.monitor.is_none() {
+                    if video_output.display.is_none() {
                         return false;
                     }
 
-                    match &video_output.monitor {
-                        Some(monitor) => monitor.config_mode_info_id == config_mode_info_id,
+                    match &video_output.display {
+                        Some(display) => display.config_mode_info_id == config_mode_info_id,
                         None => false,
                     }
                 })
                 .and_then(|video_output| {
-                    let monitor = video_output.monitor.as_ref().unwrap();
+                    let display = video_output.display.as_ref().unwrap();
 
-                    if self.getting_primary_monitor_name_fails
-                        && monitor.position.is_positioned_at_origin()
+                    if self.getting_primary_display_name_fails
+                        && display.position.is_positioned_at_origin()
                     {
                         return Some(1);
                     }
 
-                    (*request_packet).monitorDevicePath = encode_utf16::<128>(&monitor.device_id);
-                    (*request_packet).monitorFriendlyDeviceName = encode_utf16::<64>(&monitor.name);
+                    (*request_packet).monitorDevicePath = encode_utf16::<128>(&display.device_id);
+                    (*request_packet).monitorFriendlyDeviceName = encode_utf16::<64>(&display.name);
 
                     Some(0)
                 })
@@ -118,17 +118,17 @@ impl Win32 for FuzzedWin32 {
             return ERROR_INVALID_PARAMETER;
         }
 
-        let n_monitors = self
+        let n_displays = self
             .video_outputs
             .iter()
-            .filter(|video_output| video_output.monitor.is_some())
+            .filter(|video_output| video_output.display.is_some())
             .count();
 
-        let n_monitors_as_u32 = u32::try_from(n_monitors).unwrap();
+        let n_displays_as_u32 = u32::try_from(n_displays).unwrap();
 
         unsafe {
-            *numpatharrayelements = n_monitors_as_u32;
-            *nummodeinfoarrayelements = n_monitors_as_u32 * 2;
+            *numpatharrayelements = n_displays_as_u32;
+            *nummodeinfoarrayelements = n_displays_as_u32 * 2;
 
             ERROR_SUCCESS
         }
@@ -160,21 +160,21 @@ impl Win32 for FuzzedWin32 {
                 match self
                     .video_outputs
                     .iter()
-                    .filter_map(|video_output| match &video_output.monitor {
-                        Some(monitor) => Some(monitor),
+                    .filter_map(|video_output| match &video_output.display {
+                        Some(display) => Some(display),
                         None => None,
                     })
                     .nth(i / 2)
                 {
-                    Some(monitor) => {
-                        if self.querying_the_display_config_of_the_primary_monitor_fails
-                            && monitor.position.is_positioned_at_origin()
+                    Some(display) => {
+                        if self.querying_the_display_config_of_the_primary_display_fails
+                            && display.position.is_positioned_at_origin()
                         {
                             continue;
                         }
 
                         (*mode_information).infoType = DISPLAYCONFIG_MODE_INFO_TYPE_TARGET;
-                        (*mode_information).id = monitor.config_mode_info_id;
+                        (*mode_information).id = display.config_mode_info_id;
                     }
                     None => return ERROR_INVALID_PARAMETER,
                 }
@@ -208,10 +208,10 @@ impl Win32 for FuzzedWin32 {
                             .find(|video_output| video_output.device_name == *device_name)
                             .unwrap();
 
-                        let monitor = video_output.monitor.as_mut().unwrap();
+                        let display = video_output.display.as_mut().unwrap();
 
-                        monitor.position = *position;
-                        monitor.primary = position.is_positioned_at_origin();
+                        display.position = *position;
+                        display.primary = position.is_positioned_at_origin();
                     }
 
                     self.display_changes_to_commit.clear();
@@ -225,7 +225,7 @@ impl Win32 for FuzzedWin32 {
             let device_name = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
 
             match self
-                .change_display_settings_error_by_monitor
+                .change_display_settings_error_by_display
                 .get(&device_name)
             {
                 Some(disp_change) => *disp_change,
@@ -233,26 +233,26 @@ impl Win32 for FuzzedWin32 {
                     .video_outputs
                     .iter()
                     .find(|video_output| video_output.device_name == device_name)
-                    .and_then(|video_output| video_output.monitor.clone())
-                    .and_then(|monitor| {
+                    .and_then(|video_output| video_output.display.clone())
+                    .and_then(|display| {
                         lpdevmode.and_then(|graphic_mode| {
                             Some((
-                                monitor,
-                                FuzzedMonitorPosition {
+                                display,
+                                FuzzedDisplayPosition {
                                     x: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.x,
                                     y: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.y,
                                 },
                             ))
                         })
                     })
-                    .and_then(|(monitor, position)| {
+                    .and_then(|(display, position)| {
                         if hwnd != None
                             || lparam.is_some()
                             || (dwflags & CDS_UPDATEREGISTRY == CDS_TYPE::default())
                             || (dwflags & CDS_NORESET == CDS_TYPE::default())
                             || (position.is_positioned_at_origin()
                                 && (dwflags & CDS_SET_PRIMARY == CDS_TYPE::default()
-                                    || monitor.primary))
+                                    || display.primary))
                         {
                             return Some(DISP_CHANGE_BADPARAM);
                         }
@@ -293,7 +293,7 @@ impl Win32 for FuzzedWin32 {
                 BOOL(1)
             }
         }
-        // Iterating though monitors
+        // Iterating though displays
         else {
             if dwflags != EDD_GET_DEVICE_INTERFACE_NAME || idevnum != 0 {
                 return BOOL(0);
@@ -305,9 +305,9 @@ impl Win32 for FuzzedWin32 {
                 self.video_outputs
                     .iter()
                     .find(|video_output| video_output.device_name == device_name)
-                    .and_then(|video_output| video_output.monitor.clone())
-                    .and_then(|monitor| {
-                        let device_id = encode_utf16::<128>(&monitor.device_id);
+                    .and_then(|video_output| video_output.display.clone())
+                    .and_then(|display| {
+                        let device_id = encode_utf16::<128>(&display.device_id);
 
                         (*lpdisplaydevice).DeviceID = device_id;
 
@@ -334,10 +334,10 @@ impl Win32 for FuzzedWin32 {
             self.video_outputs
                 .iter()
                 .find(|video_output| video_output.device_name == device_name)
-                .and_then(|video_output| video_output.monitor.clone())
-                .and_then(|monitor| {
-                    (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = monitor.position.x;
-                    (*lpdevmode).Anonymous1.Anonymous2.dmPosition.y = monitor.position.y;
+                .and_then(|video_output| video_output.display.clone())
+                .and_then(|display| {
+                    (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = display.position.x;
+                    (*lpdevmode).Anonymous1.Anonymous2.dmPosition.y = display.position.y;
 
                     Some(BOOL(1))
                 })

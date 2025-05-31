@@ -1,4 +1,4 @@
-use convertible_couch_common::{win32::Win32, SwapPrimaryMonitorsResponse};
+use convertible_couch_common::{win32::Win32, SwapPrimaryDisplaysResponse};
 use log::warn;
 use std::{collections::HashSet, mem::size_of};
 use windows::{
@@ -25,7 +25,7 @@ pub struct DisplaySettings<TWin32: Win32> {
 }
 
 #[derive(Debug, PartialEq)]
-struct MonitorPosition {
+struct DisplayPosition {
     x: i32,
     y: i32,
 }
@@ -37,78 +37,78 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         Self { win32 }
     }
 
-    pub fn swap_primary_monitors(
+    pub fn swap_primary_displays(
         &mut self,
-        desktop_monitor_name: &str,
-        couch_monitor_name: &str,
-    ) -> Result<SwapPrimaryMonitorsResponse, String> {
-        self.validate_monitors(desktop_monitor_name, couch_monitor_name)
-            .and_then(|_| self.get_current_primary_monitor_name())
-            .and_then(|current_primary_monitor_name| {
-                Self::get_new_primary_monitor(
-                    current_primary_monitor_name,
-                    desktop_monitor_name,
-                    couch_monitor_name,
+        desktop_display_name: &str,
+        couch_display_name: &str,
+    ) -> Result<SwapPrimaryDisplaysResponse, String> {
+        self.validate_displays(desktop_display_name, couch_display_name)
+            .and_then(|_| self.get_current_primary_display_name())
+            .and_then(|current_primary_display_name| {
+                Self::get_new_primary_display(
+                    current_primary_display_name,
+                    desktop_display_name,
+                    couch_display_name,
                 )
             })
-            .and_then(|new_primary_monitor_name| {
-                self.get_monitor_position(&new_primary_monitor_name)
+            .and_then(|new_primary_display_name| {
+                self.get_display_position(&new_primary_display_name)
             })
-            .and_then(|new_primary_monitor_current_position| {
-                self.set_monitors_to_position(&new_primary_monitor_current_position)
+            .and_then(|new_primary_display_current_position| {
+                self.set_displays_to_position(&new_primary_display_current_position)
             })
     }
 
-    fn get_new_primary_monitor<'a>(
-        current_primary_monitor_name: String,
-        desktop_monitor_name: &'a str,
-        couch_monitor_name: &'a str,
+    fn get_new_primary_display<'a>(
+        current_primary_display_name: String,
+        desktop_display_name: &'a str,
+        couch_display_name: &'a str,
     ) -> Result<&'a str, String> {
-        Ok(if current_primary_monitor_name == desktop_monitor_name {
-            couch_monitor_name
+        Ok(if current_primary_display_name == desktop_display_name {
+            couch_display_name
         } else {
-            desktop_monitor_name
+            desktop_display_name
         })
     }
 
-    fn validate_monitors(
+    fn validate_displays(
         &mut self,
-        desktop_monitor_name: &str,
-        couch_monitor_name: &str,
+        desktop_display_name: &str,
+        couch_display_name: &str,
     ) -> Result<(), String> {
-        self.get_all_monitors().and_then(|monitors| {
+        self.get_all_displays().and_then(|displays| {
             match (
-                monitors.contains(desktop_monitor_name),
-                monitors.contains(couch_monitor_name),
+                displays.contains(desktop_display_name),
+                displays.contains(couch_display_name),
             ) {
                 (true, true) => Ok(()),
                 (true, false) => Err(format!(
-                    "Couch monitor is invalid, possible values are [{}]",
-                    Self::stringify_monitors_names(&monitors)
+                    "Couch display is invalid, possible values are [{}]",
+                    Self::stringify_displays_names(&displays)
                 )),
                 (false, true) => Err(format!(
-                    "Desktop monitor is invalid, possible values are [{}]",
-                    Self::stringify_monitors_names(&monitors)
+                    "Desktop display is invalid, possible values are [{}]",
+                    Self::stringify_displays_names(&displays)
                 )),
                 (false, false) => Err(format!(
-                    "Desktop and couch monitors are invalid, possible values are [{}]",
-                    Self::stringify_monitors_names(&monitors)
+                    "Desktop and couch displays are invalid, possible values are [{}]",
+                    Self::stringify_displays_names(&displays)
                 )),
             }
         })
     }
 
-    fn stringify_monitors_names(monitors: &HashSet<String>) -> String {
-        let mut monitors_error_message_friendly = monitors
+    fn stringify_displays_names(displays: &HashSet<String>) -> String {
+        let mut displays_error_message_friendly = displays
             .iter()
-            .map(|monitor_name| monitor_name.clone())
+            .map(|display_name| display_name.clone())
             .collect::<Vec<String>>();
 
-        monitors_error_message_friendly.sort();
-        monitors_error_message_friendly.join(", ")
+        displays_error_message_friendly.sort();
+        displays_error_message_friendly.join(", ")
     }
 
-    fn get_current_primary_monitor_name(&self) -> Result<String, String> {
+    fn get_current_primary_display_name(&self) -> Result<String, String> {
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -193,18 +193,18 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
 
             let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
             let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
-            let current_raw_monitor_name = self
-                .get_monitor_name(display_device_device_id_trimed)
+            let current_raw_display_name = self
+                .get_display_name(display_device_device_id_trimed)
                 .unwrap();
-            let current_monitor_name = Self::from_raw_monitor_name(&current_raw_monitor_name);
+            let current_display_name = Self::from_raw_display_name(&current_raw_display_name);
 
-            return Ok(current_monitor_name);
+            return Ok(current_display_name);
         }
 
-        Err(String::from("Failed to retrieve the primary monitor"))
+        Err(String::from("Failed to retrieve the primary display"))
     }
 
-    fn get_monitor_position(&self, monitor_name: &str) -> Result<MonitorPosition, String> {
+    fn get_display_position(&self, display_name: &str) -> Result<DisplayPosition, String> {
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -284,16 +284,16 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
 
             let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
             let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
-            let current_monitor_name = self
-                .get_monitor_name(display_device_device_id_trimed)
+            let current_display_name = self
+                .get_display_name(display_device_device_id_trimed)
                 .unwrap();
 
-            if current_monitor_name != monitor_name {
+            if current_display_name != display_name {
                 continue;
             }
 
             unsafe {
-                let monitor_position = MonitorPosition {
+                let display_position = DisplayPosition {
                     x: display_adapter_graphics_mode
                         .Anonymous1
                         .Anonymous2
@@ -306,19 +306,19 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
                         .y,
                 };
 
-                return Ok(monitor_position);
+                return Ok(display_position);
             }
         }
 
         Err(format!(
-            "Failed to retrieve the position of monitor {monitor_name}"
+            "Failed to retrieve the position of display {display_name}"
         ))
     }
 
-    fn set_monitors_to_position(
+    fn set_displays_to_position(
         &mut self,
-        position: &MonitorPosition,
-    ) -> Result<SwapPrimaryMonitorsResponse, String> {
+        position: &DisplayPosition,
+    ) -> Result<SwapPrimaryDisplaysResponse, String> {
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -421,7 +421,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
 
                 dwflags |= CDS_SET_PRIMARY;
                 new_primary = Some(
-                    self.get_monitor_name(display_device_device_id_trimed)
+                    self.get_display_name(display_device_device_id_trimed)
                         .unwrap(),
                 )
             }
@@ -457,14 +457,14 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         );
 
         match change_display_settings_ex_result {
-            DISP_CHANGE_SUCCESSFUL => Ok(SwapPrimaryMonitorsResponse {
+            DISP_CHANGE_SUCCESSFUL => Ok(SwapPrimaryDisplaysResponse {
                 reboot_required,
                 new_primary,
             }),
             DISP_CHANGE_RESTART => {
                 reboot_required = true;
 
-                Ok(SwapPrimaryMonitorsResponse {
+                Ok(SwapPrimaryDisplaysResponse {
                     reboot_required,
                     new_primary,
                 })
@@ -492,7 +492,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         }
     }
 
-    fn get_monitor_name(&self, monitor_device_path: &str) -> Result<String, String> {
+    fn get_display_name(&self, display_device_path: &str) -> Result<String, String> {
         let mut n_path_informations = u32::default();
         let mut n_mode_informations = u32::default();
 
@@ -558,24 +558,24 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
 
                 match display_config_get_device_info_result {
                     ERROR_SUCCESS => {
-                        let monitor_friendly_device_name = String::from_utf16(&displayconfig_target_device_name.monitorFriendlyDeviceName).unwrap();
-                        let current_monitor_device_path = String::from_utf16(&displayconfig_target_device_name.monitorDevicePath).unwrap();
-                        let current_monitor_device_path_trimed = current_monitor_device_path.trim_end_matches('\0');
+                        let display_friendly_device_name = String::from_utf16(&displayconfig_target_device_name.monitorFriendlyDeviceName).unwrap();
+                        let current_display_device_path = String::from_utf16(&displayconfig_target_device_name.monitorDevicePath).unwrap();
+                        let current_display_device_path_trimed = current_display_device_path.trim_end_matches('\0');
 
-                        if current_monitor_device_path_trimed != monitor_device_path {
+                        if current_display_device_path_trimed != display_device_path {
                             continue;
                         }
 
-                        let raw_monitor_friendly_device_name_trimed = monitor_friendly_device_name.trim_end_matches('\0');
+                        let raw_display_friendly_device_name_trimed = display_friendly_device_name.trim_end_matches('\0');
 
-                        return Ok(Self::from_raw_monitor_name(raw_monitor_friendly_device_name_trimed));
+                        return Ok(Self::from_raw_display_name(raw_display_friendly_device_name_trimed));
                     },
                     error => return Err(format!("Failed to retrieve display configuration information about the device {} because of error {}", mode_information.id, error.0))
                 }
             }
 
             Err(format!(
-                "Failed to retrieve the name of the monitor at the device path {monitor_device_path}"
+                "Failed to retrieve the name of the display at the device path {display_device_path}"
             ))
         })
     }
@@ -593,8 +593,8 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
         }
     }
 
-    fn get_all_monitors(&self) -> Result<HashSet<String>, String> {
-        let mut monitors_names = HashSet::new();
+    fn get_all_displays(&self) -> Result<HashSet<String>, String> {
+        let mut displays_names = HashSet::new();
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -676,28 +676,28 @@ impl<TWin32: Win32> DisplaySettings<TWin32> {
             let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
             let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
 
-            match self.get_monitor_name(display_device_device_id_trimed) {
-                Ok(current_raw_monitor_name) => {
-                    let current_monitor_name =
-                        Self::from_raw_monitor_name(&current_raw_monitor_name);
-                    monitors_names.insert(current_monitor_name);
+            match self.get_display_name(display_device_device_id_trimed) {
+                Ok(current_raw_display_name) => {
+                    let current_display_name =
+                        Self::from_raw_display_name(&current_raw_display_name);
+                    displays_names.insert(current_display_name);
                     continue;
                 }
                 Err(reason) => return Err(reason),
             }
         }
 
-        Ok(monitors_names)
+        Ok(displays_names)
     }
 
-    fn from_raw_monitor_name(raw_monitor_name: &str) -> String {
-        let monitor_name = if raw_monitor_name == "" {
+    fn from_raw_display_name(raw_display_name: &str) -> String {
+        let display_name = if raw_display_name == "" {
             Self::INTERNAL_DISPLAY
         } else {
-            raw_monitor_name
+            raw_display_name
         };
 
-        String::from(monitor_name)
+        String::from(display_name)
     }
 }
 
@@ -721,7 +721,7 @@ mod tests {
     }
 
     #[test]
-    fn it_should_handle_the_case_of_getting_current_primary_monitor_name_when_the_computer_has_no_monitor(
+    fn it_should_handle_the_case_of_getting_current_primary_display_name_when_the_computer_has_no_display(
     ) {
         // Arrange
         let mut fuzzer = new_fuzzer!();
@@ -731,48 +731,48 @@ mod tests {
         let display_settings = DisplaySettings::new(computer.win32);
 
         // Act
-        let result = display_settings.get_current_primary_monitor_name();
+        let result = display_settings.get_current_primary_display_name();
 
         //Assert
         assert_eq!(
             result,
-            Err(String::from("Failed to retrieve the primary monitor"))
+            Err(String::from("Failed to retrieve the primary display"))
         );
     }
 
     #[test]
-    fn it_should_handle_the_case_of_getting_the_position_of_a_non_existing_monitor() {
+    fn it_should_handle_the_case_of_getting_the_position_of_a_non_existing_display() {
         // Arrange
         let mut fuzzer = new_fuzzer!();
 
-        let forbidden_monitor_name = fuzzer.generate_monitor_name();
-        let mut forbidden_monitor_names = HashSet::with_capacity(1);
-        forbidden_monitor_names.insert(forbidden_monitor_name.as_str());
+        let forbidden_display_name = fuzzer.generate_display_name();
+        let mut forbidden_display_names = HashSet::with_capacity(1);
+        forbidden_display_names.insert(forbidden_display_name.as_str());
 
         let computer = fuzzer
             .generate_computer()
-            .with_monitors()
+            .with_displays()
             .of_which_there_are_at_least(2)
-            .whose_names_are_different_from(forbidden_monitor_names)
-            .build_monitors()
+            .whose_names_are_different_from(forbidden_display_names)
+            .build_displays()
             .build_computer();
 
         let display_settings = DisplaySettings::new(computer.win32);
 
         // Act
-        let result = display_settings.get_monitor_position(&forbidden_monitor_name);
+        let result = display_settings.get_display_position(&forbidden_display_name);
 
         //Assert
         assert_eq!(
             result,
             Err(format!(
-                "Failed to retrieve the position of monitor {forbidden_monitor_name}"
+                "Failed to retrieve the position of display {forbidden_display_name}"
             ))
         );
     }
 
     #[test]
-    fn it_should_handle_the_case_of_getting_the_name_of_a_monitor_at_a_non_existing_device_path() {
+    fn it_should_handle_the_case_of_getting_the_name_of_a_display_at_a_non_existing_device_path() {
         // Arrange
         let mut fuzzer = new_fuzzer!();
 
@@ -782,22 +782,22 @@ mod tests {
 
         let computer = fuzzer
             .generate_computer()
-            .with_monitors()
+            .with_displays()
             .of_which_there_are_at_least(2)
             .whose_device_ids_are_different_from(forbidden_device_ids)
-            .build_monitors()
+            .build_displays()
             .build_computer();
 
         let display_settings = DisplaySettings::new(computer.win32);
 
         // Act
-        let result = display_settings.get_monitor_name(&forbidden_device_id.full_id);
+        let result = display_settings.get_display_name(&forbidden_device_id.full_id);
 
         //Assert
         assert_eq!(
             result,
             Err(format!(
-                "Failed to retrieve the name of the monitor at the device path {forbidden_device_id}"
+                "Failed to retrieve the name of the display at the device path {forbidden_device_id}"
             ))
         );
     }

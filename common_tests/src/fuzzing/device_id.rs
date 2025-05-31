@@ -32,9 +32,9 @@ pub struct DeviceIdFuzzer {
 impl FuzzedDeviceId {
     pub fn new(
         gsm_id: &str,
-        monitors_id_part_1: i32,
-        monitors_id_part_2: &str,
-        monitors_id_part_3: i32,
+        displays_id_part_1: i32,
+        displays_id_part_2: &str,
+        displays_id_part_3: i32,
         uuid: &str,
         config_mode_info_id: u32,
     ) -> Self {
@@ -42,7 +42,7 @@ impl FuzzedDeviceId {
             uuid: String::from(uuid),
             config_mode_info_id,
             full_id: format!(
-                r"\\?\DISPLAY#{gsm_id}#{monitors_id_part_1}&{monitors_id_part_2}&{monitors_id_part_3}&UID{:0>5}#{{{uuid}}}",
+                r"\\?\DISPLAY#{gsm_id}#{displays_id_part_1}&{displays_id_part_2}&{displays_id_part_3}&UID{:0>5}#{{{uuid}}}",
                 config_mode_info_id
             ),
         }
@@ -69,10 +69,10 @@ impl DeviceIdFuzzer {
         count: usize,
         forbidden_device_ids: &HashSet<&FuzzedDeviceId>,
     ) -> Vec<FuzzedDeviceId> {
-        let monitor_id_gsm_parts =
+        let display_id_gsm_parts =
             GsmIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_several(count);
 
-        let monitors_id_common_parts =
+        let displays_id_common_parts =
             DeviceIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
                 .generate_computer_common_parts(forbidden_device_ids);
 
@@ -81,16 +81,16 @@ impl DeviceIdFuzzer {
                 .generate_several(count);
 
         (0..count)
-            .map(|monitor_index| {
-                let config_mode_info_id = config_mode_info_ids[monitor_index];
-                let monitor_id_gsm_part = &monitor_id_gsm_parts[monitor_index];
+            .map(|display_index| {
+                let config_mode_info_id = config_mode_info_ids[display_index];
+                let display_id_gsm_part = &display_id_gsm_parts[display_index];
 
                 FuzzedDeviceId::new(
-                    monitor_id_gsm_part,
-                    monitors_id_common_parts.part_1,
-                    &monitors_id_common_parts.part_2,
-                    monitors_id_common_parts.part_3,
-                    &monitors_id_common_parts.uuid,
+                    display_id_gsm_part,
+                    displays_id_common_parts.part_1,
+                    &displays_id_common_parts.part_2,
+                    displays_id_common_parts.part_3,
+                    &displays_id_common_parts.uuid,
                     config_mode_info_id,
                 )
             })

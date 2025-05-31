@@ -45,16 +45,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug benchmark 'swap_primary_monitors'",
+            "name": "Debug benchmark 'swap_primary_displays'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bench=swap_primary_monitors",
+                    "--bench=swap_primary_displays",
                     "--package=convertible_couch_lib"
                 ],
                 "filter": {
-                    "name": "swap_primary_monitors",
+                    "name": "swap_primary_displays",
                     "kind": "bench"
                 }
             },
@@ -115,13 +115,13 @@
                 }
             },
             "args": [
-                "--desktop-monitor-name",
+                "--desktop-display-name",
                 "LG ULTRAWIDE",
-                "--couch-monitor-name",
+                "--couch-display-name",
                 "M227WD",
-                "--desktop-sound-output-device-name",
+                "--desktop-speaker-name",
                 "Haut-parleurs (Realtek(R) Audio)",
-                "--couch-sound-output-device-name",
+                "--couch-speaker-name",
                 "Haut-parleurs (Corsair Vengeance 1500)"
             ],
             "cwd": "${workspaceFolder}"

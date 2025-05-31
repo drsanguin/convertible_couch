@@ -11,14 +11,14 @@ use log::{error, info, warn};
 #[command(author, version, about, long_about = None)]
 struct Args {
     #[arg(long)]
-    desktop_monitor_name: String,
+    desktop_display_name: String,
     #[arg(long)]
-    couch_monitor_name: String,
+    couch_display_name: String,
     #[arg(long)]
-    desktop_sound_output_device_name: String,
+    desktop_speaker_name: String,
     #[arg(long)]
-    couch_sound_output_device_name: String,
-    #[arg(short, long, value_enum, default_value_t = LogLevel::Info)]
+    couch_speaker_name: String,
+    #[arg(short, long, value_enum, default_value_t = LogLevel::Off)]
     log_level: LogLevel,
 }
 
@@ -27,12 +27,12 @@ fn main() {
 
     match configure_logger(args.log_level).and_then(|_| {
         DisplaySettings::new(Win32Impl)
-            .swap_primary_monitors(&args.desktop_monitor_name, &args.couch_monitor_name)
+            .swap_primary_displays(&args.desktop_display_name, &args.couch_display_name)
     }) {
         Ok(response) => {
             match response.new_primary {
-                Some(new_primary) => info!("Primary monitor set to {new_primary}"),
-                None => error!("Primary monitor has not been changed for an unknow reason"),
+                Some(new_primary) => info!("Primary display set to {new_primary}"),
+                None => error!("Primary display has not been changed for an unknow reason"),
             }
 
             if response.reboot_required {
@@ -44,10 +44,9 @@ fn main() {
 
     let mut sound_output_device = WindowsBasedSoundOutputDevice;
 
-    match sound_output_device.swap_default_output_device(
-        &args.desktop_sound_output_device_name,
-        &args.couch_sound_output_device_name,
-    ) {
+    match sound_output_device
+        .swap_default_output_device(&args.desktop_speaker_name, &args.couch_speaker_name)
+    {
         Ok(_) => info!("Switched sound output device"),
         Err(message) => error!("{message}"),
     }

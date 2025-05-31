@@ -7,9 +7,9 @@ use rand::{
     Rng,
 };
 
-pub struct FuzzedMonitorBrand;
+pub struct FuzzedDisplayBrand;
 
-impl FuzzedMonitorBrand {
+impl FuzzedDisplayBrand {
     pub const ACER: &'static str = "ACER";
     pub const AG_NEOVO: &'static str = "AG NEOVO";
     pub const ALIENWARE: &'static str = "ALIENWARE";
@@ -75,84 +75,84 @@ impl FuzzedMonitorBrand {
     pub const XIAOMI: &'static str = "XIAOMI";
     pub const YASHI: &'static str = "YASHI";
     pub const ALL: [&'static str; 64] = [
-        FuzzedMonitorBrand::ACER,
-        FuzzedMonitorBrand::AG_NEOVO,
-        FuzzedMonitorBrand::ALIENWARE,
-        FuzzedMonitorBrand::AOC,
-        FuzzedMonitorBrand::AORUS,
-        FuzzedMonitorBrand::APPLE,
-        FuzzedMonitorBrand::APPROX,
-        FuzzedMonitorBrand::ASROCK,
-        FuzzedMonitorBrand::ASUS,
-        FuzzedMonitorBrand::BENQ,
-        FuzzedMonitorBrand::CONTINENTAL_EDISON,
-        FuzzedMonitorBrand::COOLER_MASTER,
-        FuzzedMonitorBrand::CORSAIR,
-        FuzzedMonitorBrand::DAHUA,
-        FuzzedMonitorBrand::DELL,
-        FuzzedMonitorBrand::EIZO,
-        FuzzedMonitorBrand::ELO,
-        FuzzedMonitorBrand::ESSENTIELB,
-        FuzzedMonitorBrand::FAYTECH,
-        FuzzedMonitorBrand::FOX_SPIRIT,
-        FuzzedMonitorBrand::FUJITSU,
-        FuzzedMonitorBrand::GIGABYTE,
-        FuzzedMonitorBrand::GIGACRYSTA,
-        FuzzedMonitorBrand::HANNSG,
-        FuzzedMonitorBrand::HANNSPREE,
-        FuzzedMonitorBrand::HEWLETT_PACKARD_HP,
-        FuzzedMonitorBrand::HUAWEI,
-        FuzzedMonitorBrand::HYPERX,
-        FuzzedMonitorBrand::IGGUAL,
-        FuzzedMonitorBrand::IIYAMA,
-        FuzzedMonitorBrand::INOVU,
-        FuzzedMonitorBrand::ITEK,
-        FuzzedMonitorBrand::JOY_IT,
-        FuzzedMonitorBrand::KEEP_OUT,
-        FuzzedMonitorBrand::KONIX,
-        FuzzedMonitorBrand::KOORUI,
-        FuzzedMonitorBrand::LC_POWER,
-        FuzzedMonitorBrand::LENOVO,
-        FuzzedMonitorBrand::LG,
-        FuzzedMonitorBrand::MEDION,
-        FuzzedMonitorBrand::MILLENIUM,
-        FuzzedMonitorBrand::MONOPRICE,
-        FuzzedMonitorBrand::MSI,
-        FuzzedMonitorBrand::NEC,
-        FuzzedMonitorBrand::NEWLINE,
-        FuzzedMonitorBrand::NEWSKILL,
-        FuzzedMonitorBrand::NILOX,
-        FuzzedMonitorBrand::OVERSTEEL,
-        FuzzedMonitorBrand::OZONE,
-        FuzzedMonitorBrand::PHILIPS,
-        FuzzedMonitorBrand::RAZER,
-        FuzzedMonitorBrand::SAMSUNG,
-        FuzzedMonitorBrand::SCHNEIDER,
-        FuzzedMonitorBrand::SHARKGAMING,
-        FuzzedMonitorBrand::SKILLKORP,
-        FuzzedMonitorBrand::SMART_TECH,
-        FuzzedMonitorBrand::SONY,
-        FuzzedMonitorBrand::TARGUS,
-        FuzzedMonitorBrand::THOMSON,
-        FuzzedMonitorBrand::VIDEOSEVEN_V7,
-        FuzzedMonitorBrand::VIEWSONIC,
-        FuzzedMonitorBrand::WORTMANN,
-        FuzzedMonitorBrand::XIAOMI,
-        FuzzedMonitorBrand::YASHI,
+        FuzzedDisplayBrand::ACER,
+        FuzzedDisplayBrand::AG_NEOVO,
+        FuzzedDisplayBrand::ALIENWARE,
+        FuzzedDisplayBrand::AOC,
+        FuzzedDisplayBrand::AORUS,
+        FuzzedDisplayBrand::APPLE,
+        FuzzedDisplayBrand::APPROX,
+        FuzzedDisplayBrand::ASROCK,
+        FuzzedDisplayBrand::ASUS,
+        FuzzedDisplayBrand::BENQ,
+        FuzzedDisplayBrand::CONTINENTAL_EDISON,
+        FuzzedDisplayBrand::COOLER_MASTER,
+        FuzzedDisplayBrand::CORSAIR,
+        FuzzedDisplayBrand::DAHUA,
+        FuzzedDisplayBrand::DELL,
+        FuzzedDisplayBrand::EIZO,
+        FuzzedDisplayBrand::ELO,
+        FuzzedDisplayBrand::ESSENTIELB,
+        FuzzedDisplayBrand::FAYTECH,
+        FuzzedDisplayBrand::FOX_SPIRIT,
+        FuzzedDisplayBrand::FUJITSU,
+        FuzzedDisplayBrand::GIGABYTE,
+        FuzzedDisplayBrand::GIGACRYSTA,
+        FuzzedDisplayBrand::HANNSG,
+        FuzzedDisplayBrand::HANNSPREE,
+        FuzzedDisplayBrand::HEWLETT_PACKARD_HP,
+        FuzzedDisplayBrand::HUAWEI,
+        FuzzedDisplayBrand::HYPERX,
+        FuzzedDisplayBrand::IGGUAL,
+        FuzzedDisplayBrand::IIYAMA,
+        FuzzedDisplayBrand::INOVU,
+        FuzzedDisplayBrand::ITEK,
+        FuzzedDisplayBrand::JOY_IT,
+        FuzzedDisplayBrand::KEEP_OUT,
+        FuzzedDisplayBrand::KONIX,
+        FuzzedDisplayBrand::KOORUI,
+        FuzzedDisplayBrand::LC_POWER,
+        FuzzedDisplayBrand::LENOVO,
+        FuzzedDisplayBrand::LG,
+        FuzzedDisplayBrand::MEDION,
+        FuzzedDisplayBrand::MILLENIUM,
+        FuzzedDisplayBrand::MONOPRICE,
+        FuzzedDisplayBrand::MSI,
+        FuzzedDisplayBrand::NEC,
+        FuzzedDisplayBrand::NEWLINE,
+        FuzzedDisplayBrand::NEWSKILL,
+        FuzzedDisplayBrand::NILOX,
+        FuzzedDisplayBrand::OVERSTEEL,
+        FuzzedDisplayBrand::OZONE,
+        FuzzedDisplayBrand::PHILIPS,
+        FuzzedDisplayBrand::RAZER,
+        FuzzedDisplayBrand::SAMSUNG,
+        FuzzedDisplayBrand::SCHNEIDER,
+        FuzzedDisplayBrand::SHARKGAMING,
+        FuzzedDisplayBrand::SKILLKORP,
+        FuzzedDisplayBrand::SMART_TECH,
+        FuzzedDisplayBrand::SONY,
+        FuzzedDisplayBrand::TARGUS,
+        FuzzedDisplayBrand::THOMSON,
+        FuzzedDisplayBrand::VIDEOSEVEN_V7,
+        FuzzedDisplayBrand::VIEWSONIC,
+        FuzzedDisplayBrand::WORTMANN,
+        FuzzedDisplayBrand::XIAOMI,
+        FuzzedDisplayBrand::YASHI,
     ];
 }
 
-pub struct MonitorNameFuzzer {
+pub struct DisplayNameFuzzer {
     rand: StdRng,
 }
 
-impl MonitorNameFuzzer {
+impl DisplayNameFuzzer {
     pub fn new(rand: StdRng) -> Self {
         Self { rand }
     }
 
     pub fn generate_one(&mut self) -> String {
-        let brand = FuzzedMonitorBrand::ALL.choose(&mut self.rand).unwrap();
+        let brand = FuzzedDisplayBrand::ALL.choose(&mut self.rand).unwrap();
         let model_id_max_len = 62 - brand.len();
         let model_id_len = self.rand.random_range(8..model_id_max_len);
         let model_id_part_1 = Alphanumeric.sample_string(&mut self.rand, model_id_len);
@@ -169,14 +169,14 @@ impl MonitorNameFuzzer {
     pub fn generate_several(
         &mut self,
         count: usize,
-        forbidden_monitor_names: &HashSet<&str>,
+        forbidden_display_names: &HashSet<&str>,
     ) -> Vec<String> {
         let mut names = HashSet::with_capacity(count);
 
         while names.len() != count {
             let name = self.generate_one();
 
-            if forbidden_monitor_names.contains(&name.as_str()) {
+            if forbidden_display_names.contains(&name.as_str()) {
                 continue;
             }
 

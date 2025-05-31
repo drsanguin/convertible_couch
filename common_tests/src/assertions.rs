@@ -1,28 +1,28 @@
-use convertible_couch_common::SwapPrimaryMonitorsResponse;
+use convertible_couch_common::SwapPrimaryDisplaysResponse;
 
-pub fn assert_that_primary_monitors_have_been_swap_as_expected(
-    actual_response: Result<SwapPrimaryMonitorsResponse, String>,
-    expected_response: Result<SwapPrimaryMonitorsResponse, String>,
+pub fn assert_that_primary_displays_have_been_swap_as_expected(
+    actual_response: Result<SwapPrimaryDisplaysResponse, String>,
+    expected_response: Result<SwapPrimaryDisplaysResponse, String>,
 ) {
     assert_eq!(
         actual_response, expected_response,
-        "Primary monitors where not swapped as expected"
+        "Primary displays where not swapped as expected"
     );
 }
 
-pub fn assert_that_monitors_have_been_validated(
-    actual_response: Result<SwapPrimaryMonitorsResponse, String>,
-    actual_monitors: &Vec<String>,
+pub fn assert_that_displays_have_been_validated(
+    actual_response: Result<SwapPrimaryDisplaysResponse, String>,
+    actual_displays: &Vec<String>,
     expected_error_message_prefix: &str,
 ) {
-    let possible_monitors = actual_monitors
+    let possible_displays = actual_displays
         .iter()
-        .map(|monitor_name| monitor_name.clone())
+        .map(|display_name| display_name.clone())
         .collect::<Vec<String>>()
         .join(", ");
 
     let expected_error_message =
-        format!("{expected_error_message_prefix}, possible values are [{possible_monitors}]");
+        format!("{expected_error_message_prefix}, possible values are [{possible_displays}]");
 
     let expected_response = Err(expected_error_message);
 
@@ -30,7 +30,7 @@ pub fn assert_that_monitors_have_been_validated(
 }
 
 pub fn assert_that_response_is_an_error_who_starts_with(
-    actual_response: Result<SwapPrimaryMonitorsResponse, String>,
+    actual_response: Result<SwapPrimaryDisplaysResponse, String>,
     expected_error_message_prefix: &str,
 ) {
     assert!(

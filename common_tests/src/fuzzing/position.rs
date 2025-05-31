@@ -5,34 +5,34 @@ use rand::{rngs::StdRng, seq::SliceRandom, Rng};
 use super::resolution::FuzzedResolution;
 
 #[derive(Clone, Copy)]
-pub struct FuzzedMonitorPosition {
+pub struct FuzzedDisplayPosition {
     pub x: i32,
     pub y: i32,
 }
 
-impl FuzzedMonitorPosition {
+impl FuzzedDisplayPosition {
     pub fn is_positioned_at_origin(&self) -> bool {
         self.x == 0 && self.y == 0
     }
 }
 
 #[derive(Clone, Copy)]
-pub struct FuzzedMonitorPositionedResolution {
+pub struct FuzzedDisplayPositionedResolution {
     pub resolution: FuzzedResolution,
-    pub position: FuzzedMonitorPosition,
+    pub position: FuzzedDisplayPosition,
 }
 
-impl Display for FuzzedMonitorPosition {
+impl Display for FuzzedDisplayPosition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
     }
 }
 
-pub struct MonitorPositionFuzzer {
+pub struct DisplayPositionFuzzer {
     rand: StdRng,
 }
 
-impl MonitorPositionFuzzer {
+impl DisplayPositionFuzzer {
     pub fn new(rand: StdRng) -> Self {
         Self { rand }
     }
@@ -41,48 +41,48 @@ impl MonitorPositionFuzzer {
         &mut self,
         resolutions: &Vec<FuzzedResolution>,
         has_an_internal_display: bool,
-    ) -> Vec<FuzzedMonitorPositionedResolution> {
-        let n_monitor = resolutions.len();
-        let primary_monitor_index = if has_an_internal_display {
+    ) -> Vec<FuzzedDisplayPositionedResolution> {
+        let n_display = resolutions.len();
+        let primary_display_index = if has_an_internal_display {
             0
         } else {
-            self.rand.random_range(0..n_monitor)
+            self.rand.random_range(0..n_display)
         };
-        let primary_monitor_resolution = resolutions[primary_monitor_index];
-        let primary_monitor_position = FuzzedMonitorPosition { x: 0, y: 0 };
-        let primary_monitor_positioned = FuzzedMonitorPositionedResolution {
-            position: primary_monitor_position,
-            resolution: primary_monitor_resolution,
+        let primary_display_resolution = resolutions[primary_display_index];
+        let primary_display_position = FuzzedDisplayPosition { x: 0, y: 0 };
+        let primary_display_positioned = FuzzedDisplayPositionedResolution {
+            position: primary_display_position,
+            resolution: primary_display_resolution,
         };
 
-        let mut monitors_positions_by_axis = MonitorsPositionsByAxis::new(n_monitor);
+        let mut displays_positions_by_axis = DisplaysPositionsByAxis::new(n_display);
 
         resolutions.iter().enumerate().for_each(|(i, resolution)| {
             Self::position_resolution(
                 i,
-                primary_monitor_index,
+                primary_display_index,
                 resolution,
-                &mut monitors_positions_by_axis,
-                primary_monitor_positioned,
+                &mut displays_positions_by_axis,
+                primary_display_positioned,
             )
         });
 
-        let mut positions = Vec::with_capacity(n_monitor);
+        let mut positions = Vec::with_capacity(n_display);
 
-        positions.append(&mut monitors_positions_by_axis.up);
-        positions.append(&mut monitors_positions_by_axis.right_up);
-        positions.append(&mut monitors_positions_by_axis.right);
-        positions.append(&mut monitors_positions_by_axis.right_down);
-        positions.append(&mut monitors_positions_by_axis.down);
-        positions.append(&mut monitors_positions_by_axis.left_down);
-        positions.append(&mut monitors_positions_by_axis.left);
-        positions.append(&mut monitors_positions_by_axis.left_up);
+        positions.append(&mut displays_positions_by_axis.up);
+        positions.append(&mut displays_positions_by_axis.right_up);
+        positions.append(&mut displays_positions_by_axis.right);
+        positions.append(&mut displays_positions_by_axis.right_down);
+        positions.append(&mut displays_positions_by_axis.down);
+        positions.append(&mut displays_positions_by_axis.left_down);
+        positions.append(&mut displays_positions_by_axis.left);
+        positions.append(&mut displays_positions_by_axis.left_up);
 
         if has_an_internal_display {
             positions.shuffle(&mut self.rand);
-            positions.insert(0, primary_monitor_positioned);
+            positions.insert(0, primary_display_positioned);
         } else {
-            positions.push(primary_monitor_positioned);
+            positions.push(primary_display_positioned);
             positions.shuffle(&mut self.rand);
         }
 
@@ -97,66 +97,66 @@ impl MonitorPositionFuzzer {
 
     fn position_resolution(
         i: usize,
-        primary_monitor_index: usize,
+        primary_display_index: usize,
         resolution: &FuzzedResolution,
-        monitors_positions_by_axis: &mut MonitorsPositionsByAxis,
-        primary_monitor_positioned: FuzzedMonitorPositionedResolution,
+        displays_positions_by_axis: &mut DisplaysPositionsByAxis,
+        primary_display_positioned: FuzzedDisplayPositionedResolution,
     ) {
         match i {
-            i if i == primary_monitor_index => {}
+            i if i == primary_display_index => {}
             i if i & 7 == 7 => Self::move_resolution(
                 resolution,
-                &mut monitors_positions_by_axis.left_up,
-                &primary_monitor_positioned,
+                &mut displays_positions_by_axis.left_up,
+                &primary_display_positioned,
                 HorizontalMove::Left,
                 VerticalMove::Up,
             ),
             i if i & 7 == 6 => Self::move_resolution(
                 resolution,
-                &mut monitors_positions_by_axis.left,
-                &primary_monitor_positioned,
+                &mut displays_positions_by_axis.left,
+                &primary_display_positioned,
                 HorizontalMove::Left,
                 VerticalMove::None,
             ),
             i if i & 7 == 5 => Self::move_resolution(
                 resolution,
-                &mut monitors_positions_by_axis.left_down,
-                &primary_monitor_positioned,
+                &mut displays_positions_by_axis.left_down,
+                &primary_display_positioned,
                 HorizontalMove::Left,
                 VerticalMove::Down,
             ),
             i if i & 7 == 4 => Self::move_resolution(
                 resolution,
-                &mut monitors_positions_by_axis.down,
-                &primary_monitor_positioned,
+                &mut displays_positions_by_axis.down,
+                &primary_display_positioned,
                 HorizontalMove::None,
                 VerticalMove::Down,
             ),
             i if i & 7 == 3 => Self::move_resolution(
                 resolution,
-                &mut monitors_positions_by_axis.right_down,
-                &primary_monitor_positioned,
+                &mut displays_positions_by_axis.right_down,
+                &primary_display_positioned,
                 HorizontalMove::Right,
                 VerticalMove::Down,
             ),
             i if i & 7 == 2 => Self::move_resolution(
                 resolution,
-                &mut monitors_positions_by_axis.right,
-                &primary_monitor_positioned,
+                &mut displays_positions_by_axis.right,
+                &primary_display_positioned,
                 HorizontalMove::Right,
                 VerticalMove::None,
             ),
             i if i & 7 == 1 => Self::move_resolution(
                 resolution,
-                &mut monitors_positions_by_axis.right_up,
-                &primary_monitor_positioned,
+                &mut displays_positions_by_axis.right_up,
+                &primary_display_positioned,
                 HorizontalMove::Right,
                 VerticalMove::Up,
             ),
             _ => Self::move_resolution(
                 resolution,
-                &mut monitors_positions_by_axis.up,
-                &primary_monitor_positioned,
+                &mut displays_positions_by_axis.up,
+                &primary_display_positioned,
                 HorizontalMove::None,
                 VerticalMove::Up,
             ),
@@ -165,14 +165,14 @@ impl MonitorPositionFuzzer {
 
     fn move_resolution(
         resolution: &FuzzedResolution,
-        axis_monitors_positions: &mut Vec<FuzzedMonitorPositionedResolution>,
-        primary_monitor_positioned: &FuzzedMonitorPositionedResolution,
+        axis_displays_positions: &mut Vec<FuzzedDisplayPositionedResolution>,
+        primary_display_positioned: &FuzzedDisplayPositionedResolution,
         horizontal_move: HorizontalMove,
         vertical_move: VerticalMove,
     ) {
-        let previous_resolution_position = axis_monitors_positions
+        let previous_resolution_position = axis_displays_positions
             .last()
-            .unwrap_or(&primary_monitor_positioned);
+            .unwrap_or(&primary_display_positioned);
 
         let x = match horizontal_move {
             HorizontalMove::None => 0,
@@ -194,9 +194,9 @@ impl MonitorPositionFuzzer {
             }
         };
 
-        axis_monitors_positions.push(FuzzedMonitorPositionedResolution {
+        axis_displays_positions.push(FuzzedDisplayPositionedResolution {
             resolution: *resolution,
-            position: FuzzedMonitorPosition { x, y },
+            position: FuzzedDisplayPosition { x, y },
         });
     }
 }
@@ -213,30 +213,30 @@ enum VerticalMove {
     Down,
 }
 
-struct MonitorsPositionsByAxis {
-    pub up: Vec<FuzzedMonitorPositionedResolution>,
-    pub right_up: Vec<FuzzedMonitorPositionedResolution>,
-    pub right: Vec<FuzzedMonitorPositionedResolution>,
-    pub right_down: Vec<FuzzedMonitorPositionedResolution>,
-    pub down: Vec<FuzzedMonitorPositionedResolution>,
-    pub left_down: Vec<FuzzedMonitorPositionedResolution>,
-    pub left: Vec<FuzzedMonitorPositionedResolution>,
-    pub left_up: Vec<FuzzedMonitorPositionedResolution>,
+struct DisplaysPositionsByAxis {
+    pub up: Vec<FuzzedDisplayPositionedResolution>,
+    pub right_up: Vec<FuzzedDisplayPositionedResolution>,
+    pub right: Vec<FuzzedDisplayPositionedResolution>,
+    pub right_down: Vec<FuzzedDisplayPositionedResolution>,
+    pub down: Vec<FuzzedDisplayPositionedResolution>,
+    pub left_down: Vec<FuzzedDisplayPositionedResolution>,
+    pub left: Vec<FuzzedDisplayPositionedResolution>,
+    pub left_up: Vec<FuzzedDisplayPositionedResolution>,
 }
 
-impl MonitorsPositionsByAxis {
-    fn new(n_monitor: usize) -> Self {
-        let n_monitor_by_axis = (n_monitor / 8) + 1;
+impl DisplaysPositionsByAxis {
+    fn new(n_display: usize) -> Self {
+        let n_display_by_axis = (n_display / 8) + 1;
 
         Self {
-            up: Vec::with_capacity(n_monitor_by_axis),
-            right_up: Vec::with_capacity(n_monitor_by_axis),
-            right: Vec::with_capacity(n_monitor_by_axis),
-            right_down: Vec::with_capacity(n_monitor_by_axis),
-            down: Vec::with_capacity(n_monitor_by_axis),
-            left_down: Vec::with_capacity(n_monitor_by_axis),
-            left: Vec::with_capacity(n_monitor_by_axis),
-            left_up: Vec::with_capacity(n_monitor_by_axis),
+            up: Vec::with_capacity(n_display_by_axis),
+            right_up: Vec::with_capacity(n_display_by_axis),
+            right: Vec::with_capacity(n_display_by_axis),
+            right_down: Vec::with_capacity(n_display_by_axis),
+            down: Vec::with_capacity(n_display_by_axis),
+            left_down: Vec::with_capacity(n_display_by_axis),
+            left: Vec::with_capacity(n_display_by_axis),
+            left_up: Vec::with_capacity(n_display_by_axis),
         }
     }
 }

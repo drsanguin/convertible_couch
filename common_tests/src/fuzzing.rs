@@ -3,16 +3,16 @@ use rand::{rngs::StdRng, RngCore, SeedableRng};
 use self::{
     computer::ComputerFuzzer,
     device_id::{DeviceIdFuzzer, FuzzedDeviceId},
-    monitor_name::MonitorNameFuzzer,
+    display_name::DisplayNameFuzzer,
 };
 
 pub mod computer;
 pub mod config_mod_info_id;
 pub mod device_id;
+pub mod display_name;
+pub mod displays;
 pub mod gsm_id;
 pub mod guid;
-pub mod monitor_name;
-pub mod monitors;
 pub mod position;
 pub mod resolution;
 pub mod video_output;
@@ -59,12 +59,12 @@ impl Fuzzer {
         ComputerFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
     }
 
-    pub fn generate_monitor_name(&mut self) -> String {
-        MonitorNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_one()
+    pub fn generate_display_name(&mut self) -> String {
+        DisplayNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_one()
     }
 
-    pub fn generate_two_monitor_names(&mut self) -> (String, String) {
-        MonitorNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_two()
+    pub fn generate_two_display_names(&mut self) -> (String, String) {
+        DisplayNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_two()
     }
 
     pub fn generate_device_id(&mut self) -> FuzzedDeviceId {

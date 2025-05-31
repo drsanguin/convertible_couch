@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use rand::{rngs::StdRng, seq::IndexedRandom, Rng, RngCore, SeedableRng};
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
-use super::{monitors::MonitorsFuzzer, video_output::FuzzedVideoOutput, win32::FuzzedWin32};
+use super::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput, win32::FuzzedWin32};
 
 pub struct FuzzedComputer {
     pub win32: FuzzedWin32,
-    pub primary_monitor: String,
-    pub secondary_monitor: String,
-    pub monitors: Vec<String>,
+    pub primary_display: String,
+    pub secondary_display: String,
+    pub displays: Vec<String>,
 }
 
 #[derive(Clone)]
@@ -18,8 +18,8 @@ pub struct ComputerFuzzer {
     video_outputs: Vec<FuzzedVideoOutput>,
     change_display_settings_error: Option<DISP_CHANGE>,
     change_display_settings_error_on_commit: Option<DISP_CHANGE>,
-    getting_primary_monitor_name_fails: bool,
-    querying_the_display_config_of_the_primary_monitor_fails: bool,
+    getting_primary_display_name_fails: bool,
+    querying_the_display_config_of_the_primary_display_fails: bool,
 }
 
 impl ComputerFuzzer {
@@ -29,8 +29,8 @@ impl ComputerFuzzer {
             video_outputs: vec![],
             change_display_settings_error: None,
             change_display_settings_error_on_commit: None,
-            getting_primary_monitor_name_fails: false,
-            querying_the_display_config_of_the_primary_monitor_fails: false,
+            getting_primary_display_name_fails: false,
+            querying_the_display_config_of_the_primary_display_fails: false,
         }
     }
 
@@ -44,14 +44,14 @@ impl ComputerFuzzer {
             change_display_settings_error: computer_fuzzer.change_display_settings_error,
             change_display_settings_error_on_commit: computer_fuzzer
                 .change_display_settings_error_on_commit,
-            getting_primary_monitor_name_fails: computer_fuzzer.getting_primary_monitor_name_fails,
-            querying_the_display_config_of_the_primary_monitor_fails: computer_fuzzer
-                .querying_the_display_config_of_the_primary_monitor_fails,
+            getting_primary_display_name_fails: computer_fuzzer.getting_primary_display_name_fails,
+            querying_the_display_config_of_the_primary_display_fails: computer_fuzzer
+                .querying_the_display_config_of_the_primary_display_fails,
         }
     }
 
-    pub fn with_monitors(&mut self) -> MonitorsFuzzer {
-        MonitorsFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
+    pub fn with_displays(&mut self) -> DisplaysFuzzer {
+        DisplaysFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
     }
 
     pub fn for_which_committing_the_display_changes_fails_with(
@@ -63,13 +63,13 @@ impl ComputerFuzzer {
             video_outputs: self.video_outputs.clone(),
             change_display_settings_error: self.change_display_settings_error,
             change_display_settings_error_on_commit: Some(change_display_settings_error),
-            getting_primary_monitor_name_fails: self.getting_primary_monitor_name_fails,
-            querying_the_display_config_of_the_primary_monitor_fails: self
-                .querying_the_display_config_of_the_primary_monitor_fails,
+            getting_primary_display_name_fails: self.getting_primary_display_name_fails,
+            querying_the_display_config_of_the_primary_display_fails: self
+                .querying_the_display_config_of_the_primary_display_fails,
         }
     }
 
-    pub fn for_which_changing_the_display_settings_fails_for_some_monitors(
+    pub fn for_which_changing_the_display_settings_fails_for_some_displays(
         &mut self,
         change_display_settings_error: DISP_CHANGE,
     ) -> Self {
@@ -78,62 +78,62 @@ impl ComputerFuzzer {
             video_outputs: self.video_outputs.clone(),
             change_display_settings_error: Some(change_display_settings_error),
             change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
-            getting_primary_monitor_name_fails: self.getting_primary_monitor_name_fails,
-            querying_the_display_config_of_the_primary_monitor_fails: self
-                .querying_the_display_config_of_the_primary_monitor_fails,
+            getting_primary_display_name_fails: self.getting_primary_display_name_fails,
+            querying_the_display_config_of_the_primary_display_fails: self
+                .querying_the_display_config_of_the_primary_display_fails,
         }
     }
 
-    pub fn for_which_getting_the_primary_monitor_fails(&mut self) -> Self {
+    pub fn for_which_getting_the_primary_display_fails(&mut self) -> Self {
         Self {
             rand: StdRng::seed_from_u64(self.rand.next_u64()),
             video_outputs: self.video_outputs.clone(),
             change_display_settings_error: self.change_display_settings_error,
             change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
-            getting_primary_monitor_name_fails: true,
-            querying_the_display_config_of_the_primary_monitor_fails: self
-                .querying_the_display_config_of_the_primary_monitor_fails,
+            getting_primary_display_name_fails: true,
+            querying_the_display_config_of_the_primary_display_fails: self
+                .querying_the_display_config_of_the_primary_display_fails,
         }
     }
 
-    pub fn for_which_querying_the_display_config_of_the_primary_monitor_fails(&mut self) -> Self {
+    pub fn for_which_querying_the_display_config_of_the_primary_display_fails(&mut self) -> Self {
         Self {
             rand: StdRng::seed_from_u64(self.rand.next_u64()),
             video_outputs: self.video_outputs.clone(),
             change_display_settings_error: self.change_display_settings_error,
             change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
-            getting_primary_monitor_name_fails: self.getting_primary_monitor_name_fails,
-            querying_the_display_config_of_the_primary_monitor_fails: true,
+            getting_primary_display_name_fails: self.getting_primary_display_name_fails,
+            querying_the_display_config_of_the_primary_display_fails: true,
         }
     }
 
     pub fn build_computer(&mut self) -> FuzzedComputer {
-        let secondary_monitor = self.get_monitor(false);
-        let primary_monitor = self.get_monitor(true);
+        let secondary_display = self.get_display(false);
+        let primary_display = self.get_display(true);
 
         assert_ne!(
-            secondary_monitor, primary_monitor,
-            "Error during fuzzing ! Primary and secondary monitors are the same"
+            secondary_display, primary_display,
+            "Error during fuzzing ! Primary and secondary displays are the same"
         );
 
-        let mut change_display_settings_error_by_monitor = HashMap::new();
+        let mut change_display_settings_error_by_display = HashMap::new();
 
         if self.change_display_settings_error.is_some() {
             let possible_devices_paths = self
                 .video_outputs
                 .iter()
-                .filter_map(|video_output| match &video_output.monitor {
+                .filter_map(|video_output| match &video_output.display {
                     Some(_) => Some(video_output.device_name.clone()),
                     None => None,
                 })
                 .collect::<Vec<String>>();
 
-            let n_monitor_on_error = self.rand.random_range(1..possible_devices_paths.len());
+            let n_display_on_error = self.rand.random_range(1..possible_devices_paths.len());
 
             possible_devices_paths
-                .choose_multiple(&mut self.rand, n_monitor_on_error)
+                .choose_multiple(&mut self.rand, n_display_on_error)
                 .for_each(|device_path| {
-                    change_display_settings_error_by_monitor.insert(
+                    change_display_settings_error_by_display.insert(
                         String::from(device_path),
                         self.change_display_settings_error.unwrap(),
                     );
@@ -143,29 +143,29 @@ impl ComputerFuzzer {
         let win32 = FuzzedWin32::new(
             self.video_outputs.clone(),
             self.change_display_settings_error_on_commit,
-            change_display_settings_error_by_monitor,
-            self.getting_primary_monitor_name_fails,
-            self.querying_the_display_config_of_the_primary_monitor_fails,
+            change_display_settings_error_by_display,
+            self.getting_primary_display_name_fails,
+            self.querying_the_display_config_of_the_primary_display_fails,
         );
 
-        let mut monitors = self.get_all_monitors();
+        let mut displays = self.get_all_displays();
 
-        monitors.sort();
+        displays.sort();
 
         FuzzedComputer {
-            secondary_monitor,
-            primary_monitor,
+            secondary_display,
+            primary_display,
             win32,
-            monitors,
+            displays,
         }
     }
 
-    fn get_monitor(&self, primary: bool) -> String {
+    fn get_display(&self, primary: bool) -> String {
         self.video_outputs
             .iter()
-            .filter_map(|video_output| match &video_output.monitor {
-                Some(monitor) => match monitor.primary {
-                    p if p == primary => Some(monitor.name.clone()),
+            .filter_map(|video_output| match &video_output.display {
+                Some(display) => match display.primary {
+                    p if p == primary => Some(display.name.clone()),
                     _ => None,
                 },
                 None => None,
@@ -178,11 +178,11 @@ impl ComputerFuzzer {
             })
     }
 
-    fn get_all_monitors(&self) -> Vec<String> {
+    fn get_all_displays(&self) -> Vec<String> {
         self.video_outputs
             .iter()
-            .filter_map(|video_output| match &video_output.monitor {
-                Some(monitor) => Some(monitor.name.clone()),
+            .filter_map(|video_output| match &video_output.display {
+                Some(display) => Some(display.name.clone()),
                 None => None,
             })
             .collect::<Vec<String>>()
