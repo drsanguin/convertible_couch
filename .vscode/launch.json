@@ -114,7 +114,16 @@
                     "kind": "bin"
                 }
             },
-            "args": [],
+            "args": [
+                "--desktop-monitor-name",
+                "LG ULTRAWIDE",
+                "--couch-monitor-name",
+                "M227WD",
+                "--desktop-sound-output-device-name",
+                "Haut-parleurs (Realtek(R) Audio)",
+                "--couch-sound-output-device-name",
+                "Haut-parleurs (Corsair Vengeance 1500)"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {

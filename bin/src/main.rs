@@ -3,16 +3,21 @@ use convertible_couch_common::win32::Win32Impl;
 use convertible_couch_lib::{
     display_settings::DisplaySettings,
     log::{configure_logger, LogLevel},
+    sound_output_device::{SoundOutputDevice, WindowsBasedSoundOutputDevice},
 };
 use log::{error, info, warn};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long)]
+    #[arg(long)]
     desktop_monitor_name: String,
-    #[arg(short, long)]
+    #[arg(long)]
     couch_monitor_name: String,
+    #[arg(long)]
+    desktop_sound_output_device_name: String,
+    #[arg(long)]
+    couch_sound_output_device_name: String,
     #[arg(short, long, value_enum, default_value_t = LogLevel::Info)]
     log_level: LogLevel,
 }
@@ -34,6 +39,16 @@ fn main() {
                 warn!("The settings change was successful but the computer must be restarted for the graphics mode to work.");
             }
         }
+        Err(message) => error!("{message}"),
+    }
+
+    let mut sound_output_device = WindowsBasedSoundOutputDevice;
+
+    match sound_output_device.swap_default_output_device(
+        &args.desktop_sound_output_device_name,
+        &args.couch_sound_output_device_name,
+    ) {
+        Ok(_) => info!("Switched sound output device"),
         Err(message) => error!("{message}"),
     }
 }
