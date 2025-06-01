@@ -103,7 +103,9 @@
                 "--desktop-speaker-name",
                 "Haut-parleurs (Realtek(R) Audio)",
                 "--couch-speaker-name",
-                "Haut-parleurs (Corsair Vengeance 1500)"
+                "Haut-parleurs (Corsair Vengeance 1500)",
+                "--log-level",
+                "trace"
             ],
             "cwd": "${workspaceFolder}"
         },

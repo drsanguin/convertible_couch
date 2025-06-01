@@ -1,3 +1,8 @@
+#[derive(Debug, PartialEq)]
+pub struct SwapDefaultOutputDeviceResponse {
+    pub new_default_output_device: String,
+}
+
 pub trait SoundSettings<TSoundSettingsApi> {
     fn new(sound_settings_api: TSoundSettingsApi) -> Self;
 
@@ -5,7 +10,7 @@ pub trait SoundSettings<TSoundSettingsApi> {
         &mut self,
         desktop_sound_output_device_name: &str,
         couch_sound_output_device_name: &str,
-    ) -> Result<(), String>;
+    ) -> Result<SwapDefaultOutputDeviceResponse, String>;
 }
 
 #[cfg(target_os = "windows")]

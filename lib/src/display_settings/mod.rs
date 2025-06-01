@@ -3,6 +3,7 @@ pub struct SwapPrimaryDisplaysResponse {
     pub reboot_required: bool,
     pub new_primary: Option<String>,
 }
+
 pub trait DisplaySettings<TDisplaySettingsApi> {
     fn new(display_settings_api: TDisplaySettingsApi) -> Self;
 
