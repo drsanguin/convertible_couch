@@ -17,7 +17,7 @@ pub trait SoundSettings<TSoundSettingsApi> {
 pub mod windows;
 
 #[cfg(target_os = "windows")]
-pub use windows::WindowsSoundSettings as Current;
+pub use windows::windows_sound_settings::WindowsSoundSettings as Current;
 
 #[cfg(target_os = "windows")]
 pub use windows::audio_endpoint_library::DllBasedAudioEndpointLibrary as CurrentSoundSettingsApi;

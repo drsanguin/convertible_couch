@@ -16,7 +16,7 @@ pub mod guid;
 pub mod position;
 pub mod resolution;
 pub mod video_output;
-pub mod win32;
+pub mod win_32;
 
 pub struct Fuzzer {
     rand: StdRng,

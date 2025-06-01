@@ -18,7 +18,7 @@ use windows::{
     },
 };
 
-use crate::{display_settings::windows::win32::Win32, testing::utils::encode_utf16};
+use crate::{display_settings::windows::win_32::Win32, testing::utils::encode_utf16};
 
 use super::{position::FuzzedDisplayPosition, video_output::FuzzedVideoOutput};
 

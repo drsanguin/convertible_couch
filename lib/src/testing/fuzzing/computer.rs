@@ -1,4 +1,4 @@
-use super::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput, win32::FuzzedWin32};
+use super::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput, win_32::FuzzedWin32};
 use rand::{rngs::StdRng, seq::IndexedRandom, Rng, RngCore, SeedableRng};
 use std::collections::HashMap;
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
