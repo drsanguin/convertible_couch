@@ -154,12 +154,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 .as_bool();
 
             if !is_success_display_device {
-                unsafe {
-                    warn!(
-                        "Failed to retrieve display device informations from the display adapter {}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
+                warn!(
+                    "Failed to retrieve display device informations from the display adapter {}",
+                    unsafe { display_adapter_device_name.to_string() }.unwrap()
+                );
 
                 continue;
             }
@@ -180,12 +178,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                unsafe {
-                    warn!(
-                        "Failed to enum display settings for display device {}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
+                warn!(
+                    "Failed to enum display settings for display device {}",
+                    unsafe { display_adapter_device_name.to_string() }.unwrap()
+                );
 
                 continue;
             }
@@ -249,12 +245,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 .as_bool();
 
             if !is_success_display_device {
-                unsafe {
-                    warn!(
-                        "Failed to retrieve display device informations from the display adapter {}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
+                warn!(
+                    "Failed to retrieve display device informations from the display adapter {}",
+                    unsafe { display_adapter_device_name.to_string() }.unwrap()
+                );
 
                 continue;
             }
@@ -275,12 +269,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                unsafe {
-                    warn!(
-                        "Failed to enum display settings for display device {}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
+                warn!(
+                    "Failed to enum display settings for display device {}",
+                    unsafe { display_adapter_device_name.to_string() }.unwrap()
+                );
 
                 continue;
             }
@@ -295,8 +287,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            unsafe {
-                let display_position = DisplayPosition {
+            let display_position = unsafe {
+                DisplayPosition {
                     x: display_adapter_graphics_mode
                         .Anonymous1
                         .Anonymous2
@@ -307,10 +299,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                         .Anonymous2
                         .dmPosition
                         .y,
-                };
+                }
+            };
 
-                return Ok(display_position);
-            }
+            return Ok(display_position);
         }
 
         Err(format!(
@@ -366,13 +358,11 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 .as_bool();
 
             if !is_success_display_device {
-                unsafe {
-                    warn!(
-                        "Failed to retrieve display device informations from the display adapter {}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                    continue;
-                }
+                warn!(
+                    "Failed to retrieve display device informations from the display adapter {}",
+                    unsafe { display_adapter_device_name.to_string() }.unwrap()
+                );
+                continue;
             }
 
             let size_of_devmode_as_usize = size_of::<DEVMODEW>();
@@ -391,12 +381,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                unsafe {
-                    warn!(
-                        "Failed to enum display settings for display device {}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
+                warn!(
+                    "Failed to enum display settings for display device {}",
+                    unsafe { display_adapter_device_name.to_string() }.unwrap()
+                );
 
                 continue;
             }
@@ -640,12 +628,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 .as_bool();
 
             if !is_success_display_device {
-                unsafe {
-                    warn!(
-                        "Failed to retrieve display device informations from the display adapter {}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
+                warn!(
+                    "Failed to retrieve display device informations from the display adapter {}",
+                    unsafe { display_adapter_device_name.to_string() }.unwrap()
+                );
 
                 continue;
             }
@@ -666,12 +652,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 .as_bool();
 
             if !has_enum_display_settings_succeded {
-                unsafe {
-                    warn!(
-                        "Failed to enum display settings for display device {}",
-                        display_adapter_device_name.to_string().unwrap()
-                    );
-                }
+                warn!(
+                    "Failed to enum display settings for display device {}",
+                    unsafe { display_adapter_device_name.to_string() }.unwrap()
+                );
 
                 continue;
             }
