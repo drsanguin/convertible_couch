@@ -1,5 +1,8 @@
-use convertible_couch_common_tests::new_fuzzer_no_seed_print;
-use convertible_couch_lib::display_settings::{self, DisplaySettings};
+use convertible_couch_lib::{
+    display_settings::{self, DisplaySettings},
+    func,
+    testing::fuzzing::Fuzzer,
+};
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
 
 fn swap_primary_displays(c: &mut Criterion) {
@@ -13,7 +16,7 @@ fn swap_primary_displays(c: &mut Criterion) {
             |bencher, n_display| {
                 bencher.iter_batched(
                     || {
-                        let mut fuzzer = new_fuzzer_no_seed_print!();
+                        let mut fuzzer = Fuzzer::new(func!(), false);
 
                         let computer = fuzzer
                             .generate_computer()

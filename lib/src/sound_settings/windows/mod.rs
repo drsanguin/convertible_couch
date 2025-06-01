@@ -5,9 +5,11 @@ use std::{
     slice::from_raw_parts_mut,
 };
 
-use convertible_couch_common::audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
+use audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
 
 use super::SoundSettings;
+
+pub mod audio_endpoint_library;
 
 pub struct WindowsSoundSettings<TAudioEndpointLibrary: AudioEndpointLibrary> {
     audio_endpoint_library: TAudioEndpointLibrary,

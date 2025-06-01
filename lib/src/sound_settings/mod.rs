@@ -15,4 +15,4 @@ pub mod windows;
 pub use windows::WindowsSoundSettings as Current;
 
 #[cfg(target_os = "windows")]
-pub use convertible_couch_common::audio_endpoint_library::DllBasedAudioEndpointLibrary as CurrentSoundSettingsApi;
+pub use windows::audio_endpoint_library::DllBasedAudioEndpointLibrary as CurrentSoundSettingsApi;

@@ -1,6 +1,6 @@
-use convertible_couch_common::{win32::Win32, SwapPrimaryDisplaysResponse};
 use log::warn;
 use std::{collections::HashSet, mem::size_of};
+use win32::Win32;
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -20,7 +20,9 @@ use windows::{
     },
 };
 
-use super::{DisplaySettings, INTERNAL_DISPLAY_NAME};
+use super::{DisplaySettings, SwapPrimaryDisplaysResponse, INTERNAL_DISPLAY_NAME};
+
+pub mod win32;
 
 pub struct WindowsDisplaySettings<TWin32: Win32> {
     win32: TWin32,
@@ -707,17 +709,17 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-
-    use convertible_couch_common::SwapPrimaryDisplaysResponse;
-    use convertible_couch_common_tests::{
-        assertions::assert_that_primary_displays_have_been_swap_as_expected,
-        fuzzing::win32::FuzzedWin32, new_fuzzer,
+    use crate::{
+        display_settings::{DisplaySettings, SwapPrimaryDisplaysResponse},
+        func,
+        testing::{
+            assertions::assert_that_primary_displays_have_been_swap_as_expected,
+            fuzzing::{win32::FuzzedWin32, Fuzzer},
+        },
     };
+    use std::collections::HashSet;
     use test_case::test_case;
     use windows::Win32::Graphics::Gdi::{DISP_CHANGE, DISP_CHANGE_RESTART};
-
-    use crate::display_settings::DisplaySettings;
 
     use super::WindowsDisplaySettings;
 
@@ -734,7 +736,7 @@ mod tests {
     fn it_should_handle_the_case_of_getting_current_primary_display_name_when_the_computer_has_no_display(
     ) {
         // Arrange
-        let mut fuzzer = new_fuzzer!();
+        let mut fuzzer = Fuzzer::new(func!(), true);
 
         let computer = fuzzer.generate_computer().build_computer();
 
@@ -753,7 +755,7 @@ mod tests {
     #[test]
     fn it_should_handle_the_case_of_getting_the_position_of_a_non_existing_display() {
         // Arrange
-        let mut fuzzer = new_fuzzer!();
+        let mut fuzzer = Fuzzer::new(func!(), true);
 
         let forbidden_display_name = fuzzer.generate_display_name();
         let mut forbidden_display_names = HashSet::with_capacity(1);
@@ -784,7 +786,7 @@ mod tests {
     #[test]
     fn it_should_handle_the_case_of_getting_the_name_of_a_display_at_a_non_existing_device_path() {
         // Arrange
-        let mut fuzzer = new_fuzzer!();
+        let mut fuzzer = Fuzzer::new(func!(), true);
 
         let forbidden_device_id = fuzzer.generate_device_id();
         let mut forbidden_device_ids = HashSet::with_capacity(1);
@@ -822,7 +824,7 @@ mod tests {
         disp_change: DISP_CHANGE,
     ) -> Result<SwapPrimaryDisplaysResponse, String> {
         // Arrange
-        let mut fuzzer = new_fuzzer!();
+        let mut fuzzer = Fuzzer::new(func!(), true);
 
         let computer = fuzzer
             .generate_computer()
@@ -849,7 +851,7 @@ mod tests {
         disp_change: DISP_CHANGE,
     ) -> Result<SwapPrimaryDisplaysResponse, String> {
         // Arrange
-        let mut fuzzer = new_fuzzer!();
+        let mut fuzzer = Fuzzer::new(func!(), true);
 
         let computer = fuzzer
             .generate_computer()
@@ -870,7 +872,7 @@ mod tests {
     fn it_should_swap_the_primary_displays_of_computer_and_ask_for_reboot_when_required_after_committing_display_changes(
     ) {
         // Arrange
-        let mut fuzzer = new_fuzzer!();
+        let mut fuzzer = Fuzzer::new(func!(), true);
 
         let computer = fuzzer
             .generate_computer()
@@ -900,7 +902,7 @@ mod tests {
     fn it_should_swap_the_primary_displays_of_computer_and_ask_for_reboot_when_required_after_changing_display_for_some_displays(
     ) {
         // Arrange
-        let mut fuzzer = new_fuzzer!();
+        let mut fuzzer = Fuzzer::new(func!(), true);
 
         let computer = fuzzer
             .generate_computer()

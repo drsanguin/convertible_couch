@@ -64,35 +64,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in library 'convertible_couch_common'",
+            "name": "Debug unit tests in library 'convertible_couch'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
                     "--lib",
-                    "--package=convertible_couch_common"
+                    "--package=convertible_couch"
                 ],
                 "filter": {
-                    "name": "convertible_couch_common",
-                    "kind": "lib"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in library 'convertible_couch_common_tests'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--lib",
-                    "--package=convertible_couch_common_tests"
-                ],
-                "filter": {
-                    "name": "convertible_couch_common_tests",
+                    "name": "convertible_couch",
                     "kind": "lib"
                 }
             },

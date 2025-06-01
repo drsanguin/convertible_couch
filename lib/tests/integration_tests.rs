@@ -1,19 +1,21 @@
-use convertible_couch_common::SwapPrimaryDisplaysResponse;
-use convertible_couch_common_tests::{
-    assertions::{
-        assert_that_displays_have_been_validated,
-        assert_that_primary_displays_have_been_swap_as_expected,
-        assert_that_response_is_an_error_who_starts_with,
+use convertible_couch_lib::{
+    display_settings::{self, DisplaySettings, SwapPrimaryDisplaysResponse},
+    func,
+    testing::{
+        assertions::{
+            assert_that_displays_have_been_validated,
+            assert_that_primary_displays_have_been_swap_as_expected,
+            assert_that_response_is_an_error_who_starts_with,
+        },
+        fuzzing::Fuzzer,
     },
-    new_fuzzer,
 };
-use convertible_couch_lib::display_settings::{self, DisplaySettings};
 use std::collections::HashSet;
 
 #[test]
 fn it_should_swap_the_desktop_display_with_the_couch_display() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = Fuzzer::new(func!(), true);
 
     let computer = fuzzer
         .generate_computer()
@@ -41,7 +43,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
 #[test]
 fn it_should_swap_the_couch_display_with_the_desktop_display() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = Fuzzer::new(func!(), true);
 
     let computer = fuzzer
         .generate_computer()
@@ -74,7 +76,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
 fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_has_an_internal_display(
 ) {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = Fuzzer::new(func!(), true);
 
     let computer = fuzzer
         .generate_computer()
@@ -105,7 +107,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
 #[test]
 fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_display() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = Fuzzer::new(func!(), true);
 
     let computer = fuzzer
         .generate_computer()
@@ -143,7 +145,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
 #[test]
 fn it_should_validate_the_desktop_display() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = Fuzzer::new(func!(), true);
 
     let wrong_desktop_display_name = fuzzer.generate_display_name();
     let mut forbidden_display_names = HashSet::with_capacity(1);
@@ -174,7 +176,7 @@ fn it_should_validate_the_desktop_display() {
 #[test]
 fn it_should_validate_the_couch_display() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = Fuzzer::new(func!(), true);
 
     let wrong_couch_display_name = fuzzer.generate_display_name();
     let mut forbidden_display_names = HashSet::with_capacity(1);
@@ -205,7 +207,7 @@ fn it_should_validate_the_couch_display() {
 #[test]
 fn it_should_validate_both_desktop_and_couch_displays() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = Fuzzer::new(func!(), true);
 
     let (wrong_desktop_display_name, wrong_couch_display_name) =
         fuzzer.generate_two_display_names();
@@ -239,7 +241,7 @@ fn it_should_validate_both_desktop_and_couch_displays() {
 #[test]
 fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = Fuzzer::new(func!(), true);
 
     let computer = fuzzer
         .generate_computer()
@@ -265,7 +267,7 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
 #[test]
 fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_display_fails() {
     // Arrange
-    let mut fuzzer = new_fuzzer!();
+    let mut fuzzer = Fuzzer::new(func!(), true);
 
     let computer = fuzzer
         .generate_computer()

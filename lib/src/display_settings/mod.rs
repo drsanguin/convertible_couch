@@ -1,5 +1,8 @@
-use convertible_couch_common::SwapPrimaryDisplaysResponse;
-
+#[derive(Debug, PartialEq)]
+pub struct SwapPrimaryDisplaysResponse {
+    pub reboot_required: bool,
+    pub new_primary: Option<String>,
+}
 pub trait DisplaySettings<TDisplaySettingsApi> {
     fn new(display_settings_api: TDisplaySettingsApi) -> Self;
 
@@ -17,7 +20,7 @@ pub mod windows;
 pub use windows::WindowsDisplaySettings as Current;
 
 #[cfg(target_os = "windows")]
-pub use convertible_couch_common::win32::WindowsApiBasedWin32 as CurrentDisplaySettingsApi;
+pub use windows::win32::WindowsApiBasedWin32 as CurrentDisplaySettingsApi;
 
 #[cfg(target_os = "windows")]
 pub const INTERNAL_DISPLAY_NAME: &'static str = "Internal Display";

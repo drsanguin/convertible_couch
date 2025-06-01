@@ -223,26 +223,9 @@ name = "convertible_couch"
 version = "0.9.0"
 dependencies = [
  "clap",
- "convertible_couch_common",
  "convertible_couch_lib",
  "log",
  "winresource",
-]
-
-[[package]]
-name = "convertible_couch_common"
-version = "0.9.0"
-dependencies = [
- "windows",
-]
-
-[[package]]
-name = "convertible_couch_common_tests"
-version = "0.9.0"
-dependencies = [
- "convertible_couch_common",
- "rand 0.9.1",
- "windows",
 ]
 
 [[package]]
@@ -250,11 +233,10 @@ name = "convertible_couch_lib"
 version = "0.9.0"
 dependencies = [
  "clap",
- "convertible_couch_common",
- "convertible_couch_common_tests",
  "criterion",
  "log",
  "log4rs",
+ "rand 0.9.1",
  "test-case",
  "windows",
 ]

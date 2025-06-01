@@ -12,7 +12,7 @@ license-file = "../LICENSE"
 clap = { version = "4.5.7", features = ["derive"] }
 log = "0.4.21"
 log4rs = "1.2.0"
-convertible_couch_common = { path = "../common"}
+rand = "0.9.1"
 
 [dependencies.windows]
 windows = "0.61.1"
@@ -26,7 +26,6 @@ features = [
 
 [dev-dependencies]
 test-case = "3.3.1"
-convertible_couch_common_tests = { path = "../common_tests"}
 criterion = { version = "0.5.1", features = ["html_reports"] }
 
 [[bench]]

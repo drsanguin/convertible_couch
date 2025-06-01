@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use rand::{rngs::StdRng, seq::IteratorRandom, Rng, RngCore, SeedableRng};
 
-use crate::fuzzing::video_output::VideoOutputFuzzer;
+use crate::testing::fuzzing::video_output::VideoOutputFuzzer;
 
 use super::{
     computer::ComputerFuzzer,
