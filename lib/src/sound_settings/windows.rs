@@ -1,87 +1,34 @@
 use std::{
     ffi::OsString,
-    os::{
-        raw::{c_int, c_ushort},
-        windows::ffi::OsStringExt,
-    },
+    os::{raw::c_ushort, windows::ffi::OsStringExt},
     ptr::null_mut,
     slice::from_raw_parts_mut,
 };
 
-pub trait SoundOutputDevice {
-    fn swap_default_output_device(
-        &mut self,
-        desktop_sound_output_device_name: &str,
-        couch_sound_output_device_name: &str,
-    ) -> Result<(), String>;
+use convertible_couch_common::audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
+
+use super::SoundSettings;
+
+pub struct WindowsSoundSettings<TAudioEndpointLibrary: AudioEndpointLibrary> {
+    audio_endpoint_library: TAudioEndpointLibrary,
 }
 
-#[repr(C)]
-#[derive(Clone, Copy)]
-struct AudioEndpoint {
-    pub id: *mut c_ushort,
-    pub name: *mut c_ushort,
-    pub is_default: c_int,
-}
-
-impl Default for AudioEndpoint {
-    fn default() -> Self {
-        unsafe { core::mem::zeroed() }
-    }
-}
-
-#[link(name = "AudioEndPointLibrary")]
-unsafe extern "C" {
-    unsafe fn get_all_audio_endpoints_count() -> c_int;
-
-    unsafe fn get_all_audio_endpoints(
-        out_audio_endpoints: *mut AudioEndpoint,
-        audio_endpoints_count: c_int,
-    ) -> c_int;
-
-    unsafe fn set_default_audio_endpoint(id: *mut c_ushort) -> c_int;
-}
-
-unsafe fn to_string(id: *mut c_ushort) -> String {
-    let mut len = 0;
-
-    while *id.add(len) != 0 {
-        len += 1;
-    }
-
-    let slice = from_raw_parts_mut(id, len);
-
-    OsString::from_wide(slice).to_string_lossy().into_owned()
-}
-
-unsafe fn eq(mut a: *mut u16, mut b: *mut u16) -> bool {
-    loop {
-        let va = *a;
-        let vb = *b;
-
-        if va != vb {
-            return false;
+impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLibrary>
+    for WindowsSoundSettings<TAudioEndpointLibrary>
+{
+    fn new(sound_settings_api: TAudioEndpointLibrary) -> Self {
+        Self {
+            audio_endpoint_library: sound_settings_api,
         }
-
-        if va == 0 && vb == 0 {
-            return true;
-        }
-
-        a = a.add(1);
-        b = b.add(1);
     }
-}
 
-pub struct WindowsBasedSoundOutputDevice;
-
-impl SoundOutputDevice for WindowsBasedSoundOutputDevice {
     fn swap_default_output_device(
         &mut self,
         desktop_sound_output_device_name: &str,
         couch_sound_output_device_name: &str,
     ) -> Result<(), String> {
         unsafe {
-            let audio_endpoints_count = get_all_audio_endpoints_count();
+            let audio_endpoints_count = self.audio_endpoint_library.get_all_audio_endpoints_count();
 
             if audio_endpoints_count == -1 {
                 return Err(String::from(
@@ -93,7 +40,11 @@ impl SoundOutputDevice for WindowsBasedSoundOutputDevice {
             let mut audio_endpoints =
                 vec![AudioEndpoint::default(); audio_endpoints_count_as_usize];
 
-            if get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count) != 0 {
+            if self
+                .audio_endpoint_library
+                .get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count)
+                != 0
+            {
                 return Err(String::from("Failed to get the sound output devices"));
             }
 
@@ -149,11 +100,45 @@ impl SoundOutputDevice for WindowsBasedSoundOutputDevice {
                 desktop_sound_output_device_id
             };
 
-            if set_default_audio_endpoint(new_default_output_device_id) != 0 {
+            if self
+                .audio_endpoint_library
+                .set_default_audio_endpoint(new_default_output_device_id)
+                != 0
+            {
                 return Err(String::from("Failed to set default audio endpoint"));
             }
         };
 
         Ok(())
+    }
+}
+
+unsafe fn to_string(id: *mut c_ushort) -> String {
+    let mut len = 0;
+
+    while *id.add(len) != 0 {
+        len += 1;
+    }
+
+    let slice = from_raw_parts_mut(id, len);
+
+    OsString::from_wide(slice).to_string_lossy().into_owned()
+}
+
+unsafe fn eq(mut a: *mut u16, mut b: *mut u16) -> bool {
+    loop {
+        let va = *a;
+        let vb = *b;
+
+        if va != vb {
+            return false;
+        }
+
+        if va == 0 && vb == 0 {
+            return true;
+        }
+
+        a = a.add(1);
+        b = b.add(1);
     }
 }

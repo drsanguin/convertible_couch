@@ -1,5 +1,5 @@
 use convertible_couch_common_tests::new_fuzzer_no_seed_print;
-use convertible_couch_lib::display_settings::DisplaySettings;
+use convertible_couch_lib::display_settings::{self, DisplaySettings};
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
 
 fn swap_primary_displays(c: &mut Criterion) {
@@ -22,7 +22,8 @@ fn swap_primary_displays(c: &mut Criterion) {
                             .build_displays()
                             .build_computer();
 
-                        let display_settings = DisplaySettings::new(computer.win32);
+                        let display_settings =
+                            display_settings::Current::new(computer.display_settings_api);
 
                         (
                             display_settings,

@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use convertible_couch_common::SwapPrimaryDisplaysResponse;
 use convertible_couch_common_tests::{
     assertions::{
@@ -7,12 +5,10 @@ use convertible_couch_common_tests::{
         assert_that_primary_displays_have_been_swap_as_expected,
         assert_that_response_is_an_error_who_starts_with,
     },
-    fuzzing::win32::FuzzedWin32,
     new_fuzzer,
 };
-use convertible_couch_lib::display_settings::DisplaySettings;
-use test_case::test_case;
-use windows::Win32::Graphics::Gdi::{DISP_CHANGE, DISP_CHANGE_RESTART};
+use convertible_couch_lib::display_settings::{self, DisplaySettings};
+use std::collections::HashSet;
 
 #[test]
 fn it_should_swap_the_desktop_display_with_the_couch_display() {
@@ -26,7 +22,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -54,7 +50,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -88,11 +84,11 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
         .build_displays()
         .build_computer();
 
-    let mut display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings.swap_primary_displays(
-        DisplaySettings::<FuzzedWin32>::INTERNAL_DISPLAY,
+        display_settings::INTERNAL_DISPLAY_NAME,
         &computer.secondary_display,
     );
 
@@ -119,17 +115,17 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
         .build_displays()
         .build_computer();
 
-    let mut display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
         .swap_primary_displays(
-            DisplaySettings::<FuzzedWin32>::INTERNAL_DISPLAY,
+            display_settings::INTERNAL_DISPLAY_NAME,
             &computer.secondary_display,
         )
         .and_then(|_| {
             display_settings.swap_primary_displays(
-                DisplaySettings::<FuzzedWin32>::INTERNAL_DISPLAY,
+                display_settings::INTERNAL_DISPLAY_NAME,
                 &computer.secondary_display,
             )
         });
@@ -138,70 +134,8 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
     assert_that_primary_displays_have_been_swap_as_expected(
         actual_response,
         Ok(SwapPrimaryDisplaysResponse {
-            new_primary: Some(String::from(
-                DisplaySettings::<FuzzedWin32>::INTERNAL_DISPLAY,
-            )),
+            new_primary: Some(String::from(display_settings::INTERNAL_DISPLAY_NAME)),
             reboot_required: false,
-        }),
-    );
-}
-
-#[test]
-fn it_should_swap_the_primary_displays_of_computer_and_ask_for_reboot_when_required_after_committing_display_changes(
-) {
-    // Arrange
-    let mut fuzzer = new_fuzzer!();
-
-    let computer = fuzzer
-        .generate_computer()
-        .with_displays()
-        .of_which_there_are_at_least(2)
-        .build_displays()
-        .for_which_committing_the_display_changes_fails_with(DISP_CHANGE_RESTART)
-        .build_computer();
-
-    let mut display_settings = DisplaySettings::new(computer.win32);
-
-    // Act
-    let actual_response = display_settings
-        .swap_primary_displays(&computer.primary_display, &computer.secondary_display);
-
-    // Assert
-    assert_that_primary_displays_have_been_swap_as_expected(
-        actual_response,
-        Ok(SwapPrimaryDisplaysResponse {
-            new_primary: Some(computer.secondary_display),
-            reboot_required: true,
-        }),
-    );
-}
-
-#[test]
-fn it_should_swap_the_primary_displays_of_computer_and_ask_for_reboot_when_required_after_changing_display_for_some_displays(
-) {
-    // Arrange
-    let mut fuzzer = new_fuzzer!();
-
-    let computer = fuzzer
-        .generate_computer()
-        .with_displays()
-        .of_which_there_are_at_least(2)
-        .build_displays()
-        .for_which_changing_the_display_settings_fails_for_some_displays(DISP_CHANGE_RESTART)
-        .build_computer();
-
-    let mut display_settings = DisplaySettings::new(computer.win32);
-
-    // Act
-    let actual_response = display_settings
-        .swap_primary_displays(&computer.primary_display, &computer.secondary_display);
-
-    // Assert
-    assert_that_primary_displays_have_been_swap_as_expected(
-        actual_response,
-        Ok(SwapPrimaryDisplaysResponse {
-            new_primary: Some(computer.secondary_display),
-            reboot_required: true,
         }),
     );
 }
@@ -223,7 +157,7 @@ fn it_should_validate_the_desktop_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -254,7 +188,7 @@ fn it_should_validate_the_couch_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -288,7 +222,7 @@ fn it_should_validate_both_desktop_and_couch_displays() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -300,58 +234,6 @@ fn it_should_validate_both_desktop_and_couch_displays() {
         &computer.displays,
         "Desktop and couch displays are invalid",
     );
-}
-
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADFLAGS => Err(String::from("An invalid set of flags was passed in.")); "when the error is DISP_CHANGE_BADFLAGS")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADMODE => Err(String::from("The graphics mode is not supported.")); "when the error is DISP_CHANGE_BADMODE")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM => Err(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags.")); "when the error is DISP_CHANGE_BADPARAM")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_FAILED => Err(String::from("The display driver failed the specified graphics mode.")); "when the error is DISP_CHANGE_FAILED")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
-fn it_should_report_display_change_errors_that_happens_when_committing_changes(
-    disp_change: DISP_CHANGE,
-) -> Result<SwapPrimaryDisplaysResponse, String> {
-    // Arrange
-    let mut fuzzer = new_fuzzer!();
-
-    let computer = fuzzer
-        .generate_computer()
-        .with_displays()
-        .of_which_there_are_at_least(2)
-        .build_displays()
-        .for_which_committing_the_display_changes_fails_with(disp_change)
-        .build_computer();
-
-    let mut display_settings = DisplaySettings::new(computer.win32);
-
-    // Act
-    display_settings.swap_primary_displays(&computer.primary_display, &computer.secondary_display)
-}
-
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADFLAGS => Err(String::from("An invalid set of flags was passed in.")); "when the error is DISP_CHANGE_BADFLAGS")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADMODE => Err(String::from("The graphics mode is not supported.")); "when the error is DISP_CHANGE_BADMODE")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM => Err(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags.")); "when the error is DISP_CHANGE_BADPARAM")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_FAILED => Err(String::from("The display driver failed the specified graphics mode.")); "when the error is DISP_CHANGE_FAILED")]
-#[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
-fn it_should_report_display_change_errors_that_happens_for_some_displays(
-    disp_change: DISP_CHANGE,
-) -> Result<SwapPrimaryDisplaysResponse, String> {
-    // Arrange
-    let mut fuzzer = new_fuzzer!();
-
-    let computer = fuzzer
-        .generate_computer()
-        .with_displays()
-        .of_which_there_are_at_least(2)
-        .build_displays()
-        .for_which_changing_the_display_settings_fails_for_some_displays(disp_change)
-        .build_computer();
-
-    let mut display_settings = DisplaySettings::new(computer.win32);
-
-    // Act
-    display_settings.swap_primary_displays(&computer.primary_display, &computer.secondary_display)
 }
 
 #[test]
@@ -367,7 +249,7 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
         .for_which_getting_the_primary_display_fails()
         .build_computer();
 
-    let mut display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -393,7 +275,7 @@ fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_dis
         .for_which_querying_the_display_config_of_the_primary_display_fails()
         .build_computer();
 
-    let mut display_settings = DisplaySettings::new(computer.win32);
+    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings

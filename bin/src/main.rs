@@ -1,9 +1,8 @@
 use clap::Parser;
-use convertible_couch_common::win32::Win32Impl;
 use convertible_couch_lib::{
-    display_settings::DisplaySettings,
+    display_settings::{self, DisplaySettings},
     log::{configure_logger, LogLevel},
-    sound_output_device::{SoundOutputDevice, WindowsBasedSoundOutputDevice},
+    sound_settings::{self, SoundSettings},
 };
 use log::{error, info, warn};
 
@@ -26,7 +25,7 @@ fn main() {
     let args = Args::parse();
 
     match configure_logger(args.log_level).and_then(|_| {
-        DisplaySettings::new(Win32Impl)
+        display_settings::Current::new(display_settings::CurrentDisplaySettingsApi)
             .swap_primary_displays(&args.desktop_display_name, &args.couch_display_name)
     }) {
         Ok(response) => {
@@ -42,9 +41,7 @@ fn main() {
         Err(message) => error!("{message}"),
     }
 
-    let mut sound_output_device = WindowsBasedSoundOutputDevice;
-
-    match sound_output_device
+    match sound_settings::Current::new(sound_settings::CurrentSoundSettingsApi)
         .swap_default_output_device(&args.desktop_speaker_name, &args.couch_speaker_name)
     {
         Ok(_) => info!("Switched sound output device"),

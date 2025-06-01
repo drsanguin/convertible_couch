@@ -62,9 +62,9 @@ pub trait Win32 {
     ) -> BOOL;
 }
 
-pub struct Win32Impl;
+pub struct WindowsApiBasedWin32;
 
-impl Win32 for Win32Impl {
+impl Win32 for WindowsApiBasedWin32 {
     fn display_config_get_device_info(
         &self,
         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,

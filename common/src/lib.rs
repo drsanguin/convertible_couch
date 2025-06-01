@@ -1,3 +1,4 @@
+pub mod audio_endpoint_library;
 pub mod win32;
 
 #[derive(Debug, PartialEq)]

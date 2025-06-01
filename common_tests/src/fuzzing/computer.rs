@@ -1,12 +1,11 @@
-use std::collections::HashMap;
-
+use super::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput, win32::FuzzedWin32};
 use rand::{rngs::StdRng, seq::IndexedRandom, Rng, RngCore, SeedableRng};
+use std::collections::HashMap;
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
-use super::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput, win32::FuzzedWin32};
-
 pub struct FuzzedComputer {
-    pub win32: FuzzedWin32,
+    #[cfg(target_os = "windows")]
+    pub display_settings_api: FuzzedWin32,
     pub primary_display: String,
     pub secondary_display: String,
     pub displays: Vec<String>,
@@ -54,6 +53,7 @@ impl ComputerFuzzer {
         DisplaysFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
     }
 
+    #[cfg(target_os = "windows")]
     pub fn for_which_committing_the_display_changes_fails_with(
         &mut self,
         change_display_settings_error: DISP_CHANGE,
@@ -69,6 +69,7 @@ impl ComputerFuzzer {
         }
     }
 
+    #[cfg(target_os = "windows")]
     pub fn for_which_changing_the_display_settings_fails_for_some_displays(
         &mut self,
         change_display_settings_error: DISP_CHANGE,
@@ -140,13 +141,8 @@ impl ComputerFuzzer {
                 });
         }
 
-        let win32 = FuzzedWin32::new(
-            self.video_outputs.clone(),
-            self.change_display_settings_error_on_commit,
-            change_display_settings_error_by_display,
-            self.getting_primary_display_name_fails,
-            self.querying_the_display_config_of_the_primary_display_fails,
-        );
+        let display_settings_api =
+            self.get_display_settings_api(change_display_settings_error_by_display);
 
         let mut displays = self.get_all_displays();
 
@@ -155,7 +151,7 @@ impl ComputerFuzzer {
         FuzzedComputer {
             secondary_display,
             primary_display,
-            win32,
+            display_settings_api,
             displays,
         }
     }
@@ -176,6 +172,20 @@ impl ComputerFuzzer {
             } else {
                 String::from("<secondary>")
             })
+    }
+
+    #[cfg(target_os = "windows")]
+    fn get_display_settings_api(
+        &mut self,
+        change_display_settings_error_by_display: HashMap<String, DISP_CHANGE>,
+    ) -> FuzzedWin32 {
+        FuzzedWin32::new(
+            self.video_outputs.clone(),
+            self.change_display_settings_error_on_commit,
+            change_display_settings_error_by_display,
+            self.getting_primary_display_name_fails,
+            self.querying_the_display_config_of_the_primary_display_fails,
+        )
     }
 
     fn get_all_displays(&self) -> Vec<String> {
