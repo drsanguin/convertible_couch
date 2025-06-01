@@ -45,16 +45,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug benchmark 'swap_primary_displays'",
+            "name": "Debug benchmark 'change_primary_display'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bench=swap_primary_displays",
+                    "--bench=change_primary_display",
                     "--package=convertible_couch_lib"
                 ],
                 "filter": {
-                    "name": "swap_primary_displays",
+                    "name": "change_primary_display",
                     "kind": "bench"
                 }
             },

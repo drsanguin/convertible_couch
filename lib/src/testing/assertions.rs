@@ -1,17 +1,17 @@
-use crate::display_settings::SwapPrimaryDisplaysResponse;
+use crate::display_settings::DisplaySettingsResult;
 
-pub fn assert_that_primary_displays_have_been_swap_as_expected(
-    actual_response: Result<SwapPrimaryDisplaysResponse, String>,
-    expected_response: Result<SwapPrimaryDisplaysResponse, String>,
+pub fn assert_that_primary_display_have_been_changed_as_expected(
+    actual_response: Result<DisplaySettingsResult, String>,
+    expected_response: Result<DisplaySettingsResult, String>,
 ) {
     assert_eq!(
         actual_response, expected_response,
-        "Primary displays where not swapped as expected"
+        "Primary display was not changed as expected"
     );
 }
 
 pub fn assert_that_displays_have_been_validated(
-    actual_response: Result<SwapPrimaryDisplaysResponse, String>,
+    actual_response: Result<DisplaySettingsResult, String>,
     actual_displays: &Vec<String>,
     expected_error_message_prefix: &str,
 ) {
@@ -30,7 +30,7 @@ pub fn assert_that_displays_have_been_validated(
 }
 
 pub fn assert_that_response_is_an_error_who_starts_with(
-    actual_response: Result<SwapPrimaryDisplaysResponse, String>,
+    actual_response: Result<DisplaySettingsResult, String>,
     expected_error_message_prefix: &str,
 ) {
     assert!(

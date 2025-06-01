@@ -13,11 +13,13 @@ fn main() -> ExitCode {
         display_settings::Current::new(display_settings::CurrentDisplaySettingsApi);
     let sound_settings = sound_settings::Current::new(sound_settings::CurrentSoundSettingsApi);
 
-    match run_app(args, display_settings, sound_settings) {
-        Ok((display_settings_response, sound_settings_response)) => {
+    let application_result = run_app(args, display_settings, sound_settings);
+
+    match application_result {
+        Ok(result) => {
             match (
-                display_settings_response.new_primary,
-                display_settings_response.reboot_required,
+                result.display_settings.new_primary,
+                result.display_settings.reboot_required,
             ) {
                 (None, _) => error!("Primary display has not been changed for an unknow reason"),
                 (Some(_), true) => warn!("The settings change was successful but the computer must be restarted for the graphics mode to work."),
@@ -26,7 +28,7 @@ fn main() -> ExitCode {
 
             info!(
                 "Default output device set to {0}",
-                sound_settings_response.new_default_output_device
+                result.sound_settings.new_default_output_device
             );
 
             ExitCode::SUCCESS

@@ -20,7 +20,7 @@ use windows::{
     },
 };
 
-use super::{DisplaySettings, SwapPrimaryDisplaysResponse, INTERNAL_DISPLAY_NAME};
+use super::{DisplaySettings, DisplaySettingsResult, INTERNAL_DISPLAY_NAME};
 
 pub mod win32;
 
@@ -35,11 +35,11 @@ impl<TWin32: Win32> DisplaySettings<TWin32> for WindowsDisplaySettings<TWin32> {
         }
     }
 
-    fn swap_primary_displays(
+    fn change_primary_displays(
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
-    ) -> Result<SwapPrimaryDisplaysResponse, String> {
+    ) -> Result<DisplaySettingsResult, String> {
         self.validate_displays(desktop_display_name, couch_display_name)
             .and_then(|_| self.get_current_primary_display_name())
             .and_then(|current_primary_display_name| {
@@ -324,7 +324,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
     fn set_displays_to_position(
         &mut self,
         position: &DisplayPosition,
-    ) -> Result<SwapPrimaryDisplaysResponse, String> {
+    ) -> Result<DisplaySettingsResult, String> {
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
@@ -463,14 +463,14 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         );
 
         match change_display_settings_ex_result {
-            DISP_CHANGE_SUCCESSFUL => Ok(SwapPrimaryDisplaysResponse {
+            DISP_CHANGE_SUCCESSFUL => Ok(DisplaySettingsResult {
                 reboot_required,
                 new_primary,
             }),
             DISP_CHANGE_RESTART => {
                 reboot_required = true;
 
-                Ok(SwapPrimaryDisplaysResponse {
+                Ok(DisplaySettingsResult {
                     reboot_required,
                     new_primary,
                 })
@@ -710,10 +710,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        display_settings::{DisplaySettings, SwapPrimaryDisplaysResponse},
+        display_settings::{DisplaySettings, DisplaySettingsResult},
         func,
         testing::{
-            assertions::assert_that_primary_displays_have_been_swap_as_expected,
+            assertions::assert_that_primary_display_have_been_changed_as_expected,
             fuzzing::{win32::FuzzedWin32, Fuzzer},
         },
     };
@@ -822,7 +822,7 @@ mod tests {
     #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
     fn it_should_report_display_change_errors_that_happens_when_committing_changes(
         disp_change: DISP_CHANGE,
-    ) -> Result<SwapPrimaryDisplaysResponse, String> {
+    ) -> Result<DisplaySettingsResult, String> {
         // Arrange
         let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -838,7 +838,7 @@ mod tests {
 
         // Act
         display_settings
-            .swap_primary_displays(&computer.primary_display, &computer.secondary_display)
+            .change_primary_displays(&computer.primary_display, &computer.secondary_display)
     }
 
     #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
@@ -849,7 +849,7 @@ mod tests {
     #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
     fn it_should_report_display_change_errors_that_happens_for_some_displays(
         disp_change: DISP_CHANGE,
-    ) -> Result<SwapPrimaryDisplaysResponse, String> {
+    ) -> Result<DisplaySettingsResult, String> {
         // Arrange
         let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -865,11 +865,11 @@ mod tests {
 
         // Act
         display_settings
-            .swap_primary_displays(&computer.primary_display, &computer.secondary_display)
+            .change_primary_displays(&computer.primary_display, &computer.secondary_display)
     }
 
     #[test]
-    fn it_should_swap_the_primary_displays_of_computer_and_ask_for_reboot_when_required_after_committing_display_changes(
+    fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_required_after_committing_display_changes(
     ) {
         // Arrange
         let mut fuzzer = Fuzzer::new(func!(), true);
@@ -886,12 +886,12 @@ mod tests {
 
         // Act
         let actual_response = display_settings
-            .swap_primary_displays(&computer.primary_display, &computer.secondary_display);
+            .change_primary_displays(&computer.primary_display, &computer.secondary_display);
 
         // Assert
-        assert_that_primary_displays_have_been_swap_as_expected(
+        assert_that_primary_display_have_been_changed_as_expected(
             actual_response,
-            Ok(SwapPrimaryDisplaysResponse {
+            Ok(DisplaySettingsResult {
                 new_primary: Some(computer.secondary_display),
                 reboot_required: true,
             }),
@@ -899,7 +899,7 @@ mod tests {
     }
 
     #[test]
-    fn it_should_swap_the_primary_displays_of_computer_and_ask_for_reboot_when_required_after_changing_display_for_some_displays(
+    fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_required_after_changing_display_for_some_displays(
     ) {
         // Arrange
         let mut fuzzer = Fuzzer::new(func!(), true);
@@ -916,12 +916,12 @@ mod tests {
 
         // Act
         let actual_response = display_settings
-            .swap_primary_displays(&computer.primary_display, &computer.secondary_display);
+            .change_primary_displays(&computer.primary_display, &computer.secondary_display);
 
         // Assert
-        assert_that_primary_displays_have_been_swap_as_expected(
+        assert_that_primary_display_have_been_changed_as_expected(
             actual_response,
-            Ok(SwapPrimaryDisplaysResponse {
+            Ok(DisplaySettingsResult {
                 new_primary: Some(computer.secondary_display),
                 reboot_required: true,
             }),

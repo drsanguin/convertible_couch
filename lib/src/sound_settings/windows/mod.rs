@@ -7,7 +7,7 @@ use std::{
 
 use audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
 
-use super::{SoundSettings, SwapDefaultOutputDeviceResponse};
+use super::{SoundSettings, SoundSettingsResult};
 
 pub mod audio_endpoint_library;
 
@@ -24,11 +24,11 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
         }
     }
 
-    fn swap_default_output_device(
+    fn change_default_output_device(
         &mut self,
         desktop_sound_output_device_name: &str,
         couch_sound_output_device_name: &str,
-    ) -> Result<SwapDefaultOutputDeviceResponse, String> {
+    ) -> Result<SoundSettingsResult, String> {
         let audio_endpoints_count =
             unsafe { self.audio_endpoint_library.get_all_audio_endpoints_count() };
 
@@ -112,7 +112,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
             return Err(String::from("Failed to set default audio endpoint"));
         }
 
-        Ok(SwapDefaultOutputDeviceResponse {
+        Ok(SoundSettingsResult {
             new_default_output_device: new_default_output_device_name.to_string(),
         })
     }

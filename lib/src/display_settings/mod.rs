@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq)]
-pub struct SwapPrimaryDisplaysResponse {
+pub struct DisplaySettingsResult {
     pub reboot_required: bool,
     pub new_primary: Option<String>,
 }
@@ -7,11 +7,11 @@ pub struct SwapPrimaryDisplaysResponse {
 pub trait DisplaySettings<TDisplaySettingsApi> {
     fn new(display_settings_api: TDisplaySettingsApi) -> Self;
 
-    fn swap_primary_displays(
+    fn change_primary_displays(
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
-    ) -> Result<SwapPrimaryDisplaysResponse, String>;
+    ) -> Result<DisplaySettingsResult, String>;
 }
 
 #[cfg(target_os = "windows")]

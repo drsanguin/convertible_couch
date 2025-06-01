@@ -5,8 +5,8 @@ use convertible_couch_lib::{
 };
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
 
-fn swap_primary_displays(c: &mut Criterion) {
-    let mut group = c.benchmark_group("swap_primary_displays");
+fn change_primary_display(c: &mut Criterion) {
+    let mut group = c.benchmark_group("change_primary_display");
 
     for n_display in [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144] {
         group.throughput(Throughput::Elements(u64::try_from(n_display).unwrap()));
@@ -35,7 +35,8 @@ fn swap_primary_displays(c: &mut Criterion) {
                         )
                     },
                     |(mut display_settings, primary_display, secondary_display)| {
-                        display_settings.swap_primary_displays(&primary_display, &secondary_display)
+                        display_settings
+                            .change_primary_displays(&primary_display, &secondary_display)
                     },
                     BatchSize::SmallInput,
                 );
@@ -45,5 +46,5 @@ fn swap_primary_displays(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, swap_primary_displays);
+criterion_group!(benches, change_primary_display);
 criterion_main!(benches);
