@@ -7,7 +7,7 @@ pub struct DisplaySettingsResult {
 pub trait DisplaySettings<TDisplaySettingsApi> {
     fn new(display_settings_api: TDisplaySettingsApi) -> Self;
 
-    fn change_primary_displays(
+    fn change_primary_display(
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,

@@ -32,7 +32,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> for WindowsDisplaySettings<TWin32> {
         }
     }
 
-    fn change_primary_displays(
+    fn change_primary_display(
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
@@ -819,7 +819,7 @@ mod tests {
 
         // Act
         display_settings
-            .change_primary_displays(&computer.primary_display, &computer.secondary_display)
+            .change_primary_display(&computer.primary_display, &computer.secondary_display)
     }
 
     #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
@@ -846,7 +846,7 @@ mod tests {
 
         // Act
         display_settings
-            .change_primary_displays(&computer.primary_display, &computer.secondary_display)
+            .change_primary_display(&computer.primary_display, &computer.secondary_display)
     }
 
     #[test]
@@ -867,7 +867,7 @@ mod tests {
 
         // Act
         let actual_response = display_settings
-            .change_primary_displays(&computer.primary_display, &computer.secondary_display);
+            .change_primary_display(&computer.primary_display, &computer.secondary_display);
 
         // Assert
         assert_that_primary_display_have_been_changed_as_expected(
@@ -897,7 +897,7 @@ mod tests {
 
         // Act
         let actual_response = display_settings
-            .change_primary_displays(&computer.primary_display, &computer.secondary_display);
+            .change_primary_display(&computer.primary_display, &computer.secondary_display);
 
         // Assert
         assert_that_primary_display_have_been_changed_as_expected(

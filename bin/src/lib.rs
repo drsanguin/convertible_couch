@@ -39,7 +39,7 @@ pub fn run_app<
     configure_logger(args.log_level)?;
 
     let display_settings_result = display_settings
-        .change_primary_displays(&args.desktop_display_name, &args.couch_display_name)?;
+        .change_primary_display(&args.desktop_display_name, &args.couch_display_name)?;
 
     let sound_settings_result = sound_settings
         .change_default_output_device(&args.desktop_speaker_name, &args.couch_speaker_name)?;

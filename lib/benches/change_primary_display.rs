@@ -36,7 +36,7 @@ fn change_primary_display(c: &mut Criterion) {
                     },
                     |(mut display_settings, primary_display, secondary_display)| {
                         display_settings
-                            .change_primary_displays(&primary_display, &secondary_display)
+                            .change_primary_display(&primary_display, &secondary_display)
                     },
                     BatchSize::SmallInput,
                 );
