@@ -8,8 +8,8 @@ pub trait SoundSettings<TSoundSettingsApi> {
 
     fn change_default_output_device(
         &mut self,
-        desktop_sound_output_device_name: &str,
-        couch_sound_output_device_name: &str,
+        desktop_speaker_name: &str,
+        couch_speaker_name: &str,
     ) -> Result<SoundSettingsResult, String>;
 }
 

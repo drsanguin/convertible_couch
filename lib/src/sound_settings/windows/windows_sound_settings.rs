@@ -24,8 +24,8 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
 
     fn change_default_output_device(
         &mut self,
-        desktop_sound_output_device_name: &str,
-        couch_sound_output_device_name: &str,
+        desktop_speaker_name: &str,
+        couch_speaker_name: &str,
     ) -> Result<SoundSettingsResult, String> {
         let audio_endpoints_count =
             unsafe { self.audio_endpoint_library.get_all_audio_endpoints_count() };
@@ -55,11 +55,11 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
             let name = to_string(audio_endpoint.name);
             let is_default = audio_endpoint.is_default == 1;
 
-            if name == desktop_sound_output_device_name {
+            if name == desktop_speaker_name {
                 desktop_sound_output_device_id = audio_endpoint.id;
             }
 
-            if name == couch_sound_output_device_name {
+            if name == couch_speaker_name {
                 couch_sound_output_device_id = audio_endpoint.id;
             }
 
@@ -94,12 +94,9 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
             current_default_output_device_id,
             desktop_sound_output_device_id,
         ) {
-            (couch_sound_output_device_id, couch_sound_output_device_name)
+            (couch_sound_output_device_id, couch_speaker_name)
         } else {
-            (
-                desktop_sound_output_device_id,
-                desktop_sound_output_device_name,
-            )
+            (desktop_sound_output_device_id, desktop_speaker_name)
         };
 
         if unsafe {
