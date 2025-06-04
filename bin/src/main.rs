@@ -1,17 +1,16 @@
 use clap::Parser;
 use convertible_couch::{run_app, Args};
 use convertible_couch_lib::{
-    display_settings::{self, DisplaySettings},
-    sound_settings::{self, SoundSettings},
+    display_settings::{CurrentDisplaySettings, CurrentDisplaySettingsApi, DisplaySettings},
+    sound_settings::{CurrentSoundSettings, CurrentSoundSettingsApi, SoundSettings},
 };
 use log::{error, info, warn};
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let args = Args::parse();
-    let display_settings =
-        display_settings::Current::new(display_settings::CurrentDisplaySettingsApi);
-    let sound_settings = sound_settings::Current::new(sound_settings::CurrentSoundSettingsApi);
+    let display_settings = CurrentDisplaySettings::new(CurrentDisplaySettingsApi);
+    let sound_settings = CurrentSoundSettings::new(CurrentSoundSettingsApi);
 
     let application_result = run_app(args, display_settings, sound_settings);
 

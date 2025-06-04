@@ -1,5 +1,5 @@
 use convertible_couch_lib::{
-    display_settings::{self, DisplaySettings},
+    display_settings::{CurrentDisplaySettings, DisplaySettings},
     func,
     testing::fuzzing::Fuzzer,
 };
@@ -26,7 +26,7 @@ fn change_primary_display(c: &mut Criterion) {
                             .build_computer();
 
                         let display_settings =
-                            display_settings::Current::new(computer.display_settings_api);
+                            CurrentDisplaySettings::new(computer.display_settings_api);
 
                         (
                             display_settings,

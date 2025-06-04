@@ -1,5 +1,7 @@
 use convertible_couch_lib::{
-    display_settings::{self, DisplaySettings, DisplaySettingsResult},
+    display_settings::{
+        CurrentDisplaySettings, DisplaySettings, DisplaySettingsResult, INTERNAL_DISPLAY_NAME,
+    },
     func,
     testing::{
         assertions::{
@@ -24,7 +26,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -52,7 +54,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -86,13 +88,11 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
         .build_displays()
         .build_computer();
 
-    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
 
     // Act
-    let actual_response = display_settings.change_primary_display(
-        display_settings::INTERNAL_DISPLAY_NAME,
-        &computer.secondary_display,
-    );
+    let actual_response =
+        display_settings.change_primary_display(INTERNAL_DISPLAY_NAME, &computer.secondary_display);
 
     // Assert
     assert_that_primary_display_have_been_changed_as_expected(
@@ -117,26 +117,21 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
         .build_displays()
         .build_computer();
 
-    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
-        .change_primary_display(
-            display_settings::INTERNAL_DISPLAY_NAME,
-            &computer.secondary_display,
-        )
+        .change_primary_display(INTERNAL_DISPLAY_NAME, &computer.secondary_display)
         .and_then(|_| {
-            display_settings.change_primary_display(
-                display_settings::INTERNAL_DISPLAY_NAME,
-                &computer.secondary_display,
-            )
+            display_settings
+                .change_primary_display(INTERNAL_DISPLAY_NAME, &computer.secondary_display)
         });
 
     // Assert
     assert_that_primary_display_have_been_changed_as_expected(
         actual_response,
         Ok(DisplaySettingsResult {
-            new_primary: Some(String::from(display_settings::INTERNAL_DISPLAY_NAME)),
+            new_primary: Some(String::from(INTERNAL_DISPLAY_NAME)),
             reboot_required: false,
         }),
     );
@@ -159,7 +154,7 @@ fn it_should_validate_the_desktop_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -190,7 +185,7 @@ fn it_should_validate_the_couch_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -224,7 +219,7 @@ fn it_should_validate_both_desktop_and_couch_displays() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -251,7 +246,7 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
         .for_which_getting_the_primary_display_fails()
         .build_computer();
 
-    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
@@ -277,7 +272,7 @@ fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_dis
         .for_which_querying_the_display_config_of_the_primary_display_fails()
         .build_computer();
 
-    let mut display_settings = display_settings::Current::new(computer.display_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
 
     // Act
     let actual_response = display_settings
