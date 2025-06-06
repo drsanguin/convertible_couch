@@ -1,5 +1,6 @@
 use std::{
     ffi::{OsStr, OsString},
+    mem::transmute_copy,
     os::{
         raw::{c_int, c_ushort},
         windows::ffi::{OsStrExt, OsStringExt},
@@ -8,7 +9,10 @@ use std::{
     slice::from_raw_parts_mut,
 };
 
-use windows::{core::Error, Win32::Media::Speech::ISpVoice};
+use windows::{
+    core::{Error, IUnknownImpl, IUnknown_Vtbl},
+    Win32::Media::Speech::ISpVoice,
+};
 use windows::{
     core::{IUnknown, Interface, GUID, HRESULT, PCWSTR},
     Win32::System::Com::{
@@ -142,10 +146,9 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
 
             let instance = co_create_instance_result.unwrap();
 
-            let set_default_endpoint_result = instance.SetDefaultEndpoint(
-                get_pcwstr("{0.0.0.00000000}.{74142d58-9711-41bc-a9fe-c86b07aca84c}".to_string()).0,
-                0,
-            );
+            let (pcwstr, buffer) =
+                get_pcwstr("{0.0.0.00000000}.{74142d58-9711-41bc-a9fe-c86b07aca84c}".to_string());
+            let set_default_endpoint_result = instance.SetDefaultEndpoint(pcwstr, 0);
 
             if set_default_endpoint_result.is_err() {
                 panic!(
@@ -189,8 +192,43 @@ impl IPolicyConfig {
 
 #[repr(C)]
 pub struct IPolicyConfig_Vtbl {
+    pub base__: IUnknown_Vtbl,
     pub SetDefaultEndpoint:
         unsafe extern "system" fn(*mut core::ffi::c_void, PCWSTR, c_int) -> HRESULT,
+}
+
+pub trait IPolicyConfig_Impl: IUnknownImpl {
+    fn SetDefaultEndpoint(&self, pszDeviceName: PCWSTR, role: c_int) -> Result<(), Error>;
+}
+
+impl IPolicyConfig_Vtbl {
+    pub const fn new<Identity: IPolicyConfig_Impl, const OFFSET: isize>() -> Self {
+        unsafe extern "system" fn SetDefaultEndpoint<
+            Identity: IPolicyConfig_Impl,
+            const OFFSET: isize,
+        >(
+            this: *mut core::ffi::c_void,
+            pszDeviceName: PCWSTR,
+            role: c_int,
+        ) -> HRESULT {
+            unsafe {
+                let this: &Identity =
+                    &*((this as *const *const ()).offset(OFFSET) as *const Identity);
+
+                IPolicyConfig_Impl::SetDefaultEndpoint(
+                    this,
+                    transmute_copy(&pszDeviceName),
+                    transmute_copy(&role),
+                )
+                .into()
+            }
+        }
+
+        Self {
+            base__: IUnknown_Vtbl::new::<Identity, OFFSET>(),
+            SetDefaultEndpoint: SetDefaultEndpoint::<Identity, OFFSET>,
+        }
+    }
 }
 
 // #[repr(C)]
