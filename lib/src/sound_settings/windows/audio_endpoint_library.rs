@@ -26,7 +26,9 @@ pub trait AudioEndpointLibrary {
     unsafe fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int;
 }
 
-#[link(name = "AudioEndPointLibrary")]
+#[link(
+    name = ".\\AudioEndPointLibrary\\AudioEndPointLibrary\\bin\\x64\\Release\\AudioEndPointLibrary"
+)]
 unsafe extern "C" {
     unsafe fn get_all_audio_endpoints_count() -> c_int;
 

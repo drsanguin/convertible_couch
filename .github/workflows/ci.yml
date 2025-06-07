@@ -10,65 +10,89 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  check-coding-style:
-    name: Check coding style 📝
+  ci:
+    name: CI
     runs-on: windows-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Check coding style
+    - name: Checkout repository ⬇️
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Check coding style 📝
       run: cargo fmt --check --all
 
-  build:
-    name: Build 🏗️
-    needs: [check-coding-style]
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build
+    - name: Download Windows SDK 8.1 Installer ⬇️
+      run: Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=323507" -OutFile "sdksetup.exe"
+
+    - name: Install Windows SDK 8.1 🧰
+      run: |
+        $ProgressPreference = 'SilentlyContinue'
+
+        $process = Start-Process -Wait sdksetup.exe `
+          -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit", "/log", "windows_sdk_installation.log" `
+          -PassThru
+
+        if ($process.ExitCode -ne 0) {
+          throw "Installation of Windows SDK 8.1 failed with exit code $($process.ExitCode)"
+        }
+
+    - name: Download Visual Studio 2017 Build Tools ⬇️
+      run: Invoke-WebRequest -Uri https://aka.ms/vs/15/release/vs_buildtools.exe -OutFile vs_buildtools.exe
+
+    - name: Install Visual Studio 2017 Build Tools 🧰
+      run: |
+        $ProgressPreference = 'SilentlyContinue'
+        $process = Start-Process .\vs_buildtools.exe `
+          -ArgumentList '--quiet', '--wait', '--norestart', `
+            '--add', 'Microsoft.VisualStudio.Workload.VCTools' `
+          -NoNewWindow `
+          -Wait `
+          -RedirectStandardError vs_buildtools_error.log -RedirectStandardOutput vs_buildtools.log `
+          -PassThru
+        if ($process.ExitCode -ne 0) {
+          throw "Installation of Visual Studio 2017 Build Tools failed with exit code $($process.ExitCode)"
+        }
+
+    - name: Archive Environment Installation Logs ⬆️
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: environment_installation_logs
+        path: |
+          windows_sdk_installation.log
+          vs_buildtools_error.log
+          vs_buildtools.log
+
+    - name: Setup MSBuild path 🧰
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Compile 🏗️
       run: cargo build --all-targets --verbose
 
-  tests:
-    name: Tests 🧪
-    needs: [build]
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Run tests
+    - name: Run Tests 🧪
       run: cargo test --verbose -- --nocapture
+      
+    - name: Install cargo-mutants 🧰
+      run: cargo install --locked cargo-mutants
 
-  upload-coverage:
-    name: Upload Coverage 📈
-    needs: [tests]
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Tarpaulin
-        run: cargo install cargo-tarpaulin
-      - name: Upload Coverage
-        run: cargo tarpaulin --exclude-files lib\tests\integration_tests.rs common_tests\* --coveralls ${{ secrets.COVERALLS_TOKEN }}
-    
-  mutation-tests:
-    name: Mutation Tests 🧟‍♂️
-    needs: [build]
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install cargo-mutants
-        run: cargo install --locked cargo-mutants
-      - name: Run mutant tests
-        run: cargo mutants -- --all-features
-      - name: Archive results
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: mutation-report
-          path: mutants.out
-    
-  benchmark-tests:
-    name: Benchmark Tests ⏱️
-    needs: [build]
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Run tests
+    - name: Run Mutants Tests 🧟‍♂️
+      id: run_mutants_tests
+      run: cargo mutants -- --all-features
+
+    - name: Archive results ⬆️
+      uses: actions/upload-artifact@v4
+      if: steps.run_mutants_tests.outcome == 'failure'
+      with:
+        name: mutation-report
+        path: mutants.out
+        
+    - name: Run Benchmarks ⏱️
       run: cargo test --benches
+      
+    - name: Install Tarpaulin 🧰
+      run: cargo install cargo-tarpaulin
+      
+    - name: Upload Tests Coverage ⬆️
+      run: cargo tarpaulin --exclude-files lib\tests\integration_tests.rs common_tests\* --coveralls ${{ secrets.COVERALLS_TOKEN }}
