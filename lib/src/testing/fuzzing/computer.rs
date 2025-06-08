@@ -1,3 +1,7 @@
+use crate::testing::fuzzing::audio_endpoint::{AudioEndpointFuzzer, FuzzedAudioEndpoint};
+#[cfg(target_os = "windows")]
+use crate::testing::fuzzing::audio_endpoint_library::FuzzedAudioEndpointLibrary;
+
 use super::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput, win_32::FuzzedWin32};
 use rand::{rngs::StdRng, seq::IndexedRandom, Rng, RngCore, SeedableRng};
 use std::collections::HashMap;
@@ -9,6 +13,10 @@ pub struct FuzzedComputer {
     pub primary_display: String,
     pub secondary_display: String,
     pub displays: Vec<String>,
+    #[cfg(target_os = "windows")]
+    pub audio_settings_api: FuzzedAudioEndpointLibrary,
+    pub default_audio_endpoint: String,
+    pub non_default_audio_endpoint: String,
 }
 
 #[derive(Clone)]
@@ -19,6 +27,7 @@ pub struct ComputerFuzzer {
     change_display_settings_error_on_commit: Option<DISP_CHANGE>,
     getting_primary_display_name_fails: bool,
     querying_the_display_config_of_the_primary_display_fails: bool,
+    audio_endpoints: Vec<FuzzedAudioEndpoint>,
 }
 
 impl ComputerFuzzer {
@@ -30,6 +39,7 @@ impl ComputerFuzzer {
             change_display_settings_error_on_commit: None,
             getting_primary_display_name_fails: false,
             querying_the_display_config_of_the_primary_display_fails: false,
+            audio_endpoints: vec![],
         }
     }
 
@@ -46,6 +56,7 @@ impl ComputerFuzzer {
             getting_primary_display_name_fails: computer_fuzzer.getting_primary_display_name_fails,
             querying_the_display_config_of_the_primary_display_fails: computer_fuzzer
                 .querying_the_display_config_of_the_primary_display_fails,
+            audio_endpoints: computer_fuzzer.audio_endpoints.clone(),
         }
     }
 
@@ -66,6 +77,7 @@ impl ComputerFuzzer {
             getting_primary_display_name_fails: self.getting_primary_display_name_fails,
             querying_the_display_config_of_the_primary_display_fails: self
                 .querying_the_display_config_of_the_primary_display_fails,
+            audio_endpoints: self.audio_endpoints.clone(),
         }
     }
 
@@ -82,6 +94,7 @@ impl ComputerFuzzer {
             getting_primary_display_name_fails: self.getting_primary_display_name_fails,
             querying_the_display_config_of_the_primary_display_fails: self
                 .querying_the_display_config_of_the_primary_display_fails,
+            audio_endpoints: self.audio_endpoints.clone(),
         }
     }
 
@@ -94,6 +107,7 @@ impl ComputerFuzzer {
             getting_primary_display_name_fails: true,
             querying_the_display_config_of_the_primary_display_fails: self
                 .querying_the_display_config_of_the_primary_display_fails,
+            audio_endpoints: self.audio_endpoints.clone(),
         }
     }
 
@@ -105,6 +119,23 @@ impl ComputerFuzzer {
             change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
             getting_primary_display_name_fails: self.getting_primary_display_name_fails,
             querying_the_display_config_of_the_primary_display_fails: true,
+            audio_endpoints: self.audio_endpoints.clone(),
+        }
+    }
+
+    pub fn with_audio_output_devices(&mut self, count: usize) -> Self {
+        let audio_endpoints = AudioEndpointFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+            .generate_several(count);
+
+        Self {
+            rand: StdRng::seed_from_u64(self.rand.next_u64()),
+            video_outputs: self.video_outputs.clone(),
+            change_display_settings_error: self.change_display_settings_error,
+            change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
+            getting_primary_display_name_fails: self.getting_primary_display_name_fails,
+            querying_the_display_config_of_the_primary_display_fails: self
+                .querying_the_display_config_of_the_primary_display_fails,
+            audio_endpoints: audio_endpoints,
         }
     }
 
@@ -148,11 +179,38 @@ impl ComputerFuzzer {
 
         displays.sort();
 
+        let default_audio_endpoint = self
+            .audio_endpoints
+            .iter()
+            .find(|audio_endpoint| audio_endpoint.is_default)
+            .unwrap_or(&FuzzedAudioEndpoint {
+                name: String::from(""),
+                id: String::from(""),
+                is_default: false,
+            })
+            .name
+            .clone();
+
+        let non_default_audio_endpoint = self
+            .audio_endpoints
+            .iter()
+            .find(|audio_endpoint| !audio_endpoint.is_default)
+            .unwrap_or(&FuzzedAudioEndpoint {
+                name: String::from(""),
+                id: String::from(""),
+                is_default: false,
+            })
+            .name
+            .clone();
+
         FuzzedComputer {
             secondary_display,
             primary_display,
             display_settings_api,
             displays,
+            audio_settings_api: FuzzedAudioEndpointLibrary::new(self.audio_endpoints.clone()),
+            default_audio_endpoint,
+            non_default_audio_endpoint,
         }
     }
 

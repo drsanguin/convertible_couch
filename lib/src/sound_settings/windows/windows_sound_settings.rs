@@ -52,6 +52,13 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
         let mut current_default_output_device_id: *mut u16 = null_mut();
 
         for audio_endpoint in &audio_endpoints {
+            println!("audio_endpoint.is_default = {}", audio_endpoint.is_default);
+        }
+
+        for audio_endpoint in &audio_endpoints {
+            assert!(!audio_endpoint.id.is_null());
+            assert!(!audio_endpoint.name.is_null());
+
             let name = to_string(audio_endpoint.name);
             let is_default = audio_endpoint.is_default == 1;
 
@@ -113,7 +120,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
     }
 }
 
-fn to_string(id: *mut c_ushort) -> String {
+pub fn to_string(id: *mut c_ushort) -> String {
     let mut len = 0;
 
     while unsafe { *id.add(len) } != 0 {

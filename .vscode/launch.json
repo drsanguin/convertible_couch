@@ -26,7 +26,7 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'integration_tests'",
+            "name": "Debug integration test 'integration_tests' in library 'convertible_couch_lib'",
             "cargo": {
                 "args": [
                     "test",
@@ -123,6 +123,25 @@
                 "filter": {
                     "name": "convertible_couch",
                     "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'integration_tests' in executable 'convertible_couch'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=integration_tests",
+                    "--package=convertible_couch"
+                ],
+                "filter": {
+                    "name": "integration_tests",
+                    "kind": "test"
                 }
             },
             "args": [],

@@ -6,6 +6,10 @@ use self::{
     display_name::DisplayNameFuzzer,
 };
 
+pub mod audio_endpoint;
+pub mod audio_endpoint_id;
+pub mod audio_endpoint_library;
+pub mod audio_endpoint_name;
 pub mod computer;
 pub mod config_mod_info_id;
 pub mod device_id;

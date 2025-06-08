@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct DisplaySettingsResult {
     pub reboot_required: bool,
     pub new_primary: Option<String>,

@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct SoundSettingsResult {
     pub new_default_output_device: String,
 }

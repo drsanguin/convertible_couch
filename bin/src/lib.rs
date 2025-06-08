@@ -21,6 +21,7 @@ pub struct Args {
     pub log_level: LogLevel,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct ApplicationResult {
     pub display_settings: DisplaySettingsResult,
     pub sound_settings: SoundSettingsResult,

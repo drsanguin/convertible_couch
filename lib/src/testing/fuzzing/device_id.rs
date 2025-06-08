@@ -111,7 +111,7 @@ impl DeviceIdFuzzer {
         let part_2 = Alphanumeric.sample_string(&mut self.rand, 6).to_lowercase();
         let part_3 = self.rand.random_range(0..=9);
         let uuid = GuidFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-            .generate_one(&forbidden_uuids);
+            .generate_one_different_than(&forbidden_uuids);
 
         CommonDeviceIdPartsByComputer {
             part_1,
