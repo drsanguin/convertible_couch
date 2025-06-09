@@ -149,20 +149,17 @@ impl FuzzedResolution {
     ];
 }
 
-pub struct ResolutionFuzzer {
-    rand: StdRng,
+pub struct ResolutionFuzzer<'a> {
+    rand: &'a mut StdRng,
 }
 
-impl ResolutionFuzzer {
-    pub fn new(rand: StdRng) -> Self {
+impl<'a> ResolutionFuzzer<'a> {
+    pub fn new(rand: &'a mut StdRng) -> Self {
         Self { rand }
     }
 
     pub fn generate_one(&mut self) -> FuzzedResolution {
-        FuzzedResolution::ALL
-            .choose(&mut self.rand)
-            .unwrap()
-            .clone()
+        FuzzedResolution::ALL.choose(self.rand).unwrap().clone()
     }
 
     pub fn generate_several(&mut self, count: usize) -> Vec<FuzzedResolution> {

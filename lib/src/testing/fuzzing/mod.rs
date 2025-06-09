@@ -34,14 +34,14 @@ impl Fuzzer {
     }
 
     pub fn generate_display_name(&mut self) -> String {
-        DisplayNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_one()
+        DisplayNameFuzzer::new(&mut self.rand).generate_one()
     }
 
     pub fn generate_two_display_names(&mut self) -> (String, String) {
-        DisplayNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_two()
+        DisplayNameFuzzer::new(&mut self.rand).generate_two()
     }
 
     pub fn generate_device_id(&mut self) -> FuzzedDeviceId {
-        DeviceIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_one()
+        DeviceIdFuzzer::new(&mut self.rand).generate_one()
     }
 }

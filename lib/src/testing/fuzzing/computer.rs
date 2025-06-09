@@ -129,9 +129,7 @@ impl ComputerFuzzer {
     }
 
     pub fn with_audio_output_devices(&mut self, count: usize) -> Self {
-        let audio_endpoints =
-            AudioOutputDeviceFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-                .generate_several(count);
+        let audio_endpoints = AudioOutputDeviceFuzzer::new(&mut self.rand).generate_several(count);
 
         Self {
             rand: StdRng::seed_from_u64(self.rand.next_u64()),

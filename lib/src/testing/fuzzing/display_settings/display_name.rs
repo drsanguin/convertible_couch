@@ -7,11 +7,11 @@ use rand::{
     Rng,
 };
 
-pub struct DisplayNameFuzzer {
-    rand: StdRng,
+pub struct DisplayNameFuzzer<'a> {
+    rand: &'a mut StdRng,
 }
 
-impl DisplayNameFuzzer {
+impl<'a> DisplayNameFuzzer<'a> {
     const BRANDS: [&'static str; 64] = [
         "ACER",
         "AG NEOVO",
@@ -79,15 +79,15 @@ impl DisplayNameFuzzer {
         "YASHI",
     ];
 
-    pub fn new(rand: StdRng) -> Self {
+    pub fn new(rand: &'a mut StdRng) -> Self {
         Self { rand }
     }
 
     pub fn generate_one(&mut self) -> String {
-        let brand = Self::BRANDS.choose(&mut self.rand).unwrap();
+        let brand = Self::BRANDS.choose(self.rand).unwrap();
         let model_id_max_len = 62 - brand.len();
         let model_id_len = self.rand.random_range(8..model_id_max_len);
-        let model_id_part_1 = Alphanumeric.sample_string(&mut self.rand, model_id_len);
+        let model_id_part_1 = Alphanumeric.sample_string(self.rand, model_id_len);
 
         format!("{brand} {model_id_part_1}")
     }

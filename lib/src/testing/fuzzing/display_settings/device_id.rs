@@ -6,7 +6,7 @@ use std::{
 use rand::{
     distr::{Alphanumeric, SampleString},
     rngs::StdRng,
-    Rng, RngCore, SeedableRng,
+    Rng,
 };
 
 use crate::testing::fuzzing::guid::GuidFuzzer;
@@ -27,8 +27,8 @@ pub struct FuzzedDeviceId {
     pub full_id: String,
 }
 
-pub struct DeviceIdFuzzer {
-    rand: StdRng,
+pub struct DeviceIdFuzzer<'a> {
+    rand: &'a mut StdRng,
 }
 
 impl FuzzedDeviceId {
@@ -57,8 +57,8 @@ impl Display for FuzzedDeviceId {
     }
 }
 
-impl DeviceIdFuzzer {
-    pub fn new(rand: StdRng) -> Self {
+impl<'a> DeviceIdFuzzer<'a> {
+    pub fn new(rand: &'a mut StdRng) -> Self {
         Self { rand }
     }
 
@@ -71,16 +71,12 @@ impl DeviceIdFuzzer {
         count: usize,
         forbidden_device_ids: &HashSet<&FuzzedDeviceId>,
     ) -> Vec<FuzzedDeviceId> {
-        let display_id_gsm_parts =
-            GsmIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64())).generate_several(count);
+        let display_id_gsm_parts = GsmIdFuzzer::new(self.rand).generate_several(count);
 
         let displays_id_common_parts =
-            DeviceIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-                .generate_computer_common_parts(forbidden_device_ids);
+            DeviceIdFuzzer::new(self.rand).generate_computer_common_parts(forbidden_device_ids);
 
-        let config_mode_info_ids =
-            ConfigModeInfoIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-                .generate_several(count);
+        let config_mode_info_ids = ConfigModeInfoIdFuzzer::new(self.rand).generate_several(count);
 
         (0..count)
             .map(|display_index| {
@@ -110,10 +106,9 @@ impl DeviceIdFuzzer {
         );
 
         let part_1 = self.rand.random_range(0..=9);
-        let part_2 = Alphanumeric.sample_string(&mut self.rand, 6).to_lowercase();
+        let part_2 = Alphanumeric.sample_string(self.rand, 6).to_lowercase();
         let part_3 = self.rand.random_range(0..=9);
-        let uuid = GuidFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-            .generate_one_different_than(&forbidden_uuids);
+        let uuid = GuidFuzzer::new(self.rand).generate_one_different_than(&forbidden_uuids);
 
         CommonDeviceIdPartsByComputer {
             part_1,

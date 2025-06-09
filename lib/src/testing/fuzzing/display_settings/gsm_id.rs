@@ -5,17 +5,17 @@ use rand::{
     rngs::StdRng,
 };
 
-pub struct GsmIdFuzzer {
-    rand: StdRng,
+pub struct GsmIdFuzzer<'a> {
+    rand: &'a mut StdRng,
 }
 
-impl GsmIdFuzzer {
-    pub fn new(rand: StdRng) -> Self {
+impl<'a> GsmIdFuzzer<'a> {
+    pub fn new(rand: &'a mut StdRng) -> Self {
         Self { rand }
     }
 
     pub fn generate_one(&mut self) -> String {
-        let hexa = Alphanumeric.sample_string(&mut self.rand, 4).to_uppercase();
+        let hexa = Alphanumeric.sample_string(self.rand, 4).to_uppercase();
         format!("GSM{hexa}")
     }
 

@@ -1,18 +1,18 @@
-use rand::{rngs::StdRng, RngCore, SeedableRng};
+use rand::rngs::StdRng;
 
 use crate::testing::fuzzing::guid::GuidFuzzer;
 
-pub struct AudioOutputDeviceIdFuzzer {
-    rand: StdRng,
+pub struct AudioOutputDeviceIdFuzzer<'a> {
+    rand: &'a mut StdRng,
 }
 
-impl AudioOutputDeviceIdFuzzer {
-    pub fn new(rand: StdRng) -> Self {
+impl<'a> AudioOutputDeviceIdFuzzer<'a> {
+    pub fn new(rand: &'a mut StdRng) -> Self {
         Self { rand }
     }
 
     pub fn generate_several(&mut self, count: usize) -> Vec<String> {
-        GuidFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+        GuidFuzzer::new(self.rand)
             .generate_several(count)
             .iter()
             .map(|guid| format!("{{0.0.0.00000000}}.{guid}"))

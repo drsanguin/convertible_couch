@@ -6,11 +6,11 @@ use rand::{
     seq::IndexedRandom,
 };
 
-pub struct AudioOutputDeviceNameFuzzer {
-    rand: StdRng,
+pub struct AudioOutputDeviceNameFuzzer<'a> {
+    rand: &'a mut StdRng,
 }
 
-impl AudioOutputDeviceNameFuzzer {
+impl<'a> AudioOutputDeviceNameFuzzer<'a> {
     const BRANDS: [&'static str; 145] = [
         "Abbingdon Music Research",
         "Acapella Audio Arts",
@@ -159,13 +159,13 @@ impl AudioOutputDeviceNameFuzzer {
         "Zu Audio",
     ];
 
-    pub fn new(rand: StdRng) -> Self {
+    pub fn new(rand: &'a mut StdRng) -> Self {
         Self { rand }
     }
 
     pub fn generate_one(&mut self) -> String {
-        let brand = Self::BRANDS.choose(&mut self.rand).unwrap();
-        let model_id = Alphanumeric.sample_string(&mut self.rand, 10);
+        let brand = Self::BRANDS.choose(self.rand).unwrap();
+        let model_id = Alphanumeric.sample_string(self.rand, 10);
 
         format!("{brand} {model_id}")
     }

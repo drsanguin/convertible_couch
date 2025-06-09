@@ -155,14 +155,13 @@ impl<'a> DisplaysFuzzer<'a> {
 
     fn generate_several(&mut self, n_display: usize) -> Vec<FuzzedDisplay> {
         let displays_resolutions =
-            ResolutionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-                .generate_several(n_display);
+            ResolutionFuzzer::new(&mut self.rand).generate_several(n_display);
         let positioned_resolutions =
             DisplayPositionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
                 .generate_several(&displays_resolutions, self.includes_an_internal_display);
-        let names = DisplayNameFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+        let names = DisplayNameFuzzer::new(&mut self.rand)
             .generate_several(n_display, &self.forbidden_display_names);
-        let device_ids = DeviceIdFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+        let device_ids = DeviceIdFuzzer::new(&mut self.rand)
             .generate_several(n_display, &self.forbidden_device_ids);
 
         (0..n_display)

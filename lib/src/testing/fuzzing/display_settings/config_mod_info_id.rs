@@ -1,16 +1,16 @@
 use rand::{rngs::StdRng, seq::index::sample};
 
-pub struct ConfigModeInfoIdFuzzer {
-    rand: StdRng,
+pub struct ConfigModeInfoIdFuzzer<'a> {
+    rand: &'a mut StdRng,
 }
 
-impl ConfigModeInfoIdFuzzer {
-    pub fn new(rand: StdRng) -> Self {
+impl<'a> ConfigModeInfoIdFuzzer<'a> {
+    pub fn new(rand: &'a mut StdRng) -> Self {
         Self { rand }
     }
 
     pub fn generate_several(&mut self, count: usize) -> Vec<u32> {
-        sample(&mut self.rand, 99999, count)
+        sample(self.rand, 99999, count)
             .iter()
             .map(|indice| u32::try_from(indice).unwrap())
             .collect()
