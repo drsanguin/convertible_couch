@@ -1,16 +1,17 @@
-use std::collections::HashSet;
-
-use rand::{rngs::StdRng, seq::IteratorRandom, Rng, RngCore, SeedableRng};
-
-use crate::testing::fuzzing::video_output::VideoOutputFuzzer;
+use crate::testing::fuzzing::{
+    computer::ComputerFuzzer, display_settings::video_output::VideoOutputFuzzer,
+};
 
 use super::{
-    computer::ComputerFuzzer,
     device_id::{DeviceIdFuzzer, FuzzedDeviceId},
     display_name::DisplayNameFuzzer,
     position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
     resolution::{FuzzedResolution, ResolutionFuzzer},
 };
+
+use rand::{rngs::StdRng, seq::IteratorRandom, Rng, RngCore, SeedableRng};
+
+use std::collections::HashSet;
 
 #[derive(Clone)]
 pub struct FuzzedDisplay {

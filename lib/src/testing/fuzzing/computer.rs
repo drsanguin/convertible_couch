@@ -1,11 +1,16 @@
-use crate::testing::fuzzing::audio_endpoint::{AudioEndpointFuzzer, FuzzedAudioEndpoint};
-#[cfg(target_os = "windows")]
-use crate::testing::fuzzing::audio_endpoint_library::FuzzedAudioEndpointLibrary;
-
-use super::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput, win_32::FuzzedWin32};
 use rand::{rngs::StdRng, seq::IndexedRandom, Rng, RngCore, SeedableRng};
 use std::collections::HashMap;
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
+
+#[cfg(target_os = "windows")]
+use crate::testing::fuzzing::{
+    display_settings::win_32::FuzzedWin32,
+    sound_settings::audio_endpoint_library::FuzzedAudioEndpointLibrary,
+};
+use crate::testing::fuzzing::{
+    display_settings::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput},
+    sound_settings::audio_endpoint::{AudioEndpointFuzzer, FuzzedAudioEndpoint},
+};
 
 pub struct FuzzedComputer {
     #[cfg(target_os = "windows")]

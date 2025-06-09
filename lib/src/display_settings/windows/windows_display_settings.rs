@@ -695,7 +695,7 @@ mod tests {
         func,
         testing::{
             assertions::assert_that_primary_display_have_been_changed_as_expected,
-            fuzzing::{win_32::FuzzedWin32, Fuzzer},
+            fuzzing::{display_settings::win_32::FuzzedWin32, Fuzzer},
         },
     };
     use std::collections::HashSet;

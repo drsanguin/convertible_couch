@@ -11,7 +11,7 @@ pub struct AudioEndpointNameFuzzer {
 }
 
 impl AudioEndpointNameFuzzer {
-    const BRAND_NAMES: [&'static str; 145] = [
+    const BRANDS: [&'static str; 145] = [
         "Abbingdon Music Research",
         "Acapella Audio Arts",
         "Acoustic Research",
@@ -164,7 +164,7 @@ impl AudioEndpointNameFuzzer {
     }
 
     pub fn generate_one(&mut self) -> String {
-        let brand = Self::BRAND_NAMES.choose(&mut self.rand).unwrap();
+        let brand = Self::BRANDS.choose(&mut self.rand).unwrap();
         let model_id = Alphanumeric.sample_string(&mut self.rand, 10);
 
         format!("{brand} {model_id}")

@@ -9,7 +9,9 @@ use rand::{
     Rng, RngCore, SeedableRng,
 };
 
-use super::{config_mod_info_id::ConfigModeInfoIdFuzzer, gsm_id::GsmIdFuzzer, guid::GuidFuzzer};
+use crate::testing::fuzzing::guid::GuidFuzzer;
+
+use super::{config_mod_info_id::ConfigModeInfoIdFuzzer, gsm_id::GsmIdFuzzer};
 
 pub struct CommonDeviceIdPartsByComputer {
     pub part_1: i32,

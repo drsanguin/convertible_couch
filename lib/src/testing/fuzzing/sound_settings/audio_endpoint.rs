@@ -1,6 +1,6 @@
 use rand::{rngs::StdRng, Rng, RngCore, SeedableRng};
 
-use crate::testing::fuzzing::{
+use crate::testing::fuzzing::sound_settings::{
     audio_endpoint_id::AudioEndpointIdFuzzer, audio_endpoint_name::AudioEndpointNameFuzzer,
 };
 

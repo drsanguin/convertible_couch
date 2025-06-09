@@ -3,8 +3,9 @@ use crate::{
         audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary},
         windows_sound_settings::to_string,
     },
-    testing::fuzzing::audio_endpoint::FuzzedAudioEndpoint,
+    testing::fuzzing::sound_settings::audio_endpoint::FuzzedAudioEndpoint,
 };
+
 use std::{
     ffi::OsStr,
     iter::once,

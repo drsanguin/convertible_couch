@@ -1,26 +1,16 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
-use self::{
-    computer::ComputerFuzzer,
+use crate::testing::fuzzing::display_settings::{
     device_id::{DeviceIdFuzzer, FuzzedDeviceId},
     display_name::DisplayNameFuzzer,
 };
 
-pub mod audio_endpoint;
-pub mod audio_endpoint_id;
-pub mod audio_endpoint_library;
-pub mod audio_endpoint_name;
+use self::computer::ComputerFuzzer;
+
 pub mod computer;
-pub mod config_mod_info_id;
-pub mod device_id;
-pub mod display_name;
-pub mod displays;
-pub mod gsm_id;
+pub mod display_settings;
 pub mod guid;
-pub mod position;
-pub mod resolution;
-pub mod video_output;
-pub mod win_32;
+pub mod sound_settings;
 
 pub struct Fuzzer {
     rand: StdRng,
