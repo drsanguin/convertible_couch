@@ -450,14 +450,14 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         match change_display_settings_ex_result {
             DISP_CHANGE_SUCCESSFUL => Ok(DisplaySettingsResult {
                 reboot_required,
-                new_primary,
+                new_primary: new_primary.unwrap(),
             }),
             DISP_CHANGE_RESTART => {
                 reboot_required = true;
 
                 Ok(DisplaySettingsResult {
                     reboot_required,
-                    new_primary,
+                    new_primary: new_primary.unwrap(),
                 })
             }
             _ => Err(Self::map_disp_change_to_string(
@@ -873,7 +873,7 @@ mod tests {
         assert_that_primary_display_have_been_changed_as_expected(
             actual_response,
             Ok(DisplaySettingsResult {
-                new_primary: Some(computer.secondary_display),
+                new_primary: computer.secondary_display,
                 reboot_required: true,
             }),
         );
@@ -903,7 +903,7 @@ mod tests {
         assert_that_primary_display_have_been_changed_as_expected(
             actual_response,
             Ok(DisplaySettingsResult {
-                new_primary: Some(computer.secondary_display),
+                new_primary: computer.secondary_display,
                 reboot_required: true,
             }),
         );

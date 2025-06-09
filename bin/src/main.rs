@@ -20,9 +20,8 @@ fn main() -> ExitCode {
                 result.display_settings.new_primary,
                 result.display_settings.reboot_required,
             ) {
-                (None, _) => error!("Primary display has not been changed for an unknow reason"),
-                (Some(_), true) => warn!("The settings change was successful but the computer must be restarted for the graphics mode to work."),
-                (Some(new_primary), false) => info!("Primary display set to {new_primary}"),
+                (new_primary, true) => warn!("Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."),
+                (new_primary, false) => info!("Primary display set to {new_primary}"),
             }
 
             info!(

@@ -39,7 +39,7 @@ fn it_should_change_primary_display_and_default_output_device() {
         actual_response,
         ApplicationResult {
             display_settings: DisplaySettingsResult {
-                new_primary: Some(computer.secondary_display),
+                new_primary: computer.secondary_display,
                 reboot_required: false
             },
             sound_settings: SoundSettingsResult {

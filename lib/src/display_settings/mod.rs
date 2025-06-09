@@ -1,7 +1,7 @@
 #[derive(Debug, PartialEq, Eq)]
 pub struct DisplaySettingsResult {
     pub reboot_required: bool,
-    pub new_primary: Option<String>,
+    pub new_primary: String,
 }
 
 pub trait DisplaySettings<TDisplaySettingsApi> {

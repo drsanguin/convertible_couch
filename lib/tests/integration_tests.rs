@@ -36,7 +36,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
     assert_that_primary_display_have_been_changed_as_expected(
         actual_response,
         Ok(DisplaySettingsResult {
-            new_primary: Some(computer.secondary_display),
+            new_primary: computer.secondary_display,
             reboot_required: false,
         }),
     );
@@ -68,7 +68,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
     assert_that_primary_display_have_been_changed_as_expected(
         actual_response,
         Ok(DisplaySettingsResult {
-            new_primary: Some(computer.primary_display),
+            new_primary: computer.primary_display,
             reboot_required: false,
         }),
     );
@@ -98,7 +98,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
     assert_that_primary_display_have_been_changed_as_expected(
         actual_response,
         Ok(DisplaySettingsResult {
-            new_primary: Some(computer.secondary_display),
+            new_primary: computer.secondary_display,
             reboot_required: false,
         }),
     );
@@ -131,7 +131,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
     assert_that_primary_display_have_been_changed_as_expected(
         actual_response,
         Ok(DisplaySettingsResult {
-            new_primary: Some(String::from(INTERNAL_DISPLAY_NAME)),
+            new_primary: String::from(INTERNAL_DISPLAY_NAME),
             reboot_required: false,
         }),
     );
