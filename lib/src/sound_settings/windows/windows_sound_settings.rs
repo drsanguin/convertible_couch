@@ -27,8 +27,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
     ) -> Result<SoundSettingsResult, String> {
-        let audio_endpoints_count =
-            unsafe { self.audio_endpoint_library.get_all_audio_endpoints_count() };
+        let audio_endpoints_count = self.audio_endpoint_library.get_all_audio_endpoints_count();
 
         if audio_endpoints_count == -1 {
             return Err(String::from(
@@ -39,11 +38,11 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
         let audio_endpoints_count_as_usize = usize::try_from(audio_endpoints_count).unwrap();
         let mut audio_endpoints = vec![AudioEndpoint::default(); audio_endpoints_count_as_usize];
 
-        if unsafe {
-            self.audio_endpoint_library
-                .get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count)
-        } != 0
-        {
+        let get_all_audio_endpoints_result = self
+            .audio_endpoint_library
+            .get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count);
+
+        if get_all_audio_endpoints_result != 0 {
             return Err(String::from("Failed to get the sound output devices"));
         }
 
@@ -102,11 +101,11 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
             (desktop_sound_output_device_id, desktop_speaker_name)
         };
 
-        if unsafe {
-            self.audio_endpoint_library
-                .set_default_audio_endpoint(new_default_output_device_id)
-        } != 0
-        {
+        let set_audio_endpoint_result = self
+            .audio_endpoint_library
+            .set_default_audio_endpoint(new_default_output_device_id);
+
+        if set_audio_endpoint_result != 0 {
             return Err(String::from("Failed to set default audio endpoint"));
         }
 

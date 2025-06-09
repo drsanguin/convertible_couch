@@ -15,15 +15,15 @@ impl Default for AudioEndpoint {
 }
 
 pub trait AudioEndpointLibrary {
-    unsafe fn get_all_audio_endpoints_count(&self) -> c_int;
+    fn get_all_audio_endpoints_count(&self) -> c_int;
 
-    unsafe fn get_all_audio_endpoints(
+    fn get_all_audio_endpoints(
         &self,
         out_audio_endpoints: *mut AudioEndpoint,
         audio_endpoints_count: c_int,
     ) -> c_int;
 
-    unsafe fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int;
+    fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int;
 }
 
 #[link(
@@ -43,19 +43,19 @@ unsafe extern "C" {
 pub struct DllBasedAudioEndpointLibrary;
 
 impl AudioEndpointLibrary for DllBasedAudioEndpointLibrary {
-    unsafe fn get_all_audio_endpoints_count(&self) -> c_int {
-        get_all_audio_endpoints_count()
+    fn get_all_audio_endpoints_count(&self) -> c_int {
+        unsafe { get_all_audio_endpoints_count() }
     }
 
-    unsafe fn get_all_audio_endpoints(
+    fn get_all_audio_endpoints(
         &self,
         out_audio_endpoints: *mut AudioEndpoint,
         audio_endpoints_count: c_int,
     ) -> c_int {
-        get_all_audio_endpoints(out_audio_endpoints, audio_endpoints_count)
+        unsafe { get_all_audio_endpoints(out_audio_endpoints, audio_endpoints_count) }
     }
 
-    unsafe fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
-        set_default_audio_endpoint(id)
+    fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
+        unsafe { set_default_audio_endpoint(id) }
     }
 }

@@ -26,11 +26,11 @@ impl FuzzedAudioEndpointLibrary {
 }
 
 impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
-    unsafe fn get_all_audio_endpoints_count(&self) -> c_int {
+    fn get_all_audio_endpoints_count(&self) -> c_int {
         self.audio_endpoints.len().try_into().unwrap_or(-1)
     }
 
-    unsafe fn get_all_audio_endpoints(
+    fn get_all_audio_endpoints(
         &self,
         out_audio_endpoints: *mut AudioEndpoint,
         audio_endpoints_count: c_int,
@@ -42,7 +42,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
         }
 
         for i in 0..audio_endpoints_count_as_usize.unwrap() {
-            let out_audio_endpoint = &mut *out_audio_endpoints.add(i);
+            let out_audio_endpoint = unsafe { &mut *out_audio_endpoints.add(i) };
             let audio_endpoint = &self.audio_endpoints[i];
 
             out_audio_endpoint.id = string_to_c_ushort(&audio_endpoint.id);
@@ -53,7 +53,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
         0
     }
 
-    unsafe fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
+    fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
         let id_as_string = to_string(id);
 
         let audio_endpoint = self.audio_endpoints.iter().any(|x| x.id == id_as_string);
