@@ -4,7 +4,6 @@ use convertible_couch_lib::{
     log::{configure_logger, LogLevel},
     sound_settings::{SoundSettings, SoundSettingsResult},
 };
-use std::error::Error;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -36,7 +35,7 @@ pub fn run_app<
     args: Args,
     mut display_settings: TDisplaySettings,
     mut sound_settings: TSoundSettings,
-) -> Result<ApplicationResult, Box<dyn Error>> {
+) -> Result<ApplicationResult, String> {
     configure_logger(args.log_level)?;
 
     let display_settings_result = display_settings

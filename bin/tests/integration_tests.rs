@@ -32,12 +32,12 @@ fn it_should_change_primary_display_and_default_output_device() {
     };
 
     // Act
-    let actual_response = run_app(args, display_settings, sound_settings).unwrap();
+    let actual_response = run_app(args, display_settings, sound_settings);
 
     // Assert
     assert_eq!(
         actual_response,
-        ApplicationResult {
+        Ok(ApplicationResult {
             display_settings: DisplaySettingsResult {
                 new_primary: computer.secondary_display,
                 reboot_required: false
@@ -45,6 +45,6 @@ fn it_should_change_primary_display_and_default_output_device() {
             sound_settings: SoundSettingsResult {
                 new_default_output_device: computer.non_default_audio_endpoint
             }
-        }
+        })
     );
 }

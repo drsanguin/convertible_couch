@@ -33,16 +33,14 @@ pub fn configure_logger(log_level: LogLevel) -> Result<(), String> {
     let appender = Appender::builder().build("stdout", Box::new(stdout));
     let level = map_to_level_filter(log_level);
     let root = Root::builder().appender("stdout").build(level);
-
-    Config::builder()
+    let config = Config::builder()
         .appender(appender)
         .build(root)
-        .map_err(|errors| errors.to_string())
-        .and_then(|config| {
-            init_config(config)
-                .map(|_| ())
-                .map_err(|error| error.to_string())
-        })
+        .map_err(|errors| errors.to_string())?;
+
+    init_config(config).map_err(|error| error.to_string())?;
+
+    Ok(())
 }
 
 fn map_to_level_filter(log_level: LogLevel) -> LevelFilter {
