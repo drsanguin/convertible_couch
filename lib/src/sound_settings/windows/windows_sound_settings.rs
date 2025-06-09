@@ -51,9 +51,6 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
         let mut current_default_output_device_id: *mut u16 = null_mut();
 
         for audio_endpoint in &audio_endpoints {
-            assert!(!audio_endpoint.id.is_null());
-            assert!(!audio_endpoint.name.is_null());
-
             let name = to_string(audio_endpoint.name);
             let is_default = audio_endpoint.is_default == 1;
 
