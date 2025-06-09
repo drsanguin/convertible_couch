@@ -3,7 +3,7 @@ use crate::{
         audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary},
         windows_sound_settings::to_string,
     },
-    testing::fuzzing::sound_settings::audio_endpoint::FuzzedAudioEndpoint,
+    testing::fuzzing::sound_settings::audio_output_device::FuzzedAudioOutputDevice,
 };
 
 use std::{
@@ -16,18 +16,20 @@ use std::{
 };
 
 pub struct FuzzedAudioEndpointLibrary {
-    audio_endpoints: Vec<FuzzedAudioEndpoint>,
+    audio_output_devices: Vec<FuzzedAudioOutputDevice>,
 }
 
 impl FuzzedAudioEndpointLibrary {
-    pub fn new(audio_endpoints: Vec<FuzzedAudioEndpoint>) -> Self {
-        Self { audio_endpoints }
+    pub fn new(audio_output_devices: Vec<FuzzedAudioOutputDevice>) -> Self {
+        Self {
+            audio_output_devices,
+        }
     }
 }
 
 impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
     fn get_all_audio_endpoints_count(&self) -> c_int {
-        self.audio_endpoints.len().try_into().unwrap_or(-1)
+        self.audio_output_devices.len().try_into().unwrap_or(-1)
     }
 
     fn get_all_audio_endpoints(
@@ -43,11 +45,11 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
 
         for i in 0..audio_endpoints_count_as_usize.unwrap() {
             let out_audio_endpoint = unsafe { &mut *out_audio_endpoints.add(i) };
-            let audio_endpoint = &self.audio_endpoints[i];
+            let audio_output_device = &self.audio_output_devices[i];
 
-            out_audio_endpoint.id = string_to_c_ushort(&audio_endpoint.id);
-            out_audio_endpoint.name = string_to_c_ushort(&audio_endpoint.name);
-            out_audio_endpoint.is_default = if audio_endpoint.is_default { 1 } else { 0 };
+            out_audio_endpoint.id = string_to_c_ushort(&audio_output_device.id);
+            out_audio_endpoint.name = string_to_c_ushort(&audio_output_device.name);
+            out_audio_endpoint.is_default = if audio_output_device.is_default { 1 } else { 0 };
         }
 
         0
@@ -56,13 +58,16 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
     fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
         let id_as_string = to_string(id);
 
-        let audio_endpoint = self.audio_endpoints.iter().any(|x| x.id == id_as_string);
+        let audio_endpoint_exists = self
+            .audio_output_devices
+            .iter()
+            .any(|x| x.id == id_as_string);
 
-        if !audio_endpoint {
+        if !audio_endpoint_exists {
             return -1;
         }
 
-        for audio_endpoint in self.audio_endpoints.iter_mut() {
+        for audio_endpoint in self.audio_output_devices.iter_mut() {
             if audio_endpoint.is_default {
                 audio_endpoint.is_default = false;
             }

@@ -9,7 +9,7 @@ use crate::testing::fuzzing::{
 };
 use crate::testing::fuzzing::{
     display_settings::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput},
-    sound_settings::audio_endpoint::{AudioEndpointFuzzer, FuzzedAudioEndpoint},
+    sound_settings::audio_output_device::{AudioOutputDeviceFuzzer, FuzzedAudioOutputDevice},
 };
 
 pub struct FuzzedComputer {
@@ -32,7 +32,7 @@ pub struct ComputerFuzzer {
     change_display_settings_error_on_commit: Option<DISP_CHANGE>,
     getting_primary_display_name_fails: bool,
     querying_the_display_config_of_the_primary_display_fails: bool,
-    audio_endpoints: Vec<FuzzedAudioEndpoint>,
+    audio_endpoints: Vec<FuzzedAudioOutputDevice>,
 }
 
 impl ComputerFuzzer {
@@ -129,8 +129,9 @@ impl ComputerFuzzer {
     }
 
     pub fn with_audio_output_devices(&mut self, count: usize) -> Self {
-        let audio_endpoints = AudioEndpointFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-            .generate_several(count);
+        let audio_endpoints =
+            AudioOutputDeviceFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+                .generate_several(count);
 
         Self {
             rand: StdRng::seed_from_u64(self.rand.next_u64()),
@@ -188,7 +189,7 @@ impl ComputerFuzzer {
             .audio_endpoints
             .iter()
             .find(|audio_endpoint| audio_endpoint.is_default)
-            .unwrap_or(&FuzzedAudioEndpoint {
+            .unwrap_or(&FuzzedAudioOutputDevice {
                 name: String::from(""),
                 id: String::from(""),
                 is_default: false,
@@ -200,7 +201,7 @@ impl ComputerFuzzer {
             .audio_endpoints
             .iter()
             .find(|audio_endpoint| !audio_endpoint.is_default)
-            .unwrap_or(&FuzzedAudioEndpoint {
+            .unwrap_or(&FuzzedAudioOutputDevice {
                 name: String::from(""),
                 id: String::from(""),
                 is_default: false,

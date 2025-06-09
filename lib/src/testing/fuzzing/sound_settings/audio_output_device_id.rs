@@ -2,11 +2,11 @@ use rand::{rngs::StdRng, RngCore, SeedableRng};
 
 use crate::testing::fuzzing::guid::GuidFuzzer;
 
-pub struct AudioEndpointIdFuzzer {
+pub struct AudioOutputDeviceIdFuzzer {
     rand: StdRng,
 }
 
-impl AudioEndpointIdFuzzer {
+impl AudioOutputDeviceIdFuzzer {
     pub fn new(rand: StdRng) -> Self {
         Self { rand }
     }

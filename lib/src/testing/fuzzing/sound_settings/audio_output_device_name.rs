@@ -6,11 +6,11 @@ use rand::{
     seq::IndexedRandom,
 };
 
-pub struct AudioEndpointNameFuzzer {
+pub struct AudioOutputDeviceNameFuzzer {
     rand: StdRng,
 }
 
-impl AudioEndpointNameFuzzer {
+impl AudioOutputDeviceNameFuzzer {
     const BRANDS: [&'static str; 145] = [
         "Abbingdon Music Research",
         "Acapella Audio Arts",
