@@ -21,7 +21,7 @@ pub mod windows;
 pub use windows::windows_display_settings::WindowsDisplaySettings as CurrentDisplaySettings;
 
 #[cfg(target_os = "windows")]
-pub use windows::win_32::WindowsApiBasedWin32 as CurrentDisplaySettingsApi;
+pub use windows::win_32::windows_api_based_win_32::WindowsApiBasedWin32 as CurrentDisplaySettingsApi;
 
 #[cfg(target_os = "windows")]
 pub const INTERNAL_DISPLAY_NAME: &'static str = "Internal Display";

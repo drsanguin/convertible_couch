@@ -20,4 +20,4 @@ pub mod windows;
 pub use windows::windows_sound_settings::WindowsSoundSettings as CurrentSoundSettings;
 
 #[cfg(target_os = "windows")]
-pub use windows::audio_endpoint_library::DllBasedAudioEndpointLibrary as CurrentSoundSettingsApi;
+pub use windows::audio_endpoint_library::dll_based_audio_endpoint_library::DllBasedAudioEndpointLibrary as CurrentSoundSettingsApi;
