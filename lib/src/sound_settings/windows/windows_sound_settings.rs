@@ -51,7 +51,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
         let mut current_default_output_device_id: *mut u16 = null_mut();
 
         for audio_endpoint in &audio_endpoints {
-            let name = to_string(audio_endpoint.name);
+            let name = map_c_ushort_to_string(audio_endpoint.name);
             let is_default = audio_endpoint.is_default == 1;
 
             if name == desktop_speaker_name {
@@ -69,7 +69,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
 
         let possible_audio_endpoints = &audio_endpoints
             .iter()
-            .map(|audio_endpoint| to_string(audio_endpoint.name))
+            .map(|audio_endpoint| map_c_ushort_to_string(audio_endpoint.name))
             .collect::<Vec<String>>()
             .join(", ");
 
@@ -89,14 +89,17 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
             return Err(format!("Failed to get the couch sound output device, possible values are {possible_audio_endpoints}"));
         }
 
-        let (new_default_output_device_id, new_default_output_device_name) = if eq(
+        let is_current_default_output_device_the_desktop_one = are_pointers_equals(
             current_default_output_device_id,
             desktop_sound_output_device_id,
-        ) {
-            (couch_sound_output_device_id, couch_speaker_name)
-        } else {
-            (desktop_sound_output_device_id, desktop_speaker_name)
-        };
+        );
+
+        let (new_default_output_device_id, new_default_output_device_name) =
+            if is_current_default_output_device_the_desktop_one {
+                (couch_sound_output_device_id, couch_speaker_name)
+            } else {
+                (desktop_sound_output_device_id, desktop_speaker_name)
+            };
 
         let set_audio_endpoint_result = self
             .audio_endpoint_library
@@ -112,7 +115,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
     }
 }
 
-pub fn to_string(id: *mut c_ushort) -> String {
+pub fn map_c_ushort_to_string(id: *mut c_ushort) -> String {
     let mut len = 0;
 
     while unsafe { *id.add(len) } != 0 {
@@ -124,20 +127,20 @@ pub fn to_string(id: *mut c_ushort) -> String {
     OsString::from_wide(slice).to_string_lossy().into_owned()
 }
 
-fn eq(mut a: *mut u16, mut b: *mut u16) -> bool {
+fn are_pointers_equals(mut p1: *mut u16, mut p2: *mut u16) -> bool {
     loop {
-        let va = unsafe { *a };
-        let vb = unsafe { *b };
+        let v1 = unsafe { *p1 };
+        let v2 = unsafe { *p2 };
 
-        if va != vb {
+        if v1 != v2 {
             return false;
         }
 
-        if va == 0 && vb == 0 {
-            return true;
+        if v1 == 0 || v2 == 0 {
+            return v1 == v2;
         }
 
-        a = unsafe { a.add(1) };
-        b = unsafe { b.add(1) };
+        p1 = unsafe { p1.add(1) };
+        p2 = unsafe { p2.add(1) };
     }
 }

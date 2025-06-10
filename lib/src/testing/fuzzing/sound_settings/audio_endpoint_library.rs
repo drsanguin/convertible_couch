@@ -1,7 +1,7 @@
 use crate::{
     sound_settings::windows::{
         audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary},
-        windows_sound_settings::to_string,
+        windows_sound_settings::map_c_ushort_to_string,
     },
     testing::fuzzing::sound_settings::audio_output_device::FuzzedAudioOutputDevice,
 };
@@ -9,6 +9,7 @@ use crate::{
 use std::{
     ffi::OsStr,
     iter::once,
+    mem::forget,
     os::{
         raw::{c_int, c_ushort},
         windows::ffi::OsStrExt,
@@ -47,8 +48,8 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
             let out_audio_endpoint = unsafe { &mut *out_audio_endpoints.add(i) };
             let audio_output_device = &self.audio_output_devices[i];
 
-            out_audio_endpoint.id = string_to_c_ushort(&audio_output_device.id);
-            out_audio_endpoint.name = string_to_c_ushort(&audio_output_device.name);
+            out_audio_endpoint.id = map_string_to_c_ushort(&audio_output_device.id);
+            out_audio_endpoint.name = map_string_to_c_ushort(&audio_output_device.name);
             out_audio_endpoint.is_default = if audio_output_device.is_default { 1 } else { 0 };
         }
 
@@ -56,7 +57,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
     }
 
     fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
-        let id_as_string = to_string(id);
+        let id_as_string = map_c_ushort_to_string(id);
 
         let audio_endpoint_exists = self
             .audio_output_devices
@@ -81,8 +82,8 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
     }
 }
 
-pub fn string_to_c_ushort(s: &str) -> *mut c_ushort {
-    let wide: Vec<c_ushort> = OsStr::new(s)
+pub fn map_string_to_c_ushort(string: &str) -> *mut c_ushort {
+    let wide: Vec<c_ushort> = OsStr::new(string)
         .encode_wide()
         .chain(once(0)) // Null terminator
         .collect();
@@ -92,7 +93,7 @@ pub fn string_to_c_ushort(s: &str) -> *mut c_ushort {
     let ptr = boxed_slice.as_mut_ptr();
 
     // Leak the boxed slice so it isn't deallocated when it goes out of scope
-    std::mem::forget(boxed_slice);
+    forget(boxed_slice);
 
     ptr
 }
