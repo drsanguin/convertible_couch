@@ -1,2 +1,11 @@
-examine_globs = ["lib/src/display_settings.rs", "lib/src/log.rs"]
-exclude_re = ["configure_logger", "get_current_primary_display_name"]
+exclude_globs = [
+    "bin/src/main.rs",
+    "lib/src/testing/**/*.rs",
+    "lib/src/display_settings/windows/win_32/windows_api_based_win_32.rs",
+    "lib/src/sound_settings/windows/audio_endpoint_library/dll_based_audio_endpoint_library.rs",
+    "lib/src/sound_settings/windows/windows_sound_settings.rs" # not ready to undergo a mutation yet
+    ]
+exclude_re = [
+    "configure_logger", # this function is just side effect
+    "lib/src/display_settings/windows/windows_display_settings.rs:136:16: delete ! in WindowsDisplaySettings<TWin32>::get_current_primary_display_name" # causes infinite loop
+    ]
