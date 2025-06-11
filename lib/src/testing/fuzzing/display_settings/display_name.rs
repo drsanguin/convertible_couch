@@ -93,9 +93,9 @@ impl<'a> DisplayNameFuzzer<'a> {
     }
 
     pub fn generate_two(&mut self) -> (String, String) {
-        let several = self.generate_several(2, &HashSet::new());
+        let mut several = self.generate_several(2, &HashSet::new());
 
-        (several[0].clone(), several[1].clone())
+        (several.remove(0), several.remove(0))
     }
 
     pub fn generate_several(

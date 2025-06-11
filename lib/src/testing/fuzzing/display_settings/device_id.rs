@@ -63,7 +63,7 @@ impl<'a> DeviceIdFuzzer<'a> {
     }
 
     pub fn generate_one(&mut self) -> FuzzedDeviceId {
-        self.generate_several(1, &HashSet::new())[0].clone()
+        self.generate_several(1, &HashSet::new()).remove(0)
     }
 
     pub fn generate_several(
