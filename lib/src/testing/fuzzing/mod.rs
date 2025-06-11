@@ -9,6 +9,7 @@ use self::computer::ComputerFuzzer;
 
 pub mod computer;
 pub mod display_settings;
+pub mod fuzzer_new;
 pub mod guid;
 pub mod sound_settings;
 
