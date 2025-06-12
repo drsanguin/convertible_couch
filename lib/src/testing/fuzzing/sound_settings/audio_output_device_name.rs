@@ -170,6 +170,14 @@ impl<'a> AudioOutputDeviceNameFuzzer<'a> {
         format!("{brand} {model_id}")
     }
 
+    pub(crate) fn generate_two(&mut self) -> (String, String) {
+        let mut names = self.generate_several(2);
+        let first = names.remove(0);
+        let second = names.remove(0);
+
+        (first, second)
+    }
+
     pub fn generate_several(&mut self, count: usize) -> Vec<String> {
         let mut names = HashSet::with_capacity(count);
 
