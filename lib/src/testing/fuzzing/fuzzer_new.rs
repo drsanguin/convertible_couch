@@ -1,15 +1,19 @@
-use std::{collections::HashSet, ptr::null};
+use std::collections::HashSet;
 
-use rand::{rngs::StdRng, RngCore, SeedableRng};
+use rand::{rngs::StdRng, Rng, RngCore, SeedableRng};
 
-use crate::testing::fuzzing::{
-    display_settings::display_name::DisplayNameFuzzer,
-    sound_settings::audio_output_device_name::AudioOutputDeviceNameFuzzer,
-};
 #[cfg(target_os = "windows")]
 use crate::testing::fuzzing::{
     display_settings::win_32::FuzzedWin32,
     sound_settings::audio_endpoint_library::FuzzedAudioEndpointLibrary,
+};
+use crate::testing::fuzzing::{
+    display_settings::{
+        device_id::DeviceIdFuzzer, display_name::DisplayNameFuzzer, displays::FuzzedDisplay,
+        position::DisplayPositionFuzzer, resolution::ResolutionFuzzer,
+        video_output::VideoOutputFuzzer,
+    },
+    sound_settings::audio_output_device_name::AudioOutputDeviceNameFuzzer,
 };
 
 pub struct FuzzerNew {
@@ -82,9 +86,10 @@ pub struct FuzzedComputer {
 pub struct DisplaysFuzzer<'a> {
     rand: StdRng,
     computer_fuzzer: ComputerFuzzer,
-    count: u32,
+    count: usize,
     primary_name: Option<&'a str>,
     secondaries_names: HashSet<&'a str>,
+    includes_an_internal_display: bool,
 }
 
 impl<'a> DisplaysFuzzer<'a> {
@@ -95,10 +100,11 @@ impl<'a> DisplaysFuzzer<'a> {
             count: 0,
             primary_name: None,
             secondaries_names: HashSet::new(),
+            includes_an_internal_display: false,
         }
     }
 
-    pub fn of_which_there_are(self, count: u32) -> Self {
+    pub fn of_which_there_are(self, count: usize) -> Self {
         Self { count, ..self }
     }
 
@@ -120,7 +126,48 @@ impl<'a> DisplaysFuzzer<'a> {
     }
 
     pub fn build_displays(&mut self) -> ComputerFuzzer {
+        let mut video_outputs = VideoOutputFuzzer::generate_several(self.count);
+        let displays = self.generateDisplays();
+
         todo!()
+    }
+
+    fn generateDisplays(&mut self) -> Vec<FuzzedDisplay> {
+        let displays_resolutions =
+            ResolutionFuzzer::new(&mut self.rand).generate_several(self.count);
+        let positioned_resolutions =
+            DisplayPositionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+                .generate_several(&displays_resolutions, self.includes_an_internal_display);
+        let names_to_generate_count = self.count
+            - self.secondaries_names.len()
+            - if self.primary_name.is_some() { 1 } else { 0 };
+        let names = DisplayNameFuzzer::new(&mut self.rand)
+            .generate_several(names_to_generate_count, &self.secondaries_names);
+        let device_ids =
+            DeviceIdFuzzer::new(&mut self.rand).generate_several(self.count, &HashSet::new());
+
+        (0..self.count)
+            .map(|display_index| {
+                let position = positioned_resolutions[display_index].position;
+                let resolution = positioned_resolutions[display_index].resolution;
+                let primary = position.is_positioned_at_origin();
+                let name = if self.includes_an_internal_display && primary {
+                    String::from("")
+                } else {
+                    names[display_index].to_owned()
+                };
+                let device_id = device_ids[display_index].clone();
+
+                FuzzedDisplay {
+                    config_mode_info_id: device_id.config_mode_info_id,
+                    device_id: device_id.full_id,
+                    name,
+                    position,
+                    primary,
+                    resolution,
+                }
+            })
+            .collect()
     }
 }
 
