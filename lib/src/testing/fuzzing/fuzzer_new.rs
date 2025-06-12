@@ -141,10 +141,31 @@ impl<'a> DisplaysFuzzer<'a> {
         let names_to_generate_count = self.count
             - self.secondaries_names.len()
             - if self.primary_name.is_some() { 1 } else { 0 };
-        let names = DisplayNameFuzzer::new(&mut self.rand)
+        let mut names = DisplayNameFuzzer::new(&mut self.rand)
             .generate_several(names_to_generate_count, &self.secondaries_names);
         let device_ids =
             DeviceIdFuzzer::new(&mut self.rand).generate_several(self.count, &HashSet::new());
+
+        for secondary_name in self.secondaries_names.iter() {
+            names.push(secondary_name.to_string());
+        }
+
+        if self.primary_name.is_some() {
+            let primary_index = positioned_resolutions
+                .iter()
+                .position(|positioned_resolution| {
+                    positioned_resolution.position.is_positioned_at_origin()
+                })
+                .unwrap();
+
+            let primary_name = self.primary_name.unwrap().to_string();
+
+            if primary_index == (names.len() - 1) {
+                names.push(primary_name);
+            } else {
+                names.insert(primary_index, primary_name);
+            }
+        }
 
         (0..self.count)
             .map(|display_index| {
