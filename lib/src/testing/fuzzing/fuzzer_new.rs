@@ -2,16 +2,18 @@ use std::collections::HashSet;
 
 use rand::{rngs::StdRng, Rng, RngCore, SeedableRng};
 
-#[cfg(target_os = "windows")]
 use crate::testing::fuzzing::{
     display_settings::win_32::FuzzedWin32,
     sound_settings::audio_endpoint_library::FuzzedAudioEndpointLibrary,
 };
 use crate::testing::fuzzing::{
     display_settings::{
-        device_id::DeviceIdFuzzer, display_name::DisplayNameFuzzer, displays::FuzzedDisplay,
-        position::DisplayPositionFuzzer, resolution::ResolutionFuzzer,
-        video_output::VideoOutputFuzzer,
+        device_id::DeviceIdFuzzer,
+        display_name::{self, DisplayNameFuzzer},
+        displays::FuzzedDisplay,
+        position::DisplayPositionFuzzer,
+        resolution::ResolutionFuzzer,
+        video_output::{FuzzedVideoOutput, VideoOutputFuzzer},
     },
     sound_settings::audio_output_device_name::AudioOutputDeviceNameFuzzer,
 };
@@ -52,17 +54,22 @@ impl FuzzerNew {
 #[derive(Clone)]
 pub struct ComputerFuzzer {
     rand: StdRng,
+    video_outputs: Vec<FuzzedVideoOutput>,
 }
 
 impl ComputerFuzzer {
     fn new(rand: StdRng) -> Self {
-        Self { rand }
+        Self {
+            rand,
+            video_outputs: vec![],
+        }
     }
 
     pub fn with_displays(&mut self) -> DisplaysFuzzer {
+        let computer_fuzzer = self.clone();
+
         let seed = self.rand.next_u64();
         let rand = StdRng::seed_from_u64(seed);
-        let computer_fuzzer = self.clone();
 
         DisplaysFuzzer::new(rand, computer_fuzzer)
     }
@@ -74,12 +81,23 @@ impl ComputerFuzzer {
     pub fn build_computer(&mut self) -> FuzzedComputer {
         todo!()
     }
+
+    fn new_with_video_outputs(
+        computer_fuzzer: &mut ComputerFuzzer,
+        video_outputs: Vec<FuzzedVideoOutput>,
+    ) -> ComputerFuzzer {
+        let seed = computer_fuzzer.rand.next_u64();
+        let rand = StdRng::seed_from_u64(seed);
+
+        ComputerFuzzer {
+            rand,
+            video_outputs,
+        }
+    }
 }
 
 pub struct FuzzedComputer {
-    #[cfg(target_os = "windows")]
     pub display_settings_api: FuzzedWin32,
-    #[cfg(target_os = "windows")]
     pub audio_settings_api: FuzzedAudioEndpointLibrary,
 }
 
@@ -126,10 +144,18 @@ impl<'a> DisplaysFuzzer<'a> {
     }
 
     pub fn build_displays(&mut self) -> ComputerFuzzer {
-        let mut video_outputs = VideoOutputFuzzer::generate_several(self.count);
-        let displays = self.generateDisplays();
+        let video_outputs = VideoOutputFuzzer::generate_several(self.count);
+        let mut displays = self.generateDisplays();
 
-        todo!()
+        let mut index = 0;
+        while displays.len() != 0 {
+            let display = displays.remove(index);
+            video_outputs[index].plug_display(display);
+
+            index += 1;
+        }
+
+        ComputerFuzzer::new_with_video_outputs(&mut self.computer_fuzzer, video_outputs)
     }
 
     fn generateDisplays(&mut self) -> Vec<FuzzedDisplay> {
