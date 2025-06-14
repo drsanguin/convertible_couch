@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use rand::{rngs::StdRng, Rng, RngCore, SeedableRng};
 
+use crate::testing::fuzzing::sound_settings::audio_output_device::FuzzedAudioOutputDevice;
 use crate::testing::fuzzing::{
     display_settings::win_32::FuzzedWin32,
     sound_settings::audio_endpoint_library::FuzzedAudioEndpointLibrary,
@@ -55,6 +56,7 @@ impl FuzzerNew {
 pub struct ComputerFuzzer {
     rand: StdRng,
     video_outputs: Vec<FuzzedVideoOutput>,
+    audio_outputs: Vec<FuzzedAudioOutputDevice>,
 }
 
 impl ComputerFuzzer {
@@ -62,6 +64,7 @@ impl ComputerFuzzer {
         Self {
             rand,
             video_outputs: vec![],
+            audio_outputs: vec![],
         }
     }
 
@@ -75,7 +78,12 @@ impl ComputerFuzzer {
     }
 
     pub fn with_audio_output_devices(&mut self) -> AudioOutputDevicesFuzzer {
-        todo!()
+        let computer_fuzzer = self.clone();
+
+        let seed = self.rand.next_u64();
+        let rand = StdRng::seed_from_u64(seed);
+
+        AudioOutputDevicesFuzzer::new(rand, computer_fuzzer)
     }
 
     pub fn build_computer(&mut self) -> FuzzedComputer {
@@ -92,6 +100,7 @@ impl ComputerFuzzer {
         ComputerFuzzer {
             rand,
             video_outputs,
+            audio_outputs: computer_fuzzer.audio_outputs.clone(),
         }
     }
 }
@@ -145,7 +154,7 @@ impl<'a> DisplaysFuzzer<'a> {
 
     pub fn build_displays(&mut self) -> ComputerFuzzer {
         let video_outputs = VideoOutputFuzzer::generate_several(self.count);
-        let mut displays = self.generateDisplays();
+        let mut displays = self.generate_displays();
 
         let mut index = 0;
         while displays.len() != 0 {
@@ -158,7 +167,7 @@ impl<'a> DisplaysFuzzer<'a> {
         ComputerFuzzer::new_with_video_outputs(&mut self.computer_fuzzer, video_outputs)
     }
 
-    fn generateDisplays(&mut self) -> Vec<FuzzedDisplay> {
+    fn generate_displays(&mut self) -> Vec<FuzzedDisplay> {
         let displays_resolutions =
             ResolutionFuzzer::new(&mut self.rand).generate_several(self.count);
         let positioned_resolutions =
@@ -219,23 +228,46 @@ impl<'a> DisplaysFuzzer<'a> {
 }
 
 pub struct AudioOutputDevicesFuzzer<'a> {
-    rand: &'a mut StdRng,
+    rand: StdRng,
+    computer_fuzzer: ComputerFuzzer,
+    count: usize,
+    default_audio_output_device_name: Option<&'a str>,
+    alternative_names: HashSet<&'a str>,
 }
 
 impl<'a> AudioOutputDevicesFuzzer<'a> {
-    pub fn of_which_there_are(&mut self, audio_output_devices_count: u32) -> Self {
-        todo!()
+    pub fn new(rand: StdRng, computer_fuzzer: ComputerFuzzer) -> Self {
+        Self {
+            rand,
+            computer_fuzzer,
+            count: 0,
+            default_audio_output_device_name: None,
+            alternative_names: HashSet::new(),
+        }
     }
 
-    pub fn whose_default_one_is_name(&mut self, default_audio_output_device_name: &str) -> Self {
-        todo!()
+    pub fn of_which_there_are(self, count: usize) -> Self {
+        Self { count, ..self }
+    }
+
+    pub fn whose_default_one_is_name(self, default_audio_output_device_name: &'a str) -> Self {
+        Self {
+            default_audio_output_device_name: Some(default_audio_output_device_name),
+            ..self
+        }
     }
 
     pub fn with_an_alternative_one_named(
-        &mut self,
-        alternative_audio_output_device_name: &str,
+        self,
+        alternative_audio_output_device_name: &'a str,
     ) -> Self {
-        todo!()
+        let mut alternative_names = HashSet::from_iter(self.alternative_names);
+        alternative_names.insert(alternative_audio_output_device_name);
+
+        Self {
+            alternative_names,
+            ..self
+        }
     }
 
     pub fn build_audio_output_devices(&mut self) -> ComputerFuzzer {
