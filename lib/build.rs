@@ -1,10 +1,18 @@
 use std::{env, fs::copy, path::Path, process::Command};
 
 fn main() {
+    let audio_endpoint_library_solution_path = Path::new("..").join("AudioEndPointLibrary");
+    let audio_endpoint_library_project_path = Path::new(".")
+        .join("AudioEndPointLibrary")
+        .join("AudioEndPointLibrary.vcxproj");
+
+    let audio_endpoint_library_project_path_as_str =
+        audio_endpoint_library_project_path.to_str().unwrap();
+
     let output = Command::new("msbuild")
-        .current_dir("..\\AudioEndPointLibrary")
+        .current_dir(audio_endpoint_library_solution_path)
         .args([
-            ".\\AudioEndPointLibrary\\AudioEndPointLibrary.vcxproj",
+            audio_endpoint_library_project_path_as_str,
             "/p:Configuration=Release",
             "/p:Platform=x64",
         ])
