@@ -65,6 +65,23 @@ impl ComputerFuzzer {
         }
     }
 
+    pub fn new_with_audio_output_devices(
+        computer_fuzzer: &mut ComputerFuzzer,
+        audio_output_devices: Vec<FuzzedAudioOutputDevice>,
+    ) -> Self {
+        Self {
+            rand: StdRng::seed_from_u64(computer_fuzzer.rand.next_u64()),
+            video_outputs: computer_fuzzer.video_outputs.clone(),
+            change_display_settings_error: computer_fuzzer.change_display_settings_error,
+            change_display_settings_error_on_commit: computer_fuzzer
+                .change_display_settings_error_on_commit,
+            getting_primary_display_name_fails: computer_fuzzer.getting_primary_display_name_fails,
+            querying_the_display_config_of_the_primary_display_fails: computer_fuzzer
+                .querying_the_display_config_of_the_primary_display_fails,
+            audio_endpoints: audio_output_devices,
+        }
+    }
+
     pub fn with_displays(&mut self) -> DisplaysFuzzer {
         DisplaysFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
     }
@@ -128,20 +145,24 @@ impl ComputerFuzzer {
         }
     }
 
-    pub fn with_audio_output_devices(&mut self, count: usize) -> Self {
-        let audio_endpoints = AudioOutputDeviceFuzzer::new(&mut self.rand).generate_several(count);
-
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            video_outputs: self.video_outputs.clone(),
-            change_display_settings_error: self.change_display_settings_error,
-            change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
-            getting_primary_display_name_fails: self.getting_primary_display_name_fails,
-            querying_the_display_config_of_the_primary_display_fails: self
-                .querying_the_display_config_of_the_primary_display_fails,
-            audio_endpoints: audio_endpoints,
-        }
+    pub fn with_audio_output_devices(&mut self) -> AudioOutputDeviceFuzzer {
+        AudioOutputDeviceFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
     }
+
+    // pub fn with_audio_output_devices(&mut self, count: usize) -> Self {
+    //     let audio_endpoints = AudioOutputDeviceFuzzer::new(&mut self.rand).generate_several(count);
+
+    //     Self {
+    //         rand: StdRng::seed_from_u64(self.rand.next_u64()),
+    //         video_outputs: self.video_outputs.clone(),
+    //         change_display_settings_error: self.change_display_settings_error,
+    //         change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
+    //         getting_primary_display_name_fails: self.getting_primary_display_name_fails,
+    //         querying_the_display_config_of_the_primary_display_fails: self
+    //             .querying_the_display_config_of_the_primary_display_fails,
+    //         audio_endpoints: audio_endpoints,
+    //     }
+    // }
 
     pub fn build_computer(&mut self) -> FuzzedComputer {
         let secondary_display = self.get_display(false);

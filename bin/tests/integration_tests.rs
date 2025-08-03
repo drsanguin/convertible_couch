@@ -17,7 +17,9 @@ fn it_should_change_primary_display_and_default_output_device() {
         .with_displays()
         .of_which_there_are_at_least(2)
         .build_displays()
-        .with_audio_output_devices(2)
+        .with_audio_output_devices()
+        .of_which_there_are(2)
+        .build_audio_output_devices()
         .build_computer();
 
     let display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
