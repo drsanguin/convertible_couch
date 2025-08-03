@@ -42,7 +42,7 @@ impl AudioOutputDeviceFuzzer {
         self
     }
 
-    pub fn whose_default_one_is_name(
+    pub fn whose_default_one_is_named(
         &mut self,
         default_audio_output_device_name: String,
     ) -> &mut Self {
