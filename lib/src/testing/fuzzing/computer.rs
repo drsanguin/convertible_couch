@@ -88,59 +88,34 @@ impl ComputerFuzzer {
     pub fn for_which_committing_the_display_changes_fails_with(
         &mut self,
         change_display_settings_error: DISP_CHANGE,
-    ) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            video_outputs: self.video_outputs.clone(),
-            change_display_settings_error: self.change_display_settings_error,
-            change_display_settings_error_on_commit: Some(change_display_settings_error),
-            getting_primary_display_name_fails: self.getting_primary_display_name_fails,
-            querying_the_display_config_of_the_primary_display_fails: self
-                .querying_the_display_config_of_the_primary_display_fails,
-            audio_endpoints: self.audio_endpoints.clone(),
-        }
+    ) -> &mut Self {
+        self.change_display_settings_error_on_commit = Some(change_display_settings_error);
+
+        self
     }
 
     #[cfg(target_os = "windows")]
     pub fn for_which_changing_the_display_settings_fails_for_some_displays(
         &mut self,
         change_display_settings_error: DISP_CHANGE,
-    ) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            video_outputs: self.video_outputs.clone(),
-            change_display_settings_error: Some(change_display_settings_error),
-            change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
-            getting_primary_display_name_fails: self.getting_primary_display_name_fails,
-            querying_the_display_config_of_the_primary_display_fails: self
-                .querying_the_display_config_of_the_primary_display_fails,
-            audio_endpoints: self.audio_endpoints.clone(),
-        }
+    ) -> &mut Self {
+        self.change_display_settings_error = Some(change_display_settings_error);
+
+        self
     }
 
-    pub fn for_which_getting_the_primary_display_fails(&mut self) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            video_outputs: self.video_outputs.clone(),
-            change_display_settings_error: self.change_display_settings_error,
-            change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
-            getting_primary_display_name_fails: true,
-            querying_the_display_config_of_the_primary_display_fails: self
-                .querying_the_display_config_of_the_primary_display_fails,
-            audio_endpoints: self.audio_endpoints.clone(),
-        }
+    pub fn for_which_getting_the_primary_display_fails(&mut self) -> &mut Self {
+        self.getting_primary_display_name_fails = true;
+
+        self
     }
 
-    pub fn for_which_querying_the_display_config_of_the_primary_display_fails(&mut self) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            video_outputs: self.video_outputs.clone(),
-            change_display_settings_error: self.change_display_settings_error,
-            change_display_settings_error_on_commit: self.change_display_settings_error_on_commit,
-            getting_primary_display_name_fails: self.getting_primary_display_name_fails,
-            querying_the_display_config_of_the_primary_display_fails: true,
-            audio_endpoints: self.audio_endpoints.clone(),
-        }
+    pub fn for_which_querying_the_display_config_of_the_primary_display_fails(
+        &mut self,
+    ) -> &mut Self {
+        self.querying_the_display_config_of_the_primary_display_fails = true;
+
+        self
     }
 
     pub fn with_audio_output_devices(&mut self) -> AudioOutputDeviceFuzzer {

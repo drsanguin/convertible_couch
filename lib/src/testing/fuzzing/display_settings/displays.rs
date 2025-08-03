@@ -50,70 +50,42 @@ impl<'a> DisplaysFuzzer<'a> {
         }
     }
 
-    pub fn of_which_there_are(&mut self, count: usize) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            computer_fuzzer: self.computer_fuzzer.clone(),
-            min_n_display: count,
-            max_n_display: count,
-            includes_an_internal_display: self.includes_an_internal_display,
-            forbidden_display_names: self.forbidden_display_names.clone(),
-            forbidden_device_ids: self.forbidden_device_ids.clone(),
-        }
+    pub fn of_which_there_are(&mut self, count: usize) -> &mut Self {
+        self.min_n_display = count;
+        self.max_n_display = count;
+
+        self
     }
 
-    pub fn of_which_there_are_at_least(&mut self, count: usize) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            computer_fuzzer: self.computer_fuzzer.clone(),
-            min_n_display: count,
-            max_n_display: Self::MAX_N_DISPLAY,
-            includes_an_internal_display: self.includes_an_internal_display,
-            forbidden_display_names: self.forbidden_display_names.clone(),
-            forbidden_device_ids: self.forbidden_device_ids.clone(),
-        }
+    pub fn of_which_there_are_at_least(&mut self, count: usize) -> &mut Self {
+        self.min_n_display = count;
+        self.max_n_display = Self::MAX_N_DISPLAY;
+
+        self
     }
 
-    pub fn including_an_internal_display(&mut self) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            computer_fuzzer: self.computer_fuzzer.clone(),
-            min_n_display: self.min_n_display,
-            max_n_display: self.max_n_display,
-            includes_an_internal_display: true,
-            forbidden_display_names: self.forbidden_display_names.clone(),
-            forbidden_device_ids: self.forbidden_device_ids.clone(),
-        }
+    pub fn including_an_internal_display(&mut self) -> &mut Self {
+        self.includes_an_internal_display = true;
+
+        self
     }
 
     pub fn whose_names_are_different_from(
         &mut self,
         forbidden_display_names: HashSet<&'a str>,
-    ) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            computer_fuzzer: self.computer_fuzzer.clone(),
-            min_n_display: self.min_n_display,
-            max_n_display: self.max_n_display,
-            includes_an_internal_display: self.includes_an_internal_display,
-            forbidden_display_names,
-            forbidden_device_ids: self.forbidden_device_ids.clone(),
-        }
+    ) -> &mut Self {
+        self.forbidden_display_names = forbidden_display_names;
+
+        self
     }
 
     pub fn whose_device_ids_are_different_from(
         &mut self,
         forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
-    ) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(self.rand.next_u64()),
-            computer_fuzzer: self.computer_fuzzer.clone(),
-            min_n_display: self.min_n_display,
-            max_n_display: self.max_n_display,
-            includes_an_internal_display: self.includes_an_internal_display,
-            forbidden_display_names: self.forbidden_display_names.clone(),
-            forbidden_device_ids,
-        }
+    ) -> &mut Self {
+        self.forbidden_device_ids = forbidden_device_ids;
+
+        self
     }
 
     pub fn build_displays(&mut self) -> ComputerFuzzer {
