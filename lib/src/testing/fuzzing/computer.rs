@@ -20,8 +20,6 @@ pub struct FuzzedComputer {
     pub displays: Vec<String>,
     #[cfg(target_os = "windows")]
     pub audio_settings_api: FuzzedAudioEndpointLibrary,
-    pub default_audio_endpoint: String,
-    pub non_default_audio_endpoint: String,
 }
 
 #[derive(Clone)]
@@ -204,38 +202,12 @@ impl ComputerFuzzer {
 
         displays.sort();
 
-        let default_audio_endpoint = self
-            .audio_endpoints
-            .iter()
-            .find(|audio_endpoint| audio_endpoint.is_default)
-            .unwrap_or(&FuzzedAudioOutputDevice {
-                name: String::from(""),
-                id: String::from(""),
-                is_default: false,
-            })
-            .name
-            .clone();
-
-        let non_default_audio_endpoint = self
-            .audio_endpoints
-            .iter()
-            .find(|audio_endpoint| !audio_endpoint.is_default)
-            .unwrap_or(&FuzzedAudioOutputDevice {
-                name: String::from(""),
-                id: String::from(""),
-                is_default: false,
-            })
-            .name
-            .clone();
-
         FuzzedComputer {
             secondary_display,
             primary_display,
             display_settings_api,
             displays,
             audio_settings_api: FuzzedAudioEndpointLibrary::new(self.audio_endpoints.clone()),
-            default_audio_endpoint,
-            non_default_audio_endpoint,
         }
     }
 
