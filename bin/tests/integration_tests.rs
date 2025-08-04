@@ -32,8 +32,8 @@ fn it_should_change_primary_display_and_default_output_device() {
         .build_audio_output_devices()
         .build_computer();
 
-    let display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
+    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
 
     let args = Arguments {
         command: Commands::VideoAndAudio {
@@ -52,7 +52,7 @@ fn it_should_change_primary_display_and_default_output_device() {
     };
 
     // Act
-    let actual_response = run_app(args, display_settings, sound_settings);
+    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
 
     // Assert
     assert_eq!(

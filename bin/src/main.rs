@@ -9,10 +9,10 @@ use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let args = Arguments::parse();
-    let display_settings = CurrentDisplaySettings::new(CurrentDisplaySettingsApi);
-    let sound_settings = CurrentSoundSettings::new(CurrentSoundSettingsApi);
+    let mut display_settings = CurrentDisplaySettings::new(CurrentDisplaySettingsApi);
+    let mut sound_settings = CurrentSoundSettings::new(CurrentSoundSettingsApi);
 
-    let application_result = run_app(args, display_settings, sound_settings);
+    let application_result = run_app(&args, &mut display_settings, &mut sound_settings);
 
     match application_result {
         Ok(result) => {

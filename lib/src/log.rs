@@ -25,7 +25,11 @@ pub enum LogLevel {
 }
 
 /// Initializes the global logger with the provided level.
-pub fn configure_logger(log_level: LogLevel) -> Result<(), String> {
+pub fn configure_logger(log_level: &LogLevel) -> Result<(), String> {
+    if log_level == &LogLevel::Off {
+        return Ok(());
+    }
+
     let encoder = PatternEncoder::new("| {({l}):5.5} | {m}\r\n");
     let stdout = ConsoleAppender::builder()
         .encoder(Box::new(encoder))
@@ -43,7 +47,7 @@ pub fn configure_logger(log_level: LogLevel) -> Result<(), String> {
     Ok(())
 }
 
-fn map_to_level_filter(log_level: LogLevel) -> LevelFilter {
+fn map_to_level_filter(log_level: &LogLevel) -> LevelFilter {
     match log_level {
         LogLevel::Off => LevelFilter::Off,
         LogLevel::Error => LevelFilter::Error,
@@ -89,18 +93,18 @@ mod tests {
     #[test]
     fn if_should_configure_the_logger() {
         // Act
-        let result = configure_logger(LogLevel::Off);
+        let result = configure_logger(&LogLevel::Off);
 
         assert_eq!(result, Ok(()));
     }
 
-    #[test_case(LogLevel::Off => LevelFilter::Off; "when log level is off")]
-    #[test_case(LogLevel::Error => LevelFilter::Error; "when log level is error")]
-    #[test_case(LogLevel::Warn => LevelFilter::Warn; "when log level is warn")]
-    #[test_case(LogLevel::Info => LevelFilter::Info; "when log level is info")]
-    #[test_case(LogLevel::Debug => LevelFilter::Debug; "when log level is debug")]
-    #[test_case(LogLevel::Trace => LevelFilter::Trace; "when log level is trace")]
-    fn it_should_map_a_log_level_to_a_log_filter(log_level: LogLevel) -> LevelFilter {
+    #[test_case(&LogLevel::Off => LevelFilter::Off; "when log level is off")]
+    #[test_case(&LogLevel::Error => LevelFilter::Error; "when log level is error")]
+    #[test_case(&LogLevel::Warn => LevelFilter::Warn; "when log level is warn")]
+    #[test_case(&LogLevel::Info => LevelFilter::Info; "when log level is info")]
+    #[test_case(&LogLevel::Debug => LevelFilter::Debug; "when log level is debug")]
+    #[test_case(&LogLevel::Trace => LevelFilter::Trace; "when log level is trace")]
+    fn it_should_map_a_log_level_to_a_log_filter(log_level: &LogLevel) -> LevelFilter {
         // Act
         map_to_level_filter(log_level)
     }

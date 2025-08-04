@@ -78,17 +78,17 @@ pub fn run_app<
     TDisplaySettings: DisplaySettings<TDisplaySettingsApi>,
     TSoundSettings: SoundSettings<TSoundSettingsApi>,
 >(
-    args: Arguments,
-    mut display_settings: TDisplaySettings,
-    mut sound_settings: TSoundSettings,
+    args: &Arguments,
+    display_settings: &mut TDisplaySettings,
+    sound_settings: &mut TSoundSettings,
 ) -> Result<ApplicationResult, String> {
-    match args.command {
+    match &args.command {
         Commands::VideoAndAudio {
             video,
             audio,
             shared,
         } => {
-            configure_logger(shared.log_level)?;
+            configure_logger(&shared.log_level)?;
 
             let display_settings_result = display_settings
                 .change_primary_display(&video.desktop_display_name, &video.couch_display_name)?;
@@ -104,7 +104,7 @@ pub fn run_app<
             })
         }
         Commands::VideoOnly { video, shared } => {
-            configure_logger(shared.log_level)?;
+            configure_logger(&shared.log_level)?;
 
             let display_settings_result = display_settings
                 .change_primary_display(&video.desktop_display_name, &video.couch_display_name)?;
@@ -114,7 +114,7 @@ pub fn run_app<
             })
         }
         Commands::AudioOnly { audio, shared } => {
-            configure_logger(shared.log_level)?;
+            configure_logger(&shared.log_level)?;
 
             let sound_settings_result = sound_settings.change_default_output_device(
                 &audio.desktop_speaker_name,
