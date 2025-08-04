@@ -24,7 +24,7 @@ fn it_should_change_primary_display_and_default_output_device() {
         .with_a_secondary_named(secondary_display_name.clone())
         .build_displays()
         .with_audio_output_devices()
-        .of_which_there_are(2)
+        .of_which_there_are_at_least(2)
         .whose_default_one_is_named(default_audio_output_device_name.clone())
         .with_an_alternative_one_named(alternative_audio_output_device_name.clone())
         .build_audio_output_devices()
