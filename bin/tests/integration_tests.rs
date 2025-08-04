@@ -1,4 +1,6 @@
-use convertible_couch::{run_app, ApplicationResult, Args};
+use convertible_couch::{
+    run_app, ApplicationResult, Arguments, AudioOpts, Commands, SharedOpts, VideoOpts,
+};
 use convertible_couch_lib::{
     display_settings::{CurrentDisplaySettings, DisplaySettings, DisplaySettingsResult},
     func,
@@ -33,12 +35,20 @@ fn it_should_change_primary_display_and_default_output_device() {
     let display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
     let sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
 
-    let args = Args {
-        desktop_display_name: primary_display_name.clone(),
-        couch_display_name: secondary_display_name.clone(),
-        desktop_speaker_name: default_audio_output_device_name.clone(),
-        couch_speaker_name: alternative_audio_output_device_name.clone(),
-        log_level: LogLevel::Off,
+    let args = Arguments {
+        command: Commands::VideoAndAudio {
+            video: VideoOpts {
+                desktop_display_name: primary_display_name.clone(),
+                couch_display_name: secondary_display_name.clone(),
+            },
+            audio: AudioOpts {
+                desktop_speaker_name: default_audio_output_device_name.clone(),
+                couch_speaker_name: alternative_audio_output_device_name.clone(),
+            },
+            shared: SharedOpts {
+                log_level: LogLevel::Off,
+            },
+        },
     };
 
     // Act
@@ -47,7 +57,7 @@ fn it_should_change_primary_display_and_default_output_device() {
     // Assert
     assert_eq!(
         actual_response,
-        Ok(ApplicationResult {
+        Ok(ApplicationResult::VideoAndAudio {
             display_settings: DisplaySettingsResult {
                 new_primary: secondary_display_name,
                 reboot_required: false
