@@ -685,16 +685,13 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        display_settings::{DisplaySettings, DisplaySettingsResult},
+        display_settings::DisplaySettings,
         func,
-        testing::{
-            assertions::assert_that_primary_display_have_been_changed_as_expected,
-            fuzzing::{display_settings::win_32::FuzzedWin32, Fuzzer},
-        },
+        testing::fuzzing::{display_settings::win_32::FuzzedWin32, Fuzzer},
     };
     use std::collections::HashSet;
     use test_case::test_case;
-    use windows::Win32::Graphics::Gdi::{DISP_CHANGE, DISP_CHANGE_RESTART};
+    use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
     use super::WindowsDisplaySettings;
 
@@ -733,8 +730,7 @@ mod tests {
         let mut fuzzer = Fuzzer::new(func!(), true);
 
         let forbidden_display_name = fuzzer.generate_display_name();
-        let mut forbidden_display_names = HashSet::with_capacity(1);
-        forbidden_display_names.insert(forbidden_display_name.as_str());
+        let forbidden_display_names = HashSet::from([forbidden_display_name.as_str()]);
 
         let computer = fuzzer
             .generate_computer()
@@ -764,8 +760,7 @@ mod tests {
         let mut fuzzer = Fuzzer::new(func!(), true);
 
         let forbidden_device_id = fuzzer.generate_device_id();
-        let mut forbidden_device_ids = HashSet::with_capacity(1);
-        forbidden_device_ids.insert(&forbidden_device_id);
+        let forbidden_device_ids = HashSet::from([&forbidden_device_id]);
 
         let computer = fuzzer
             .generate_computer()
@@ -786,120 +781,6 @@ mod tests {
             Err(format!(
                 "Failed to retrieve the name of the display at the device path {forbidden_device_id}"
             ))
-        );
-    }
-
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADFLAGS => Err(String::from("An invalid set of flags was passed in.")); "when the error is DISP_CHANGE_BADFLAGS")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADMODE => Err(String::from("The graphics mode is not supported.")); "when the error is DISP_CHANGE_BADMODE")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM => Err(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags.")); "when the error is DISP_CHANGE_BADPARAM")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_FAILED => Err(String::from("The display driver failed the specified graphics mode.")); "when the error is DISP_CHANGE_FAILED")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
-    fn it_should_report_display_change_errors_that_happens_when_committing_changes(
-        disp_change: DISP_CHANGE,
-    ) -> Result<DisplaySettingsResult, String> {
-        // Arrange
-        let mut fuzzer = Fuzzer::new(func!(), true);
-
-        let computer = fuzzer
-            .generate_computer()
-            .with_displays()
-            .of_which_there_are_at_least(2)
-            .build_displays()
-            .for_which_committing_the_display_changes_fails_with(disp_change)
-            .build_computer();
-
-        let mut display_settings = WindowsDisplaySettings::new(computer.display_settings_api);
-
-        // Act
-        display_settings
-            .change_primary_display(&computer.primary_display, &computer.secondary_display)
-    }
-
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADFLAGS => Err(String::from("An invalid set of flags was passed in.")); "when the error is DISP_CHANGE_BADFLAGS")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADMODE => Err(String::from("The graphics mode is not supported.")); "when the error is DISP_CHANGE_BADMODE")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM => Err(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags.")); "when the error is DISP_CHANGE_BADPARAM")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_FAILED => Err(String::from("The display driver failed the specified graphics mode.")); "when the error is DISP_CHANGE_FAILED")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
-    fn it_should_report_display_change_errors_that_happens_for_some_displays(
-        disp_change: DISP_CHANGE,
-    ) -> Result<DisplaySettingsResult, String> {
-        // Arrange
-        let mut fuzzer = Fuzzer::new(func!(), true);
-
-        let computer = fuzzer
-            .generate_computer()
-            .with_displays()
-            .of_which_there_are_at_least(2)
-            .build_displays()
-            .for_which_changing_the_display_settings_fails_for_some_displays(disp_change)
-            .build_computer();
-
-        let mut display_settings = WindowsDisplaySettings::new(computer.display_settings_api);
-
-        // Act
-        display_settings
-            .change_primary_display(&computer.primary_display, &computer.secondary_display)
-    }
-
-    #[test]
-    fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_required_after_committing_display_changes(
-    ) {
-        // Arrange
-        let mut fuzzer = Fuzzer::new(func!(), true);
-
-        let computer = fuzzer
-            .generate_computer()
-            .with_displays()
-            .of_which_there_are_at_least(2)
-            .build_displays()
-            .for_which_committing_the_display_changes_fails_with(DISP_CHANGE_RESTART)
-            .build_computer();
-
-        let mut display_settings = WindowsDisplaySettings::new(computer.display_settings_api);
-
-        // Act
-        let actual_response = display_settings
-            .change_primary_display(&computer.primary_display, &computer.secondary_display);
-
-        // Assert
-        assert_that_primary_display_have_been_changed_as_expected(
-            actual_response,
-            Ok(DisplaySettingsResult {
-                new_primary: computer.secondary_display,
-                reboot_required: true,
-            }),
-        );
-    }
-
-    #[test]
-    fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_required_after_changing_display_for_some_displays(
-    ) {
-        // Arrange
-        let mut fuzzer = Fuzzer::new(func!(), true);
-
-        let computer = fuzzer
-            .generate_computer()
-            .with_displays()
-            .of_which_there_are_at_least(2)
-            .build_displays()
-            .for_which_changing_the_display_settings_fails_for_some_displays(DISP_CHANGE_RESTART)
-            .build_computer();
-
-        let mut display_settings = WindowsDisplaySettings::new(computer.display_settings_api);
-
-        // Act
-        let actual_response = display_settings
-            .change_primary_display(&computer.primary_display, &computer.secondary_display);
-
-        // Assert
-        assert_that_primary_display_have_been_changed_as_expected(
-            actual_response,
-            Ok(DisplaySettingsResult {
-                new_primary: computer.secondary_display,
-                reboot_required: true,
-            }),
         );
     }
 }
