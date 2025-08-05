@@ -10,18 +10,9 @@ use convertible_couch_lib::{
 };
 use std::collections::HashSet;
 
-fn assert_that_response_is_an_error_who_starts_with(
-    actual_response: Result<ApplicationResult, String>,
-    expected_error_message_prefix: &str,
-) {
-    assert!(
-        actual_response
-            .as_ref()
-            .is_err_and(|error_message| error_message.starts_with(expected_error_message_prefix)),
-        "  left: {:?}",
-        actual_response
-    );
-}
+use crate::assertions::assert_that_response_is_an_error_who_starts_with;
+
+mod assertions;
 
 #[test]
 fn it_should_swap_the_desktop_display_with_the_couch_display() {
