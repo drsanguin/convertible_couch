@@ -44,6 +44,14 @@ impl Fuzzer {
         DisplayNameFuzzer::new(&mut self.rand).generate_two()
     }
 
+    pub fn generate_three_display_names(&mut self) -> (String, String, String) {
+        DisplayNameFuzzer::new(&mut self.rand).generate_three()
+    }
+
+    pub fn generate_four_display_names(&mut self) -> (String, String, String, String) {
+        DisplayNameFuzzer::new(&mut self.rand).generate_four()
+    }
+
     pub fn generate_device_id(&mut self) -> FuzzedDeviceId {
         DeviceIdFuzzer::new(&mut self.rand).generate_one()
     }

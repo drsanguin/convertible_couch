@@ -1,7 +1,7 @@
 use super::win_32::Win32;
 use crate::display_settings::{DisplaySettings, DisplaySettingsResult, INTERNAL_DISPLAY_NAME};
 use log::warn;
-use std::{collections::HashSet, mem::size_of};
+use std::{collections::BTreeSet, mem::size_of};
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -101,14 +101,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         })
     }
 
-    fn stringify_displays_names(displays: &HashSet<String>) -> String {
-        let mut displays_error_message_friendly = displays
-            .iter()
-            .map(|display_name| display_name.clone())
-            .collect::<Vec<String>>();
-
-        displays_error_message_friendly.sort();
-        displays_error_message_friendly.join(", ")
+    fn stringify_displays_names(displays: &BTreeSet<String>) -> String {
+        displays.iter().cloned().collect::<Vec<String>>().join(", ")
     }
 
     fn get_current_primary_display_name(&self) -> Result<String, String> {
@@ -584,8 +578,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         }
     }
 
-    fn get_all_displays(&self) -> Result<HashSet<String>, String> {
-        let mut displays_names = HashSet::new();
+    fn get_all_displays(&self) -> Result<BTreeSet<String>, String> {
+        let mut displays_names = BTreeSet::new();
         let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();

@@ -10,26 +10,7 @@ use convertible_couch_lib::{
 };
 use std::collections::HashSet;
 
-pub fn assert_that_displays_have_been_validated(
-    actual_response: Result<ApplicationResult, String>,
-    actual_displays: &Vec<String>,
-    expected_error_message_prefix: &str,
-) {
-    let possible_displays = actual_displays
-        .iter()
-        .map(|display_name| display_name.clone())
-        .collect::<Vec<String>>()
-        .join(", ");
-
-    let expected_error_message =
-        format!("{expected_error_message_prefix}, possible values are [{possible_displays}]");
-
-    let expected_response = Err(expected_error_message);
-
-    assert_eq!(actual_response, expected_response);
-}
-
-pub fn assert_that_response_is_an_error_who_starts_with(
+fn assert_that_response_is_an_error_who_starts_with(
     actual_response: Result<ApplicationResult, String>,
     expected_error_message_prefix: &str,
 ) {
@@ -234,17 +215,17 @@ fn it_should_validate_the_desktop_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (wrong_desktop_display_name, secondary_display_name) = fuzzer.generate_two_display_names();
+    let (wrong_display_name, primary_display_name, secondary_display_name) =
+        fuzzer.generate_three_display_names();
 
-    // let wrong_desktop_display_name = fuzzer.generate_display_name();
-    let mut forbidden_display_names = HashSet::with_capacity(1);
-    forbidden_display_names.insert(wrong_desktop_display_name.as_str());
+    let forbidden_display_names = HashSet::from([wrong_display_name.as_str()]);
 
     let computer = fuzzer
         .generate_computer()
         .with_displays()
-        .of_which_there_are_at_least(2)
+        .of_which_there_are(2)
         .whose_names_are_different_from(forbidden_display_names)
+        .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .build_displays()
         .build_computer();
@@ -255,7 +236,7 @@ fn it_should_validate_the_desktop_display() {
     let args = Arguments {
         command: Commands::VideoOnly {
             video: VideoOpts {
-                desktop_display_name: wrong_desktop_display_name,
+                desktop_display_name: wrong_display_name,
                 couch_display_name: secondary_display_name.clone(),
             },
             shared: SharedOpts {
@@ -268,10 +249,11 @@ fn it_should_validate_the_desktop_display() {
     let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
 
     // Assert
-    assert_that_displays_have_been_validated(
+    assert_eq!(
         actual_response,
-        &computer.displays,
-        "Desktop display is invalid",
+        Err(format!(
+            "Desktop display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
+        ))
     );
 }
 
@@ -280,17 +262,18 @@ fn it_should_validate_the_couch_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (wrong_couch_display_name, primary_display_name) = fuzzer.generate_two_display_names();
+    let (wrong_display_name, primary_display_name, secondary_display_name) =
+        fuzzer.generate_three_display_names();
 
-    let mut forbidden_display_names = HashSet::with_capacity(1);
-    forbidden_display_names.insert(wrong_couch_display_name.as_str());
+    let forbidden_display_names = HashSet::from([wrong_display_name.as_str()]);
 
     let computer = fuzzer
         .generate_computer()
         .with_displays()
-        .of_which_there_are_at_least(2)
+        .of_which_there_are(2)
         .whose_names_are_different_from(forbidden_display_names)
         .whose_primary_is_named(primary_display_name.clone())
+        .with_a_secondary_named(secondary_display_name.clone())
         .build_displays()
         .build_computer();
 
@@ -300,8 +283,8 @@ fn it_should_validate_the_couch_display() {
     let args = Arguments {
         command: Commands::VideoOnly {
             video: VideoOpts {
-                desktop_display_name: primary_display_name,
-                couch_display_name: wrong_couch_display_name,
+                desktop_display_name: primary_display_name.clone(),
+                couch_display_name: wrong_display_name,
             },
             shared: SharedOpts {
                 log_level: LogLevel::Off,
@@ -313,10 +296,11 @@ fn it_should_validate_the_couch_display() {
     let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
 
     // Assert
-    assert_that_displays_have_been_validated(
+    assert_eq!(
         actual_response,
-        &computer.displays,
-        "Couch display is invalid",
+        Err(format!(
+            "Couch display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
+        ))
     );
 }
 
@@ -325,18 +309,19 @@ fn it_should_validate_both_desktop_and_couch_displays() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (wrong_desktop_display_name, wrong_couch_display_name) =
-        fuzzer.generate_two_display_names();
+    let (wrong_display_name1, wrong_display_name2, primary_display_name, secondary_display_name) =
+        fuzzer.generate_four_display_names();
 
-    let mut forbidden_display_names = HashSet::with_capacity(2);
-    forbidden_display_names.insert(wrong_desktop_display_name.as_str());
-    forbidden_display_names.insert(wrong_couch_display_name.as_str());
+    let forbidden_display_names =
+        HashSet::from([wrong_display_name1.as_str(), wrong_display_name2.as_str()]);
 
     let computer = fuzzer
         .generate_computer()
         .with_displays()
-        .of_which_there_are_at_least(2)
+        .of_which_there_are(2)
         .whose_names_are_different_from(forbidden_display_names)
+        .whose_primary_is_named(primary_display_name.clone())
+        .with_a_secondary_named(secondary_display_name.clone())
         .build_displays()
         .build_computer();
 
@@ -346,8 +331,8 @@ fn it_should_validate_both_desktop_and_couch_displays() {
     let args = Arguments {
         command: Commands::VideoOnly {
             video: VideoOpts {
-                desktop_display_name: wrong_desktop_display_name,
-                couch_display_name: wrong_couch_display_name,
+                desktop_display_name: wrong_display_name1,
+                couch_display_name: wrong_display_name2,
             },
             shared: SharedOpts {
                 log_level: LogLevel::Off,
@@ -359,10 +344,11 @@ fn it_should_validate_both_desktop_and_couch_displays() {
     let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
 
     // Assert
-    assert_that_displays_have_been_validated(
+    assert_eq!(
         actual_response,
-        &computer.displays,
-        "Desktop and couch displays are invalid",
+        Err(format!(
+            "Desktop and couch displays are invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
+        ))
     );
 }
 

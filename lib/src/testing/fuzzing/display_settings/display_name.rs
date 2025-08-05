@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 use rand::{
     distr::{Alphanumeric, SampleString},
@@ -98,12 +98,29 @@ impl<'a> DisplayNameFuzzer<'a> {
         (several.remove(0), several.remove(0))
     }
 
+    pub fn generate_three(&mut self) -> (String, String, String) {
+        let mut several = self.generate_several(3, &HashSet::new());
+
+        (several.remove(0), several.remove(0), several.remove(0))
+    }
+
+    pub fn generate_four(&mut self) -> (String, String, String, String) {
+        let mut several = self.generate_several(4, &HashSet::new());
+
+        (
+            several.remove(0),
+            several.remove(0),
+            several.remove(0),
+            several.remove(0),
+        )
+    }
+
     pub fn generate_several(
         &mut self,
         count: usize,
         forbidden_display_names: &HashSet<&str>,
     ) -> Vec<String> {
-        let mut names = HashSet::with_capacity(count);
+        let mut names = BTreeSet::new();
 
         while names.len() != count {
             let name = self.generate_one();
