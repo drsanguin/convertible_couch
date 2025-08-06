@@ -2,12 +2,8 @@
 macro_rules! func {
     () => {{
         fn f() {}
-        fn type_name_of<T>(_: T) -> &'static str {
-            std::any::type_name::<T>()
-        }
-        let name = type_name_of(f);
-
-        &name[19..name.len() - 3]
+        let name = std::any::type_name_of_val(&f);
+        name.rsplit("::").nth(1).unwrap_or(name)
     }};
 }
 
