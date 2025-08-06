@@ -15,9 +15,6 @@ use crate::testing::fuzzing::{
 pub struct FuzzedComputer {
     #[cfg(target_os = "windows")]
     pub display_settings_api: FuzzedWin32,
-    pub primary_display: String,
-    pub secondary_display: String,
-    pub displays: Vec<String>,
     #[cfg(target_os = "windows")]
     pub audio_settings_api: FuzzedAudioEndpointLibrary,
 }
@@ -123,14 +120,6 @@ impl ComputerFuzzer {
     }
 
     pub fn build_computer(&mut self) -> FuzzedComputer {
-        let secondary_display = self.get_display(false);
-        let primary_display = self.get_display(true);
-
-        assert_ne!(
-            secondary_display, primary_display,
-            "Error during fuzzing ! Primary and secondary displays are the same"
-        );
-
         let mut change_display_settings_error_by_display = HashMap::new();
 
         if self.change_display_settings_error.is_some() {
@@ -158,35 +147,10 @@ impl ComputerFuzzer {
         let display_settings_api =
             self.get_display_settings_api(change_display_settings_error_by_display);
 
-        let mut displays = self.get_all_displays();
-
-        displays.sort();
-
         FuzzedComputer {
-            secondary_display,
-            primary_display,
             display_settings_api,
-            displays,
             audio_settings_api: FuzzedAudioEndpointLibrary::new(self.audio_endpoints.clone()),
         }
-    }
-
-    fn get_display(&self, primary: bool) -> String {
-        self.video_outputs
-            .iter()
-            .filter_map(|video_output| match &video_output.display {
-                Some(display) => match display.primary {
-                    p if p == primary => Some(display.name.clone()),
-                    _ => None,
-                },
-                None => None,
-            })
-            .nth(0)
-            .unwrap_or(if primary {
-                String::from("<primary>")
-            } else {
-                String::from("<secondary>")
-            })
     }
 
     #[cfg(target_os = "windows")]
@@ -201,15 +165,5 @@ impl ComputerFuzzer {
             self.getting_primary_display_name_fails,
             self.querying_the_display_config_of_the_primary_display_fails,
         )
-    }
-
-    fn get_all_displays(&self) -> Vec<String> {
-        self.video_outputs
-            .iter()
-            .filter_map(|video_output| match &video_output.display {
-                Some(display) => Some(display.name.clone()),
-                None => None,
-            })
-            .collect::<Vec<String>>()
     }
 }
