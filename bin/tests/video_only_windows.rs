@@ -34,8 +34,8 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .for_which_committing_the_display_changes_fails_with(disp_change)
+        .build_displays()
         .build_computer();
 
     let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
@@ -77,8 +77,8 @@ fn it_should_report_display_change_errors_that_happens_for_some_displays(
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .for_which_changing_the_display_settings_fails_for_some_displays(disp_change)
+        .build_displays()
         .build_computer();
 
     let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
@@ -114,8 +114,8 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .for_which_committing_the_display_changes_fails_with(DISP_CHANGE_RESTART)
+        .build_displays()
         .build_computer();
 
     let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
@@ -162,8 +162,8 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .for_which_changing_the_display_settings_fails_for_some_displays(DISP_CHANGE_RESTART)
+        .build_displays()
         .build_computer();
 
     let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);

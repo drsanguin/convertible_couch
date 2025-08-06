@@ -1,15 +1,13 @@
-use rand::{rngs::StdRng, seq::IndexedRandom, Rng, RngCore, SeedableRng};
-use std::collections::HashMap;
-use windows::Win32::Graphics::Gdi::DISP_CHANGE;
+use rand::{rngs::StdRng, RngCore, SeedableRng};
 
+use crate::testing::fuzzing::{
+    display_settings::displays::DisplaysFuzzer,
+    sound_settings::audio_output_device::{AudioOutputDeviceFuzzer, FuzzedAudioOutputDevice},
+};
 #[cfg(target_os = "windows")]
 use crate::testing::fuzzing::{
     display_settings::win_32::FuzzedWin32,
     sound_settings::audio_endpoint_library::FuzzedAudioEndpointLibrary,
-};
-use crate::testing::fuzzing::{
-    display_settings::{displays::DisplaysFuzzer, video_output::FuzzedVideoOutput},
-    sound_settings::audio_output_device::{AudioOutputDeviceFuzzer, FuzzedAudioOutputDevice},
 };
 
 pub struct FuzzedComputer {
@@ -22,11 +20,7 @@ pub struct FuzzedComputer {
 #[derive(Clone)]
 pub struct ComputerFuzzer {
     rand: StdRng,
-    video_outputs: Vec<FuzzedVideoOutput>,
-    change_display_settings_error: Option<DISP_CHANGE>,
-    change_display_settings_error_on_commit: Option<DISP_CHANGE>,
-    getting_primary_display_name_fails: bool,
-    querying_the_display_config_of_the_primary_display_fails: bool,
+    display_settings_api: FuzzedWin32,
     audio_endpoints: Vec<FuzzedAudioOutputDevice>,
 }
 
@@ -34,28 +28,18 @@ impl ComputerFuzzer {
     pub fn new(rand: StdRng) -> Self {
         Self {
             rand,
-            video_outputs: vec![],
-            change_display_settings_error: None,
-            change_display_settings_error_on_commit: None,
-            getting_primary_display_name_fails: false,
-            querying_the_display_config_of_the_primary_display_fails: false,
+            display_settings_api: FuzzedWin32::default(),
             audio_endpoints: vec![],
         }
     }
 
-    pub fn new_with_video_outputs(
+    pub fn new_with_display_settings_api(
         computer_fuzzer: &mut ComputerFuzzer,
-        video_outputs: Vec<FuzzedVideoOutput>,
+        display_settings_api: FuzzedWin32,
     ) -> Self {
         Self {
             rand: StdRng::seed_from_u64(computer_fuzzer.rand.next_u64()),
-            video_outputs,
-            change_display_settings_error: computer_fuzzer.change_display_settings_error,
-            change_display_settings_error_on_commit: computer_fuzzer
-                .change_display_settings_error_on_commit,
-            getting_primary_display_name_fails: computer_fuzzer.getting_primary_display_name_fails,
-            querying_the_display_config_of_the_primary_display_fails: computer_fuzzer
-                .querying_the_display_config_of_the_primary_display_fails,
+            display_settings_api,
             audio_endpoints: computer_fuzzer.audio_endpoints.clone(),
         }
     }
@@ -66,13 +50,7 @@ impl ComputerFuzzer {
     ) -> Self {
         Self {
             rand: StdRng::seed_from_u64(computer_fuzzer.rand.next_u64()),
-            video_outputs: computer_fuzzer.video_outputs.clone(),
-            change_display_settings_error: computer_fuzzer.change_display_settings_error,
-            change_display_settings_error_on_commit: computer_fuzzer
-                .change_display_settings_error_on_commit,
-            getting_primary_display_name_fails: computer_fuzzer.getting_primary_display_name_fails,
-            querying_the_display_config_of_the_primary_display_fails: computer_fuzzer
-                .querying_the_display_config_of_the_primary_display_fails,
+            display_settings_api: computer_fuzzer.display_settings_api.clone(),
             audio_endpoints: audio_output_devices,
         }
     }
@@ -81,89 +59,14 @@ impl ComputerFuzzer {
         DisplaysFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
     }
 
-    #[cfg(target_os = "windows")]
-    pub fn for_which_committing_the_display_changes_fails_with(
-        &mut self,
-        change_display_settings_error: DISP_CHANGE,
-    ) -> &mut Self {
-        self.change_display_settings_error_on_commit = Some(change_display_settings_error);
-
-        self
-    }
-
-    #[cfg(target_os = "windows")]
-    pub fn for_which_changing_the_display_settings_fails_for_some_displays(
-        &mut self,
-        change_display_settings_error: DISP_CHANGE,
-    ) -> &mut Self {
-        self.change_display_settings_error = Some(change_display_settings_error);
-
-        self
-    }
-
-    pub fn for_which_getting_the_primary_display_fails(&mut self) -> &mut Self {
-        self.getting_primary_display_name_fails = true;
-
-        self
-    }
-
-    pub fn for_which_querying_the_display_config_of_the_primary_display_fails(
-        &mut self,
-    ) -> &mut Self {
-        self.querying_the_display_config_of_the_primary_display_fails = true;
-
-        self
-    }
-
     pub fn with_audio_output_devices(&mut self) -> AudioOutputDeviceFuzzer {
         AudioOutputDeviceFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
     }
 
     pub fn build_computer(&mut self) -> FuzzedComputer {
-        let mut change_display_settings_error_by_display = HashMap::new();
-
-        if self.change_display_settings_error.is_some() {
-            let possible_devices_paths = self
-                .video_outputs
-                .iter()
-                .filter_map(|video_output| match &video_output.display {
-                    Some(_) => Some(video_output.device_name.clone()),
-                    None => None,
-                })
-                .collect::<Vec<String>>();
-
-            let n_display_on_error = self.rand.random_range(1..possible_devices_paths.len());
-
-            possible_devices_paths
-                .choose_multiple(&mut self.rand, n_display_on_error)
-                .for_each(|device_path| {
-                    change_display_settings_error_by_display.insert(
-                        String::from(device_path),
-                        self.change_display_settings_error.unwrap(),
-                    );
-                });
-        }
-
-        let display_settings_api =
-            self.get_display_settings_api(change_display_settings_error_by_display);
-
         FuzzedComputer {
-            display_settings_api,
+            display_settings_api: self.display_settings_api.clone(),
             audio_settings_api: FuzzedAudioEndpointLibrary::new(self.audio_endpoints.clone()),
         }
-    }
-
-    #[cfg(target_os = "windows")]
-    fn get_display_settings_api(
-        &mut self,
-        change_display_settings_error_by_display: HashMap<String, DISP_CHANGE>,
-    ) -> FuzzedWin32 {
-        FuzzedWin32::new(
-            self.video_outputs.clone(),
-            self.change_display_settings_error_on_commit,
-            change_display_settings_error_by_display,
-            self.getting_primary_display_name_fails,
-            self.querying_the_display_config_of_the_primary_display_fails,
-        )
     }
 }

@@ -22,6 +22,7 @@ use crate::{display_settings::windows::win_32::Win32, testing::utils::encode_utf
 
 use super::{position::FuzzedDisplayPosition, video_output::FuzzedVideoOutput};
 
+#[derive(Clone)]
 pub struct FuzzedWin32 {
     video_outputs: Vec<FuzzedVideoOutput>,
     change_display_settings_error_on_commit: Option<DISP_CHANGE>,
@@ -32,6 +33,17 @@ pub struct FuzzedWin32 {
 }
 
 impl FuzzedWin32 {
+    pub fn default() -> Self {
+        Self {
+            video_outputs: vec![],
+            change_display_settings_error_on_commit: None,
+            change_display_settings_error_by_display: HashMap::new(),
+            display_changes_to_commit: HashMap::new(),
+            getting_primary_display_name_fails: false,
+            querying_the_display_config_of_the_primary_display_fails: false,
+        }
+    }
+
     pub fn new(
         video_outputs: Vec<FuzzedVideoOutput>,
         change_display_settings_error_on_commit: Option<DISP_CHANGE>,

@@ -355,8 +355,8 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .for_which_getting_the_primary_display_fails()
+        .build_displays()
         .build_computer();
 
     let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
@@ -397,8 +397,8 @@ fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_dis
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .for_which_querying_the_display_config_of_the_primary_display_fails()
+        .build_displays()
         .build_computer();
 
     let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
