@@ -5,6 +5,7 @@ use rand::{rngs::StdRng, Rng};
 use crate::testing::fuzzing::{
     computer::ComputerFuzzer,
     sound_settings::{
+        audio_endpoint_library::FuzzedAudioEndpointLibrary,
         audio_output_device_id::AudioOutputDeviceIdFuzzer,
         audio_output_device_name::AudioOutputDeviceNameFuzzer,
     },
@@ -119,7 +120,7 @@ impl AudioOutputDeviceFuzzer {
 
         ComputerFuzzer::new_with_audio_output_devices(
             &mut self.computer_fuzzer,
-            audio_output_devices,
+            FuzzedAudioEndpointLibrary::new(audio_output_devices),
         )
     }
 }

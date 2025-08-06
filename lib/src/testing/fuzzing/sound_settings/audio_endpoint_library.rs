@@ -16,11 +16,18 @@ use std::{
     },
 };
 
+#[derive(Clone)]
 pub struct FuzzedAudioEndpointLibrary {
     audio_output_devices: Vec<FuzzedAudioOutputDevice>,
 }
 
 impl FuzzedAudioEndpointLibrary {
+    pub fn default() -> Self {
+        Self {
+            audio_output_devices: vec![],
+        }
+    }
+
     pub fn new(audio_output_devices: Vec<FuzzedAudioOutputDevice>) -> Self {
         Self {
             audio_output_devices,
