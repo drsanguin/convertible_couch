@@ -106,17 +106,13 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
     }
 
     fn get_current_primary_display_name(&self) -> Result<String, String> {
-        let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
 
-        loop {
-            display_adapter_index += 1;
-
+        for idevnum in 0..=u32::MAX {
             let mut display_adapter = DISPLAY_DEVICEW::default();
             display_adapter.cb = size_of_display_devicew;
 
-            let idevnum = u32::try_from(display_adapter_index).unwrap();
             let is_success_display_adapter = self
                 .win32
                 .enum_display_devices_w(
@@ -198,16 +194,13 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
     }
 
     fn get_display_position(&self, display_name: &str) -> Result<DisplayPosition, String> {
-        let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
 
-        loop {
-            display_adapter_index += 1;
+        for idevnum in 0..=u32::MAX {
             let mut display_adapter = DISPLAY_DEVICEW::default();
             display_adapter.cb = size_of_display_devicew;
 
-            let idevnum = u32::try_from(display_adapter_index).unwrap();
             let is_success_display_adapter = self
                 .win32
                 .enum_display_devices_w(
@@ -308,19 +301,15 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         &mut self,
         position: &DisplayPosition,
     ) -> Result<DisplaySettingsResult, String> {
-        let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
         let mut reboot_required = false;
         let mut new_primary = None;
 
-        loop {
-            display_adapter_index += 1;
-
+        for idevnum in 0..=u32::MAX {
             let mut display_adapter = DISPLAY_DEVICEW::default();
             display_adapter.cb = size_of_display_devicew;
 
-            let idevnum = u32::try_from(display_adapter_index).unwrap();
             let is_success_display_adapter = self
                 .win32
                 .enum_display_devices_w(
@@ -580,17 +569,13 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
     fn get_all_displays(&self) -> Result<BTreeSet<String>, String> {
         let mut displays_names = BTreeSet::new();
-        let mut display_adapter_index: i32 = -1;
         let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
         let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
 
-        loop {
-            display_adapter_index += 1;
-
+        for idevnum in 0..=u32::MAX {
             let mut display_adapter = DISPLAY_DEVICEW::default();
             display_adapter.cb = size_of_display_devicew;
 
-            let idevnum = u32::try_from(display_adapter_index).unwrap();
             let is_success_display_adapter = self
                 .win32
                 .enum_display_devices_w(
