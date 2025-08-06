@@ -96,7 +96,7 @@ jobs:
       
     - name: Upload Tests Coverage ⬆️
       run: |
-        cargo tarpaulin --exclude-files bin\src\main.rs lib\src\testing\* `
+        cargo tarpaulin --exclude-files bin\src\main.rs bin\tests\* lib\src\testing\* `
           lib\src\display_settings\windows\win_32\windows_api_based_win_32.rs `
           lib\src\sound_settings\windows\audio_endpoint_library\dll_based_audio_endpoint_library.rs `
           --coveralls ${{ secrets.COVERALLS_TOKEN }}
