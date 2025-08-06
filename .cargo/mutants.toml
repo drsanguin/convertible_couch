@@ -7,5 +7,4 @@ exclude_globs = [
     ]
 exclude_re = [
     "configure_logger", # this function is just side effect
-    "lib/src/display_settings/windows/windows_display_settings.rs:136:16: delete ! in WindowsDisplaySettings<TWin32>::get_current_primary_display_name" # causes infinite loop
     ]
