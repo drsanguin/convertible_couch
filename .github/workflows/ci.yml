@@ -79,7 +79,7 @@ jobs:
 
     - name: Run Mutants Tests 🧟‍♂️
       id: run_mutants_tests
-      run: cargo mutants --all-features --no-shuffle --in-place
+      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true
 
     - name: Archive results ⬆️
       uses: actions/upload-artifact@v4
