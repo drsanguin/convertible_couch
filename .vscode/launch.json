@@ -26,44 +26,6 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'integration_tests' in library 'convertible_couch_lib'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--test=integration_tests",
-                    "--package=convertible_couch_lib"
-                ],
-                "filter": {
-                    "name": "integration_tests",
-                    "kind": "test"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug benchmark 'change_primary_display'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bench=change_primary_display",
-                    "--package=convertible_couch_lib"
-                ],
-                "filter": {
-                    "name": "change_primary_display",
-                    "kind": "bench"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
             "name": "Debug unit tests in library 'convertible_couch'",
             "cargo": {
                 "args": [
@@ -96,6 +58,7 @@
                 }
             },
             "args": [
+                "video-and-audio",
                 "--desktop-display-name",
                 "LG ULTRAWIDE",
                 "--couch-display-name",
@@ -131,17 +94,74 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'integration_tests' in executable 'convertible_couch'",
+            "name": "Debug integration test 'video_and_audio'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--test=integration_tests",
+                    "--test=video_and_audio",
                     "--package=convertible_couch"
                 ],
                 "filter": {
-                    "name": "integration_tests",
+                    "name": "video_and_audio",
                     "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'video_only'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=video_only",
+                    "--package=convertible_couch"
+                ],
+                "filter": {
+                    "name": "video_only",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'video_only_windows'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=video_only_windows",
+                    "--package=convertible_couch"
+                ],
+                "filter": {
+                    "name": "video_only_windows",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'benchmark'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=benchmark",
+                    "--package=convertible_couch"
+                ],
+                "filter": {
+                    "name": "benchmark",
+                    "kind": "bench"
                 }
             },
             "args": [],
