@@ -562,10 +562,9 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 break;
             }
 
-            let mut display_device = Self::get_default_display_devicew();
-
             let display_adapter_device_name =
                 Self::get_pcwstr_from_raw(&display_adapter.DeviceName);
+            let mut display_device = Self::get_default_display_devicew();
 
             let is_success_display_device = self
                 .win32
