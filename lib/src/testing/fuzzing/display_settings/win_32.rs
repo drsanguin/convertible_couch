@@ -290,6 +290,7 @@ impl Win32 for FuzzedWin32 {
             if self.video_outputs.is_empty()
                 || dwflags != EDD_GET_DEVICE_INTERFACE_NAME
                 || video_output_index > self.video_outputs.len() - 1
+                || (unsafe { *lpdisplaydevice }).cb == 0
             {
                 return BOOL(0);
             }
@@ -334,7 +335,7 @@ impl Win32 for FuzzedWin32 {
         imodenum: ENUM_DISPLAY_SETTINGS_MODE,
         lpdevmode: *mut DEVMODEW,
     ) -> BOOL {
-        if imodenum != ENUM_CURRENT_SETTINGS {
+        if imodenum != ENUM_CURRENT_SETTINGS || (unsafe { *lpdevmode }).dmSize == 0 {
             return BOOL(0);
         }
 
