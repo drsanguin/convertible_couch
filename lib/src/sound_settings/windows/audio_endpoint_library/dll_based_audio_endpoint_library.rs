@@ -3,7 +3,7 @@ use std::os::raw::{c_int, c_ushort};
 use crate::sound_settings::windows::audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
 
 #[link(
-    name = ".\\AudioEndPointLibrary\\AudioEndPointLibrary\\bin\\x64\\Release\\AudioEndPointLibrary"
+    name = ".\\lib\\AudioEndPointLibrary\\AudioEndPointLibrary\\bin\\x64\\Release\\AudioEndPointLibrary"
 )]
 unsafe extern "C" {
     unsafe fn get_all_audio_endpoints_count() -> c_int;

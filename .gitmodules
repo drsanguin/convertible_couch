@@ -1,4 +1,4 @@
-[submodule "AudioEndPointLibrary"]
-	path = AudioEndPointLibrary
-	url = https://github.com/drsanguin/AudioEndPointLibrary
+[submodule "lib/AudioEndPointLibrary"]
+	path = lib/AudioEndPointLibrary
+	url = https://github.com/drsanguin/AudioEndPointLibrary.git
 	branch = feat/c-compatible-symbols

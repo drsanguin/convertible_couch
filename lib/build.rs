@@ -1,7 +1,7 @@
 use std::{env, fs::copy, path::Path, process::Command};
 
 fn main() {
-    let audio_endpoint_library_solution_path = Path::new("..").join("AudioEndPointLibrary");
+    let audio_endpoint_library_solution_path = Path::new(".").join("AudioEndPointLibrary");
     let audio_endpoint_library_project_path = Path::new(".")
         .join("AudioEndPointLibrary")
         .join("AudioEndPointLibrary.vcxproj");
@@ -27,7 +27,7 @@ fn main() {
         panic!("Failed to compile AudioEndPointLibrary");
     }
 
-    let dll_source = Path::new("..")
+    let dll_source = Path::new(".")
         .join("AudioEndPointLibrary")
         .join("AudioEndPointLibrary")
         .join("bin")
