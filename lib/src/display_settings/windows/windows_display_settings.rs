@@ -177,11 +177,9 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
-            let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
-            let current_raw_display_name = self
-                .get_display_name(display_device_device_id_trimed)
-                .unwrap();
+            let display_device_device_id = Self::from_utf16_trimed(&display_device.DeviceID);
+            let current_raw_display_name =
+                self.get_display_name(&display_device_device_id).unwrap();
             let current_display_name = Self::from_raw_display_name(&current_raw_display_name);
 
             return Ok(current_display_name);
@@ -258,11 +256,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
-            let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
-            let current_display_name = self
-                .get_display_name(display_device_device_id_trimed)
-                .unwrap();
+            let display_device_device_id = Self::from_utf16_trimed(&display_device.DeviceID);
+            let current_display_name = self.get_display_name(&display_device_device_id).unwrap();
 
             if current_display_name != display_name {
                 continue;
@@ -380,16 +375,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             let mut dwflags = CDS_UPDATEREGISTRY | CDS_NORESET;
 
             if self.is_positioned_at_origin(display_adapter_graphics_mode) {
-                let display_device_device_id =
-                    String::from_utf16(&display_device.DeviceID).unwrap();
-                let display_device_device_id_trimed =
-                    display_device_device_id.trim_end_matches('\0');
+                let display_device_device_id = Self::from_utf16_trimed(&display_device.DeviceID);
 
                 dwflags |= CDS_SET_PRIMARY;
-                new_primary = Some(
-                    self.get_display_name(display_device_device_id_trimed)
-                        .unwrap(),
-                )
+                new_primary = Some(self.get_display_name(&display_device_device_id).unwrap())
             }
 
             let change_display_settings_ex_result = self.win32.change_display_settings_ex_w(
@@ -523,17 +512,15 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
                 match display_config_get_device_info_result {
                     ERROR_SUCCESS => {
-                        let display_friendly_device_name = String::from_utf16(&displayconfig_target_device_name.monitorFriendlyDeviceName).unwrap();
-                        let current_display_device_path = String::from_utf16(&displayconfig_target_device_name.monitorDevicePath).unwrap();
-                        let current_display_device_path_trimed = current_display_device_path.trim_end_matches('\0');
+                        let current_display_device_path = Self::from_utf16_trimed(&displayconfig_target_device_name.monitorDevicePath);
 
-                        if current_display_device_path_trimed != display_device_path {
+                        if current_display_device_path != display_device_path {
                             continue;
                         }
 
-                        let raw_display_friendly_device_name_trimed = display_friendly_device_name.trim_end_matches('\0');
+                        let display_friendly_device_name = Self::from_utf16_trimed(&displayconfig_target_device_name.monitorFriendlyDeviceName);
 
-                        return Ok(Self::from_raw_display_name(raw_display_friendly_device_name_trimed));
+                        return Ok(Self::from_raw_display_name(display_friendly_device_name.as_str()));
                     },
                     error => return Err(format!("Failed to retrieve display configuration information about the device {} because of error {}", mode_information.id, error.0))
                 }
@@ -627,10 +614,9 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let display_device_device_id = String::from_utf16(&display_device.DeviceID).unwrap();
-            let display_device_device_id_trimed = display_device_device_id.trim_end_matches('\0');
+            let display_device_device_id = Self::from_utf16_trimed(&display_device.DeviceID);
 
-            match self.get_display_name(display_device_device_id_trimed) {
+            match self.get_display_name(&display_device_device_id) {
                 Ok(current_raw_display_name) => {
                     let current_display_name =
                         Self::from_raw_display_name(&current_raw_display_name);
@@ -660,6 +646,12 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
     {
         let size = size_of::<T1>();
         T2::try_from(size).unwrap()
+    }
+
+    fn from_utf16_trimed(bytes: &[u16]) -> String {
+        let str = String::from_utf16(bytes).unwrap();
+
+        str.trim_end_matches('\0').to_string()
     }
 }
 
