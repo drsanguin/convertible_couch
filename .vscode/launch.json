@@ -7,6 +7,36 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug executable 'convertible_couch'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=convertible_couch",
+                    "--package=convertible_couch"
+                ],
+                "filter": {
+                    "name": "convertible_couch",
+                    "kind": "bin"
+                }
+            },
+            "args": [
+                "video-and-audio",
+                "--desktop-display-name",
+                "LG ULTRAWIDE",
+                "--couch-display-name",
+                "M227WD",
+                "--desktop-speaker-name",
+                "Haut-parleurs (Realtek(R) Audio)",
+                "--couch-speaker-name",
+                "Haut-parleurs (Corsair Vengeance 1500)",
+                "--log-level",
+                "trace"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug unit tests in library 'convertible_couch_lib'",
             "cargo": {
                 "args": [
@@ -40,36 +70,6 @@
                 }
             },
             "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'convertible_couch'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=convertible_couch",
-                    "--package=convertible_couch"
-                ],
-                "filter": {
-                    "name": "convertible_couch",
-                    "kind": "bin"
-                }
-            },
-            "args": [
-                "video-and-audio",
-                "--desktop-display-name",
-                "LG ULTRAWIDE",
-                "--couch-display-name",
-                "M227WD",
-                "--desktop-speaker-name",
-                "Haut-parleurs (Realtek(R) Audio)",
-                "--couch-speaker-name",
-                "Haut-parleurs (Corsair Vengeance 1500)",
-                "--log-level",
-                "trace"
-            ],
             "cwd": "${workspaceFolder}"
         },
         {
