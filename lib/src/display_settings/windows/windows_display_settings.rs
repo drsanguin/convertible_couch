@@ -1,7 +1,7 @@
 use super::win_32::Win32;
 use crate::display_settings::{DisplaySettings, DisplaySettingsResult, INTERNAL_DISPLAY_NAME};
 use log::warn;
-use std::{collections::BTreeSet, mem::size_of};
+use std::{collections::BTreeSet, fmt::Debug, mem::size_of};
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -106,8 +106,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
     }
 
     fn get_current_primary_display_name(&self) -> Result<String, String> {
-        let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
-        let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
+        let size_of_display_devicew = Self::size_of::<DISPLAY_DEVICEW, u32>();
+        let size_of_devmode = Self::size_of::<DEVMODEW, u16>();
 
         for idevnum in 0..=u32::MAX {
             let mut display_adapter = DISPLAY_DEVICEW::default();
@@ -151,9 +151,6 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
                 continue;
             }
-
-            let size_of_devmode_as_usize = size_of::<DEVMODEW>();
-            let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
 
             let mut display_adapter_graphics_mode = DEVMODEW::default();
             display_adapter_graphics_mode.dmSize = size_of_devmode;
@@ -194,8 +191,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
     }
 
     fn get_display_position(&self, display_name: &str) -> Result<DisplayPosition, String> {
-        let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
-        let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
+        let size_of_display_devicew = Self::size_of::<DISPLAY_DEVICEW, u32>();
+        let size_of_devmode = Self::size_of::<DEVMODEW, u16>();
 
         for idevnum in 0..=u32::MAX {
             let mut display_adapter = DISPLAY_DEVICEW::default();
@@ -239,9 +236,6 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
                 continue;
             }
-
-            let size_of_devmode_as_usize = size_of::<DEVMODEW>();
-            let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
 
             let mut display_adapter_graphics_mode = DEVMODEW::default();
             display_adapter_graphics_mode.dmSize = size_of_devmode;
@@ -301,8 +295,9 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         &mut self,
         position: &DisplayPosition,
     ) -> Result<DisplaySettingsResult, String> {
-        let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
-        let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
+        let size_of_display_devicew = Self::size_of::<DISPLAY_DEVICEW, u32>();
+        let size_of_devmode = Self::size_of::<DEVMODEW, u16>();
+
         let mut reboot_required = false;
         let mut new_primary = None;
 
@@ -347,9 +342,6 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 );
                 continue;
             }
-
-            let size_of_devmode_as_usize = size_of::<DEVMODEW>();
-            let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
 
             let mut display_adapter_graphics_mode = DEVMODEW::default();
             display_adapter_graphics_mode.dmSize = size_of_devmode;
@@ -510,8 +502,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             }
         })
         .and_then(|mode_informations| {
-            let size_of_displayconfig_target_device_name_as_usize = size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME>();
-            let size_of_displayconfig_target_device_name = u32::try_from(size_of_displayconfig_target_device_name_as_usize).unwrap();
+            let size_of_displayconfig_target_device_name = Self::size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
 
             for mode_information in mode_informations.into_iter() {
                 if mode_information.infoType != DISPLAYCONFIG_MODE_INFO_TYPE_TARGET {
@@ -569,8 +560,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
     fn get_all_displays(&self) -> Result<BTreeSet<String>, String> {
         let mut displays_names = BTreeSet::new();
-        let size_of_display_devicew_as_usize = size_of::<DISPLAY_DEVICEW>();
-        let size_of_display_devicew = u32::try_from(size_of_display_devicew_as_usize).unwrap();
+        let size_of_display_devicew = Self::size_of::<DISPLAY_DEVICEW, u32>();
+        let size_of_devmode = Self::size_of::<DEVMODEW, u16>();
 
         for idevnum in 0..=u32::MAX {
             let mut display_adapter = DISPLAY_DEVICEW::default();
@@ -614,9 +605,6 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
                 continue;
             }
-
-            let size_of_devmode_as_usize = size_of::<DEVMODEW>();
-            let size_of_devmode = u16::try_from(size_of_devmode_as_usize).unwrap();
 
             let mut display_adapter_graphics_mode = DEVMODEW::default();
             display_adapter_graphics_mode.dmSize = size_of_devmode;
@@ -664,6 +652,14 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         };
 
         String::from(display_name)
+    }
+
+    fn size_of<T1, T2: TryFrom<usize>>() -> T2
+    where
+        <T2 as TryFrom<usize>>::Error: Debug,
+    {
+        let size = size_of::<T1>();
+        T2::try_from(size).unwrap()
     }
 }
 
