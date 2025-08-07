@@ -3,6 +3,7 @@ use std::{
     os::{raw::c_ushort, windows::ffi::OsStringExt},
     ptr::null_mut,
     slice::from_raw_parts_mut,
+    usize,
 };
 
 use crate::sound_settings::{SoundSettings, SoundSettingsResult};
@@ -67,26 +68,25 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
             }
         }
 
-        let possible_audio_endpoints = &audio_endpoints
-            .iter()
-            .map(|audio_endpoint| map_c_ushort_to_string(audio_endpoint.name))
-            .collect::<Vec<String>>()
-            .join(", ");
-
         if current_default_output_device_id.is_null() {
             return Err(format!(
-                    "Failed to get the default sound output device, possible values are {possible_audio_endpoints}",
-                ));
+                "Failed to get the current default sound output device",
+            ));
         }
 
         if desktop_sound_output_device_id.is_null() {
-            return Err(format!(
-                    "Failed to get the desktop sound output device, possible values are {possible_audio_endpoints}",
-                ));
+            let possible_audio_endpoints_message_fragment =
+                get_possible_audio_endpoints_message_fragment(&audio_endpoints);
+            let error_message = format!("Desktop sound output device is invalid, possible values are are {possible_audio_endpoints_message_fragment}");
+
+            return Err(error_message);
         }
 
         if couch_sound_output_device_id.is_null() {
-            return Err(format!("Failed to get the couch sound output device, possible values are {possible_audio_endpoints}"));
+            let possible_audio_endpoints_message_fragment =
+                get_possible_audio_endpoints_message_fragment(&audio_endpoints);
+
+            return Err(format!("Couch sound output device is invalid, possible values are {possible_audio_endpoints_message_fragment}"));
         }
 
         let is_current_default_output_device_the_desktop_one = are_pointers_equals(
@@ -118,8 +118,13 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SoundSettings<TAudioEndpointLi
 pub fn map_c_ushort_to_string(id: *mut c_ushort) -> String {
     let mut len = 0;
 
-    while unsafe { *id.add(len) } != 0 {
-        len += 1;
+    for i in 0..=usize::MAX {
+        if unsafe { *id.add(i) } != 0 {
+            continue;
+        }
+
+        len = i;
+        break;
     }
 
     let slice = unsafe { from_raw_parts_mut(id, len) };
@@ -136,11 +141,26 @@ fn are_pointers_equals(mut p1: *mut u16, mut p2: *mut u16) -> bool {
             return false;
         }
 
-        if v1 == 0 || v2 == 0 {
-            return v1 == v2;
+        if v1 == 0 {
+            return v2 == 0;
+        }
+
+        if v2 == 0 {
+            return false;
         }
 
         p1 = unsafe { p1.add(1) };
         p2 = unsafe { p2.add(1) };
     }
+}
+
+fn get_possible_audio_endpoints_message_fragment(audio_endpoints: &Vec<AudioEndpoint>) -> String {
+    let mut possible_audio_endpoints = audio_endpoints
+        .iter()
+        .map(|audio_endpoint| map_c_ushort_to_string(audio_endpoint.name))
+        .collect::<Vec<String>>();
+
+    possible_audio_endpoints.sort();
+
+    possible_audio_endpoints.join(", ")
 }

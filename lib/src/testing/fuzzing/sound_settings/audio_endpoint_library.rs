@@ -19,25 +19,46 @@ use std::{
 #[derive(Clone)]
 pub struct FuzzedAudioEndpointLibrary {
     audio_output_devices: Vec<FuzzedAudioOutputDevice>,
+    getting_the_audio_outputs_count_fails: bool,
+    getting_the_audio_outputs_fails: bool,
+    getting_the_default_audio_output_fails: bool,
+    setting_the_default_audio_output_fails: bool,
 }
 
 impl FuzzedAudioEndpointLibrary {
     pub fn default() -> Self {
         Self {
             audio_output_devices: vec![],
+            getting_the_audio_outputs_count_fails: false,
+            getting_the_audio_outputs_fails: false,
+            getting_the_default_audio_output_fails: false,
+            setting_the_default_audio_output_fails: false,
         }
     }
 
-    pub fn new(audio_output_devices: Vec<FuzzedAudioOutputDevice>) -> Self {
+    pub fn new(
+        audio_output_devices: Vec<FuzzedAudioOutputDevice>,
+        getting_the_audio_outputs_count_fails: bool,
+        getting_the_audio_outputs_fails: bool,
+        getting_the_default_audio_output_fails: bool,
+        setting_the_default_audio_output_fails: bool,
+    ) -> Self {
         Self {
             audio_output_devices,
+            getting_the_audio_outputs_count_fails,
+            getting_the_audio_outputs_fails,
+            getting_the_default_audio_output_fails,
+            setting_the_default_audio_output_fails,
         }
     }
 }
 
 impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
     fn get_all_audio_endpoints_count(&self) -> c_int {
-        self.audio_output_devices.len().try_into().unwrap_or(-1)
+        match self.getting_the_audio_outputs_count_fails {
+            true => -1,
+            false => self.audio_output_devices.len().try_into().unwrap_or(-1),
+        }
     }
 
     fn get_all_audio_endpoints(
@@ -45,6 +66,10 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
         out_audio_endpoints: *mut AudioEndpoint,
         audio_endpoints_count: c_int,
     ) -> c_int {
+        if self.getting_the_audio_outputs_fails {
+            return -1;
+        }
+
         let audio_endpoints_count_as_usize = usize::try_from(audio_endpoints_count);
 
         if audio_endpoints_count_as_usize.is_err() {
@@ -57,13 +82,23 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
 
             out_audio_endpoint.id = map_string_to_c_ushort(&audio_output_device.id);
             out_audio_endpoint.name = map_string_to_c_ushort(&audio_output_device.name);
-            out_audio_endpoint.is_default = if audio_output_device.is_default { 1 } else { 0 };
+            out_audio_endpoint.is_default = if self.getting_the_default_audio_output_fails {
+                0
+            } else if audio_output_device.is_default {
+                1
+            } else {
+                0
+            };
         }
 
         0
     }
 
     fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
+        if self.setting_the_default_audio_output_fails {
+            return -1;
+        }
+
         let id_as_string = map_c_ushort_to_string(id);
 
         let audio_endpoint_exists = self

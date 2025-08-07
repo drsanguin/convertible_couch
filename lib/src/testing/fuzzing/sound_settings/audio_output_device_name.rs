@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 use rand::{
     distr::{Alphanumeric, SampleString},
@@ -176,12 +176,18 @@ impl<'a> AudioOutputDeviceNameFuzzer<'a> {
         (names[0].clone(), names[1].clone())
     }
 
+    pub(crate) fn generate_three(&mut self) -> (String, String, String) {
+        let mut names = self.generate_several(3, HashSet::new());
+
+        (names.remove(0), names.remove(0), names.remove(0))
+    }
+
     pub fn generate_several(
         &mut self,
         count: usize,
         names_already_taken: HashSet<String>,
     ) -> Vec<String> {
-        let mut names = HashSet::with_capacity(count);
+        let mut names = BTreeSet::new();
 
         while names.len() != count {
             let name = self.generate_one();

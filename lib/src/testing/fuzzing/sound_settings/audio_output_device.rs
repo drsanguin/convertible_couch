@@ -25,6 +25,10 @@ pub struct AudioOutputDeviceFuzzer {
     max_count: usize,
     default_audio_output_device_name: Option<String>,
     alternative_names: HashSet<String>,
+    getting_the_audio_outputs_count_fails: bool,
+    getting_the_audio_outputs_fails: bool,
+    getting_the_default_audio_output_fails: bool,
+    setting_the_default_audio_output_fails: bool,
 }
 
 impl AudioOutputDeviceFuzzer {
@@ -38,6 +42,10 @@ impl AudioOutputDeviceFuzzer {
             max_count: 0,
             default_audio_output_device_name: None,
             alternative_names: HashSet::new(),
+            getting_the_audio_outputs_count_fails: false,
+            getting_the_audio_outputs_fails: false,
+            getting_the_default_audio_output_fails: false,
+            setting_the_default_audio_output_fails: false,
         }
     }
 
@@ -70,6 +78,30 @@ impl AudioOutputDeviceFuzzer {
     ) -> &mut Self {
         self.alternative_names
             .insert(alternative_audio_output_device_name);
+
+        self
+    }
+
+    pub fn for_which_getting_the_audio_outputs_count_fails(&mut self) -> &mut Self {
+        self.getting_the_audio_outputs_count_fails = true;
+
+        self
+    }
+
+    pub fn for_which_getting_the_audio_outputs_fails(&mut self) -> &mut Self {
+        self.getting_the_audio_outputs_fails = true;
+
+        self
+    }
+
+    pub fn for_which_getting_the_default_audio_output_fails(&mut self) -> &mut Self {
+        self.getting_the_default_audio_output_fails = true;
+
+        self
+    }
+
+    pub fn for_which_setting_the_default_audio_output_fails(&mut self) -> &mut Self {
+        self.setting_the_default_audio_output_fails = true;
 
         self
     }
@@ -120,7 +152,13 @@ impl AudioOutputDeviceFuzzer {
 
         ComputerFuzzer::new_with_audio_output_devices(
             &mut self.computer_fuzzer,
-            FuzzedAudioEndpointLibrary::new(audio_output_devices),
+            FuzzedAudioEndpointLibrary::new(
+                audio_output_devices,
+                self.getting_the_audio_outputs_count_fails,
+                self.getting_the_audio_outputs_fails,
+                self.getting_the_default_audio_output_fails,
+                self.setting_the_default_audio_output_fails,
+            ),
         )
     }
 }

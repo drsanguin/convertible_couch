@@ -59,4 +59,8 @@ impl Fuzzer {
     pub fn generate_two_audio_output_devices_names(&mut self) -> (String, String) {
         AudioOutputDeviceNameFuzzer::new(&mut self.rand).generate_two()
     }
+
+    pub fn generate_three_audio_output_devices_names(&mut self) -> (String, String, String) {
+        AudioOutputDeviceNameFuzzer::new(&mut self.rand).generate_three()
+    }
 }

@@ -113,6 +113,44 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug integration test 'audio_only'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=audio_only",
+                    "--package=convertible_couch"
+                ],
+                "filter": {
+                    "name": "audio_only",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'audio_only_windows'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=audio_only_windows",
+                    "--package=convertible_couch"
+                ],
+                "filter": {
+                    "name": "audio_only_windows",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug integration test 'video_only'",
             "cargo": {
                 "args": [
