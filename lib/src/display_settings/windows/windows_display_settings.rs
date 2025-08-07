@@ -376,9 +376,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             if self.is_positioned_at_origin(display_adapter_graphics_mode) {
                 let display_device_device_id = Self::from_utf16_trimed(&display_device.DeviceID);
+                let display_name = self.get_display_name(&display_device_device_id).unwrap();
 
                 dwflags |= CDS_SET_PRIMARY;
-                new_primary = Some(self.get_display_name(&display_device_device_id).unwrap())
+                new_primary = Some(display_name);
             }
 
             let change_display_settings_ex_result = self.win32.change_display_settings_ex_w(
