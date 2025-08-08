@@ -1,11 +1,13 @@
 use std::fmt::Display;
 
-use convertible_couch::{run_app, Arguments, AudioOpts, Commands, SharedOpts, VideoOpts};
+use convertible_couch::{
+    run_app, Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions,
+};
 use convertible_couch_lib::{
-    display_settings::{CurrentDisplaySettings, DisplaySettings},
+    displays_settings::{CurrentDisplaysSettings, DisplaysSettings},
     func,
     log::LogLevel,
-    sound_settings::{CurrentSoundSettings, SoundSettings},
+    speakers_settings::{CurrentSpeakersSettings, SpeakersSettings},
     testing::fuzzing::Fuzzer,
 };
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
@@ -13,32 +15,32 @@ use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criteri
 const COUNTS: [usize; 10] = [2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
 
 struct BenchParam {
-    pub display_count: usize,
-    pub audio_output_count: usize,
+    pub displays_count: usize,
+    pub speakers_count: usize,
 }
 
 impl Display for BenchParam {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "display_count: {}, audio_output_count: {}",
-            self.display_count, self.audio_output_count
+            "displays_count: {}, speakers_count: {}",
+            self.displays_count, self.speakers_count
         )
     }
 }
 
-fn swap_video_and_audio(c: &mut Criterion) {
-    let mut group = c.benchmark_group("swap_video_and_audio");
+fn change_primary_display_and_default_speaker(c: &mut Criterion) {
+    let mut group = c.benchmark_group("change_primary_display_and_default_speaker");
 
-    for display_count in COUNTS {
-        for audio_output_count in COUNTS {
+    for displays_count in COUNTS {
+        for speakers_count in COUNTS {
             let bench_parameter = BenchParam {
-                display_count,
-                audio_output_count,
+                displays_count,
+                speakers_count,
             };
 
             group.throughput(Throughput::Elements(
-                u64::try_from(display_count + audio_output_count).unwrap(),
+                u64::try_from(displays_count + speakers_count).unwrap(),
             ));
             group.bench_with_input(
                 BenchmarkId::from_parameter(&bench_parameter),
@@ -50,50 +52,48 @@ fn swap_video_and_audio(c: &mut Criterion) {
 
                             let (primary_display_name, secondary_display_name) =
                                 fuzzer.generate_two_display_names();
-                            let (default_audio_output_name, alternative_audio_output_name) =
-                                fuzzer.generate_two_audio_output_devices_names();
+                            let (default_speaker_name, alternative_speaker_name) =
+                                fuzzer.generate_two_speakers_names();
 
                             let computer = fuzzer
                                 .generate_computer()
                                 .with_displays()
-                                .of_which_there_are(bench_parameter.display_count)
+                                .of_which_there_are(bench_parameter.displays_count)
                                 .whose_primary_is_named(primary_display_name.clone())
                                 .with_a_secondary_named(secondary_display_name.clone())
                                 .build_displays()
-                                .with_audio_output_devices()
-                                .of_which_there_are(bench_parameter.audio_output_count)
-                                .whose_default_one_is_named(default_audio_output_name.clone())
-                                .with_an_alternative_one_named(
-                                    alternative_audio_output_name.clone(),
-                                )
-                                .build_audio_output_devices()
+                                .with_speakers()
+                                .of_which_there_are(bench_parameter.speakers_count)
+                                .whose_default_one_is_named(default_speaker_name.clone())
+                                .with_an_alternative_one_named(alternative_speaker_name.clone())
+                                .build_speakers()
                                 .build_computer();
 
-                            let display_settings =
-                                CurrentDisplaySettings::new(computer.display_settings_api);
-                            let sound_settings =
-                                CurrentSoundSettings::new(computer.audio_settings_api);
+                            let displays_settings =
+                                CurrentDisplaysSettings::new(computer.displays_settings_api);
+                            let speakers_settings =
+                                CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
                             let args = Arguments {
-                                command: Commands::VideoAndAudio {
-                                    video: VideoOpts {
+                                command: Commands::DisplaysAndSpeakers {
+                                    displays: DisplaysOptions {
                                         desktop_display_name: primary_display_name,
                                         couch_display_name: secondary_display_name,
                                     },
-                                    audio: AudioOpts {
-                                        desktop_speaker_name: default_audio_output_name,
-                                        couch_speaker_name: alternative_audio_output_name,
+                                    speakers: SpeakersOptions {
+                                        desktop_speaker_name: default_speaker_name,
+                                        couch_speaker_name: alternative_speaker_name,
                                     },
-                                    shared: SharedOpts {
+                                    shared: SharedOptions {
                                         log_level: LogLevel::Off,
                                     },
                                 },
                             };
 
-                            (args, display_settings, sound_settings)
+                            (args, displays_settings, speakers_settings)
                         },
-                        |(args, mut display_settings, mut sound_settings)| {
-                            run_app(&args, &mut display_settings, &mut sound_settings)
+                        |(args, mut displays_settings, mut speakers_settings)| {
+                            run_app(&args, &mut displays_settings, &mut speakers_settings)
                         },
                         BatchSize::SmallInput,
                     );
@@ -104,8 +104,8 @@ fn swap_video_and_audio(c: &mut Criterion) {
     group.finish();
 }
 
-fn swap_video_only(c: &mut Criterion) {
-    let mut group = c.benchmark_group("swap_video_only");
+fn change_primary_display(c: &mut Criterion) {
+    let mut group = c.benchmark_group("change_primary_display");
 
     for display_count in COUNTS {
         group.throughput(Throughput::Elements(u64::try_from(display_count).unwrap()));
@@ -129,26 +129,27 @@ fn swap_video_only(c: &mut Criterion) {
                             .build_displays()
                             .build_computer();
 
-                        let display_settings =
-                            CurrentDisplaySettings::new(computer.display_settings_api);
-                        let sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+                        let displays_settings =
+                            CurrentDisplaysSettings::new(computer.displays_settings_api);
+                        let speakers_settings =
+                            CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
                         let args = Arguments {
-                            command: Commands::VideoOnly {
-                                video: VideoOpts {
+                            command: Commands::DisplaysOnly {
+                                displays: DisplaysOptions {
                                     desktop_display_name: primary_display_name,
                                     couch_display_name: secondary_display_name,
                                 },
-                                shared: SharedOpts {
+                                shared: SharedOptions {
                                     log_level: LogLevel::Off,
                                 },
                             },
                         };
 
-                        (args, display_settings, sound_settings)
+                        (args, displays_settings, speakers_settings)
                     },
-                    |(args, mut display_settings, mut sound_settings)| {
-                        run_app(&args, &mut display_settings, &mut sound_settings)
+                    |(args, mut displays_settings, mut speakers_settings)| {
+                        run_app(&args, &mut displays_settings, &mut speakers_settings)
                     },
                     BatchSize::SmallInput,
                 );
@@ -158,53 +159,52 @@ fn swap_video_only(c: &mut Criterion) {
     group.finish();
 }
 
-fn swap_audio_only(c: &mut Criterion) {
-    let mut group = c.benchmark_group("swap_audio_only");
+fn change_default_speaker(c: &mut Criterion) {
+    let mut group = c.benchmark_group("change_default_speaker");
 
-    for audio_output_count in COUNTS {
-        group.throughput(Throughput::Elements(
-            u64::try_from(audio_output_count).unwrap(),
-        ));
+    for speakers_count in COUNTS {
+        group.throughput(Throughput::Elements(u64::try_from(speakers_count).unwrap()));
         group.bench_with_input(
-            BenchmarkId::from_parameter(&audio_output_count),
-            &audio_output_count,
-            |bencher, audio_output_count| {
+            BenchmarkId::from_parameter(&speakers_count),
+            &speakers_count,
+            |bencher, speakers_count| {
                 bencher.iter_batched(
                     || {
                         let mut fuzzer = Fuzzer::new(func!(), false);
 
-                        let (default_audio_output_name, alternative_audio_output_name) =
-                            fuzzer.generate_two_audio_output_devices_names();
+                        let (default_speaker_name, alternative_speaker_name) =
+                            fuzzer.generate_two_speakers_names();
 
                         let computer = fuzzer
                             .generate_computer()
-                            .with_audio_output_devices()
-                            .of_which_there_are(*audio_output_count)
-                            .whose_default_one_is_named(default_audio_output_name.clone())
-                            .with_an_alternative_one_named(alternative_audio_output_name.clone())
-                            .build_audio_output_devices()
+                            .with_speakers()
+                            .of_which_there_are(*speakers_count)
+                            .whose_default_one_is_named(default_speaker_name.clone())
+                            .with_an_alternative_one_named(alternative_speaker_name.clone())
+                            .build_speakers()
                             .build_computer();
 
-                        let display_settings =
-                            CurrentDisplaySettings::new(computer.display_settings_api);
-                        let sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+                        let displays_settings =
+                            CurrentDisplaysSettings::new(computer.displays_settings_api);
+                        let speakers_settings =
+                            CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
                         let args = Arguments {
-                            command: Commands::AudioOnly {
-                                audio: AudioOpts {
-                                    desktop_speaker_name: default_audio_output_name,
-                                    couch_speaker_name: alternative_audio_output_name,
+                            command: Commands::SpeakersOnly {
+                                speakers: SpeakersOptions {
+                                    desktop_speaker_name: default_speaker_name,
+                                    couch_speaker_name: alternative_speaker_name,
                                 },
-                                shared: SharedOpts {
+                                shared: SharedOptions {
                                     log_level: LogLevel::Off,
                                 },
                             },
                         };
 
-                        (args, display_settings, sound_settings)
+                        (args, displays_settings, speakers_settings)
                     },
-                    |(args, mut display_settings, mut sound_settings)| {
-                        run_app(&args, &mut display_settings, &mut sound_settings)
+                    |(args, mut displays_settings, mut speakers_settings)| {
+                        run_app(&args, &mut displays_settings, &mut speakers_settings)
                     },
                     BatchSize::SmallInput,
                 );
@@ -216,8 +216,8 @@ fn swap_audio_only(c: &mut Criterion) {
 
 criterion_group!(
     benches,
-    swap_video_and_audio,
-    swap_video_only,
-    swap_audio_only
+    change_primary_display_and_default_speaker,
+    change_primary_display,
+    change_default_speaker
 );
 criterion_main!(benches);

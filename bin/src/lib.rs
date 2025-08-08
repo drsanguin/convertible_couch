@@ -1,8 +1,8 @@
 use clap::{Args, Parser, Subcommand};
 use convertible_couch_lib::{
-    display_settings::{DisplaySettings, DisplaySettingsResult},
+    displays_settings::{DisplaysSettings, DisplaysSettingsResult},
     log::{configure_logger, LogLevel},
-    sound_settings::{SoundSettings, SoundSettingsResult},
+    speakers_settings::{SpeakersSettings, SpeakersSettingsResult},
 };
 
 #[derive(Parser, Debug)]
@@ -13,13 +13,13 @@ pub struct Arguments {
 }
 
 #[derive(Args, Debug)]
-pub struct SharedOpts {
+pub struct SharedOptions {
     #[arg(short, long, value_enum, default_value_t = LogLevel::Warn)]
     pub log_level: LogLevel,
 }
 
 #[derive(Args, Debug)]
-pub struct VideoOpts {
+pub struct DisplaysOptions {
     #[arg(long)]
     pub desktop_display_name: String,
     #[arg(long)]
@@ -27,7 +27,7 @@ pub struct VideoOpts {
 }
 
 #[derive(Args, Debug)]
-pub struct AudioOpts {
+pub struct SpeakersOptions {
     #[arg(long)]
     pub desktop_speaker_name: String,
     #[arg(long)]
@@ -36,94 +36,94 @@ pub struct AudioOpts {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    VideoAndAudio {
+    DisplaysAndSpeakers {
         #[command(flatten)]
-        video: VideoOpts,
+        displays: DisplaysOptions,
         #[command(flatten)]
-        audio: AudioOpts,
+        speakers: SpeakersOptions,
         #[command(flatten)]
-        shared: SharedOpts,
+        shared: SharedOptions,
     },
-    VideoOnly {
+    DisplaysOnly {
         #[command(flatten)]
-        video: VideoOpts,
+        displays: DisplaysOptions,
         #[command(flatten)]
-        shared: SharedOpts,
+        shared: SharedOptions,
     },
-    AudioOnly {
+    SpeakersOnly {
         #[command(flatten)]
-        audio: AudioOpts,
+        speakers: SpeakersOptions,
         #[command(flatten)]
-        shared: SharedOpts,
+        shared: SharedOptions,
     },
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ApplicationResult {
-    VideoAndAudio {
-        display_settings: DisplaySettingsResult,
-        sound_settings: SoundSettingsResult,
+    DisplaysAndSpeakers {
+        displays_result: DisplaysSettingsResult,
+        speakers_result: SpeakersSettingsResult,
     },
-    VideoOnly {
-        display_settings: DisplaySettingsResult,
+    DisplaysOnly {
+        displays_result: DisplaysSettingsResult,
     },
-    AudioOnly {
-        sound_settings: SoundSettingsResult,
+    SpeakersOnly {
+        speakers_result: SpeakersSettingsResult,
     },
 }
 
 pub fn run_app<
-    TDisplaySettingsApi,
-    TSoundSettingsApi,
-    TDisplaySettings: DisplaySettings<TDisplaySettingsApi>,
-    TSoundSettings: SoundSettings<TSoundSettingsApi>,
+    TDisplaysSettingsApi,
+    TSpeakersSettingsApi,
+    TDisplaysSettings: DisplaysSettings<TDisplaysSettingsApi>,
+    TSpeakersSettings: SpeakersSettings<TSpeakersSettingsApi>,
 >(
     args: &Arguments,
-    display_settings: &mut TDisplaySettings,
-    sound_settings: &mut TSoundSettings,
+    displays_settings: &mut TDisplaysSettings,
+    speakers_settings: &mut TSpeakersSettings,
 ) -> Result<ApplicationResult, String> {
     match &args.command {
-        Commands::VideoAndAudio {
-            video,
-            audio,
+        Commands::DisplaysAndSpeakers {
+            displays,
+            speakers,
             shared,
         } => {
             configure_logger(&shared.log_level)?;
 
-            let display_settings_result = display_settings
-                .change_primary_display(&video.desktop_display_name, &video.couch_display_name)?;
-
-            let sound_settings_result = sound_settings.change_default_output_device(
-                &audio.desktop_speaker_name,
-                &audio.couch_speaker_name,
+            let displays_result = displays_settings.change_primary_display(
+                &displays.desktop_display_name,
+                &displays.couch_display_name,
             )?;
 
-            Ok(ApplicationResult::VideoAndAudio {
-                display_settings: display_settings_result,
-                sound_settings: sound_settings_result,
-            })
-        }
-        Commands::VideoOnly { video, shared } => {
-            configure_logger(&shared.log_level)?;
-
-            let display_settings_result = display_settings
-                .change_primary_display(&video.desktop_display_name, &video.couch_display_name)?;
-
-            Ok(ApplicationResult::VideoOnly {
-                display_settings: display_settings_result,
-            })
-        }
-        Commands::AudioOnly { audio, shared } => {
-            configure_logger(&shared.log_level)?;
-
-            let sound_settings_result = sound_settings.change_default_output_device(
-                &audio.desktop_speaker_name,
-                &audio.couch_speaker_name,
+            let speakers_result = speakers_settings.change_default_speaker(
+                &speakers.desktop_speaker_name,
+                &speakers.couch_speaker_name,
             )?;
 
-            Ok(ApplicationResult::AudioOnly {
-                sound_settings: sound_settings_result,
+            Ok(ApplicationResult::DisplaysAndSpeakers {
+                displays_result,
+                speakers_result,
             })
+        }
+        Commands::DisplaysOnly { displays, shared } => {
+            configure_logger(&shared.log_level)?;
+
+            let displays_result = displays_settings.change_primary_display(
+                &displays.desktop_display_name,
+                &displays.couch_display_name,
+            )?;
+
+            Ok(ApplicationResult::DisplaysOnly { displays_result })
+        }
+        Commands::SpeakersOnly { speakers, shared } => {
+            configure_logger(&shared.log_level)?;
+
+            let speakers_result = speakers_settings.change_default_speaker(
+                &speakers.desktop_speaker_name,
+                &speakers.couch_speaker_name,
+            )?;
+
+            Ok(ApplicationResult::SpeakersOnly { speakers_result })
         }
     }
 }

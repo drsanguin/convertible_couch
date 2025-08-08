@@ -1,11 +1,13 @@
 #![cfg(target_os = "windows")]
 
-use convertible_couch::{run_app, ApplicationResult, Arguments, Commands, SharedOpts, VideoOpts};
+use convertible_couch::{
+    run_app, ApplicationResult, Arguments, Commands, DisplaysOptions, SharedOptions,
+};
 use convertible_couch_lib::{
-    display_settings::{CurrentDisplaySettings, DisplaySettings, DisplaySettingsResult},
+    displays_settings::{CurrentDisplaysSettings, DisplaysSettings, DisplaysSettingsResult},
     func,
     log::LogLevel,
-    sound_settings::{CurrentSoundSettings, SoundSettings},
+    speakers_settings::{CurrentSpeakersSettings, SpeakersSettings},
     testing::fuzzing::Fuzzer,
 };
 use test_case::test_case;
@@ -38,23 +40,23 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: primary_display_name.clone(),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    run_app(&args, &mut display_settings, &mut sound_settings)
+    run_app(&args, &mut displays_settings, &mut speakers_settings)
 }
 
 #[test_case(DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
@@ -81,23 +83,23 @@ fn it_should_report_display_change_errors_that_happens_for_some_displays(
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: primary_display_name.clone(),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    run_app(&args, &mut display_settings, &mut sound_settings)
+    run_app(&args, &mut displays_settings, &mut speakers_settings)
 }
 
 #[test]
@@ -118,30 +120,30 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: primary_display_name.clone(),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
 
     // Assert
     assert_eq!(
         actual_response,
-        Ok(ApplicationResult::VideoOnly {
-            display_settings: DisplaySettingsResult {
-                new_primary: secondary_display_name,
+        Ok(ApplicationResult::DisplaysOnly {
+            displays_result: DisplaysSettingsResult {
+                new_primary_display: secondary_display_name,
                 reboot_required: true,
             }
         })
@@ -166,30 +168,30 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: primary_display_name.clone(),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
 
     // Assert
     assert_eq!(
         actual_response,
-        Ok(ApplicationResult::VideoOnly {
-            display_settings: DisplaySettingsResult {
-                new_primary: secondary_display_name,
+        Ok(ApplicationResult::DisplaysOnly {
+            displays_result: DisplaysSettingsResult {
+                new_primary_display: secondary_display_name,
                 reboot_required: true,
             }
         })

@@ -1,4 +1,4 @@
-pub mod display_settings;
+pub mod displays_settings;
 pub mod log;
-pub mod sound_settings;
+pub mod speakers_settings;
 pub mod testing;

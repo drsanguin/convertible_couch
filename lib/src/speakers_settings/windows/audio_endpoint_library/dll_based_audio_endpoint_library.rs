@@ -1,6 +1,8 @@
 use std::os::raw::{c_int, c_ushort};
 
-use crate::sound_settings::windows::audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
+use crate::speakers_settings::windows::audio_endpoint_library::{
+    AudioEndpoint, AudioEndpointLibrary,
+};
 
 #[link(
     name = ".\\lib\\AudioEndPointLibrary\\AudioEndPointLibrary\\bin\\x64\\Release\\AudioEndPointLibrary"

@@ -14,7 +14,7 @@ use windows::{
     },
 };
 
-use crate::display_settings::windows::win_32::Win32;
+use crate::displays_settings::windows::win_32::Win32;
 
 pub struct WindowsApiBasedWin32;
 

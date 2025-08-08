@@ -1,6 +1,6 @@
 use crate::testing::fuzzing::{
     computer::ComputerFuzzer,
-    display_settings::{video_output::VideoOutputFuzzer, win_32::FuzzedWin32},
+    displays_settings::{video_output::VideoOutputFuzzer, win_32::FuzzedWin32},
 };
 
 use super::{

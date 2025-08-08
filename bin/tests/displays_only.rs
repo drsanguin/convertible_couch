@@ -1,12 +1,14 @@
 use crate::assertions::assert_that_response_is_an_error_who_starts_with;
-use convertible_couch::{run_app, ApplicationResult, Arguments, Commands, SharedOpts, VideoOpts};
+use convertible_couch::{
+    run_app, ApplicationResult, Arguments, Commands, DisplaysOptions, SharedOptions,
+};
 use convertible_couch_lib::{
-    display_settings::{
-        CurrentDisplaySettings, DisplaySettings, DisplaySettingsResult, INTERNAL_DISPLAY_NAME,
+    displays_settings::{
+        CurrentDisplaysSettings, DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME,
     },
     func,
     log::LogLevel,
-    sound_settings::{CurrentSoundSettings, SoundSettings},
+    speakers_settings::{CurrentSpeakersSettings, SpeakersSettings},
     testing::fuzzing::Fuzzer,
 };
 use std::collections::HashSet;
@@ -29,30 +31,30 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: primary_display_name.clone(),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
 
     // Assert
     assert_eq!(
         actual_response,
-        Ok(ApplicationResult::VideoOnly {
-            display_settings: DisplaySettingsResult {
-                new_primary: secondary_display_name,
+        Ok(ApplicationResult::DisplaysOnly {
+            displays_result: DisplaysSettingsResult {
+                new_primary_display: secondary_display_name,
                 reboot_required: false
             }
         })
@@ -75,31 +77,31 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: primary_display_name.clone(),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings)
-        .and_then(|_| run_app(&args, &mut display_settings, &mut sound_settings));
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings)
+        .and_then(|_| run_app(&args, &mut displays_settings, &mut speakers_settings));
 
     // Assert
     assert_eq!(
         actual_response,
-        Ok(ApplicationResult::VideoOnly {
-            display_settings: DisplaySettingsResult {
-                new_primary: primary_display_name,
+        Ok(ApplicationResult::DisplaysOnly {
+            displays_result: DisplaysSettingsResult {
+                new_primary_display: primary_display_name,
                 reboot_required: false
             }
         })
@@ -123,30 +125,30 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: String::from(INTERNAL_DISPLAY_NAME),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
 
     // Assert
     assert_eq!(
         actual_response,
-        Ok(ApplicationResult::VideoOnly {
-            display_settings: DisplaySettingsResult {
-                new_primary: secondary_display_name,
+        Ok(ApplicationResult::DisplaysOnly {
+            displays_result: DisplaysSettingsResult {
+                new_primary_display: secondary_display_name,
                 reboot_required: false,
             }
         })
@@ -169,31 +171,31 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: String::from(INTERNAL_DISPLAY_NAME),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings)
-        .and_then(|_| run_app(&args, &mut display_settings, &mut sound_settings));
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings)
+        .and_then(|_| run_app(&args, &mut displays_settings, &mut speakers_settings));
 
     // Assert
     assert_eq!(
         actual_response,
-        Ok(ApplicationResult::VideoOnly {
-            display_settings: DisplaySettingsResult {
-                new_primary: String::from(INTERNAL_DISPLAY_NAME),
+        Ok(ApplicationResult::DisplaysOnly {
+            displays_result: DisplaysSettingsResult {
+                new_primary_display: String::from(INTERNAL_DISPLAY_NAME),
                 reboot_required: false,
             }
         })
@@ -220,23 +222,23 @@ fn it_should_validate_the_desktop_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: wrong_display_name,
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
 
     // Assert
     assert_eq!(
@@ -267,23 +269,23 @@ fn it_should_validate_the_couch_display() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: primary_display_name.clone(),
                 couch_display_name: wrong_display_name,
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
 
     // Assert
     assert_eq!(
@@ -315,23 +317,23 @@ fn it_should_validate_both_desktop_and_couch_displays() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: wrong_display_name1,
                 couch_display_name: wrong_display_name2,
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
 
     // Assert
     assert_eq!(
@@ -359,23 +361,23 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: primary_display_name.clone(),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
 
     // Assert
     assert_that_response_is_an_error_who_starts_with(
@@ -401,23 +403,23 @@ fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_dis
         .build_displays()
         .build_computer();
 
-    let mut display_settings = CurrentDisplaySettings::new(computer.display_settings_api);
-    let mut sound_settings = CurrentSoundSettings::new(computer.audio_settings_api);
+    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
+    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
 
     let args = Arguments {
-        command: Commands::VideoOnly {
-            video: VideoOpts {
+        command: Commands::DisplaysOnly {
+            displays: DisplaysOptions {
                 desktop_display_name: primary_display_name.clone(),
                 couch_display_name: secondary_display_name.clone(),
             },
-            shared: SharedOpts {
+            shared: SharedOptions {
                 log_level: LogLevel::Off,
             },
         },
     };
 
     // Act
-    let actual_response = run_app(&args, &mut display_settings, &mut sound_settings);
+    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
 
     // Assert
     assert_that_response_is_an_error_who_starts_with(

@@ -20,7 +20,7 @@
                 }
             },
             "args": [
-                "video-and-audio",
+                "displays-and-speakers",
                 "--desktop-display-name",
                 "LG ULTRAWIDE",
                 "--couch-display-name",
@@ -94,16 +94,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'video_and_audio'",
+            "name": "Debug integration test 'displays_and_speakers'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--test=video_and_audio",
+                    "--test=displays_and_speakers",
                     "--package=convertible_couch"
                 ],
                 "filter": {
-                    "name": "video_and_audio",
+                    "name": "displays_and_speakers",
                     "kind": "test"
                 }
             },
@@ -113,16 +113,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'audio_only'",
+            "name": "Debug integration test 'displays_only'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--test=audio_only",
+                    "--test=displays_only",
                     "--package=convertible_couch"
                 ],
                 "filter": {
-                    "name": "audio_only",
+                    "name": "displays_only",
                     "kind": "test"
                 }
             },
@@ -132,16 +132,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'audio_only_windows'",
+            "name": "Debug integration test 'displays_only_windows'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--test=audio_only_windows",
+                    "--test=displays_only_windows",
                     "--package=convertible_couch"
                 ],
                 "filter": {
-                    "name": "audio_only_windows",
+                    "name": "displays_only_windows",
                     "kind": "test"
                 }
             },
@@ -151,16 +151,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'video_only'",
+            "name": "Debug integration test 'speakers_only'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--test=video_only",
+                    "--test=speakers_only",
                     "--package=convertible_couch"
                 ],
                 "filter": {
-                    "name": "video_only",
+                    "name": "speakers_only",
                     "kind": "test"
                 }
             },
@@ -170,16 +170,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'video_only_windows'",
+            "name": "Debug integration test 'speakers_only_windows'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--test=video_only_windows",
+                    "--test=speakers_only_windows",
                     "--package=convertible_couch"
                 ],
                 "filter": {
-                    "name": "video_only_windows",
+                    "name": "speakers_only_windows",
                     "kind": "test"
                 }
             },

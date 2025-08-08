@@ -1,19 +1,19 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
 use crate::testing::fuzzing::{
-    display_settings::{
+    displays_settings::{
         device_id::{DeviceIdFuzzer, FuzzedDeviceId},
         display_name::DisplayNameFuzzer,
     },
-    sound_settings::audio_output_device_name::AudioOutputDeviceNameFuzzer,
+    speakers_settings::speaker_name::SpeakerNameFuzzer,
 };
 
 use self::computer::ComputerFuzzer;
 
 pub mod computer;
-pub mod display_settings;
+pub mod displays_settings;
 pub mod guid;
-pub mod sound_settings;
+pub mod speakers_settings;
 
 pub struct Fuzzer {
     rand: StdRng,
@@ -56,11 +56,11 @@ impl Fuzzer {
         DeviceIdFuzzer::new(&mut self.rand).generate_one()
     }
 
-    pub fn generate_two_audio_output_devices_names(&mut self) -> (String, String) {
-        AudioOutputDeviceNameFuzzer::new(&mut self.rand).generate_two()
+    pub fn generate_two_speakers_names(&mut self) -> (String, String) {
+        SpeakerNameFuzzer::new(&mut self.rand).generate_two()
     }
 
-    pub fn generate_three_audio_output_devices_names(&mut self) -> (String, String, String) {
-        AudioOutputDeviceNameFuzzer::new(&mut self.rand).generate_three()
+    pub fn generate_three_speakers_names(&mut self) -> (String, String, String) {
+        SpeakerNameFuzzer::new(&mut self.rand).generate_three()
     }
 }

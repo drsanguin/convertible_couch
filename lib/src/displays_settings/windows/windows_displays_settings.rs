@@ -1,5 +1,5 @@
 use super::win_32::Win32;
-use crate::display_settings::{DisplaySettings, DisplaySettingsResult, INTERNAL_DISPLAY_NAME};
+use crate::displays_settings::{DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME};
 use log::warn;
 use std::{collections::BTreeSet, fmt::Debug, mem::size_of};
 use windows::{
@@ -25,10 +25,10 @@ pub struct WindowsDisplaySettings<TWin32: Win32> {
     win32: TWin32,
 }
 
-impl<TWin32: Win32> DisplaySettings<TWin32> for WindowsDisplaySettings<TWin32> {
-    fn new(display_settings_api: TWin32) -> Self {
+impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> {
+    fn new(displays_settings_api: TWin32) -> Self {
         Self {
-            win32: display_settings_api,
+            win32: displays_settings_api,
         }
     }
 
@@ -36,7 +36,7 @@ impl<TWin32: Win32> DisplaySettings<TWin32> for WindowsDisplaySettings<TWin32> {
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
-    ) -> Result<DisplaySettingsResult, String> {
+    ) -> Result<DisplaysSettingsResult, String> {
         self.validate_displays(desktop_display_name, couch_display_name)
             .and_then(|_| self.get_current_primary_display_name())
             .and_then(|current_primary_display_name| {
@@ -295,7 +295,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
     fn set_displays_to_position(
         &mut self,
         position: &DisplayPosition,
-    ) -> Result<DisplaySettingsResult, String> {
+    ) -> Result<DisplaysSettingsResult, String> {
         let mut reboot_required = false;
         let mut new_primary = None;
 
@@ -413,16 +413,16 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         );
 
         match change_display_settings_ex_result {
-            DISP_CHANGE_SUCCESSFUL => Ok(DisplaySettingsResult {
+            DISP_CHANGE_SUCCESSFUL => Ok(DisplaysSettingsResult {
                 reboot_required,
-                new_primary: new_primary.unwrap(),
+                new_primary_display: new_primary.unwrap(),
             }),
             DISP_CHANGE_RESTART => {
                 reboot_required = true;
 
-                Ok(DisplaySettingsResult {
+                Ok(DisplaysSettingsResult {
                     reboot_required,
-                    new_primary: new_primary.unwrap(),
+                    new_primary_display: new_primary.unwrap(),
                 })
             }
             _ => Err(Self::map_disp_change_to_string(
@@ -647,9 +647,9 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        display_settings::DisplaySettings,
+        displays_settings::DisplaysSettings,
         func,
-        testing::fuzzing::{display_settings::win_32::FuzzedWin32, Fuzzer},
+        testing::fuzzing::{displays_settings::win_32::FuzzedWin32, Fuzzer},
     };
     use std::collections::HashSet;
     use test_case::test_case;
@@ -674,7 +674,7 @@ mod tests {
 
         let computer = fuzzer.generate_computer().build_computer();
 
-        let display_settings = WindowsDisplaySettings::new(computer.display_settings_api);
+        let display_settings = WindowsDisplaySettings::new(computer.displays_settings_api);
 
         // Act
         let result = display_settings.get_current_primary_display_name();
@@ -702,7 +702,7 @@ mod tests {
             .build_displays()
             .build_computer();
 
-        let display_settings = WindowsDisplaySettings::new(computer.display_settings_api);
+        let display_settings = WindowsDisplaySettings::new(computer.displays_settings_api);
 
         // Act
         let result = display_settings.get_display_position(&forbidden_display_name);
@@ -732,7 +732,7 @@ mod tests {
             .build_displays()
             .build_computer();
 
-        let display_settings = WindowsDisplaySettings::new(computer.display_settings_api);
+        let display_settings = WindowsDisplaySettings::new(computer.displays_settings_api);
 
         // Act
         let result = display_settings.get_display_name(&forbidden_device_id.full_id);
