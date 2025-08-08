@@ -1,15 +1,13 @@
-use crate::assertions::assert_that_response_is_an_error_who_starts_with;
+use crate::assertions::assert_that_result_is_an_error_who_starts_with;
 use convertible_couch::{
     commands::{Arguments, Commands, DisplaysOptions, SharedOptions},
-    run_app, ApplicationResult,
+    testing::bootstrap_application,
+    ApplicationResult,
 };
 use convertible_couch_lib::{
-    displays_settings::{
-        CurrentDisplaysSettings, DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME,
-    },
+    displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
     func,
     log::LogLevel,
-    speakers_settings::{CurrentSpeakersSettings, SpeakersSettings},
     testing::fuzzing::Fuzzer,
 };
 use std::collections::HashSet;
@@ -32,8 +30,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -48,11 +45,11 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::DisplaysOnly {
             displays_result: DisplaysSettingsResult {
                 new_primary_display: secondary_display_name,
@@ -78,8 +75,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -94,12 +90,13 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings)
-        .and_then(|_| run_app(&args, &mut displays_settings, &mut speakers_settings));
+    let actual_result = application
+        .execute(&args)
+        .and_then(|_| application.execute(&args));
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::DisplaysOnly {
             displays_result: DisplaysSettingsResult {
                 new_primary_display: primary_display_name,
@@ -126,8 +123,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -142,11 +138,11 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::DisplaysOnly {
             displays_result: DisplaysSettingsResult {
                 new_primary_display: secondary_display_name,
@@ -172,8 +168,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -188,12 +183,13 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings)
-        .and_then(|_| run_app(&args, &mut displays_settings, &mut speakers_settings));
+    let actual_result = application
+        .execute(&args)
+        .and_then(|_| application.execute(&args));
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::DisplaysOnly {
             displays_result: DisplaysSettingsResult {
                 new_primary_display: String::from(INTERNAL_DISPLAY_NAME),
@@ -223,8 +219,7 @@ fn it_should_validate_the_desktop_display() {
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -239,11 +234,11 @@ fn it_should_validate_the_desktop_display() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Err(format!(
             "Desktop display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
         ))
@@ -270,8 +265,7 @@ fn it_should_validate_the_couch_display() {
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -286,11 +280,11 @@ fn it_should_validate_the_couch_display() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Err(format!(
             "Couch display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
         ))
@@ -318,8 +312,7 @@ fn it_should_validate_both_desktop_and_couch_displays() {
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -334,11 +327,11 @@ fn it_should_validate_both_desktop_and_couch_displays() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Err(format!(
             "Desktop and couch displays are invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
         ))
@@ -362,8 +355,7 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -378,11 +370,11 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
-    assert_that_response_is_an_error_who_starts_with(
-        actual_response,
+    assert_that_result_is_an_error_who_starts_with(
+        actual_result,
         "Failed to retrieve display configuration information about the device",
     );
 }
@@ -404,8 +396,7 @@ fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_dis
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -420,11 +411,11 @@ fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_dis
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
-    assert_that_response_is_an_error_who_starts_with(
-        actual_response,
+    assert_that_result_is_an_error_who_starts_with(
+        actual_result,
         "Failed to retrieve the name of the display at the device path",
     );
 }

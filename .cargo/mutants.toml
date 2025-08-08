@@ -1,5 +1,6 @@
 exclude_globs = [
     "bin/src/main.rs",
+    "bin/src/testing.rs",
     "lib/src/testing/**/*.rs",
     "lib/src/displays_settings/windows/win_32/windows_api_based_win_32.rs",
     "lib/src/speakers_settings/windows/audio_endpoint_library/dll_based_audio_endpoint_library.rs"

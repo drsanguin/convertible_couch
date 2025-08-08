@@ -1,17 +1,10 @@
-use std::fmt::Display;
-
-use convertible_couch::{
-    commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions},
-    run_app,
+use convertible_couch::commands::{
+    Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions,
 };
-use convertible_couch_lib::{
-    displays_settings::{CurrentDisplaysSettings, DisplaysSettings},
-    func,
-    log::LogLevel,
-    speakers_settings::{CurrentSpeakersSettings, SpeakersSettings},
-    testing::fuzzing::Fuzzer,
-};
+use convertible_couch::testing::bootstrap_application;
+use convertible_couch_lib::{func, log::LogLevel, testing::fuzzing::Fuzzer};
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
+use std::fmt::Display;
 
 const COUNTS: [usize; 10] = [2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
 
@@ -70,10 +63,7 @@ fn change_primary_display_and_default_speaker(c: &mut Criterion) {
                                 .build_speakers()
                                 .build_computer();
 
-                            let displays_settings =
-                                CurrentDisplaysSettings::new(computer.displays_settings_api);
-                            let speakers_settings =
-                                CurrentSpeakersSettings::new(computer.speakers_settings_api);
+                            let application = bootstrap_application(computer);
 
                             let args = Arguments {
                                 command: Commands::DisplaysAndSpeakers {
@@ -91,11 +81,9 @@ fn change_primary_display_and_default_speaker(c: &mut Criterion) {
                                 },
                             };
 
-                            (args, displays_settings, speakers_settings)
+                            (application, args)
                         },
-                        |(args, mut displays_settings, mut speakers_settings)| {
-                            run_app(&args, &mut displays_settings, &mut speakers_settings)
-                        },
+                        |(mut application, args)| application.execute(&args),
                         BatchSize::SmallInput,
                     );
                 },
@@ -130,10 +118,7 @@ fn change_primary_display(c: &mut Criterion) {
                             .build_displays()
                             .build_computer();
 
-                        let displays_settings =
-                            CurrentDisplaysSettings::new(computer.displays_settings_api);
-                        let speakers_settings =
-                            CurrentSpeakersSettings::new(computer.speakers_settings_api);
+                        let application = bootstrap_application(computer);
 
                         let args = Arguments {
                             command: Commands::DisplaysOnly {
@@ -147,11 +132,9 @@ fn change_primary_display(c: &mut Criterion) {
                             },
                         };
 
-                        (args, displays_settings, speakers_settings)
+                        (application, args)
                     },
-                    |(args, mut displays_settings, mut speakers_settings)| {
-                        run_app(&args, &mut displays_settings, &mut speakers_settings)
-                    },
+                    |(mut application, args)| application.execute(&args),
                     BatchSize::SmallInput,
                 );
             },
@@ -185,10 +168,7 @@ fn change_default_speaker(c: &mut Criterion) {
                             .build_speakers()
                             .build_computer();
 
-                        let displays_settings =
-                            CurrentDisplaysSettings::new(computer.displays_settings_api);
-                        let speakers_settings =
-                            CurrentSpeakersSettings::new(computer.speakers_settings_api);
+                        let application = bootstrap_application(computer);
 
                         let args = Arguments {
                             command: Commands::SpeakersOnly {
@@ -202,11 +182,9 @@ fn change_default_speaker(c: &mut Criterion) {
                             },
                         };
 
-                        (args, displays_settings, speakers_settings)
+                        (application, args)
                     },
-                    |(args, mut displays_settings, mut speakers_settings)| {
-                        run_app(&args, &mut displays_settings, &mut speakers_settings)
-                    },
+                    |(mut application, args)| application.execute(&args),
                     BatchSize::SmallInput,
                 );
             },

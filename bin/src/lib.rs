@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use convertible_couch_lib::{
     displays_settings::{
         CurrentDisplaysSettingsApiTrait, DisplaysSettings, DisplaysSettingsResult,
@@ -11,6 +13,7 @@ use convertible_couch_lib::{
 use crate::commands::{Arguments, Commands};
 
 pub mod commands;
+pub mod testing;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ApplicationResult {
@@ -26,58 +29,82 @@ pub enum ApplicationResult {
     },
 }
 
-pub fn run_app<
+pub struct Application<
     TDisplaysSettingsApi: CurrentDisplaysSettingsApiTrait,
     TSpeakersSettingsApi: CurrentSpeakersSettingsApiTrait,
     TDisplaysSettings: DisplaysSettings<TDisplaysSettingsApi>,
     TSpeakersSettings: SpeakersSettings<TSpeakersSettingsApi>,
->(
-    args: &Arguments,
-    displays_settings: &mut TDisplaysSettings,
-    speakers_settings: &mut TSpeakersSettings,
-) -> Result<ApplicationResult, String> {
-    match &args.command {
-        Commands::DisplaysAndSpeakers {
-            displays,
-            speakers,
-            shared,
-        } => {
-            configure_logger(&shared.log_level)?;
+> {
+    displays_settings: TDisplaysSettings,
+    speakers_settings: TSpeakersSettings,
+    displays_settings_api: PhantomData<TDisplaysSettingsApi>,
+    speakers_settings_api: PhantomData<TSpeakersSettingsApi>,
+}
 
-            let displays_result = displays_settings.change_primary_display(
-                &displays.desktop_display_name,
-                &displays.couch_display_name,
-            )?;
-
-            let speakers_result = speakers_settings.change_default_speaker(
-                &speakers.desktop_speaker_name,
-                &speakers.couch_speaker_name,
-            )?;
-
-            Ok(ApplicationResult::DisplaysAndSpeakers {
-                displays_result,
-                speakers_result,
-            })
+impl<
+        TDisplaysSettingsApi: CurrentDisplaysSettingsApiTrait,
+        TSpeakersSettingsApi: CurrentSpeakersSettingsApiTrait,
+        TDisplaysSettings: DisplaysSettings<TDisplaysSettingsApi>,
+        TSpeakersSettings: SpeakersSettings<TSpeakersSettingsApi>,
+    >
+    Application<TDisplaysSettingsApi, TSpeakersSettingsApi, TDisplaysSettings, TSpeakersSettings>
+{
+    pub fn bootstrap(
+        displays_settings_api: TDisplaysSettingsApi,
+        speakers_settings_api: TSpeakersSettingsApi,
+    ) -> Self {
+        Self {
+            displays_settings: TDisplaysSettings::new(displays_settings_api),
+            speakers_settings: TSpeakersSettings::new(speakers_settings_api),
+            displays_settings_api: PhantomData,
+            speakers_settings_api: PhantomData,
         }
-        Commands::DisplaysOnly { displays, shared } => {
-            configure_logger(&shared.log_level)?;
+    }
 
-            let displays_result = displays_settings.change_primary_display(
-                &displays.desktop_display_name,
-                &displays.couch_display_name,
-            )?;
+    pub fn execute(&mut self, args: &Arguments) -> Result<ApplicationResult, String> {
+        match &args.command {
+            Commands::DisplaysAndSpeakers {
+                displays,
+                speakers,
+                shared,
+            } => {
+                configure_logger(&shared.log_level)?;
 
-            Ok(ApplicationResult::DisplaysOnly { displays_result })
-        }
-        Commands::SpeakersOnly { speakers, shared } => {
-            configure_logger(&shared.log_level)?;
+                let displays_result = self.displays_settings.change_primary_display(
+                    &displays.desktop_display_name,
+                    &displays.couch_display_name,
+                )?;
 
-            let speakers_result = speakers_settings.change_default_speaker(
-                &speakers.desktop_speaker_name,
-                &speakers.couch_speaker_name,
-            )?;
+                let speakers_result = self.speakers_settings.change_default_speaker(
+                    &speakers.desktop_speaker_name,
+                    &speakers.couch_speaker_name,
+                )?;
 
-            Ok(ApplicationResult::SpeakersOnly { speakers_result })
+                Ok(ApplicationResult::DisplaysAndSpeakers {
+                    displays_result,
+                    speakers_result,
+                })
+            }
+            Commands::DisplaysOnly { displays, shared } => {
+                configure_logger(&shared.log_level)?;
+
+                let displays_result = self.displays_settings.change_primary_display(
+                    &displays.desktop_display_name,
+                    &displays.couch_display_name,
+                )?;
+
+                Ok(ApplicationResult::DisplaysOnly { displays_result })
+            }
+            Commands::SpeakersOnly { speakers, shared } => {
+                configure_logger(&shared.log_level)?;
+
+                let speakers_result = self.speakers_settings.change_default_speaker(
+                    &speakers.desktop_speaker_name,
+                    &speakers.couch_speaker_name,
+                )?;
+
+                Ok(ApplicationResult::SpeakersOnly { speakers_result })
+            }
         }
     }
 }

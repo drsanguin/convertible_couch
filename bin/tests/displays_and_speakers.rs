@@ -1,13 +1,11 @@
 use convertible_couch::{
     commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions},
-    run_app, ApplicationResult,
+    testing::bootstrap_application,
+    ApplicationResult,
 };
 use convertible_couch_lib::{
-    displays_settings::{CurrentDisplaysSettings, DisplaysSettings, DisplaysSettingsResult},
-    func,
-    log::LogLevel,
-    speakers_settings::{CurrentSpeakersSettings, SpeakersSettings, SpeakersSettingsResult},
-    testing::fuzzing::Fuzzer,
+    displays_settings::DisplaysSettingsResult, func, log::LogLevel,
+    speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer,
 };
 
 #[test]
@@ -32,8 +30,7 @@ fn it_should_change_primary_display_and_default_speaker() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysAndSpeakers {
@@ -52,11 +49,11 @@ fn it_should_change_primary_display_and_default_speaker() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::DisplaysAndSpeakers {
             displays_result: DisplaysSettingsResult {
                 new_primary_display: secondary_display_name,
@@ -91,8 +88,7 @@ fn it_should_change_primary_display_and_default_speaker_back_and_forth() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysAndSpeakers {
@@ -111,12 +107,13 @@ fn it_should_change_primary_display_and_default_speaker_back_and_forth() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings)
-        .and_then(|_| run_app(&args, &mut displays_settings, &mut speakers_settings));
+    let actual_result = application
+        .execute(&args)
+        .and_then(|_| application.execute(&args));
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::DisplaysAndSpeakers {
             displays_result: DisplaysSettingsResult {
                 new_primary_display: primary_display_name,

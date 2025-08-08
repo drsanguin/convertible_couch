@@ -1,14 +1,8 @@
 use convertible_couch::{
     commands::{Arguments, Commands, SharedOptions, SpeakersOptions},
-    run_app,
+    testing::bootstrap_application,
 };
-use convertible_couch_lib::{
-    displays_settings::{CurrentDisplaysSettings, DisplaysSettings},
-    func,
-    log::LogLevel,
-    speakers_settings::{CurrentSpeakersSettings, SpeakersSettings},
-    testing::fuzzing::Fuzzer,
-};
+use convertible_couch_lib::{func, log::LogLevel, testing::fuzzing::Fuzzer};
 
 #[test]
 fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
@@ -27,8 +21,7 @@ fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::SpeakersOnly {
@@ -43,11 +36,11 @@ fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Err(String::from("Failed to get the number of speakers"))
     );
 }
@@ -69,8 +62,7 @@ fn it_should_return_an_error_if_getting_the_speakers_fails() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::SpeakersOnly {
@@ -85,11 +77,11 @@ fn it_should_return_an_error_if_getting_the_speakers_fails() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Err(String::from("Failed to get the speakers"))
     );
 }
@@ -111,8 +103,7 @@ fn it_should_return_an_error_if_getting_the_current_default_speaker_fails() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::SpeakersOnly {
@@ -127,11 +118,11 @@ fn it_should_return_an_error_if_getting_the_current_default_speaker_fails() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Err(String::from("Failed to get the current default speaker"))
     );
 }
@@ -153,8 +144,7 @@ fn it_should_return_an_error_if_setting_the_default_speaker_fails() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::SpeakersOnly {
@@ -169,11 +159,11 @@ fn it_should_return_an_error_if_setting_the_default_speaker_fails() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Err(String::from("Failed to set default speaker"))
     );
 }

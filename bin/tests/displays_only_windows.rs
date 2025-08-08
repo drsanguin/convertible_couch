@@ -2,14 +2,11 @@
 
 use convertible_couch::{
     commands::{Arguments, Commands, DisplaysOptions, SharedOptions},
-    run_app, ApplicationResult,
+    testing::bootstrap_application,
+    ApplicationResult,
 };
 use convertible_couch_lib::{
-    displays_settings::{CurrentDisplaysSettings, DisplaysSettings, DisplaysSettingsResult},
-    func,
-    log::LogLevel,
-    speakers_settings::{CurrentSpeakersSettings, SpeakersSettings},
-    testing::fuzzing::Fuzzer,
+    displays_settings::DisplaysSettingsResult, func, log::LogLevel, testing::fuzzing::Fuzzer,
 };
 use test_case::test_case;
 use windows::Win32::Graphics::Gdi::{
@@ -41,8 +38,7 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -57,7 +53,7 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
     };
 
     // Act
-    run_app(&args, &mut displays_settings, &mut speakers_settings)
+    application.execute(&args)
 }
 
 #[test_case(DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
@@ -84,8 +80,7 @@ fn it_should_report_display_change_errors_that_happens_for_some_displays(
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -100,7 +95,7 @@ fn it_should_report_display_change_errors_that_happens_for_some_displays(
     };
 
     // Act
-    run_app(&args, &mut displays_settings, &mut speakers_settings)
+    application.execute(&args)
 }
 
 #[test]
@@ -121,8 +116,7 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -137,11 +131,11 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::DisplaysOnly {
             displays_result: DisplaysSettingsResult {
                 new_primary_display: secondary_display_name,
@@ -169,8 +163,7 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
         .build_displays()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::DisplaysOnly {
@@ -185,11 +178,11 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::DisplaysOnly {
             displays_result: DisplaysSettingsResult {
                 new_primary_display: secondary_display_name,

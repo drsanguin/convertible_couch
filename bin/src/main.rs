@@ -1,18 +1,22 @@
 use clap::Parser;
-use convertible_couch::{commands::Arguments, run_app, ApplicationResult};
+use convertible_couch::{commands::Arguments, Application, ApplicationResult};
 use convertible_couch_lib::{
-    displays_settings::{CurrentDisplaysSettings, CurrentDisplaysSettingsApi, DisplaysSettings},
-    speakers_settings::{CurrentSpeakersSettings, CurrentSpeakersSettingsApi, SpeakersSettings},
+    displays_settings::{CurrentDisplaysSettings, CurrentDisplaysSettingsApi},
+    speakers_settings::{CurrentSpeakersSettings, CurrentSpeakersSettingsApi},
 };
 use log::{error, info, warn};
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let args = Arguments::parse();
-    let mut displays_settings = CurrentDisplaysSettings::new(CurrentDisplaysSettingsApi);
-    let mut speakers_settings = CurrentSpeakersSettings::new(CurrentSpeakersSettingsApi);
+    let mut application = Application::<
+        CurrentDisplaysSettingsApi,
+        CurrentSpeakersSettingsApi,
+        CurrentDisplaysSettings<CurrentDisplaysSettingsApi>,
+        CurrentSpeakersSettings<CurrentSpeakersSettingsApi>,
+    >::bootstrap(CurrentDisplaysSettingsApi, CurrentSpeakersSettingsApi);
 
-    let application_result = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let application_result = application.execute(&args);
 
     match application_result {
         Ok(result) => {

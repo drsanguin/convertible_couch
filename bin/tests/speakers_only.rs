@@ -1,13 +1,10 @@
 use convertible_couch::{
     commands::{Arguments, Commands, SharedOptions, SpeakersOptions},
-    run_app, ApplicationResult,
+    testing::bootstrap_application,
+    ApplicationResult,
 };
 use convertible_couch_lib::{
-    displays_settings::{CurrentDisplaysSettings, DisplaysSettings},
-    func,
-    log::LogLevel,
-    speakers_settings::{CurrentSpeakersSettings, SpeakersSettings, SpeakersSettingsResult},
-    testing::fuzzing::Fuzzer,
+    func, log::LogLevel, speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer,
 };
 
 #[test]
@@ -26,8 +23,7 @@ fn it_should_change_the_default_speaker() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::SpeakersOnly {
@@ -42,11 +38,11 @@ fn it_should_change_the_default_speaker() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::SpeakersOnly {
             speakers_result: SpeakersSettingsResult {
                 new_default_speaker: alternative_speaker_name
@@ -71,8 +67,7 @@ fn it_should_change_the_default_speaker_back_and_forth() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::SpeakersOnly {
@@ -87,12 +82,13 @@ fn it_should_change_the_default_speaker_back_and_forth() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings)
-        .and_then(|_| run_app(&args, &mut displays_settings, &mut speakers_settings));
+    let actual_result = application
+        .execute(&args)
+        .and_then(|_| application.execute(&args));
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Ok(ApplicationResult::SpeakersOnly {
             speakers_result: SpeakersSettingsResult {
                 new_default_speaker: default_speaker_name
@@ -118,8 +114,7 @@ fn it_should_validate_the_desktop_speaker_name() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::SpeakersOnly {
@@ -134,11 +129,11 @@ fn it_should_validate_the_desktop_speaker_name() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Err(String::from(
             format!("Desktop speaker is invalid, possible values are are {default_speaker_name}, {alternative_speaker_name}")
         ))
@@ -162,8 +157,7 @@ fn it_should_validate_the_couch_speaker_name() {
         .build_speakers()
         .build_computer();
 
-    let mut displays_settings = CurrentDisplaysSettings::new(computer.displays_settings_api);
-    let mut speakers_settings = CurrentSpeakersSettings::new(computer.speakers_settings_api);
+    let mut application = bootstrap_application(computer);
 
     let args = Arguments {
         command: Commands::SpeakersOnly {
@@ -178,11 +172,11 @@ fn it_should_validate_the_couch_speaker_name() {
     };
 
     // Act
-    let actual_response = run_app(&args, &mut displays_settings, &mut speakers_settings);
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
-        actual_response,
+        actual_result,
         Err(String::from(
             format!("Couch speaker is invalid, possible values are {default_speaker_name}, {alternative_speaker_name}")
         ))

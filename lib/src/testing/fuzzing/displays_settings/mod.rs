@@ -7,3 +7,6 @@ pub mod position;
 pub mod resolution;
 pub mod video_output;
 pub mod win_32;
+
+#[cfg(target_os = "windows")]
+pub use win_32::FuzzedWin32 as CurrentFuzzedDisplaysSettingsApi;
