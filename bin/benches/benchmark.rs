@@ -1,7 +1,8 @@
 use std::fmt::Display;
 
 use convertible_couch::{
-    run_app, Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions,
+    commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions},
+    run_app,
 };
 use convertible_couch_lib::{
     displays_settings::{CurrentDisplaysSettings, DisplaysSettings},

@@ -1,7 +1,8 @@
 #![cfg(target_os = "windows")]
 
 use convertible_couch::{
-    run_app, ApplicationResult, Arguments, Commands, DisplaysOptions, SharedOptions,
+    commands::{Arguments, Commands, DisplaysOptions, SharedOptions},
+    run_app, ApplicationResult,
 };
 use convertible_couch_lib::{
     displays_settings::{CurrentDisplaysSettings, DisplaysSettings, DisplaysSettingsResult},

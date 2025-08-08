@@ -1,5 +1,6 @@
 use convertible_couch::{
-    run_app, ApplicationResult, Arguments, Commands, SharedOptions, SpeakersOptions,
+    commands::{Arguments, Commands, SharedOptions, SpeakersOptions},
+    run_app, ApplicationResult,
 };
 use convertible_couch_lib::{
     displays_settings::{CurrentDisplaysSettings, DisplaysSettings},

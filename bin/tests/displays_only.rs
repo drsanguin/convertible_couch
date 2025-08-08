@@ -1,6 +1,7 @@
 use crate::assertions::assert_that_response_is_an_error_who_starts_with;
 use convertible_couch::{
-    run_app, ApplicationResult, Arguments, Commands, DisplaysOptions, SharedOptions,
+    commands::{Arguments, Commands, DisplaysOptions, SharedOptions},
+    run_app, ApplicationResult,
 };
 use convertible_couch_lib::{
     displays_settings::{
