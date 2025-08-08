@@ -1,8 +1,12 @@
 use clap::{Args, Parser, Subcommand};
 use convertible_couch_lib::{
-    displays_settings::{DisplaysSettings, DisplaysSettingsResult},
+    displays_settings::{
+        CurrentDisplaysSettingsApiTrait, DisplaysSettings, DisplaysSettingsResult,
+    },
     log::{configure_logger, LogLevel},
-    speakers_settings::{SpeakersSettings, SpeakersSettingsResult},
+    speakers_settings::{
+        CurrentSpeakersSettingsApiTrait, SpeakersSettings, SpeakersSettingsResult,
+    },
 };
 
 #[derive(Parser, Debug)]
@@ -73,8 +77,8 @@ pub enum ApplicationResult {
 }
 
 pub fn run_app<
-    TDisplaysSettingsApi,
-    TSpeakersSettingsApi,
+    TDisplaysSettingsApi: CurrentDisplaysSettingsApiTrait,
+    TSpeakersSettingsApi: CurrentSpeakersSettingsApiTrait,
     TDisplaysSettings: DisplaysSettings<TDisplaysSettingsApi>,
     TSpeakersSettings: SpeakersSettings<TSpeakersSettingsApi>,
 >(

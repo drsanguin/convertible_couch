@@ -21,3 +21,6 @@ pub use windows::windows_speakers_settings::WindowsSoundSettings as CurrentSpeak
 
 #[cfg(target_os = "windows")]
 pub use windows::audio_endpoint_library::dll_based_audio_endpoint_library::DllBasedAudioEndpointLibrary as CurrentSpeakersSettingsApi;
+
+#[cfg(target_os = "windows")]
+pub use windows::audio_endpoint_library::AudioEndpointLibrary as CurrentSpeakersSettingsApiTrait;
