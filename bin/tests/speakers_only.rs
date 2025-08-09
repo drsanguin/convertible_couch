@@ -25,10 +25,7 @@ fn it_should_change_the_default_speaker() {
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .speakers_only(
-            default_speaker_name.clone(),
-            alternative_speaker_name.clone(),
-        )
+        .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
     // Act
@@ -64,10 +61,7 @@ fn it_should_change_the_default_speaker_back_and_forth() {
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .speakers_only(
-            default_speaker_name.clone(),
-            alternative_speaker_name.clone(),
-        )
+        .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
     // Act
@@ -106,7 +100,7 @@ fn it_should_validate_the_desktop_speaker_name() {
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .speakers_only(invalid_speaker_name, alternative_speaker_name.clone())
+        .speakers_only(&invalid_speaker_name, &alternative_speaker_name)
         .build();
 
     // Act
@@ -141,7 +135,7 @@ fn it_should_validate_the_couch_speaker_name() {
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .speakers_only(default_speaker_name.clone(), invalid_speaker_name)
+        .speakers_only(&default_speaker_name, &invalid_speaker_name)
         .build();
 
     // Act

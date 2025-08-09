@@ -33,10 +33,10 @@ fn it_should_change_primary_display_and_default_speaker() {
 
     let args = ArgumentsBuilder::new()
         .displays_and_speakers(
-            primary_display_name.clone(),
-            secondary_display_name.clone(),
-            default_speaker_name.clone(),
-            alternative_speaker_name.clone(),
+            &primary_display_name,
+            &secondary_display_name,
+            &default_speaker_name,
+            &alternative_speaker_name,
         )
         .build();
 
@@ -84,10 +84,10 @@ fn it_should_change_primary_display_and_default_speaker_back_and_forth() {
 
     let args = ArgumentsBuilder::new()
         .displays_and_speakers(
-            primary_display_name.clone(),
-            secondary_display_name.clone(),
-            default_speaker_name.clone(),
-            alternative_speaker_name.clone(),
+            &primary_display_name,
+            &secondary_display_name,
+            &default_speaker_name,
+            &alternative_speaker_name,
         )
         .build();
 

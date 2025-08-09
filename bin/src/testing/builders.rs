@@ -1,15 +1,15 @@
 use crate::commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions};
 use convertible_couch_lib::log::LogLevel;
 
-pub struct ArgumentsBuilder {
+pub struct ArgumentsBuilder<'a> {
     argument_command_type: Option<ArgumentCommandType>,
-    desktop_display_name: Option<String>,
-    couch_display_name: Option<String>,
-    desktop_speaker_name: Option<String>,
-    couch_speaker_name: Option<String>,
+    desktop_display_name: Option<&'a str>,
+    couch_display_name: Option<&'a str>,
+    desktop_speaker_name: Option<&'a str>,
+    couch_speaker_name: Option<&'a str>,
 }
 
-impl ArgumentsBuilder {
+impl<'a> ArgumentsBuilder<'a> {
     pub fn new() -> Self {
         Self {
             argument_command_type: None,
@@ -22,10 +22,10 @@ impl ArgumentsBuilder {
 
     pub fn displays_and_speakers(
         &mut self,
-        desktop_display_name: String,
-        couch_display_name: String,
-        desktop_speaker_name: String,
-        couch_speaker_name: String,
+        desktop_display_name: &'a str,
+        couch_display_name: &'a str,
+        desktop_speaker_name: &'a str,
+        couch_speaker_name: &'a str,
     ) -> &mut Self {
         self.argument_command_type = Some(ArgumentCommandType::DisplaysAndSpeakers);
         self.desktop_display_name = Some(desktop_display_name);
@@ -38,8 +38,8 @@ impl ArgumentsBuilder {
 
     pub fn displays_only(
         &mut self,
-        desktop_display_name: String,
-        couch_display_name: String,
+        desktop_display_name: &'a str,
+        couch_display_name: &'a str,
     ) -> &mut Self {
         self.argument_command_type = Some(ArgumentCommandType::DisplaysOnly);
         self.desktop_display_name = Some(desktop_display_name);
@@ -50,8 +50,8 @@ impl ArgumentsBuilder {
 
     pub fn speakers_only(
         &mut self,
-        desktop_speaker_name: String,
-        couch_speaker_name: String,
+        desktop_speaker_name: &'a str,
+        couch_speaker_name: &'a str,
     ) -> &mut Self {
         self.argument_command_type = Some(ArgumentCommandType::SpeakersOnly);
         self.desktop_speaker_name = Some(desktop_speaker_name);
@@ -65,10 +65,10 @@ impl ArgumentsBuilder {
 
         match argument_command_type {
             ArgumentCommandType::DisplaysAndSpeakers => {
-                let desktop_display_name = self.desktop_display_name.clone().unwrap();
-                let couch_display_name = self.couch_display_name.clone().unwrap();
-                let desktop_speaker_name = self.desktop_speaker_name.clone().unwrap();
-                let couch_speaker_name = self.couch_speaker_name.clone().unwrap();
+                let desktop_display_name = self.desktop_display_name.unwrap().to_string();
+                let couch_display_name = self.couch_display_name.unwrap().to_string();
+                let desktop_speaker_name = self.desktop_speaker_name.unwrap().to_string();
+                let couch_speaker_name = self.couch_speaker_name.unwrap().to_string();
 
                 Arguments {
                     command: Commands::DisplaysAndSpeakers {
@@ -87,8 +87,8 @@ impl ArgumentsBuilder {
                 }
             }
             ArgumentCommandType::DisplaysOnly => {
-                let desktop_display_name = self.desktop_display_name.clone().unwrap();
-                let couch_display_name = self.couch_display_name.clone().unwrap();
+                let desktop_display_name = self.desktop_display_name.unwrap().to_string();
+                let couch_display_name = self.couch_display_name.unwrap().to_string();
 
                 Arguments {
                     command: Commands::DisplaysOnly {
@@ -103,8 +103,8 @@ impl ArgumentsBuilder {
                 }
             }
             ArgumentCommandType::SpeakersOnly => {
-                let desktop_speaker_name = self.desktop_speaker_name.clone().unwrap();
-                let couch_speaker_name = self.couch_speaker_name.clone().unwrap();
+                let desktop_speaker_name = self.desktop_speaker_name.unwrap().to_string();
+                let couch_speaker_name = self.couch_speaker_name.unwrap().to_string();
 
                 Arguments {
                     command: Commands::SpeakersOnly {

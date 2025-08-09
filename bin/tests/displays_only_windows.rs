@@ -40,7 +40,10 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .displays_only(
+            primary_display_name.as_str(),
+            secondary_display_name.as_str(),
+        )
         .build();
 
     // Act
@@ -74,7 +77,10 @@ fn it_should_report_display_change_errors_that_happens_for_some_displays(
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .displays_only(
+            primary_display_name.as_str(),
+            secondary_display_name.as_str(),
+        )
         .build();
 
     // Act
@@ -102,7 +108,10 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .displays_only(
+            primary_display_name.as_str(),
+            secondary_display_name.as_str(),
+        )
         .build();
 
     // Act
@@ -141,7 +150,7 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .displays_only(&primary_display_name, &secondary_display_name)
         .build();
 
     // Act
