@@ -1,9 +1,9 @@
 #![cfg(target_os = "windows")]
 
 use convertible_couch::{
+    application::ApplicationResult,
     commands::{Arguments, Commands, DisplaysOptions, SharedOptions},
     testing::bootstrap_application,
-    ApplicationResult,
 };
 use convertible_couch_lib::{
     displays_settings::DisplaysSettingsResult, func, log::LogLevel, testing::fuzzing::Fuzzer,

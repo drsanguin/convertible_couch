@@ -1,7 +1,7 @@
 use convertible_couch::{
+    application::ApplicationResult,
     commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions},
     testing::bootstrap_application,
-    ApplicationResult,
 };
 use convertible_couch_lib::{
     displays_settings::DisplaysSettingsResult, func, log::LogLevel,

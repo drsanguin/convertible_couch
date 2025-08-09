@@ -1,8 +1,7 @@
-use crate::assertions::assert_that_result_is_an_error_who_starts_with;
 use convertible_couch::{
+    application::ApplicationResult,
     commands::{Arguments, Commands, DisplaysOptions, SharedOptions},
     testing::bootstrap_application,
-    ApplicationResult,
 };
 use convertible_couch_lib::{
     displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
@@ -12,7 +11,9 @@ use convertible_couch_lib::{
 };
 use std::collections::HashSet;
 
-mod assertions;
+use crate::common::assertions::assert_that_result_is_an_error_who_starts_with;
+
+mod common;
 
 #[test]
 fn it_should_swap_the_desktop_display_with_the_couch_display() {

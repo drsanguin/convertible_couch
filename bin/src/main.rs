@@ -1,5 +1,8 @@
 use clap::Parser;
-use convertible_couch::{commands::Arguments, Application, ApplicationResult};
+use convertible_couch::{
+    application::{Application, ApplicationResult},
+    commands::Arguments,
+};
 use convertible_couch_lib::{
     displays_settings::{CurrentDisplaysSettings, CurrentDisplaysSettingsApi},
     speakers_settings::{CurrentSpeakersSettings, CurrentSpeakersSettingsApi},

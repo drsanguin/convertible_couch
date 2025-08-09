@@ -1,4 +1,4 @@
-use crate::Application;
+use crate::application::Application;
 use convertible_couch_lib::{
     displays_settings::CurrentDisplaysSettings,
     speakers_settings::CurrentSpeakersSettings,

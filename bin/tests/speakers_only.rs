@@ -1,7 +1,7 @@
 use convertible_couch::{
+    application::ApplicationResult,
     commands::{Arguments, Commands, SharedOptions, SpeakersOptions},
     testing::bootstrap_application,
-    ApplicationResult,
 };
 use convertible_couch_lib::{
     func, log::LogLevel, speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer,
