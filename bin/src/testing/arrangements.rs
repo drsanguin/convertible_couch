@@ -93,21 +93,13 @@ impl<'a> ArgumentsBuilder<'a> {
 
         match argument_command_type {
             ArgumentCommandType::DisplaysAndSpeakers => {
-                let desktop_display_name = self.desktop_display_name.unwrap().to_string();
-                let couch_display_name = self.couch_display_name.unwrap().to_string();
-                let desktop_speaker_name = self.desktop_speaker_name.unwrap().to_string();
-                let couch_speaker_name = self.couch_speaker_name.unwrap().to_string();
+                let displays = self.build_displays_options();
+                let speakers = self.build_speakers_options();
 
                 Arguments {
                     command: Commands::DisplaysAndSpeakers {
-                        displays: DisplaysOptions {
-                            desktop_display_name,
-                            couch_display_name,
-                        },
-                        speakers: SpeakersOptions {
-                            desktop_speaker_name,
-                            couch_speaker_name,
-                        },
+                        displays,
+                        speakers,
                         shared: SharedOptions {
                             log_level: LogLevel::Off,
                         },
@@ -115,15 +107,11 @@ impl<'a> ArgumentsBuilder<'a> {
                 }
             }
             ArgumentCommandType::DisplaysOnly => {
-                let desktop_display_name = self.desktop_display_name.unwrap().to_string();
-                let couch_display_name = self.couch_display_name.unwrap().to_string();
+                let displays = self.build_displays_options();
 
                 Arguments {
                     command: Commands::DisplaysOnly {
-                        displays: DisplaysOptions {
-                            desktop_display_name,
-                            couch_display_name,
-                        },
+                        displays,
                         shared: SharedOptions {
                             log_level: LogLevel::Off,
                         },
@@ -131,21 +119,37 @@ impl<'a> ArgumentsBuilder<'a> {
                 }
             }
             ArgumentCommandType::SpeakersOnly => {
-                let desktop_speaker_name = self.desktop_speaker_name.unwrap().to_string();
-                let couch_speaker_name = self.couch_speaker_name.unwrap().to_string();
+                let speakers = self.build_speakers_options();
 
                 Arguments {
                     command: Commands::SpeakersOnly {
-                        speakers: SpeakersOptions {
-                            desktop_speaker_name,
-                            couch_speaker_name,
-                        },
+                        speakers,
                         shared: SharedOptions {
                             log_level: LogLevel::Off,
                         },
                     },
                 }
             }
+        }
+    }
+
+    fn build_displays_options(&mut self) -> DisplaysOptions {
+        let desktop_display_name = self.desktop_display_name.unwrap().to_string();
+        let couch_display_name = self.couch_display_name.unwrap().to_string();
+
+        DisplaysOptions {
+            desktop_display_name,
+            couch_display_name,
+        }
+    }
+
+    fn build_speakers_options(&mut self) -> SpeakersOptions {
+        let desktop_speaker_name = self.desktop_speaker_name.unwrap().to_string();
+        let couch_speaker_name = self.couch_speaker_name.unwrap().to_string();
+
+        SpeakersOptions {
+            desktop_speaker_name,
+            couch_speaker_name,
         }
     }
 }
