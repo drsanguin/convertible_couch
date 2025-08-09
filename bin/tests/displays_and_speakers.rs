@@ -1,11 +1,10 @@
 use convertible_couch::{
     application::ApplicationResult,
-    commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions},
-    testing::bootstrap_application,
+    testing::{arrangements::bootstrap_application, builders::ArgumentsBuilder},
 };
 use convertible_couch_lib::{
-    displays_settings::DisplaysSettingsResult, func, log::LogLevel,
-    speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer,
+    displays_settings::DisplaysSettingsResult, func, speakers_settings::SpeakersSettingsResult,
+    testing::fuzzing::Fuzzer,
 };
 
 #[test]
@@ -32,21 +31,14 @@ fn it_should_change_primary_display_and_default_speaker() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysAndSpeakers {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            speakers: SpeakersOptions {
-                desktop_speaker_name: default_speaker_name.clone(),
-                couch_speaker_name: alternative_speaker_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_and_speakers(
+            primary_display_name.clone(),
+            secondary_display_name.clone(),
+            default_speaker_name.clone(),
+            alternative_speaker_name.clone(),
+        )
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -90,21 +82,14 @@ fn it_should_change_primary_display_and_default_speaker_back_and_forth() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysAndSpeakers {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            speakers: SpeakersOptions {
-                desktop_speaker_name: default_speaker_name.clone(),
-                couch_speaker_name: alternative_speaker_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_and_speakers(
+            primary_display_name.clone(),
+            secondary_display_name.clone(),
+            default_speaker_name.clone(),
+            alternative_speaker_name.clone(),
+        )
+        .build();
 
     // Act
     let actual_result = application

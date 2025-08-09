@@ -1,7 +1,7 @@
 use convertible_couch::commands::{
     Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions,
 };
-use convertible_couch::testing::bootstrap_application;
+use convertible_couch::testing::arrangements::bootstrap_application;
 use convertible_couch_lib::{func, log::LogLevel, testing::fuzzing::Fuzzer};
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
 use std::fmt::Display;

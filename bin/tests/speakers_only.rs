@@ -1,10 +1,9 @@
 use convertible_couch::{
     application::ApplicationResult,
-    commands::{Arguments, Commands, SharedOptions, SpeakersOptions},
-    testing::bootstrap_application,
+    testing::{arrangements::bootstrap_application, builders::ArgumentsBuilder},
 };
 use convertible_couch_lib::{
-    func, log::LogLevel, speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer,
+    func, speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer,
 };
 
 #[test]
@@ -25,17 +24,12 @@ fn it_should_change_the_default_speaker() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::SpeakersOnly {
-            speakers: SpeakersOptions {
-                desktop_speaker_name: default_speaker_name.clone(),
-                couch_speaker_name: alternative_speaker_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .speakers_only(
+            default_speaker_name.clone(),
+            alternative_speaker_name.clone(),
+        )
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -69,17 +63,12 @@ fn it_should_change_the_default_speaker_back_and_forth() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::SpeakersOnly {
-            speakers: SpeakersOptions {
-                desktop_speaker_name: default_speaker_name.clone(),
-                couch_speaker_name: alternative_speaker_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .speakers_only(
+            default_speaker_name.clone(),
+            alternative_speaker_name.clone(),
+        )
+        .build();
 
     // Act
     let actual_result = application
@@ -116,17 +105,9 @@ fn it_should_validate_the_desktop_speaker_name() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::SpeakersOnly {
-            speakers: SpeakersOptions {
-                desktop_speaker_name: invalid_speaker_name,
-                couch_speaker_name: alternative_speaker_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .speakers_only(invalid_speaker_name, alternative_speaker_name.clone())
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -159,17 +140,9 @@ fn it_should_validate_the_couch_speaker_name() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::SpeakersOnly {
-            speakers: SpeakersOptions {
-                desktop_speaker_name: default_speaker_name.clone(),
-                couch_speaker_name: invalid_speaker_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .speakers_only(default_speaker_name.clone(), invalid_speaker_name)
+        .build();
 
     // Act
     let actual_result = application.execute(&args);

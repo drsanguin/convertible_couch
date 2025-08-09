@@ -1,19 +1,16 @@
 use convertible_couch::{
     application::ApplicationResult,
-    commands::{Arguments, Commands, DisplaysOptions, SharedOptions},
-    testing::bootstrap_application,
+    testing::{
+        arrangements::bootstrap_application,
+        assertions::assert_that_result_is_an_error_who_starts_with, builders::ArgumentsBuilder,
+    },
 };
 use convertible_couch_lib::{
     displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
     func,
-    log::LogLevel,
     testing::fuzzing::Fuzzer,
 };
 use std::collections::HashSet;
-
-use crate::common::assertions::assert_that_result_is_an_error_who_starts_with;
-
-mod common;
 
 #[test]
 fn it_should_swap_the_desktop_display_with_the_couch_display() {
@@ -33,17 +30,9 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -78,17 +67,9 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .build();
 
     // Act
     let actual_result = application
@@ -126,17 +107,12 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: String::from(INTERNAL_DISPLAY_NAME),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(
+            String::from(INTERNAL_DISPLAY_NAME),
+            secondary_display_name.clone(),
+        )
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -171,17 +147,12 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: String::from(INTERNAL_DISPLAY_NAME),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(
+            String::from(INTERNAL_DISPLAY_NAME),
+            secondary_display_name.clone(),
+        )
+        .build();
 
     // Act
     let actual_result = application
@@ -222,17 +193,9 @@ fn it_should_validate_the_desktop_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: wrong_display_name,
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(wrong_display_name, secondary_display_name.clone())
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -268,17 +231,9 @@ fn it_should_validate_the_couch_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: wrong_display_name,
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(primary_display_name.clone(), wrong_display_name)
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -297,11 +252,17 @@ fn it_should_validate_both_desktop_and_couch_displays() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (wrong_display_name1, wrong_display_name2, primary_display_name, secondary_display_name) =
-        fuzzer.generate_four_display_names();
+    let (
+        wrong_desktop_display_name,
+        wrong_couch_display_name,
+        primary_display_name,
+        secondary_display_name,
+    ) = fuzzer.generate_four_display_names();
 
-    let forbidden_display_names =
-        HashSet::from([wrong_display_name1.as_str(), wrong_display_name2.as_str()]);
+    let forbidden_display_names = HashSet::from([
+        wrong_desktop_display_name.as_str(),
+        wrong_couch_display_name.as_str(),
+    ]);
 
     let computer = fuzzer
         .generate_computer()
@@ -315,17 +276,9 @@ fn it_should_validate_both_desktop_and_couch_displays() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: wrong_display_name1,
-                couch_display_name: wrong_display_name2,
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(wrong_desktop_display_name, wrong_couch_display_name)
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -358,17 +311,9 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -399,17 +344,9 @@ fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_dis
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .build();
 
     // Act
     let actual_result = application.execute(&args);

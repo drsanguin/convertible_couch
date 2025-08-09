@@ -2,11 +2,10 @@
 
 use convertible_couch::{
     application::ApplicationResult,
-    commands::{Arguments, Commands, DisplaysOptions, SharedOptions},
-    testing::bootstrap_application,
+    testing::{arrangements::bootstrap_application, builders::ArgumentsBuilder},
 };
 use convertible_couch_lib::{
-    displays_settings::DisplaysSettingsResult, func, log::LogLevel, testing::fuzzing::Fuzzer,
+    displays_settings::DisplaysSettingsResult, func, testing::fuzzing::Fuzzer,
 };
 use test_case::test_case;
 use windows::Win32::Graphics::Gdi::{
@@ -40,17 +39,9 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .build();
 
     // Act
     application.execute(&args)
@@ -82,17 +73,9 @@ fn it_should_report_display_change_errors_that_happens_for_some_displays(
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .build();
 
     // Act
     application.execute(&args)
@@ -118,17 +101,9 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -165,17 +140,9 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
 
     let mut application = bootstrap_application(computer);
 
-    let args = Arguments {
-        command: Commands::DisplaysOnly {
-            displays: DisplaysOptions {
-                desktop_display_name: primary_display_name.clone(),
-                couch_display_name: secondary_display_name.clone(),
-            },
-            shared: SharedOptions {
-                log_level: LogLevel::Off,
-            },
-        },
-    };
+    let args = ArgumentsBuilder::new()
+        .displays_only(primary_display_name.clone(), secondary_display_name.clone())
+        .build();
 
     // Act
     let actual_result = application.execute(&args);
