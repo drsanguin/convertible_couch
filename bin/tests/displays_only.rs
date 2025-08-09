@@ -1,8 +1,8 @@
 use convertible_couch::{
     application::ApplicationResult,
     testing::{
-        arrangements::bootstrap_application,
-        assertions::assert_that_result_is_an_error_who_starts_with, builders::ArgumentsBuilder,
+        arrangements::{bootstrap_application, ArgumentsBuilder},
+        assertions::assert_that_result_is_an_error_who_starts_with,
     },
 };
 use convertible_couch_lib::{

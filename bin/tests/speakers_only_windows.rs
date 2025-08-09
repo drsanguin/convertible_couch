@@ -1,6 +1,6 @@
 #![cfg(target_os = "windows")]
 
-use convertible_couch::testing::{arrangements::bootstrap_application, builders::ArgumentsBuilder};
+use convertible_couch::testing::arrangements::{bootstrap_application, ArgumentsBuilder};
 use convertible_couch_lib::{func, testing::fuzzing::Fuzzer};
 
 #[test]

@@ -1,6 +1,6 @@
 use convertible_couch::{
     application::ApplicationResult,
-    testing::{arrangements::bootstrap_application, builders::ArgumentsBuilder},
+    testing::arrangements::{bootstrap_application, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
     func, speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer,

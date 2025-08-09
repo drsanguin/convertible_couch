@@ -1,10 +1,7 @@
-use convertible_couch::commands::{
-    Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions,
-};
-use convertible_couch::testing::arrangements::bootstrap_application;
-use convertible_couch_lib::{func, log::LogLevel, testing::fuzzing::Fuzzer};
+use convertible_couch::testing::arrangements::{bootstrap_application, ArgumentsBuilder};
+use convertible_couch_lib::{func, testing::fuzzing::Fuzzer};
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
-use std::fmt::Display;
+use std::fmt::{Display, Formatter, Result};
 
 const COUNTS: [usize; 10] = [2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
 
@@ -14,17 +11,17 @@ struct BenchParam {
 }
 
 impl Display for BenchParam {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(
-            f,
+            formatter,
             "displays_count: {}, speakers_count: {}",
             self.displays_count, self.speakers_count
         )
     }
 }
 
-fn change_primary_display_and_default_speaker(c: &mut Criterion) {
-    let mut group = c.benchmark_group("change_primary_display_and_default_speaker");
+fn change_primary_display_and_default_speaker(criterion: &mut Criterion) {
+    let mut group = criterion.benchmark_group("change_primary_display_and_default_speaker");
 
     for displays_count in COUNTS {
         for speakers_count in COUNTS {
@@ -65,21 +62,14 @@ fn change_primary_display_and_default_speaker(c: &mut Criterion) {
 
                             let application = bootstrap_application(computer);
 
-                            let args = Arguments {
-                                command: Commands::DisplaysAndSpeakers {
-                                    displays: DisplaysOptions {
-                                        desktop_display_name: primary_display_name,
-                                        couch_display_name: secondary_display_name,
-                                    },
-                                    speakers: SpeakersOptions {
-                                        desktop_speaker_name: default_speaker_name,
-                                        couch_speaker_name: alternative_speaker_name,
-                                    },
-                                    shared: SharedOptions {
-                                        log_level: LogLevel::Off,
-                                    },
-                                },
-                            };
+                            let args = ArgumentsBuilder::new()
+                                .displays_and_speakers(
+                                    &primary_display_name,
+                                    &secondary_display_name,
+                                    &default_speaker_name,
+                                    &alternative_speaker_name,
+                                )
+                                .build();
 
                             (application, args)
                         },
@@ -93,8 +83,8 @@ fn change_primary_display_and_default_speaker(c: &mut Criterion) {
     group.finish();
 }
 
-fn change_primary_display(c: &mut Criterion) {
-    let mut group = c.benchmark_group("change_primary_display");
+fn change_primary_display(criterion: &mut Criterion) {
+    let mut group = criterion.benchmark_group("change_primary_display");
 
     for display_count in COUNTS {
         group.throughput(Throughput::Elements(u64::try_from(display_count).unwrap()));
@@ -120,17 +110,9 @@ fn change_primary_display(c: &mut Criterion) {
 
                         let application = bootstrap_application(computer);
 
-                        let args = Arguments {
-                            command: Commands::DisplaysOnly {
-                                displays: DisplaysOptions {
-                                    desktop_display_name: primary_display_name,
-                                    couch_display_name: secondary_display_name,
-                                },
-                                shared: SharedOptions {
-                                    log_level: LogLevel::Off,
-                                },
-                            },
-                        };
+                        let args = ArgumentsBuilder::new()
+                            .displays_only(&primary_display_name, &secondary_display_name)
+                            .build();
 
                         (application, args)
                     },
@@ -143,8 +125,8 @@ fn change_primary_display(c: &mut Criterion) {
     group.finish();
 }
 
-fn change_default_speaker(c: &mut Criterion) {
-    let mut group = c.benchmark_group("change_default_speaker");
+fn change_default_speaker(criterion: &mut Criterion) {
+    let mut group = criterion.benchmark_group("change_default_speaker");
 
     for speakers_count in COUNTS {
         group.throughput(Throughput::Elements(u64::try_from(speakers_count).unwrap()));
@@ -170,17 +152,9 @@ fn change_default_speaker(c: &mut Criterion) {
 
                         let application = bootstrap_application(computer);
 
-                        let args = Arguments {
-                            command: Commands::SpeakersOnly {
-                                speakers: SpeakersOptions {
-                                    desktop_speaker_name: default_speaker_name,
-                                    couch_speaker_name: alternative_speaker_name,
-                                },
-                                shared: SharedOptions {
-                                    log_level: LogLevel::Off,
-                                },
-                            },
-                        };
+                        let args = ArgumentsBuilder::new()
+                            .speakers_only(&default_speaker_name, &alternative_speaker_name)
+                            .build();
 
                         (application, args)
                     },
