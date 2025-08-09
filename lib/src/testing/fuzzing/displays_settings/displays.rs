@@ -89,15 +89,6 @@ impl<'a> DisplaysFuzzer<'a> {
         self
     }
 
-    pub fn whose_names_are_different_from(
-        &mut self,
-        forbidden_display_names: HashSet<&'a str>,
-    ) -> &mut Self {
-        self.forbidden_display_names = forbidden_display_names;
-
-        self
-    }
-
     pub fn whose_device_ids_are_different_from(
         &mut self,
         forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,

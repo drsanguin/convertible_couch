@@ -10,7 +10,6 @@ use convertible_couch_lib::{
     func,
     testing::fuzzing::Fuzzer,
 };
-use std::collections::HashSet;
 
 #[test]
 fn it_should_swap_the_desktop_display_with_the_couch_display() {
@@ -170,16 +169,13 @@ fn it_should_validate_the_desktop_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (wrong_display_name, primary_display_name, secondary_display_name) =
+    let (invalid_display_name, primary_display_name, secondary_display_name) =
         fuzzer.generate_three_display_names();
-
-    let forbidden_display_names = HashSet::from([wrong_display_name.as_str()]);
 
     let computer = fuzzer
         .generate_computer()
         .with_displays()
         .of_which_there_are(2)
-        .whose_names_are_different_from(forbidden_display_names)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .build_displays()
@@ -188,7 +184,7 @@ fn it_should_validate_the_desktop_display() {
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(&wrong_display_name, &secondary_display_name)
+        .displays_only(&invalid_display_name, &secondary_display_name)
         .build();
 
     // Act
@@ -208,16 +204,13 @@ fn it_should_validate_the_couch_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (wrong_display_name, primary_display_name, secondary_display_name) =
+    let (invalid_display_name, primary_display_name, secondary_display_name) =
         fuzzer.generate_three_display_names();
-
-    let forbidden_display_names = HashSet::from([wrong_display_name.as_str()]);
 
     let computer = fuzzer
         .generate_computer()
         .with_displays()
         .of_which_there_are(2)
-        .whose_names_are_different_from(forbidden_display_names)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .build_displays()
@@ -226,7 +219,7 @@ fn it_should_validate_the_couch_display() {
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(&primary_display_name, &wrong_display_name)
+        .displays_only(&primary_display_name, &invalid_display_name)
         .build();
 
     // Act
@@ -247,22 +240,16 @@ fn it_should_validate_both_desktop_and_couch_displays() {
     let mut fuzzer = Fuzzer::new(func!(), true);
 
     let (
-        wrong_desktop_display_name,
-        wrong_couch_display_name,
+        invalid_desktop_display_name,
+        invalid_couch_display_name,
         primary_display_name,
         secondary_display_name,
     ) = fuzzer.generate_four_display_names();
-
-    let forbidden_display_names = HashSet::from([
-        wrong_desktop_display_name.as_str(),
-        wrong_couch_display_name.as_str(),
-    ]);
 
     let computer = fuzzer
         .generate_computer()
         .with_displays()
         .of_which_there_are(2)
-        .whose_names_are_different_from(forbidden_display_names)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .build_displays()
@@ -271,7 +258,7 @@ fn it_should_validate_both_desktop_and_couch_displays() {
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(&wrong_desktop_display_name, &wrong_couch_display_name)
+        .displays_only(&invalid_desktop_display_name, &invalid_couch_display_name)
         .build();
 
     // Act

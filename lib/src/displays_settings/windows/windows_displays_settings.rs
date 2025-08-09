@@ -684,27 +684,28 @@ mod tests {
         // Arrange
         let mut fuzzer = Fuzzer::new(func!(), true);
 
-        let forbidden_display_name = fuzzer.generate_display_name();
-        let forbidden_display_names = HashSet::from([forbidden_display_name.as_str()]);
+        let (invalid_display_name, primary_display_name, secondary_display_name) =
+            fuzzer.generate_three_display_names();
 
         let computer = fuzzer
             .generate_computer()
             .with_displays()
-            .of_which_there_are_at_least(2)
-            .whose_names_are_different_from(forbidden_display_names)
+            .of_which_there_are(2)
+            .whose_primary_is_named(primary_display_name)
+            .with_a_secondary_named(secondary_display_name)
             .build_displays()
             .build_computer();
 
         let display_settings = WindowsDisplaySettings::new(computer.displays_settings_api);
 
         // Act
-        let result = display_settings.get_display_position(&forbidden_display_name);
+        let result = display_settings.get_display_position(&invalid_display_name);
 
         //Assert
         assert_eq!(
             result,
             Err(format!(
-                "Failed to retrieve the position of display {forbidden_display_name}"
+                "Failed to retrieve the position of display {invalid_display_name}"
             ))
         );
     }
