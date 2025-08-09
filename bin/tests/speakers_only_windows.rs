@@ -1,3 +1,5 @@
+#![cfg(target_os = "windows")]
+
 use convertible_couch::{
     commands::{Arguments, Commands, SharedOptions, SpeakersOptions},
     testing::bootstrap_application,
