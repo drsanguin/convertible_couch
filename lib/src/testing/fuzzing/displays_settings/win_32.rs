@@ -1,3 +1,5 @@
+use super::{position::FuzzedDisplayPosition, video_output::FuzzedVideoOutput};
+use crate::displays_settings::windows::win_32::Win32;
 use std::{collections::HashMap, ffi::c_void, mem::size_of};
 use windows::{
     core::{BOOL, PCWSTR},
@@ -17,10 +19,6 @@ use windows::{
         UI::WindowsAndMessaging::EDD_GET_DEVICE_INTERFACE_NAME,
     },
 };
-
-use crate::{displays_settings::windows::win_32::Win32, testing::utils::encode_utf16};
-
-use super::{position::FuzzedDisplayPosition, video_output::FuzzedVideoOutput};
 
 #[derive(Clone)]
 pub struct FuzzedWin32 {
@@ -355,4 +353,16 @@ impl Win32 for FuzzedWin32 {
                 .unwrap_or(BOOL(0))
         }
     }
+}
+
+fn encode_utf16<const T: usize>(string: &str) -> [u16; T] {
+    let mut bytes = [0; T];
+
+    string
+        .encode_utf16()
+        .enumerate()
+        .take(T)
+        .for_each(|(index, byte)| bytes[index] = byte);
+
+    bytes
 }

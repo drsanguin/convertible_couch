@@ -1,7 +1,7 @@
 use super::win_32::Win32;
 use crate::displays_settings::{DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME};
 use log::warn;
-use std::{collections::BTreeSet, fmt::Debug, mem::size_of};
+use std::{collections::BTreeSet, fmt::Debug, mem};
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -40,7 +40,7 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
         self.validate_displays(desktop_display_name, couch_display_name)
             .and_then(|_| self.get_current_primary_display_name())
             .and_then(|current_primary_display_name| {
-                Self::get_new_primary_display(
+                get_new_primary_display(
                     current_primary_display_name,
                     desktop_display_name,
                     couch_display_name,
@@ -55,25 +55,7 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
     }
 }
 
-#[derive(Debug, PartialEq)]
-struct DisplayPosition {
-    x: i32,
-    y: i32,
-}
-
 impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
-    fn get_new_primary_display<'a>(
-        current_primary_display_name: String,
-        desktop_display_name: &'a str,
-        couch_display_name: &'a str,
-    ) -> Result<&'a str, String> {
-        Ok(if current_primary_display_name == desktop_display_name {
-            couch_display_name
-        } else {
-            desktop_display_name
-        })
-    }
-
     fn validate_displays(
         &mut self,
         desktop_display_name: &str,
@@ -87,49 +69,23 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 (true, true) => Ok(()),
                 (true, false) => Err(format!(
                     "Couch display is invalid, possible values are [{}]",
-                    Self::stringify_displays_names(&displays)
+                    stringify_displays_names(&displays)
                 )),
                 (false, true) => Err(format!(
                     "Desktop display is invalid, possible values are [{}]",
-                    Self::stringify_displays_names(&displays)
+                    stringify_displays_names(&displays)
                 )),
                 (false, false) => Err(format!(
                     "Desktop and couch displays are invalid, possible values are [{}]",
-                    Self::stringify_displays_names(&displays)
+                    stringify_displays_names(&displays)
                 )),
             }
         })
     }
 
-    fn stringify_displays_names(displays: &BTreeSet<String>) -> String {
-        displays.iter().cloned().collect::<Vec<String>>().join(", ")
-    }
-
-    fn get_default_display_devicew() -> DISPLAY_DEVICEW {
-        let cb = Self::size_of::<DISPLAY_DEVICEW, u32>();
-
-        DISPLAY_DEVICEW {
-            cb,
-            ..DISPLAY_DEVICEW::default()
-        }
-    }
-
-    fn get_default_devmodew() -> DEVMODEW {
-        let dm_size = Self::size_of::<DEVMODEW, u16>();
-
-        DEVMODEW {
-            dmSize: dm_size,
-            ..DEVMODEW::default()
-        }
-    }
-
-    fn get_pcwstr_from_raw(raw: &[u16; 32]) -> PCWSTR {
-        PCWSTR::from_raw(raw.as_ptr())
-    }
-
     fn get_current_primary_display_name(&self) -> Result<String, String> {
         for idevnum in 0..=u32::MAX {
-            let mut display_adapter = Self::get_default_display_devicew();
+            let mut display_adapter = get_default_display_devicew();
 
             let is_success_display_adapter = self
                 .win32
@@ -145,9 +101,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 break;
             }
 
-            let display_adapter_device_name =
-                Self::get_pcwstr_from_raw(&display_adapter.DeviceName);
-            let mut display_device = Self::get_default_display_devicew();
+            let display_adapter_device_name = get_pcwstr_from_raw(&display_adapter.DeviceName);
+            let mut display_device = get_default_display_devicew();
 
             let is_success_display_device = self
                 .win32
@@ -168,7 +123,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let mut display_adapter_graphics_mode = Self::get_default_devmodew();
+            let mut display_adapter_graphics_mode = get_default_devmodew();
 
             let has_enum_display_settings_succeded = self
                 .win32
@@ -188,11 +143,11 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            if !self.is_positioned_at_origin(display_adapter_graphics_mode) {
+            if !is_positioned_at_origin(display_adapter_graphics_mode) {
                 continue;
             }
 
-            let display_device_device_id = Self::from_utf16_trimed(&display_device.DeviceID);
+            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID);
             let current_display_name = self.get_display_name(&display_device_device_id).unwrap();
 
             return Ok(current_display_name);
@@ -203,7 +158,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
     fn get_display_position(&self, display_name: &str) -> Result<DisplayPosition, String> {
         for idevnum in 0..=u32::MAX {
-            let mut display_adapter = Self::get_default_display_devicew();
+            let mut display_adapter = get_default_display_devicew();
 
             let is_success_display_adapter = self
                 .win32
@@ -219,9 +174,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 break;
             }
 
-            let display_adapter_device_name =
-                Self::get_pcwstr_from_raw(&display_adapter.DeviceName);
-            let mut display_device = Self::get_default_display_devicew();
+            let display_adapter_device_name = get_pcwstr_from_raw(&display_adapter.DeviceName);
+            let mut display_device = get_default_display_devicew();
 
             let is_success_display_device = self
                 .win32
@@ -242,7 +196,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let mut display_adapter_graphics_mode = Self::get_default_devmodew();
+            let mut display_adapter_graphics_mode = get_default_devmodew();
 
             let has_enum_display_settings_succeded = self
                 .win32
@@ -262,7 +216,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let display_device_device_id = Self::from_utf16_trimed(&display_device.DeviceID);
+            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID);
             let current_display_name = self.get_display_name(&display_device_device_id).unwrap();
 
             if current_display_name != display_name {
@@ -300,7 +254,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         let mut new_primary = None;
 
         for idevnum in 0..=u32::MAX {
-            let mut display_adapter = Self::get_default_display_devicew();
+            let mut display_adapter = get_default_display_devicew();
 
             let is_success_display_adapter = self
                 .win32
@@ -316,9 +270,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 break;
             }
 
-            let display_adapter_device_name =
-                Self::get_pcwstr_from_raw(&display_adapter.DeviceName);
-            let mut display_device = Self::get_default_display_devicew();
+            let display_adapter_device_name = get_pcwstr_from_raw(&display_adapter.DeviceName);
+            let mut display_device = get_default_display_devicew();
 
             let is_success_display_device = self
                 .win32
@@ -339,7 +292,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let mut display_adapter_graphics_mode = Self::get_default_devmodew();
+            let mut display_adapter_graphics_mode = get_default_devmodew();
 
             let has_enum_display_settings_succeded = self
                 .win32
@@ -374,8 +327,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             let mut dwflags = CDS_UPDATEREGISTRY | CDS_NORESET;
 
-            if self.is_positioned_at_origin(display_adapter_graphics_mode) {
-                let display_device_device_id = Self::from_utf16_trimed(&display_device.DeviceID);
+            if is_positioned_at_origin(display_adapter_graphics_mode) {
+                let display_device_device_id = from_utf16_trimed(&display_device.DeviceID);
                 let display_name = self.get_display_name(&display_device_device_id).unwrap();
 
                 dwflags |= CDS_SET_PRIMARY;
@@ -397,9 +350,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                     continue;
                 }
                 _ => {
-                    return Err(Self::map_disp_change_to_string(
-                        change_display_settings_ex_result,
-                    ));
+                    return Err(map_disp_change_to_string(change_display_settings_ex_result));
                 }
             }
         }
@@ -425,26 +376,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                     new_primary_display: new_primary.unwrap(),
                 })
             }
-            _ => Err(Self::map_disp_change_to_string(
-                change_display_settings_ex_result,
-            )),
-        }
-    }
-
-    fn is_positioned_at_origin(&self, display_adapter_graphics_mode: DEVMODEW) -> bool {
-        unsafe {
-            display_adapter_graphics_mode
-                .Anonymous1
-                .Anonymous2
-                .dmPosition
-                .x
-                == 0
-                && display_adapter_graphics_mode
-                    .Anonymous1
-                    .Anonymous2
-                    .dmPosition
-                    .y
-                    == 0
+            _ => Err(map_disp_change_to_string(change_display_settings_ex_result)),
         }
     }
 
@@ -489,7 +421,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             }
         })
         .and_then(|mode_informations| {
-            let size_of_displayconfig_target_device_name = Self::size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
+            let size_of_displayconfig_target_device_name = size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
 
             for mode_information in mode_informations.into_iter() {
                 if mode_information.infoType != DISPLAYCONFIG_MODE_INFO_TYPE_TARGET {
@@ -508,14 +440,14 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
                 match display_config_get_device_info_result {
                     0 => {
-                        let current_display_device_path = Self::from_utf16_trimed(&displayconfig_target_device_name.monitorDevicePath);
+                        let current_display_device_path = from_utf16_trimed(&displayconfig_target_device_name.monitorDevicePath);
 
                         if current_display_device_path != display_device_path {
                             continue;
                         }
 
-                        let raw_display_friendly_device_name = Self::from_utf16_trimed(&displayconfig_target_device_name.monitorFriendlyDeviceName);
-                        let display_friendly_device_name = Self::from_raw_display_name(raw_display_friendly_device_name.as_str());
+                        let raw_display_friendly_device_name = from_utf16_trimed(&displayconfig_target_device_name.monitorFriendlyDeviceName);
+                        let display_friendly_device_name = from_raw_display_name(raw_display_friendly_device_name.as_str());
 
                         return Ok(display_friendly_device_name);
                     },
@@ -529,24 +461,11 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         })
     }
 
-    fn map_disp_change_to_string(disp_change: DISP_CHANGE) -> String {
-        match disp_change {
-            DISP_CHANGE_BADDUALVIEW => String::from("The settings change was unsuccessful because the system is DualView capable."),
-            DISP_CHANGE_BADFLAGS => String::from("An invalid set of flags was passed in."),
-            DISP_CHANGE_BADMODE => String::from("The graphics mode is not supported."),
-            DISP_CHANGE_BADPARAM => String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."),
-            DISP_CHANGE_FAILED => String::from("The display driver failed the specified graphics mode."),
-            DISP_CHANGE_NOTUPDATED => String::from("Unable to write settings to the registry."),
-            DISP_CHANGE_RESTART => String::from("The computer must be restarted for the graphics mode to work."),
-            _ => String::from("The settings change was successful.")
-        }
-    }
-
     fn get_all_displays(&self) -> Result<BTreeSet<String>, String> {
         let mut displays_names = BTreeSet::new();
 
         for idevnum in 0..=u32::MAX {
-            let mut display_adapter = Self::get_default_display_devicew();
+            let mut display_adapter = get_default_display_devicew();
 
             let is_success_display_adapter = self
                 .win32
@@ -562,9 +481,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 break;
             }
 
-            let display_adapter_device_name =
-                Self::get_pcwstr_from_raw(&display_adapter.DeviceName);
-            let mut display_device = Self::get_default_display_devicew();
+            let display_adapter_device_name = get_pcwstr_from_raw(&display_adapter.DeviceName);
+            let mut display_device = get_default_display_devicew();
 
             let is_success_display_device = self
                 .win32
@@ -585,7 +503,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let mut display_adapter_graphics_mode = Self::get_default_devmodew();
+            let mut display_adapter_graphics_mode = get_default_devmodew();
 
             let has_enum_display_settings_succeded = self
                 .win32
@@ -605,7 +523,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let display_device_device_id = Self::from_utf16_trimed(&display_device.DeviceID);
+            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID);
 
             match self.get_display_name(&display_device_device_id) {
                 Ok(current_display_name) => {
@@ -618,44 +536,119 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
         Ok(displays_names)
     }
+}
 
-    fn from_raw_display_name(raw_display_name: &str) -> String {
-        let display_name = if raw_display_name == "" {
-            INTERNAL_DISPLAY_NAME
-        } else {
-            raw_display_name
-        };
+#[derive(Debug, PartialEq)]
+struct DisplayPosition {
+    x: i32,
+    y: i32,
+}
 
-        String::from(display_name)
+fn get_new_primary_display<'a>(
+    current_primary_display_name: String,
+    desktop_display_name: &'a str,
+    couch_display_name: &'a str,
+) -> Result<&'a str, String> {
+    Ok(if current_primary_display_name == desktop_display_name {
+        couch_display_name
+    } else {
+        desktop_display_name
+    })
+}
+
+fn is_positioned_at_origin(display_adapter_graphics_mode: DEVMODEW) -> bool {
+    unsafe {
+        display_adapter_graphics_mode
+            .Anonymous1
+            .Anonymous2
+            .dmPosition
+            .x
+            == 0
+            && display_adapter_graphics_mode
+                .Anonymous1
+                .Anonymous2
+                .dmPosition
+                .y
+                == 0
     }
+}
 
-    fn size_of<T1, T2: TryFrom<usize>>() -> T2
-    where
-        <T2 as TryFrom<usize>>::Error: Debug,
-    {
-        let size = size_of::<T1>();
-        T2::try_from(size).unwrap()
+fn stringify_displays_names(displays: &BTreeSet<String>) -> String {
+    displays.iter().cloned().collect::<Vec<String>>().join(", ")
+}
+
+fn get_default_display_devicew() -> DISPLAY_DEVICEW {
+    let cb = size_of::<DISPLAY_DEVICEW, u32>();
+
+    DISPLAY_DEVICEW {
+        cb,
+        ..DISPLAY_DEVICEW::default()
     }
+}
 
-    fn from_utf16_trimed(bytes: &[u16]) -> String {
-        let str = String::from_utf16(bytes).unwrap();
+fn get_default_devmodew() -> DEVMODEW {
+    let dm_size = size_of::<DEVMODEW, u16>();
 
-        str.trim_end_matches('\0').to_string()
+    DEVMODEW {
+        dmSize: dm_size,
+        ..DEVMODEW::default()
     }
+}
+
+fn get_pcwstr_from_raw(raw: &[u16; 32]) -> PCWSTR {
+    PCWSTR::from_raw(raw.as_ptr())
+}
+
+fn map_disp_change_to_string(disp_change: DISP_CHANGE) -> String {
+    match disp_change {
+            DISP_CHANGE_BADDUALVIEW => String::from("The settings change was unsuccessful because the system is DualView capable."),
+            DISP_CHANGE_BADFLAGS => String::from("An invalid set of flags was passed in."),
+            DISP_CHANGE_BADMODE => String::from("The graphics mode is not supported."),
+            DISP_CHANGE_BADPARAM => String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."),
+            DISP_CHANGE_FAILED => String::from("The display driver failed the specified graphics mode."),
+            DISP_CHANGE_NOTUPDATED => String::from("Unable to write settings to the registry."),
+            DISP_CHANGE_RESTART => String::from("The computer must be restarted for the graphics mode to work."),
+            _ => String::from("The settings change was successful.")
+        }
+}
+
+fn from_raw_display_name(raw_display_name: &str) -> String {
+    let display_name = if raw_display_name == "" {
+        INTERNAL_DISPLAY_NAME
+    } else {
+        raw_display_name
+    };
+
+    String::from(display_name)
+}
+
+fn size_of<T1, T2: TryFrom<usize>>() -> T2
+where
+    <T2 as TryFrom<usize>>::Error: Debug,
+{
+    let size = mem::size_of::<T1>();
+    T2::try_from(size).unwrap()
+}
+
+fn from_utf16_trimed(bytes: &[u16]) -> String {
+    let str = String::from_utf16(bytes).unwrap();
+
+    str.trim_end_matches('\0').to_string()
 }
 
 #[cfg(test)]
 mod tests {
+    use super::WindowsDisplaySettings;
     use crate::{
-        displays_settings::DisplaysSettings,
+        displays_settings::{
+            windows::windows_displays_settings::map_disp_change_to_string, DisplaysSettings,
+        },
         func,
-        testing::fuzzing::{displays_settings::win_32::FuzzedWin32, Fuzzer},
+        testing::fuzzing::Fuzzer,
     };
     use std::collections::HashSet;
     use test_case::test_case;
     use windows::Win32::Graphics::Gdi::DISP_CHANGE;
-
-    use super::WindowsDisplaySettings;
 
     #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_RESTART => String::from("The computer must be restarted for the graphics mode to work."); "when the error is DISP_CHANGE_RESTART")]
     #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_SUCCESSFUL => String::from("The settings change was successful."); "when the error is DISP_CHANGE_SUCCESSFUL")]
@@ -663,7 +656,7 @@ mod tests {
         disp_change: DISP_CHANGE,
     ) -> String {
         // Act
-        WindowsDisplaySettings::<FuzzedWin32>::map_disp_change_to_string(disp_change)
+        map_disp_change_to_string(disp_change)
     }
 
     #[test]

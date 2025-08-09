@@ -6,15 +6,3 @@ macro_rules! func {
         name.rsplit("::").nth(1).unwrap_or(name)
     }};
 }
-
-pub fn encode_utf16<const T: usize>(string: &str) -> [u16; T] {
-    let mut bytes = [0; T];
-
-    string
-        .encode_utf16()
-        .enumerate()
-        .take(T)
-        .for_each(|(index, byte)| bytes[index] = byte);
-
-    bytes
-}
