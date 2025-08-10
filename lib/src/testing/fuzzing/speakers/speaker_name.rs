@@ -171,13 +171,13 @@ impl<'a> SpeakerNameFuzzer<'a> {
     }
 
     pub fn generate_two(&mut self) -> (String, String) {
-        let names = self.generate_several(2, HashSet::new());
+        let mut names = self.generate_several(2, &HashSet::new());
 
-        (names[0].clone(), names[1].clone())
+        (names.remove(0), names.remove(0))
     }
 
     pub(crate) fn generate_three(&mut self) -> (String, String, String) {
-        let mut names = self.generate_several(3, HashSet::new());
+        let mut names = self.generate_several(3, &HashSet::new());
 
         (names.remove(0), names.remove(0), names.remove(0))
     }
@@ -185,7 +185,7 @@ impl<'a> SpeakerNameFuzzer<'a> {
     pub fn generate_several(
         &mut self,
         count: usize,
-        names_already_taken: HashSet<String>,
+        names_already_taken: &HashSet<String>,
     ) -> Vec<String> {
         let mut names = BTreeSet::new();
 

@@ -90,10 +90,8 @@ impl SpeakersFuzzer {
 
         let count = self.rand.random_range(self.min_count..=self.max_count);
 
-        let names_not_taken = SpeakerNameFuzzer::new(&mut self.rand).generate_several(
-            count - names_already_taken.len(),
-            names_already_taken.clone(),
-        );
+        let names_not_taken = SpeakerNameFuzzer::new(&mut self.rand)
+            .generate_several(count - names_already_taken.len(), &names_already_taken);
 
         let mut names = Vec::with_capacity(count);
         names.extend(names_already_taken);
