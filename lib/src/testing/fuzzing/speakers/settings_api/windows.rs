@@ -81,15 +81,19 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
             let out_audio_endpoint = unsafe { &mut *out_audio_endpoints.add(i) };
             let speaker = &self.speakers[i];
 
-            out_audio_endpoint.id = map_string_to_c_ushort(&speaker.id);
-            out_audio_endpoint.name = map_string_to_c_ushort(&speaker.name);
-            out_audio_endpoint.is_default = if self.behaviour.getting_the_default_speaker_fails {
+            let audio_endpoint_id = map_string_to_c_ushort(&speaker.id);
+            let audio_endpoint_name = map_string_to_c_ushort(&speaker.name);
+            let audio_endpoint_is_default = if self.behaviour.getting_the_default_speaker_fails {
                 0
             } else if speaker.is_default {
                 1
             } else {
                 0
             };
+
+            out_audio_endpoint.id = audio_endpoint_id;
+            out_audio_endpoint.name = audio_endpoint_name;
+            out_audio_endpoint.is_default = audio_endpoint_is_default;
         }
 
         0
