@@ -6,7 +6,10 @@ use std::{
     usize,
 };
 
-use crate::speakers_settings::{SpeakersSettings, SpeakersSettingsResult};
+use crate::{
+    speakers_settings::{SpeakersSettings, SpeakersSettingsResult},
+    ApplicationError,
+};
 
 use super::audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
 
@@ -27,14 +30,16 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         &mut self,
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
-    ) -> Result<SpeakersSettingsResult, String> {
+    ) -> Result<SpeakersSettingsResult, ApplicationError> {
         let audio_endpoints_count = self.audio_endpoint_library.get_all_audio_endpoints_count();
 
         if audio_endpoints_count == -1 {
-            return Err(String::from("Failed to get the number of speakers"));
+            return Err(ApplicationError::Custom(String::from(
+                "Failed to get the number of speakers",
+            )));
         }
 
-        let audio_endpoints_count_as_usize = usize::try_from(audio_endpoints_count).unwrap();
+        let audio_endpoints_count_as_usize = usize::try_from(audio_endpoints_count)?;
         let mut audio_endpoints = vec![AudioEndpoint::default(); audio_endpoints_count_as_usize];
 
         let get_all_audio_endpoints = self
@@ -42,7 +47,9 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
             .get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count);
 
         if get_all_audio_endpoints != 0 {
-            return Err(String::from("Failed to get the speakers"));
+            return Err(ApplicationError::Custom(String::from(
+                "Failed to get the speakers",
+            )));
         }
 
         let mut desktop_speaker_id: *mut u16 = null_mut();
@@ -67,7 +74,9 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         }
 
         if current_speaker_id.is_null() {
-            return Err(format!("Failed to get the current default speaker",));
+            return Err(ApplicationError::Custom(format!(
+                "Failed to get the current default speaker"
+            )));
         }
 
         if desktop_speaker_id.is_null() {
@@ -75,14 +84,14 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
                 get_possible_speakers_message_fragment(&audio_endpoints);
             let error_message = format!("Desktop speaker is invalid, possible values are are {possible_speakers_message_fragment}");
 
-            return Err(error_message);
+            return Err(ApplicationError::Custom(error_message));
         }
 
         if couch_speaker_id.is_null() {
             let possible_speakers_message_fragment =
                 get_possible_speakers_message_fragment(&audio_endpoints);
 
-            return Err(format!("Couch speaker is invalid, possible values are {possible_speakers_message_fragment}"));
+            return Err(ApplicationError::Custom(format!("Couch speaker is invalid, possible values are {possible_speakers_message_fragment}")));
         }
 
         let is_current_default_speaker_the_desktop_one =
@@ -100,7 +109,9 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
             .set_default_audio_endpoint(new_default_speaker_id);
 
         if set_speaker_result != 0 {
-            return Err(String::from("Failed to set default speaker"));
+            return Err(ApplicationError::Custom(String::from(
+                "Failed to set default speaker",
+            )));
         }
 
         let result = SpeakersSettingsResult {

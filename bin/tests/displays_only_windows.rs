@@ -5,7 +5,7 @@ use convertible_couch::{
     testing::arrangements::{bootstrap_application, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
-    displays_settings::DisplaysSettingsResult, func, testing::fuzzing::Fuzzer,
+    displays_settings::DisplaysSettingsResult, func, testing::fuzzing::Fuzzer, ApplicationError,
 };
 use test_case::test_case;
 use windows::Win32::Graphics::Gdi::{
@@ -13,15 +13,15 @@ use windows::Win32::Graphics::Gdi::{
     DISP_CHANGE_BADPARAM, DISP_CHANGE_FAILED, DISP_CHANGE_NOTUPDATED, DISP_CHANGE_RESTART,
 };
 
-#[test_case(DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
-#[test_case(DISP_CHANGE_BADFLAGS => Err(String::from("An invalid set of flags was passed in.")); "when the error is DISP_CHANGE_BADFLAGS")]
-#[test_case(DISP_CHANGE_BADMODE => Err(String::from("The graphics mode is not supported.")); "when the error is DISP_CHANGE_BADMODE")]
-#[test_case(DISP_CHANGE_BADPARAM => Err(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags.")); "when the error is DISP_CHANGE_BADPARAM")]
-#[test_case(DISP_CHANGE_FAILED => Err(String::from("The display driver failed the specified graphics mode.")); "when the error is DISP_CHANGE_FAILED")]
-#[test_case(DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
+#[test_case(DISP_CHANGE_BADDUALVIEW => Err(ApplicationError::Custom(String::from("The settings change was unsuccessful because the system is DualView capable."))); "when the error is BADDUALVIEW")]
+#[test_case(DISP_CHANGE_BADFLAGS => Err(ApplicationError::Custom(String::from("An invalid set of flags was passed in."))); "when the error is DISP_CHANGE_BADFLAGS")]
+#[test_case(DISP_CHANGE_BADMODE => Err(ApplicationError::Custom(String::from("The graphics mode is not supported."))); "when the error is DISP_CHANGE_BADMODE")]
+#[test_case(DISP_CHANGE_BADPARAM => Err(ApplicationError::Custom(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."))); "when the error is DISP_CHANGE_BADPARAM")]
+#[test_case(DISP_CHANGE_FAILED => Err(ApplicationError::Custom(String::from("The display driver failed the specified graphics mode."))); "when the error is DISP_CHANGE_FAILED")]
+#[test_case(DISP_CHANGE_NOTUPDATED => Err(ApplicationError::Custom(String::from("Unable to write settings to the registry."))); "when the error is DISP_CHANGE_NOTUPDATED")]
 fn it_should_report_display_change_errors_that_happens_when_committing_changes(
     disp_change: DISP_CHANGE,
-) -> Result<ApplicationResult, String> {
+) -> Result<ApplicationResult, ApplicationError> {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -50,15 +50,15 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
     application.execute(&args)
 }
 
-#[test_case(DISP_CHANGE_BADDUALVIEW => Err(String::from("The settings change was unsuccessful because the system is DualView capable.")); "when the error is BADDUALVIEW")]
-#[test_case(DISP_CHANGE_BADFLAGS => Err(String::from("An invalid set of flags was passed in.")); "when the error is DISP_CHANGE_BADFLAGS")]
-#[test_case(DISP_CHANGE_BADMODE => Err(String::from("The graphics mode is not supported.")); "when the error is DISP_CHANGE_BADMODE")]
-#[test_case(DISP_CHANGE_BADPARAM => Err(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags.")); "when the error is DISP_CHANGE_BADPARAM")]
-#[test_case(DISP_CHANGE_FAILED => Err(String::from("The display driver failed the specified graphics mode.")); "when the error is DISP_CHANGE_FAILED")]
-#[test_case(DISP_CHANGE_NOTUPDATED => Err(String::from("Unable to write settings to the registry.")); "when the error is DISP_CHANGE_NOTUPDATED")]
+#[test_case(DISP_CHANGE_BADDUALVIEW => Err(ApplicationError::Custom(String::from("The settings change was unsuccessful because the system is DualView capable."))); "when the error is BADDUALVIEW")]
+#[test_case(DISP_CHANGE_BADFLAGS => Err(ApplicationError::Custom(String::from("An invalid set of flags was passed in."))); "when the error is DISP_CHANGE_BADFLAGS")]
+#[test_case(DISP_CHANGE_BADMODE => Err(ApplicationError::Custom(String::from("The graphics mode is not supported."))); "when the error is DISP_CHANGE_BADMODE")]
+#[test_case(DISP_CHANGE_BADPARAM => Err(ApplicationError::Custom(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."))); "when the error is DISP_CHANGE_BADPARAM")]
+#[test_case(DISP_CHANGE_FAILED => Err(ApplicationError::Custom(String::from("The display driver failed the specified graphics mode."))); "when the error is DISP_CHANGE_FAILED")]
+#[test_case(DISP_CHANGE_NOTUPDATED => Err(ApplicationError::Custom(String::from("Unable to write settings to the registry."))); "when the error is DISP_CHANGE_NOTUPDATED")]
 fn it_should_report_display_change_errors_that_happens_for_some_displays(
     disp_change: DISP_CHANGE,
-) -> Result<ApplicationResult, String> {
+) -> Result<ApplicationResult, ApplicationError> {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 

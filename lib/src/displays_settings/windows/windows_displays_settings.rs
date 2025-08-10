@@ -1,5 +1,8 @@
 use super::win_32::Win32;
-use crate::displays_settings::{DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME};
+use crate::{
+    displays_settings::{DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
+    ApplicationError,
+};
 use log::warn;
 use std::{collections::BTreeSet, fmt::Debug, mem};
 use windows::{
@@ -36,7 +39,7 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
-    ) -> Result<DisplaysSettingsResult, String> {
+    ) -> Result<DisplaysSettingsResult, ApplicationError> {
         self.validate_displays(desktop_display_name, couch_display_name)
             .and_then(|_| self.get_current_primary_display_name())
             .and_then(|current_primary_display_name| {
@@ -60,30 +63,30 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
-    ) -> Result<(), String> {
+    ) -> Result<(), ApplicationError> {
         self.get_all_displays().and_then(|displays| {
             match (
                 displays.contains(desktop_display_name),
                 displays.contains(couch_display_name),
             ) {
                 (true, true) => Ok(()),
-                (true, false) => Err(format!(
+                (true, false) => Err(ApplicationError::Custom(format!(
                     "Couch display is invalid, possible values are [{}]",
                     stringify_displays_names(&displays)
-                )),
-                (false, true) => Err(format!(
+                ))),
+                (false, true) => Err(ApplicationError::Custom(format!(
                     "Desktop display is invalid, possible values are [{}]",
                     stringify_displays_names(&displays)
-                )),
-                (false, false) => Err(format!(
+                ))),
+                (false, false) => Err(ApplicationError::Custom(format!(
                     "Desktop and couch displays are invalid, possible values are [{}]",
                     stringify_displays_names(&displays)
-                )),
+                ))),
             }
         })
     }
 
-    fn get_current_primary_display_name(&self) -> Result<String, String> {
+    fn get_current_primary_display_name(&self) -> Result<String, ApplicationError> {
         for idevnum in 0..=u32::MAX {
             let mut display_adapter = get_default_display_devicew();
 
@@ -116,7 +119,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             if !is_success_display_device {
                 let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string() }.unwrap();
+                    unsafe { display_adapter_device_name.to_string()? };
 
                 warn!("Failed to retrieve display device informations from the display adapter {display_adapter_device_name}");
 
@@ -136,7 +139,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             if !has_enum_display_settings_succeded {
                 let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string() }.unwrap();
+                    unsafe { display_adapter_device_name.to_string()? };
 
                 warn!("Failed to enum display settings for display device {display_adapter_device_name}");
 
@@ -147,16 +150,21 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID);
-            let current_display_name = self.get_display_name(&display_device_device_id).unwrap();
+            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID)?;
+            let current_display_name = self.get_display_name(&display_device_device_id)?;
 
             return Ok(current_display_name);
         }
 
-        Err(String::from("Failed to retrieve the primary display"))
+        Err(ApplicationError::Custom(String::from(
+            "Failed to retrieve the primary display",
+        )))
     }
 
-    fn get_display_position(&self, display_name: &str) -> Result<DisplayPosition, String> {
+    fn get_display_position(
+        &self,
+        display_name: &str,
+    ) -> Result<DisplayPosition, ApplicationError> {
         for idevnum in 0..=u32::MAX {
             let mut display_adapter = get_default_display_devicew();
 
@@ -189,7 +197,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             if !is_success_display_device {
                 let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string() }.unwrap();
+                    unsafe { display_adapter_device_name.to_string()? };
 
                 warn!("Failed to retrieve display device informations from the display adapter {display_adapter_device_name}");
 
@@ -209,15 +217,15 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             if !has_enum_display_settings_succeded {
                 let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string() }.unwrap();
+                    unsafe { display_adapter_device_name.to_string()? };
 
                 warn!("Failed to enum display settings for display device {display_adapter_device_name}");
 
                 continue;
             }
 
-            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID);
-            let current_display_name = self.get_display_name(&display_device_device_id).unwrap();
+            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID)?;
+            let current_display_name = self.get_display_name(&display_device_device_id)?;
 
             if current_display_name != display_name {
                 continue;
@@ -241,15 +249,15 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             return Ok(display_position);
         }
 
-        Err(format!(
+        Err(ApplicationError::Custom(format!(
             "Failed to retrieve the position of display {display_name}"
-        ))
+        )))
     }
 
     fn set_displays_to_position(
         &mut self,
         position: &DisplayPosition,
-    ) -> Result<DisplaysSettingsResult, String> {
+    ) -> Result<DisplaysSettingsResult, ApplicationError> {
         let mut reboot_required = false;
         let mut new_primary = None;
 
@@ -285,7 +293,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             if !is_success_display_device {
                 let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string() }.unwrap();
+                    unsafe { display_adapter_device_name.to_string()? };
 
                 warn!("Failed to retrieve display device informations from the display adapter {display_adapter_device_name}");
 
@@ -305,7 +313,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             if !has_enum_display_settings_succeded {
                 let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string() }.unwrap();
+                    unsafe { display_adapter_device_name.to_string()? };
 
                 warn!("Failed to enum display settings for display device {display_adapter_device_name}");
 
@@ -328,8 +336,8 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             let mut dwflags = CDS_UPDATEREGISTRY | CDS_NORESET;
 
             if is_positioned_at_origin(display_adapter_graphics_mode) {
-                let display_device_device_id = from_utf16_trimed(&display_device.DeviceID);
-                let display_name = self.get_display_name(&display_device_device_id).unwrap();
+                let display_device_device_id = from_utf16_trimed(&display_device.DeviceID)?;
+                let display_name = self.get_display_name(&display_device_device_id)?;
 
                 dwflags |= CDS_SET_PRIMARY;
                 new_primary = Some(display_name);
@@ -350,7 +358,10 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                     continue;
                 }
                 _ => {
-                    return Err(map_disp_change_to_string(change_display_settings_ex_result));
+                    let error_message =
+                        map_disp_change_to_string(change_display_settings_ex_result);
+
+                    return Err(ApplicationError::Custom(error_message));
                 }
             }
         }
@@ -376,11 +387,15 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                     new_primary_display: new_primary.unwrap(),
                 })
             }
-            _ => Err(map_disp_change_to_string(change_display_settings_ex_result)),
+            _ => {
+                let error_message = map_disp_change_to_string(change_display_settings_ex_result);
+
+                Err(ApplicationError::Custom(error_message))
+            }
         }
     }
 
-    fn get_display_name(&self, display_device_path: &str) -> Result<String, String> {
+    fn get_display_name(&self, display_device_path: &str) -> Result<String, ApplicationError> {
         let mut path_informations_length = u32::default();
         let mut mode_informations_length = u32::default();
 
@@ -396,11 +411,11 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             error_return_code => {
                 let error_return_code_value = error_return_code.0;
 
-                Err(format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {error_return_code_value}"))
+                Err(ApplicationError::Custom(format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {error_return_code_value}")))
             }
         }).and_then(|_| {
-            let mut path_informations = vec![DISPLAYCONFIG_PATH_INFO::default(); path_informations_length.try_into().unwrap()];
-            let mut mode_informations = vec![DISPLAYCONFIG_MODE_INFO::default(); mode_informations_length.try_into().unwrap()];
+            let mut path_informations = vec![DISPLAYCONFIG_PATH_INFO::default(); path_informations_length.try_into()?];
+            let mut mode_informations = vec![DISPLAYCONFIG_MODE_INFO::default(); mode_informations_length.try_into()?];
 
             let query_display_config_return_code = self.win32.query_display_config(
                 QDC_ONLY_ACTIVE_PATHS,
@@ -416,7 +431,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 error_return_code => {
                     let error_return_code_value = error_return_code.0;
 
-                    Err(format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {error_return_code_value}"))
+                    Err(ApplicationError::Custom(format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {error_return_code_value}")))
                 }
             }
         })
@@ -440,28 +455,28 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
                 match display_config_get_device_info_result {
                     0 => {
-                        let current_display_device_path = from_utf16_trimed(&displayconfig_target_device_name.monitorDevicePath);
+                        let current_display_device_path = from_utf16_trimed(&displayconfig_target_device_name.monitorDevicePath)?;
 
                         if current_display_device_path != display_device_path {
                             continue;
                         }
 
-                        let raw_display_friendly_device_name = from_utf16_trimed(&displayconfig_target_device_name.monitorFriendlyDeviceName);
+                        let raw_display_friendly_device_name = from_utf16_trimed(&displayconfig_target_device_name.monitorFriendlyDeviceName)?;
                         let display_friendly_device_name = from_raw_display_name(raw_display_friendly_device_name.as_str());
 
                         return Ok(display_friendly_device_name);
                     },
-                    error => return Err(format!("Failed to retrieve display configuration information about the device {} because of error {}", mode_information.id, error))
+                    error => return Err(ApplicationError::Custom(format!("Failed to retrieve display configuration information about the device {} because of error {}", mode_information.id, error)))
                 }
             }
 
-            Err(format!(
+            Err(ApplicationError::Custom(format!(
                 "Failed to retrieve the name of the display at the device path {display_device_path}"
-            ))
+            )))
         })
     }
 
-    fn get_all_displays(&self) -> Result<BTreeSet<String>, String> {
+    fn get_all_displays(&self) -> Result<BTreeSet<String>, ApplicationError> {
         let mut displays_names = BTreeSet::new();
 
         for idevnum in 0..=u32::MAX {
@@ -496,7 +511,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             if !is_success_display_device {
                 let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string() }.unwrap();
+                    unsafe { display_adapter_device_name.to_string()? };
 
                 warn!("Failed to retrieve display device informations from the display adapter {display_adapter_device_name}");
 
@@ -516,14 +531,14 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             if !has_enum_display_settings_succeded {
                 let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string() }.unwrap();
+                    unsafe { display_adapter_device_name.to_string()? };
 
                 warn!("Failed to enum display settings for display device {display_adapter_device_name}");
 
                 continue;
             }
 
-            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID);
+            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID)?;
 
             match self.get_display_name(&display_device_device_id) {
                 Ok(current_display_name) => {
@@ -548,7 +563,7 @@ fn get_new_primary_display<'a>(
     current_primary_display_name: String,
     desktop_display_name: &'a str,
     couch_display_name: &'a str,
-) -> Result<&'a str, String> {
+) -> Result<&'a str, ApplicationError> {
     Ok(if current_primary_display_name == desktop_display_name {
         couch_display_name
     } else {
@@ -630,10 +645,10 @@ where
     T2::try_from(size).unwrap()
 }
 
-fn from_utf16_trimed(bytes: &[u16]) -> String {
-    let str = String::from_utf16(bytes).unwrap();
+fn from_utf16_trimed(bytes: &[u16]) -> Result<String, ApplicationError> {
+    let str = String::from_utf16(bytes)?;
 
-    str.trim_end_matches('\0').to_string()
+    Ok(str.trim_end_matches('\0').to_string())
 }
 
 #[cfg(test)]
@@ -645,6 +660,7 @@ mod tests {
         },
         func,
         testing::fuzzing::Fuzzer,
+        ApplicationError,
     };
     use std::collections::HashSet;
     use test_case::test_case;
@@ -675,7 +691,9 @@ mod tests {
         //Assert
         assert_eq!(
             result,
-            Err(String::from("Failed to retrieve the primary display"))
+            Err(ApplicationError::Custom(String::from(
+                "Failed to retrieve the primary display"
+            )))
         );
     }
 
@@ -704,9 +722,9 @@ mod tests {
         //Assert
         assert_eq!(
             result,
-            Err(format!(
+            Err(ApplicationError::Custom(format!(
                 "Failed to retrieve the position of display {invalid_display_name}"
-            ))
+            )))
         );
     }
 
@@ -734,9 +752,9 @@ mod tests {
         //Assert
         assert_eq!(
             result,
-            Err(format!(
+            Err(ApplicationError::Custom(format!(
                 "Failed to retrieve the name of the display at the device path {forbidden_device_id}"
-            ))
+            )))
         );
     }
 }

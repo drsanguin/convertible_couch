@@ -3,7 +3,7 @@ use convertible_couch::{
     testing::arrangements::{bootstrap_application, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
-    func, speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer,
+    func, speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer, ApplicationError,
 };
 
 #[test]
@@ -109,9 +109,9 @@ fn it_should_validate_the_desktop_speaker_name() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(String::from(
+        Err(ApplicationError::Custom(String::from(
             format!("Desktop speaker is invalid, possible values are are {default_speaker_name}, {alternative_speaker_name}")
-        ))
+        )))
     );
 }
 
@@ -144,8 +144,8 @@ fn it_should_validate_the_couch_speaker_name() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(String::from(
+        Err(ApplicationError::Custom(String::from(
             format!("Couch speaker is invalid, possible values are {default_speaker_name}, {alternative_speaker_name}")
-        ))
+        )))
     );
 }

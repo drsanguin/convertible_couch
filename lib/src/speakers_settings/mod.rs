@@ -1,3 +1,5 @@
+use crate::ApplicationError;
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct SpeakersSettingsResult {
     pub new_default_speaker: String,
@@ -10,7 +12,7 @@ pub trait SpeakersSettings<TSpeakersSettingsApi> {
         &mut self,
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
-    ) -> Result<SpeakersSettingsResult, String>;
+    ) -> Result<SpeakersSettingsResult, ApplicationError>;
 }
 
 #[cfg(target_os = "windows")]

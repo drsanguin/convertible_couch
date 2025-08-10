@@ -7,6 +7,8 @@ use log4rs::{
     init_config, Config,
 };
 
+use crate::ApplicationError;
+
 /// An enum representing the available verbosity level filters of the logger.
 #[derive(Clone, Debug, PartialEq)]
 pub enum LogLevel {
@@ -25,7 +27,7 @@ pub enum LogLevel {
 }
 
 /// Initializes the global logger with the provided level.
-pub fn configure_logger(log_level: &LogLevel) -> Result<(), String> {
+pub fn configure_logger(log_level: &LogLevel) -> Result<(), ApplicationError> {
     if log_level == &LogLevel::Off {
         return Ok(());
     }
@@ -37,12 +39,9 @@ pub fn configure_logger(log_level: &LogLevel) -> Result<(), String> {
     let appender = Appender::builder().build("stdout", Box::new(stdout));
     let level = map_to_level_filter(log_level);
     let root = Root::builder().appender("stdout").build(level);
-    let config = Config::builder()
-        .appender(appender)
-        .build(root)
-        .map_err(|errors| errors.to_string())?;
+    let config = Config::builder().appender(appender).build(root)?;
 
-    init_config(config).map_err(|error| error.to_string())?;
+    init_config(config)?;
 
     Ok(())
 }

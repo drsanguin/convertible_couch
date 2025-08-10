@@ -8,6 +8,7 @@ use convertible_couch_lib::{
     speakers_settings::{
         CurrentSpeakersSettingsApiTrait, SpeakersSettings, SpeakersSettingsResult,
     },
+    ApplicationError,
 };
 
 use crate::commands::{Arguments, Commands};
@@ -58,7 +59,7 @@ impl<
         }
     }
 
-    pub fn execute(&mut self, args: &Arguments) -> Result<ApplicationResult, String> {
+    pub fn execute(&mut self, args: &Arguments) -> Result<ApplicationResult, ApplicationError> {
         match &args.command {
             Commands::DisplaysAndSpeakers {
                 displays,

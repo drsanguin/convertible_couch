@@ -9,6 +9,7 @@ use convertible_couch_lib::{
     displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
     func,
     testing::fuzzing::Fuzzer,
+    ApplicationError,
 };
 
 #[test]
@@ -193,9 +194,9 @@ fn it_should_validate_the_desktop_display() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(format!(
+        Err(ApplicationError::Custom(format!(
             "Desktop display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
-        ))
+        )))
     );
 }
 
@@ -228,9 +229,9 @@ fn it_should_validate_the_couch_display() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(format!(
+        Err(ApplicationError::Custom(format!(
             "Couch display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
-        ))
+        )))
     );
 }
 
@@ -267,9 +268,9 @@ fn it_should_validate_both_desktop_and_couch_displays() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(format!(
+        Err(ApplicationError::Custom(format!(
             "Desktop and couch displays are invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
-        ))
+        )))
     );
 }
 

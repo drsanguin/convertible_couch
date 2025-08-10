@@ -1,3 +1,5 @@
+use crate::ApplicationError;
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct DisplaysSettingsResult {
     pub reboot_required: bool,
@@ -11,7 +13,7 @@ pub trait DisplaysSettings<TDisplaysSettingsApi> {
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
-    ) -> Result<DisplaysSettingsResult, String>;
+    ) -> Result<DisplaysSettingsResult, ApplicationError>;
 }
 
 #[cfg(target_os = "windows")]

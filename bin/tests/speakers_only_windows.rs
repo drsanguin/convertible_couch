@@ -1,7 +1,7 @@
 #![cfg(target_os = "windows")]
 
 use convertible_couch::testing::arrangements::{bootstrap_application, ArgumentsBuilder};
-use convertible_couch_lib::{func, testing::fuzzing::Fuzzer};
+use convertible_couch_lib::{func, testing::fuzzing::Fuzzer, ApplicationError};
 
 #[test]
 fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
@@ -32,7 +32,9 @@ fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(String::from("Failed to get the number of speakers"))
+        Err(ApplicationError::Custom(String::from(
+            "Failed to get the number of speakers"
+        )))
     );
 }
 
@@ -65,7 +67,9 @@ fn it_should_return_an_error_if_getting_the_speakers_fails() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(String::from("Failed to get the speakers"))
+        Err(ApplicationError::Custom(String::from(
+            "Failed to get the speakers"
+        )))
     );
 }
 
@@ -98,7 +102,9 @@ fn it_should_return_an_error_if_getting_the_current_default_speaker_fails() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(String::from("Failed to get the current default speaker"))
+        Err(ApplicationError::Custom(String::from(
+            "Failed to get the current default speaker"
+        )))
     );
 }
 
@@ -131,6 +137,8 @@ fn it_should_return_an_error_if_setting_the_default_speaker_fails() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(String::from("Failed to set default speaker"))
+        Err(ApplicationError::Custom(String::from(
+            "Failed to set default speaker"
+        )))
     );
 }
