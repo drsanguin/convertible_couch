@@ -1,26 +1,21 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
+use crate::testing::fuzzing::displays_settings::win_32::FuzzedWin32;
 use crate::testing::fuzzing::{
-    displays_settings::displays::DisplaysFuzzer, speakers_settings::speakers::SpeakersFuzzer,
-};
-#[cfg(target_os = "windows")]
-use crate::testing::fuzzing::{
-    displays_settings::win_32::FuzzedWin32,
-    speakers_settings::audio_endpoint_library::FuzzedAudioEndpointLibrary,
+    displays_settings::displays::DisplaysFuzzer,
+    speakers::{settings_api::CurrentFuzzedSpeakersSettingsApi, SpeakersFuzzer},
 };
 
 pub struct FuzzedComputer {
-    #[cfg(target_os = "windows")]
     pub displays_settings_api: FuzzedWin32,
-    #[cfg(target_os = "windows")]
-    pub speakers_settings_api: FuzzedAudioEndpointLibrary,
+    pub speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
 }
 
 #[derive(Clone)]
 pub struct ComputerFuzzer {
     rand: StdRng,
     displays_settings_api: FuzzedWin32,
-    speakers_settings_api: FuzzedAudioEndpointLibrary,
+    speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
 }
 
 impl ComputerFuzzer {
@@ -28,7 +23,7 @@ impl ComputerFuzzer {
         Self {
             rand,
             displays_settings_api: FuzzedWin32::default(),
-            speakers_settings_api: FuzzedAudioEndpointLibrary::default(),
+            speakers_settings_api: CurrentFuzzedSpeakersSettingsApi::default(),
         }
     }
 
@@ -45,7 +40,7 @@ impl ComputerFuzzer {
 
     pub fn new_with_speakers(
         computer_fuzzer: &mut ComputerFuzzer,
-        speakers_settings_api: FuzzedAudioEndpointLibrary,
+        speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
     ) -> Self {
         Self {
             rand: StdRng::seed_from_u64(computer_fuzzer.rand.next_u64()),

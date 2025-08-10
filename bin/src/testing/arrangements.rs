@@ -6,7 +6,7 @@ use convertible_couch_lib::{
     speakers_settings::CurrentSpeakersSettings,
     testing::fuzzing::{
         computer::FuzzedComputer, displays_settings::CurrentFuzzedDisplaysSettingsApi,
-        speakers_settings::CurrentFuzzedSpeakersSettingsApi,
+        speakers::settings_api::CurrentFuzzedSpeakersSettingsApi,
     },
 };
 

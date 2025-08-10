@@ -4,11 +4,21 @@ use rand::{rngs::StdRng, Rng};
 
 use crate::testing::fuzzing::{
     computer::ComputerFuzzer,
-    speakers_settings::{
-        audio_endpoint_library::FuzzedAudioEndpointLibrary, speaker_id::SpeakerIdFuzzer,
+    speakers::{
+        settings_api::{
+            behaviour::{
+                CurrentFuzzedSpeakersSettingsApiBehaviour, FuzzedSpeakersSettingsApiBehaviour,
+            },
+            CurrentFuzzedSpeakersSettingsApi, FuzzedSpeakersSettingsApi,
+        },
+        speaker_id::SpeakerIdFuzzer,
         speaker_name::SpeakerNameFuzzer,
     },
 };
+
+pub mod settings_api;
+pub mod speaker_id;
+pub mod speaker_name;
 
 #[derive(Clone)]
 pub struct FuzzedSpeaker {
@@ -24,10 +34,7 @@ pub struct SpeakersFuzzer {
     max_count: usize,
     default_speaker_name: Option<String>,
     alternative_names: HashSet<String>,
-    getting_the_speakers_count_fails: bool,
-    getting_the_speakers_fails: bool,
-    getting_the_default_speaker_fails: bool,
-    setting_the_default_speaker_fails: bool,
+    behaviour: CurrentFuzzedSpeakersSettingsApiBehaviour,
 }
 
 impl SpeakersFuzzer {
@@ -41,10 +48,7 @@ impl SpeakersFuzzer {
             max_count: 0,
             default_speaker_name: None,
             alternative_names: HashSet::new(),
-            getting_the_speakers_count_fails: false,
-            getting_the_speakers_fails: false,
-            getting_the_default_speaker_fails: false,
-            setting_the_default_speaker_fails: false,
+            behaviour: CurrentFuzzedSpeakersSettingsApiBehaviour::default(),
         }
     }
 
@@ -70,30 +74,6 @@ impl SpeakersFuzzer {
 
     pub fn with_an_alternative_one_named(&mut self, alternative_speaker_name: String) -> &mut Self {
         self.alternative_names.insert(alternative_speaker_name);
-
-        self
-    }
-
-    pub fn for_which_getting_the_speakers_count_fails(&mut self) -> &mut Self {
-        self.getting_the_speakers_count_fails = true;
-
-        self
-    }
-
-    pub fn for_which_getting_the_speakers_fails(&mut self) -> &mut Self {
-        self.getting_the_speakers_fails = true;
-
-        self
-    }
-
-    pub fn for_which_getting_the_default_speaker_fails(&mut self) -> &mut Self {
-        self.getting_the_default_speaker_fails = true;
-
-        self
-    }
-
-    pub fn for_which_setting_the_default_speaker_fails(&mut self) -> &mut Self {
-        self.setting_the_default_speaker_fails = true;
 
         self
     }
@@ -140,15 +120,36 @@ impl SpeakersFuzzer {
             })
             .collect::<Vec<FuzzedSpeaker>>();
 
-        ComputerFuzzer::new_with_speakers(
-            &mut self.computer_fuzzer,
-            FuzzedAudioEndpointLibrary::new(
-                speakers,
-                self.getting_the_speakers_count_fails,
-                self.getting_the_speakers_fails,
-                self.getting_the_default_speaker_fails,
-                self.setting_the_default_speaker_fails,
-            ),
-        )
+        let fuzzed_speakers_settings_api =
+            CurrentFuzzedSpeakersSettingsApi::new(speakers, self.behaviour.clone());
+
+        ComputerFuzzer::new_with_speakers(&mut self.computer_fuzzer, fuzzed_speakers_settings_api)
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl SpeakersFuzzer {
+    pub fn for_which_getting_the_speakers_count_fails(&mut self) -> &mut Self {
+        self.behaviour.getting_the_speakers_count_fails = true;
+
+        self
+    }
+
+    pub fn for_which_getting_the_speakers_fails(&mut self) -> &mut Self {
+        self.behaviour.getting_the_speakers_fails = true;
+
+        self
+    }
+
+    pub fn for_which_getting_the_default_speaker_fails(&mut self) -> &mut Self {
+        self.behaviour.getting_the_default_speaker_fails = true;
+
+        self
+    }
+
+    pub fn for_which_setting_the_default_speaker_fails(&mut self) -> &mut Self {
+        self.behaviour.setting_the_default_speaker_fails = true;
+
+        self
     }
 }

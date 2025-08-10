@@ -5,7 +5,7 @@ use crate::testing::fuzzing::{
         device_id::{DeviceIdFuzzer, FuzzedDeviceId},
         display_name::DisplayNameFuzzer,
     },
-    speakers_settings::speaker_name::SpeakerNameFuzzer,
+    speakers::speaker_name::SpeakerNameFuzzer,
 };
 
 use self::computer::ComputerFuzzer;
@@ -13,7 +13,7 @@ use self::computer::ComputerFuzzer;
 pub mod computer;
 pub mod displays_settings;
 pub mod guid;
-pub mod speakers_settings;
+pub mod speakers;
 
 pub struct Fuzzer {
     rand: StdRng,
