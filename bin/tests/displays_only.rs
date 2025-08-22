@@ -306,36 +306,3 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
         "Failed to retrieve display configuration information about the device",
     );
 }
-
-#[test]
-fn it_should_handle_the_case_when_querying_the_display_config_of_the_primary_display_fails() {
-    // Arrange
-    let mut fuzzer = Fuzzer::new(func!(), true);
-
-    let (primary_display_name, secondary_display_name) = fuzzer.generate_two_display_names();
-
-    let computer = fuzzer
-        .generate_computer()
-        .with_displays()
-        .of_which_there_are_at_least(2)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
-        .for_which_querying_the_display_config_of_the_primary_display_fails()
-        .build_displays()
-        .build_computer();
-
-    let mut application = bootstrap_application(computer);
-
-    let args = ArgumentsBuilder::new()
-        .displays_only(&primary_display_name, &secondary_display_name)
-        .build();
-
-    // Act
-    let actual_result = application.execute(&args);
-
-    // Assert
-    assert_that_result_is_an_error_who_starts_with(
-        actual_result,
-        "Failed to retrieve the name of the display at the device path",
-    );
-}

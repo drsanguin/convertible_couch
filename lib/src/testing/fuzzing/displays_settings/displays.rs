@@ -43,7 +43,6 @@ pub struct DisplaysFuzzer<'a> {
     change_display_settings_error_on_commit: Option<DISP_CHANGE>,
     change_display_settings_error: Option<DISP_CHANGE>,
     getting_primary_display_name_fails: bool,
-    querying_the_display_config_of_the_primary_display_fails: bool,
 }
 
 impl<'a> DisplaysFuzzer<'a> {
@@ -65,7 +64,6 @@ impl<'a> DisplaysFuzzer<'a> {
             change_display_settings_error_on_commit: None,
             change_display_settings_error: None,
             getting_primary_display_name_fails: false,
-            querying_the_display_config_of_the_primary_display_fails: false,
         }
     }
 
@@ -137,15 +135,6 @@ impl<'a> DisplaysFuzzer<'a> {
         self
     }
 
-    #[cfg(target_os = "windows")]
-    pub fn for_which_querying_the_display_config_of_the_primary_display_fails(
-        &mut self,
-    ) -> &mut Self {
-        self.querying_the_display_config_of_the_primary_display_fails = true;
-
-        self
-    }
-
     pub fn build_displays(&mut self) -> ComputerFuzzer {
         let n_video_output = self
             .rand
@@ -208,7 +197,6 @@ impl<'a> DisplaysFuzzer<'a> {
             self.change_display_settings_error_on_commit,
             change_display_settings_error_by_display,
             self.getting_primary_display_name_fails,
-            self.querying_the_display_config_of_the_primary_display_fails,
         );
 
         ComputerFuzzer::new_with_display_settings_api(&mut self.computer_fuzzer, fuzzed_win_32)
