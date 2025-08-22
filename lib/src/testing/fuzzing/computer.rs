@@ -49,7 +49,7 @@ impl ComputerFuzzer {
         }
     }
 
-    pub fn with_displays(&mut self) -> DisplaysFuzzer {
+    pub fn with_displays(&mut self) -> DisplaysFuzzer<'_> {
         DisplaysFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
     }
 
