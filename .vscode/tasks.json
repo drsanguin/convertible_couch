@@ -22,6 +22,39 @@
 			"runOptions": {
 				"runOn": "folderOpen"
 			}
-		}
+		},
+		{
+			"label": "Install cargo-mutants",
+			"type": "shell",
+			"command": "cargo",
+			"args": [
+				"install",
+				"--locked",
+				"cargo-mutants"
+			],
+    	    "group": "build"
+		},
+		{
+			"label": "Run cargo-mutants",
+			"type": "shell",
+			"command": "cargo",
+			"args": [
+				"mutants",
+				"--all-features",
+				"--no-shuffle",
+				"--test-workspace=true",
+				"--jobs=2"
+			],
+    	    "group": "build"
+		},
+    	{
+    	    "label": "Mutation test (install + run)",
+    	    "dependsOn": [
+    	        "Install cargo-mutants",
+    	        "Run cargo-mutants"
+    	    ],
+    	    "dependsOrder": "sequence",
+    	    "group": "build"
+    	}
 	]
 }
