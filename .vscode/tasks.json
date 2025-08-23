@@ -55,6 +55,92 @@
     	    ],
     	    "dependsOrder": "sequence",
     	    "group": "build"
+    	},
+		{
+			"label": "Run Tests with coverage",
+			"type": "shell",
+			"command": "cargo",
+			"args": [
+				"test"
+			],
+			"options": {
+				"env": {
+					"CARGO_INCREMENTAL": "0",
+					"RUSTFLAGS": "-Cinstrument-coverage",
+					"LLVM_PROFILE_FILE": "convertible_couch-%p-%m.profraw"
+				}
+			},
+			"group": "test"
+		},
+		{
+			"label": "Generate coverage for Coveralls",
+			"type": "shell",
+			"command": "grcov",
+			"args": [
+				".",
+				"--binary-path",
+				"./target/debug/",
+				"-s",
+				".",
+				"-t",
+				"coveralls+",
+				"--branch",
+				"--token",
+				"42",
+				"--commit-sha",
+				"42",
+				"--service-name",
+				"github-actions",
+				"--service-job-id",
+				"42",
+				"-o",
+				"coveralls.json",
+				"--ignore-not-existing",
+				"--ignore",
+				"C:/*/.cargo/*",
+				"--ignore",
+				"*/src/testing/*",
+				"--ignore",
+				"*/tests/*",
+				"--ignore",
+				"bin/src/main.rs",
+				"--ignore",
+				"*/build.rs",
+				"--ignore",
+				"lib/src/displays_settings/windows/win_32/windows_api_based_win_32.rs",
+				"--ignore",
+				"lib/src/speakers_settings/windows/audio_endpoint_library/dll_based_audio_endpoint_library.rs",
+				"--excl-line",
+				"^\\s*#\\[cfg\\(test\\)\\]",
+				"--excl-start",
+				"^(\\s*mod tests \\{)|(pub fn configure_logger\\()|(impl From<ConfigErrors> for ApplicationError \\{)|(impl From<SetLoggerError> for ApplicationError \\{)",
+				"--excl-stop",
+				 "^\\}"
+			],
+			"group": "test"
+		},
+		{
+			"label": "Clean .profraw files",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"Get-ChildItem -Path '${workspaceFolder}' -Recurse -Filter *.profraw | Remove-Item -Force"
+			],
+			"group": "test"
+		},
+    	{
+    	    "label": "Test coverage (Run Tests with coverage + Generate coverage for Coveralls)",
+    	    "dependsOn": [
+    	        "Run Tests with coverage",
+    	        "Generate coverage for Coveralls",
+				"Clean .profraw files"
+    	    ],
+    	    "dependsOrder": "sequence",
+    	    "group": "test"
     	}
 	]
 }

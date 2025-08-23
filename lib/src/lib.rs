@@ -21,14 +21,12 @@ impl From<String> for ApplicationError {
     }
 }
 
-#[cfg(not(tarpaulin_include))]
 impl From<ConfigErrors> for ApplicationError {
     fn from(value: ConfigErrors) -> Self {
         ApplicationError::Custom(value.to_string())
     }
 }
 
-#[cfg(not(tarpaulin_include))]
 impl From<SetLoggerError> for ApplicationError {
     fn from(value: SetLoggerError) -> Self {
         ApplicationError::Custom(value.to_string())
