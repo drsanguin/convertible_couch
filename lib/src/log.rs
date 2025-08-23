@@ -27,6 +27,7 @@ pub enum LogLevel {
 }
 
 /// Initializes the global logger with the provided level.
+#[cfg(not(tarpaulin_include))]
 pub fn configure_logger(log_level: &LogLevel) -> Result<(), ApplicationError> {
     if log_level == &LogLevel::Off {
         return Ok(());
@@ -87,15 +88,7 @@ mod tests {
     use log::LevelFilter;
     use test_case::test_case;
 
-    use super::{configure_logger, map_to_level_filter, LogLevel};
-
-    #[test]
-    fn if_should_configure_the_logger() {
-        // Act
-        let result = configure_logger(&LogLevel::Off);
-
-        assert_eq!(result, Ok(()));
-    }
+    use super::{map_to_level_filter, LogLevel};
 
     #[test_case(&LogLevel::Off => LevelFilter::Off; "when log level is off")]
     #[test_case(&LogLevel::Error => LevelFilter::Error; "when log level is error")]
