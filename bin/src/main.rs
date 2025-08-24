@@ -4,8 +4,12 @@ use convertible_couch::{
     commands::Arguments,
 };
 use convertible_couch_lib::{
-    displays_settings::{CurrentDisplaysSettings, CurrentDisplaysSettingsApi},
-    speakers_settings::{CurrentSpeakersSettings, CurrentSpeakersSettingsApi},
+    displays_settings::{
+        CurrentDisplaysSettings, CurrentDisplaysSettingsApi, DisplaysSettingsResult,
+    },
+    speakers_settings::{
+        CurrentSpeakersSettings, CurrentSpeakersSettingsApi, SpeakersSettingsResult,
+    },
 };
 use log::{error, info, warn};
 use std::process::ExitCode;
@@ -28,24 +32,15 @@ fn main() -> ExitCode {
                     displays_result,
                     speakers_result,
                 } => {
-                    match (
-                        displays_result.new_primary_display,
-                        displays_result.reboot_required,
-                    ) {
-                        (new_primary, true) => warn!("Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."),
-                        (new_primary, false) => info!("Primary display set to {new_primary}"),
-                    }
-
-                    info!("Default speaker set to {0}", speakers_result.new_default_speaker);
+                    log_displays_settings_result(displays_result);
+                    log_speakers_settings_result(speakers_result);
                 }
-                ApplicationResult::DisplaysOnly { displays_result } => match (
-                        displays_result.new_primary_display,
-                        displays_result.reboot_required,
-                    ) {
-                        (new_primary, true) => warn!("Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."),
-                        (new_primary, false) => info!("Primary display set to {new_primary}"),
-                    },
-                ApplicationResult::SpeakersOnly { speakers_result } => info!("Default speaker set to {0}", speakers_result.new_default_speaker),
+                ApplicationResult::DisplaysOnly { displays_result } => {
+                    log_displays_settings_result(displays_result)
+                }
+                ApplicationResult::SpeakersOnly { speakers_result } => {
+                    log_speakers_settings_result(speakers_result)
+                }
             }
 
             ExitCode::SUCCESS
@@ -55,5 +50,22 @@ fn main() -> ExitCode {
 
             ExitCode::FAILURE
         }
+    }
+}
+
+fn log_speakers_settings_result(speakers_result: SpeakersSettingsResult) {
+    info!(
+        "Default speaker set to {0}",
+        speakers_result.new_default_speaker
+    );
+}
+
+fn log_displays_settings_result(displays_result: DisplaysSettingsResult) {
+    match (
+        displays_result.new_primary_display,
+        displays_result.reboot_required,
+    ) {
+        (new_primary, true) => warn!("Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."),
+        (new_primary, false) => info!("Primary display set to {new_primary}"),
     }
 }
