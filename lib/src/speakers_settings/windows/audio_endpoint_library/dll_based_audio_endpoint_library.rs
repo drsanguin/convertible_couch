@@ -1,3 +1,5 @@
+#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
+
 use std::os::raw::{c_int, c_ushort};
 
 use crate::speakers_settings::windows::audio_endpoint_library::{

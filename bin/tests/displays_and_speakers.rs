@@ -1,3 +1,5 @@
+#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
+
 use convertible_couch::{
     application::ApplicationResult,
     testing::arrangements::{bootstrap_application, ArgumentsBuilder},

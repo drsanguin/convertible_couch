@@ -52,4 +52,4 @@ jobs:
     - name: Code Coverage 📊
       uses: ./.github/actions/coverage
       with:
-        coveralls-token: ${{ secrets.COVERALLS_TOKEN }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}

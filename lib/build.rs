@@ -1,3 +1,5 @@
+#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
+
 use std::{env, fs::copy, path::Path, process::Command};
 
 fn main() {

@@ -1,3 +1,5 @@
+#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
+
 use clap::Parser;
 use convertible_couch::{
     application::{Application, ApplicationResult},

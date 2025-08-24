@@ -1,4 +1,5 @@
 #![cfg(target_os = "windows")]
+#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
 
 use convertible_couch::testing::arrangements::{bootstrap_application, ArgumentsBuilder};
 use convertible_couch_lib::{func, testing::fuzzing::Fuzzer, ApplicationError};

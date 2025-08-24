@@ -494,6 +494,7 @@ fn from_utf16_trimed(bytes: &[u16]) -> Result<String, ApplicationError> {
 }
 
 #[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use crate::displays_settings::windows::windows_displays_settings::map_disp_change_to_string;
     use test_case::test_case;
