@@ -20,8 +20,9 @@ runs:
       shell: pwsh
 
     - name: Install grcov 🧰
-      run: cargo install grcov
-      shell: pwsh
+      uses: taiki-e/install-action@v2
+      with:
+        tool: grcov
 
     - name: Generate LLVM Coverage 📊
       env:
