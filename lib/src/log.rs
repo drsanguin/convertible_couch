@@ -27,6 +27,7 @@ pub enum LogLevel {
 }
 
 /// Initializes the global logger with the provided level.
+#[cfg_attr(coverage, coverage(off))]
 pub fn configure_logger(log_level: &LogLevel) -> Result<(), ApplicationError> {
     if log_level == &LogLevel::Off {
         return Ok(());

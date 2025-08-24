@@ -22,4 +22,4 @@ windows = { version = "0.61.3", features = ["Win32_Devices_Display", "Win32_Foun
 test-case = "3.3.1"
 
 [lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(coverage_nightly)'] }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(coverage)'] }
