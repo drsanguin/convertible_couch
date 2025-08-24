@@ -40,8 +40,8 @@ fn main() {
     let target_dir = env::var("CARGO_TARGET_DIR").unwrap_or_else(|_| String::from("target"));
     let profile = env::var("PROFILE").unwrap();
     let dll_dest = Path::new("..")
-        .join(target_dir)
-        .join(profile)
+        .join(&target_dir)
+        .join(&profile)
         .join("AudioEndPointLibrary.dll");
 
     if !dll_source.exists() {
@@ -49,6 +49,21 @@ fn main() {
             "Expected DLL at {:?}, but it does not exist. Contents of directory:\n{:?}",
             dll_source,
             dll_source
+                .parent()
+                .unwrap()
+                .read_dir()
+                .unwrap()
+                .collect::<Vec<_>>()
+        );
+    }
+
+    let dll_dest_dir = Path::new("..").join(target_dir).join(profile);
+
+    if !dll_dest_dir.exists() {
+        panic!(
+            "Expected dir at {:?}, but it does not exist. Contents of directory:\n{:?}",
+            dll_dest_dir,
+            dll_dest_dir
                 .parent()
                 .unwrap()
                 .read_dir()
