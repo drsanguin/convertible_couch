@@ -16,6 +16,7 @@ jobs:
     - name: Checkout repository ⬇️
       uses: actions/checkout@v4
       with:
+        fetch-depth: 0
         submodules: true
 
     - name: Check coding style 📝
@@ -26,6 +27,8 @@ jobs:
 
     - name: Compile 🏗️
       run: cargo build --all-targets --verbose
+      env:
+        RUSTFLAGS: -D warnings
 
     - name: Run Tests 🧪
       run: cargo test --verbose -- --nocapture
@@ -35,9 +38,12 @@ jobs:
       with:
         tool: cargo-mutants
 
+    - name: Generate git.diff 🧰
+      run: git diff origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > git.diff
+
     - name: Run Mutants Tests 🧟‍♂️
       id: run_mutants_tests
-      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true
+      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true --in-diff git.diff
 
     - name: Archive results ⬆️
       uses: actions/upload-artifact@v4
@@ -52,4 +58,4 @@ jobs:
     - name: Code Coverage 📊
       uses: ./.github/actions/coverage
       with:
-        coveralls-token: ${{ secrets.COVERALLS_TOKEN }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
