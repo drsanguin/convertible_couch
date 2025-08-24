@@ -30,6 +30,7 @@ runs:
       env:
         CARGO_INCREMENTAL: 0
         RUSTFLAGS: -Cinstrument-coverage
+        PROFILE: llvm-cov-target
 
     - name: Upload Coverage to Coveralls ⬆️
       uses: coverallsapp/github-action@v2
