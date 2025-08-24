@@ -1,5 +1,9 @@
 name: Coverage
 description: Generate and upload Code Coverage
+inputs:
+  coveralls-token:
+    description: "Coveralls API token"
+    required: true
 runs:
   using: composite
   steps:
@@ -34,7 +38,7 @@ runs:
           -s . `
           -t coveralls+ `
           --branch `
-          --token ${{ secrets.COVERALLS_TOKEN }} `
+          --token ${{ inputs.coveralls-token }} `
           --commit-sha ${{ github.sha }} `
           --service-name github-actions `
           --service-job-id ${{ github.run_id }} `
