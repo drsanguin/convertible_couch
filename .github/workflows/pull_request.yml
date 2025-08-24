@@ -9,7 +9,7 @@ env:
 
 jobs:
   ci:
-    name: CI
+    name: Check Pull Request
     runs-on: windows-latest
 
     steps:
