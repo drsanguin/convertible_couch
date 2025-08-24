@@ -26,6 +26,8 @@ jobs:
 
     - name: Compile 🏗️
       run: cargo build --all-targets --verbose
+      env:
+        RUSTFLAGS: -D warnings
 
     - name: Run Tests 🧪
       run: cargo test --verbose -- --nocapture
