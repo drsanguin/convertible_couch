@@ -44,5 +44,18 @@ fn main() {
         .join(profile)
         .join("AudioEndPointLibrary.dll");
 
+    if !dll_source.exists() {
+        panic!(
+            "Expected DLL at {:?}, but it does not exist. Contents of directory:\n{:?}",
+            dll_source,
+            dll_source
+                .parent()
+                .unwrap()
+                .read_dir()
+                .unwrap()
+                .collect::<Vec<_>>()
+        );
+    }
+
     copy(dll_source, dll_dest).expect("Failed to copy AudioEndPointLibrary.dll");
 }
