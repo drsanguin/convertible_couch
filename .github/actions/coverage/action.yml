@@ -5,15 +5,19 @@ runs:
   steps:
     - name: Install nightly toolchain 🧰
       run: rustup update nightly
+      shell: pwsh
 
     - name: Set the nightly toolchain as default 🧰
       run: rustup default nightly
+      shell: pwsh
 
     - name: Install llvm-tools 🧰
       run: rustup component add llvm-tools
+      shell: pwsh
 
     - name: Install grcov 🧰
       run: cargo install grcov
+      shell: pwsh
 
     - name: Generate LLVM Coverage 📊
       env:
@@ -21,6 +25,7 @@ runs:
         RUSTFLAGS: -Cinstrument-coverage
         LLVM_PROFILE_FILE: convertible_couch-%p-%m.profraw
       run: cargo test
+      shell: pwsh
 
     - name: Generate Coverage for Coveralls 📊
       run: |
@@ -53,6 +58,8 @@ runs:
           --excl-line "^\s*#\[cfg\(test\)\]" `
           --excl-start "^(\s*mod tests \{)|(pub fn configure_logger\()|(impl From<ConfigErrors> for ApplicationError \{)|(impl From<SetLoggerError> for ApplicationError \{)" `
           --excl-stop "^\}"
+      shell: pwsh
 
     - name: Upload Coverage to Coveralls ⬆️
       run: curl -F 'json_file=@coveralls.json' https://coveralls.io/api/v1/jobs
+      shell: pwsh
