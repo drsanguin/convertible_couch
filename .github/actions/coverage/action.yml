@@ -1,0 +1,58 @@
+name: Coverage
+description: Generate and upload Code Coverage
+runs:
+  using: composite
+  steps:
+    - name: Install nightly toolchain 🧰
+      run: rustup update nightly
+
+    - name: Set the nightly toolchain as default 🧰
+      run: rustup default nightly
+
+    - name: Install llvm-tools 🧰
+      run: rustup component add llvm-tools
+
+    - name: Install grcov 🧰
+      run: cargo install grcov
+
+    - name: Generate LLVM Coverage 📊
+      env:
+        CARGO_INCREMENTAL: 0
+        RUSTFLAGS: -Cinstrument-coverage
+        LLVM_PROFILE_FILE: convertible_couch-%p-%m.profraw
+      run: cargo test
+
+    - name: Generate Coverage for Coveralls 📊
+      run: |
+        grcov . `
+          --binary-path ./target/debug/ `
+          -s . `
+          -t coveralls+ `
+          --branch `
+          --token ${{ secrets.COVERALLS_TOKEN }} `
+          --commit-sha ${{ github.sha }} `
+          --service-name github-actions `
+          --service-job-id ${{ github.run_id }} `
+          --vcs-branch ${{ github.ref_name }} `
+          -o coveralls.json `
+          --ignore-not-existing `
+          --ignore `
+          C:/*/.cargo/* `
+          --ignore `
+          */src/testing/* `
+          --ignore `
+          */tests/* `
+          --ignore `
+          bin/src/main.rs `
+          --ignore `
+          */build.rs `
+          --ignore `
+          lib/src/displays_settings/windows/win_32/windows_api_based_win_32.rs `
+          --ignore `
+          lib/src/speakers_settings/windows/audio_endpoint_library/dll_based_audio_endpoint_library.rs `
+          --excl-line "^\s*#\[cfg\(test\)\]" `
+          --excl-start "^(\s*mod tests \{)|(pub fn configure_logger\()|(impl From<ConfigErrors> for ApplicationError \{)|(impl From<SetLoggerError> for ApplicationError \{)" `
+          --excl-stop "^\}"
+
+    - name: Upload Coverage to Coveralls ⬆️
+      run: curl -F 'json_file=@coveralls.json' https://coveralls.io/api/v1/jobs

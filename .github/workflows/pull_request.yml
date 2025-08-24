@@ -1,0 +1,49 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+    name: CI
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository ⬇️
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Check coding style 📝
+      run: cargo fmt --check --all
+
+    - uses: ./.github/actions/setup-windows-dev-environment
+
+    - name: Compile 🏗️
+      run: cargo build --all-targets --verbose
+
+    - name: Run Tests 🧪
+      run: cargo test --verbose -- --nocapture
+      
+    - name: Install cargo-mutants 🧰
+      run: cargo install --locked cargo-mutants
+
+    - name: Run Mutants Tests 🧟‍♂️
+      id: run_mutants_tests
+      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true
+
+    - name: Archive results ⬆️
+      uses: actions/upload-artifact@v4
+      if: steps.run_mutants_tests.outcome == 'failure'
+      with:
+        name: mutation-report
+        path: mutants.out
+        
+    - name: Run Benchmarks ⏱️
+      run: cargo test --benches
+
+    - uses: ./.github/actions/coverage
