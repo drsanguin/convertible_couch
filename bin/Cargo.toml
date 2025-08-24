@@ -30,6 +30,3 @@ windows = { version = "0.61.3", features = ["Win32_Graphics_Gdi"] }
 [[bench]]
 name = "benchmark"
 harness = false
-
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(coverage_nightly)'] }

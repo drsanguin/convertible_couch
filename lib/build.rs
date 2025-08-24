@@ -1,11 +1,4 @@
-#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
-
-use std::{
-    env,
-    fs::{copy, create_dir_all},
-    path::Path,
-    process::Command,
-};
+use std::{env, fs::copy, path::Path, process::Command};
 
 fn main() {
     let audio_endpoint_library_solution_path = Path::new(".").join("AudioEndPointLibrary");
@@ -48,36 +41,6 @@ fn main() {
         .join(&target_dir)
         .join(&profile)
         .join("AudioEndPointLibrary.dll");
-
-    if !dll_source.exists() {
-        panic!(
-            "Expected DLL at {:?}, but it does not exist. Contents of directory:\n{:?}",
-            dll_source,
-            dll_source
-                .parent()
-                .unwrap()
-                .read_dir()
-                .unwrap()
-                .collect::<Vec<_>>()
-        );
-    }
-
-    let dll_dest_dir = Path::new("..").join(target_dir).join(profile);
-
-    create_dir_all(&dll_dest_dir).expect("Failed to create dll_dest_dir");
-
-    if !dll_dest_dir.exists() {
-        panic!(
-            "Expected dir at {:?}, but it does not exist. Contents of directory:\n{:?}",
-            dll_dest_dir,
-            dll_dest_dir
-                .parent()
-                .unwrap()
-                .read_dir()
-                .unwrap()
-                .collect::<Vec<_>>()
-        );
-    }
 
     copy(dll_source, dll_dest).expect("Failed to copy AudioEndPointLibrary.dll");
 }
