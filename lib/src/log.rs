@@ -82,7 +82,6 @@ impl ValueEnum for LogLevel {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use clap::{builder::PossibleValue, ValueEnum};
     use log::LevelFilter;

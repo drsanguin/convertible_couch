@@ -7,7 +7,6 @@ use thiserror::Error;
 pub mod displays_settings;
 pub mod log;
 pub mod speakers_settings;
-#[cfg_attr(coverage_nightly, coverage(off))]
 pub mod testing;
 
 #[derive(Error, Debug, PartialEq)]
@@ -22,14 +21,12 @@ impl From<String> for ApplicationError {
     }
 }
 
-#[cfg_attr(coverage_nightly, coverage(off))]
 impl From<ConfigErrors> for ApplicationError {
     fn from(value: ConfigErrors) -> Self {
         ApplicationError::Custom(value.to_string())
     }
 }
 
-#[cfg_attr(coverage_nightly, coverage(off))]
 impl From<SetLoggerError> for ApplicationError {
     fn from(value: SetLoggerError) -> Self {
         ApplicationError::Custom(value.to_string())
@@ -51,7 +48,6 @@ impl From<TryFromIntError> for ApplicationError {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use crate::ApplicationError;
 
