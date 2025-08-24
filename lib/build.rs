@@ -38,8 +38,8 @@ fn main() {
     let target_dir = env::var("CARGO_TARGET_DIR").unwrap_or_else(|_| String::from("target"));
     let profile = env::var("PROFILE").unwrap();
     let dll_dest = Path::new("..")
-        .join(&target_dir)
-        .join(&profile)
+        .join(target_dir)
+        .join(profile)
         .join("AudioEndPointLibrary.dll");
 
     copy(dll_source, dll_dest).expect("Failed to copy AudioEndPointLibrary.dll");
