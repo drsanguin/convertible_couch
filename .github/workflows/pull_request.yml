@@ -21,7 +21,8 @@ jobs:
     - name: Check coding style 📝
       run: cargo fmt --check --all
 
-    - uses: ./.github/actions/setup-windows-dev-environment
+    - name: Setup dev environment 🧰
+      uses: ./.github/actions/setup-windows-dev-environment
 
     - name: Compile 🏗️
       run: cargo build --all-targets --verbose
@@ -30,7 +31,9 @@ jobs:
       run: cargo test --verbose -- --nocapture
       
     - name: Install cargo-mutants 🧰
-      run: cargo install --locked cargo-mutants
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-mutants
 
     - name: Run Mutants Tests 🧟‍♂️
       id: run_mutants_tests
@@ -46,6 +49,7 @@ jobs:
     - name: Run Benchmarks ⏱️
       run: cargo test --benches
 
-    - uses: ./.github/actions/coverage
+    - name: Code Coverage 📊
+      uses: ./.github/actions/coverage
       with:
         coveralls-token: ${{ secrets.COVERALLS_TOKEN }}
