@@ -230,15 +230,15 @@ impl Win32 for FuzzedWin32 {
         unsafe {
             let device_name = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
 
-            let change_display_settings_error = self
+            if self
                 .behaviour
                 .change_display_settings_error_by_display
-                .get(&device_name);
-
-            if change_display_settings_error
-                .is_some_and(|disp_change| *disp_change != DISP_CHANGE_RESTART)
+                .is_some_and(|disp_change| disp_change != DISP_CHANGE_RESTART)
             {
-                return *change_display_settings_error.unwrap();
+                return self
+                    .behaviour
+                    .change_display_settings_error_by_display
+                    .unwrap();
             }
 
             return self
@@ -273,7 +273,11 @@ impl Win32 for FuzzedWin32 {
 
                     self.display_changes_to_commit.insert(device_name, position);
 
-                    let disp_change = if change_display_settings_error.is_some() {
+                    let disp_change = if self
+                        .behaviour
+                        .change_display_settings_error_by_display
+                        .is_some()
+                    {
                         DISP_CHANGE_RESTART
                     } else {
                         DISP_CHANGE_SUCCESSFUL

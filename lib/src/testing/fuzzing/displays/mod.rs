@@ -12,15 +12,10 @@ use crate::testing::fuzzing::{
     },
 };
 
-use rand::{
-    rngs::StdRng,
-    seq::{IndexedRandom, IteratorRandom},
-    Rng, RngCore, SeedableRng,
-};
-#[cfg(target_os = "windows")]
+use rand::{rngs::StdRng, seq::IteratorRandom, Rng, RngCore, SeedableRng};
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 pub mod config_mod_info_id;
 pub mod device_id;
@@ -51,9 +46,7 @@ pub struct DisplaysFuzzer<'a> {
     forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
     primary_display_name: Option<String>,
     secondary_display_names: HashSet<String>,
-    change_display_settings_error_on_commit: Option<DISP_CHANGE>,
-    change_display_settings_error: Option<DISP_CHANGE>,
-    getting_primary_display_name_fails: bool,
+    behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour,
 }
 
 impl<'a> DisplaysFuzzer<'a> {
@@ -72,9 +65,7 @@ impl<'a> DisplaysFuzzer<'a> {
             forbidden_device_ids: HashSet::new(),
             primary_display_name: None,
             secondary_display_names: HashSet::new(),
-            change_display_settings_error_on_commit: None,
-            change_display_settings_error: None,
-            getting_primary_display_name_fails: false,
+            behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour::default(),
         }
     }
 
@@ -153,38 +144,8 @@ impl<'a> DisplaysFuzzer<'a> {
                     video_outputs[*video_output_index].plug_display(display);
             });
 
-        let mut change_display_settings_error_by_display = HashMap::new();
-
-        if self.change_display_settings_error.is_some() {
-            let possible_devices_paths = video_outputs
-                .iter()
-                .filter_map(|video_output| match &video_output.display {
-                    Some(_) => Some(video_output.device_name.clone()),
-                    None => None,
-                })
-                .collect::<Vec<String>>();
-
-            let n_display_on_error = self.rand.random_range(1..possible_devices_paths.len());
-
-            possible_devices_paths
-                .choose_multiple(&mut self.rand, n_display_on_error)
-                .for_each(|device_path| {
-                    change_display_settings_error_by_display.insert(
-                        String::from(device_path),
-                        self.change_display_settings_error.unwrap(),
-                    );
-                });
-        }
-
-        let displays_settings_api = CurrentFuzzedDisplaysSettingsApi::new(
-            video_outputs,
-            CurrentFuzzedDisplaysSettingsApiBehaviour {
-                change_display_settings_error_on_commit: self
-                    .change_display_settings_error_on_commit,
-                change_display_settings_error_by_display,
-                getting_primary_display_name_fails: self.getting_primary_display_name_fails,
-            },
-        );
+        let displays_settings_api =
+            CurrentFuzzedDisplaysSettingsApi::new(video_outputs, self.behaviour.clone());
 
         ComputerFuzzer::new_with_display_settings_api(
             &mut self.computer_fuzzer,
@@ -268,7 +229,8 @@ impl<'a> DisplaysFuzzer<'a> {
         &mut self,
         change_display_settings_error: DISP_CHANGE,
     ) -> &mut Self {
-        self.change_display_settings_error_on_commit = Some(change_display_settings_error);
+        self.behaviour.change_display_settings_error_on_commit =
+            Some(change_display_settings_error);
 
         self
     }
@@ -277,13 +239,14 @@ impl<'a> DisplaysFuzzer<'a> {
         &mut self,
         change_display_settings_error: DISP_CHANGE,
     ) -> &mut Self {
-        self.change_display_settings_error = Some(change_display_settings_error);
+        self.behaviour.change_display_settings_error_by_display =
+            Some(change_display_settings_error);
 
         self
     }
 
     pub fn for_which_getting_the_primary_display_fails(&mut self) -> &mut Self {
-        self.getting_primary_display_name_fails = true;
+        self.behaviour.getting_primary_display_name_fails = true;
 
         self
     }
