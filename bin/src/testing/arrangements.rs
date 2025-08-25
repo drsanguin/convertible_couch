@@ -1,13 +1,16 @@
-use crate::application::Application;
-use crate::commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions};
 use convertible_couch_lib::{
     displays_settings::CurrentDisplaysSettings,
     log::LogLevel,
     speakers_settings::CurrentSpeakersSettings,
     testing::fuzzing::{
-        computer::FuzzedComputer, displays::CurrentFuzzedDisplaysSettingsApi,
+        computer::FuzzedComputer, displays::settings_api::CurrentFuzzedDisplaysSettingsApi,
         speakers::settings_api::CurrentFuzzedSpeakersSettingsApi,
     },
+};
+
+use crate::{
+    application::Application,
+    commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions},
 };
 
 pub fn bootstrap_application(

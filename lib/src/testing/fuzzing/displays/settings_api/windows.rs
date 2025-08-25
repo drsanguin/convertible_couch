@@ -1,5 +1,9 @@
-use super::{position::FuzzedDisplayPosition, video_output::FuzzedVideoOutput};
-use crate::displays_settings::windows::win_32::Win32;
+use crate::{
+    displays_settings::windows::win_32::Win32,
+    testing::fuzzing::displays::{
+        position::FuzzedDisplayPosition, video_output::FuzzedVideoOutput,
+    },
+};
 use std::{collections::HashMap, ffi::c_void, mem::size_of};
 use windows::{
     core::{BOOL, PCWSTR},

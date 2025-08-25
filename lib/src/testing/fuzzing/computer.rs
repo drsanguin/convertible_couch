@@ -1,20 +1,19 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
-use crate::testing::fuzzing::displays::win_32::FuzzedWin32;
 use crate::testing::fuzzing::{
-    displays::settings_api::DisplaysFuzzer,
+    displays::{settings_api::CurrentFuzzedDisplaysSettingsApi, DisplaysFuzzer},
     speakers::{settings_api::CurrentFuzzedSpeakersSettingsApi, SpeakersFuzzer},
 };
 
 pub struct FuzzedComputer {
-    pub displays_settings_api: FuzzedWin32,
+    pub displays_settings_api: CurrentFuzzedDisplaysSettingsApi,
     pub speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
 }
 
 #[derive(Clone)]
 pub struct ComputerFuzzer {
     rand: StdRng,
-    displays_settings_api: FuzzedWin32,
+    displays_settings_api: CurrentFuzzedDisplaysSettingsApi,
     speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
 }
 
@@ -22,14 +21,14 @@ impl ComputerFuzzer {
     pub fn new(rand: StdRng) -> Self {
         Self {
             rand,
-            displays_settings_api: FuzzedWin32::default(),
+            displays_settings_api: CurrentFuzzedDisplaysSettingsApi::default(),
             speakers_settings_api: CurrentFuzzedSpeakersSettingsApi::default(),
         }
     }
 
     pub fn new_with_display_settings_api(
         computer_fuzzer: &mut ComputerFuzzer,
-        displays_settings_api: FuzzedWin32,
+        displays_settings_api: CurrentFuzzedDisplaysSettingsApi,
     ) -> Self {
         Self {
             rand: StdRng::seed_from_u64(computer_fuzzer.rand.next_u64()),

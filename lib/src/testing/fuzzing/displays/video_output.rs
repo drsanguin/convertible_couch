@@ -1,4 +1,4 @@
-use super::settings_api::FuzzedDisplay;
+use crate::testing::fuzzing::displays::FuzzedDisplay;
 
 #[derive(Clone)]
 pub struct FuzzedVideoOutput {
