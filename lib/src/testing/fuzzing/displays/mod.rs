@@ -117,33 +117,6 @@ impl<'a> DisplaysFuzzer<'a> {
         self
     }
 
-    #[cfg(target_os = "windows")]
-    pub fn for_which_committing_the_display_changes_fails_with(
-        &mut self,
-        change_display_settings_error: DISP_CHANGE,
-    ) -> &mut Self {
-        self.change_display_settings_error_on_commit = Some(change_display_settings_error);
-
-        self
-    }
-
-    #[cfg(target_os = "windows")]
-    pub fn for_which_changing_the_display_settings_fails_for_some_displays(
-        &mut self,
-        change_display_settings_error: DISP_CHANGE,
-    ) -> &mut Self {
-        self.change_display_settings_error = Some(change_display_settings_error);
-
-        self
-    }
-
-    #[cfg(target_os = "windows")]
-    pub fn for_which_getting_the_primary_display_fails(&mut self) -> &mut Self {
-        self.getting_primary_display_name_fails = true;
-
-        self
-    }
-
     pub fn build_displays(&mut self) -> ComputerFuzzer {
         let n_video_output = self
             .rand
@@ -278,5 +251,32 @@ impl<'a> DisplaysFuzzer<'a> {
                 }
             })
             .collect()
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl<'a> DisplaysFuzzer<'a> {
+    pub fn for_which_committing_the_display_changes_fails_with(
+        &mut self,
+        change_display_settings_error: DISP_CHANGE,
+    ) -> &mut Self {
+        self.change_display_settings_error_on_commit = Some(change_display_settings_error);
+
+        self
+    }
+
+    pub fn for_which_changing_the_display_settings_fails_for_some_displays(
+        &mut self,
+        change_display_settings_error: DISP_CHANGE,
+    ) -> &mut Self {
+        self.change_display_settings_error = Some(change_display_settings_error);
+
+        self
+    }
+
+    pub fn for_which_getting_the_primary_display_fails(&mut self) -> &mut Self {
+        self.getting_primary_display_name_fails = true;
+
+        self
     }
 }
