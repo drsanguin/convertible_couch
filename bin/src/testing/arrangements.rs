@@ -5,7 +5,7 @@ use convertible_couch_lib::{
     log::LogLevel,
     speakers_settings::CurrentSpeakersSettings,
     testing::fuzzing::{
-        computer::FuzzedComputer, displays_settings::CurrentFuzzedDisplaysSettingsApi,
+        computer::FuzzedComputer, displays::CurrentFuzzedDisplaysSettingsApi,
         speakers::settings_api::CurrentFuzzedSpeakersSettingsApi,
     },
 };

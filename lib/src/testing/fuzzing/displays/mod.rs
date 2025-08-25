@@ -1,10 +1,10 @@
 pub mod config_mod_info_id;
 pub mod device_id;
 pub mod display_name;
-pub mod displays;
 pub mod gsm_id;
 pub mod position;
 pub mod resolution;
+pub mod settings_api;
 pub mod video_output;
 pub mod win_32;
 

@@ -1,8 +1,8 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
-use crate::testing::fuzzing::displays_settings::win_32::FuzzedWin32;
+use crate::testing::fuzzing::displays::win_32::FuzzedWin32;
 use crate::testing::fuzzing::{
-    displays_settings::displays::DisplaysFuzzer,
+    displays::settings_api::DisplaysFuzzer,
     speakers::{settings_api::CurrentFuzzedSpeakersSettingsApi, SpeakersFuzzer},
 };
 
