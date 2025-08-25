@@ -13,17 +13,17 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout repository ⬇️
+    - name: Checkout Repository ⬇️
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
         submodules: true
 
-    - name: Check coding style 📝
+    - name: Check Coding Style 📝
       run: cargo fmt --check --all
 
-    - name: Setup dev environment 🧰
-      uses: ./.github/actions/setup-windows-dev-environment
+    - name: Setup Dev Environment 🧰
+      uses: ./.github/actions/setup-dev-environment
 
     - name: Compile 🏗️
       run: cargo build --all-targets --verbose
@@ -33,13 +33,13 @@ jobs:
     - name: Run Tests 🧪
       run: cargo test --verbose -- --nocapture
 
-    - name: Mutation testing 🧟‍♂️
+    - name: Mutation Testing 🧟‍♂️
       uses: ./.github/actions/mutation-testing
         
     - name: Run Benchmarks ⏱️
       run: cargo test --benches
 
     - name: Code Coverage 📊
-      uses: ./.github/actions/coverage
+      uses: ./.github/actions/code-coverage
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

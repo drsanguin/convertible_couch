@@ -1,4 +1,4 @@
-name: Mutation testing 🧟‍♂️
+name: Mutation Testing 🧟‍♂️
 description: Evaluate the quality of existing tests
 runs:
   using: composite
