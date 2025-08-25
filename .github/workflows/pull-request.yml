@@ -1,0 +1,45 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+    name: Check Pull Request
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository ⬇️
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+        submodules: true
+
+    - name: Check Coding Style 📝
+      run: cargo fmt --check --all
+
+    - name: Setup Dev Environment 🧰
+      uses: ./.github/actions/setup-dev-environment
+
+    - name: Compile 🏗️
+      run: cargo build --all-targets --verbose
+      env:
+        RUSTFLAGS: -D warnings
+
+    - name: Run Tests 🧪
+      run: cargo test --verbose -- --nocapture
+
+    - name: Mutation Testing 🧟‍♂️
+      uses: ./.github/actions/mutation-testing
+        
+    - name: Run Benchmarks ⏱️
+      run: cargo test --benches
+
+    - name: Code Coverage 📊
+      uses: ./.github/actions/code-coverage
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}

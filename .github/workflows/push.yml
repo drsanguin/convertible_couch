@@ -13,15 +13,15 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout repository ⬇️
+    - name: Checkout Repository ⬇️
       uses: actions/checkout@v5
       with:
         submodules: true
 
-    - name: Setup dev environment 🧰
-      uses: ./.github/actions/setup-windows-dev-environment
+    - name: Setup Dev Environment 🧰
+      uses: ./.github/actions/setup-dev-environment
 
     - name: Code Coverage 📊
-      uses: ./.github/actions/coverage
+      uses: ./.github/actions/code-coverage
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

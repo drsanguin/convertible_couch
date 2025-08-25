@@ -1,5 +1,5 @@
-name: Setup Windows Dev Environment
-description: Install windows related tools
+name: Setup Dev Environment 🧰
+description: Install windows development related tools
 runs:
   using: composite
   steps:

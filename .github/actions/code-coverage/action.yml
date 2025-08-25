@@ -1,5 +1,5 @@
-name: Coverage
-description: Generate and upload Code Coverage
+name: Code Coverage 📊
+description: Generate and upload code coverage
 inputs:
   github-token:
     description: "GitHub API token"
@@ -7,11 +7,11 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Install nightly toolchain 🧰
+    - name: Install nightly Toolchain 🧰
       run: rustup update nightly
       shell: pwsh
 
-    - name: Set the nightly toolchain as default 🧰
+    - name: Set nightly Toolchain as default 🧰
       run: rustup default nightly
       shell: pwsh
 
