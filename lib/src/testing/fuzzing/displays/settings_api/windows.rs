@@ -204,7 +204,7 @@ impl Win32 for FuzzedWin32 {
                 return DISP_CHANGE_FAILED;
             }
 
-            return match self.behaviour.change_display_settings_error_on_commit {
+            return match self.behaviour.commit_display_settings_changes_error {
                 Some(change_display_settings_error) => change_display_settings_error,
                 _ => {
                     for (device_name, position) in self.display_changes_to_commit.iter() {
@@ -232,13 +232,10 @@ impl Win32 for FuzzedWin32 {
 
             if self
                 .behaviour
-                .change_display_settings_error_by_display
+                .change_display_settings_error
                 .is_some_and(|disp_change| disp_change != DISP_CHANGE_RESTART)
             {
-                return self
-                    .behaviour
-                    .change_display_settings_error_by_display
-                    .unwrap();
+                return self.behaviour.change_display_settings_error.unwrap();
             }
 
             return self
@@ -273,11 +270,7 @@ impl Win32 for FuzzedWin32 {
 
                     self.display_changes_to_commit.insert(device_name, position);
 
-                    let disp_change = if self
-                        .behaviour
-                        .change_display_settings_error_by_display
-                        .is_some()
-                    {
+                    let disp_change = if self.behaviour.change_display_settings_error.is_some() {
                         DISP_CHANGE_RESTART
                     } else {
                         DISP_CHANGE_SUCCESSFUL

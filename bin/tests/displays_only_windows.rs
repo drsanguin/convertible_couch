@@ -19,7 +19,7 @@ use windows::Win32::Graphics::Gdi::{
 #[test_case(DISP_CHANGE_BADPARAM => Err(ApplicationError::Custom(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."))); "when the error is DISP_CHANGE_BADPARAM")]
 #[test_case(DISP_CHANGE_FAILED => Err(ApplicationError::Custom(String::from("The display driver failed the specified graphics mode."))); "when the error is DISP_CHANGE_FAILED")]
 #[test_case(DISP_CHANGE_NOTUPDATED => Err(ApplicationError::Custom(String::from("Unable to write settings to the registry."))); "when the error is DISP_CHANGE_NOTUPDATED")]
-fn it_should_report_display_change_errors_that_happens_when_committing_changes(
+fn it_should_report_committed_displays_settings_changes_errors(
     disp_change: DISP_CHANGE,
 ) -> Result<ApplicationResult, ApplicationError> {
     // Arrange
@@ -56,7 +56,7 @@ fn it_should_report_display_change_errors_that_happens_when_committing_changes(
 #[test_case(DISP_CHANGE_BADPARAM => Err(ApplicationError::Custom(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."))); "when the error is DISP_CHANGE_BADPARAM")]
 #[test_case(DISP_CHANGE_FAILED => Err(ApplicationError::Custom(String::from("The display driver failed the specified graphics mode."))); "when the error is DISP_CHANGE_FAILED")]
 #[test_case(DISP_CHANGE_NOTUPDATED => Err(ApplicationError::Custom(String::from("Unable to write settings to the registry."))); "when the error is DISP_CHANGE_NOTUPDATED")]
-fn it_should_report_display_change_errors_that_happens_for_some_displays(
+fn it_should_report_displays_settings_changes_errors(
     disp_change: DISP_CHANGE,
 ) -> Result<ApplicationResult, ApplicationError> {
     // Arrange
@@ -70,7 +70,7 @@ fn it_should_report_display_change_errors_that_happens_for_some_displays(
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .for_which_changing_the_display_settings_fails_for_some_displays(disp_change)
+        .for_which_changing_the_display_settings_fails_with(disp_change)
         .build_displays()
         .build_computer();
 
@@ -88,8 +88,7 @@ fn it_should_report_display_change_errors_that_happens_for_some_displays(
 }
 
 #[test]
-fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_required_after_committing_display_changes(
-) {
+fn it_should_ask_for_reboot_when_committing_displays_settings_requires_it() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -130,8 +129,7 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
 }
 
 #[test]
-fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_required_after_changing_display_for_some_displays(
-) {
+fn it_should_ask_for_reboot_when_changing_displays_settings_requires_it() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -143,7 +141,7 @@ fn it_should_change_the_primary_display_of_computer_and_ask_for_reboot_when_requ
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .for_which_changing_the_display_settings_fails_for_some_displays(DISP_CHANGE_RESTART)
+        .for_which_changing_the_display_settings_fails_with(DISP_CHANGE_RESTART)
         .build_displays()
         .build_computer();
 
