@@ -5,7 +5,9 @@ use crate::testing::fuzzing::{
         display_name::DisplayNameFuzzer,
         position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
         resolution::{FuzzedResolution, ResolutionFuzzer},
-        settings_api::CurrentFuzzedDisplaysSettingsApi,
+        settings_api::{
+            behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour, CurrentFuzzedDisplaysSettingsApi,
+        },
         video_output::VideoOutputFuzzer,
     },
 };
@@ -174,14 +176,20 @@ impl<'a> DisplaysFuzzer<'a> {
                 });
         }
 
-        let fuzzed_win_32 = CurrentFuzzedDisplaysSettingsApi::new(
+        let displays_settings_api = CurrentFuzzedDisplaysSettingsApi::new(
             video_outputs,
-            self.change_display_settings_error_on_commit,
-            change_display_settings_error_by_display,
-            self.getting_primary_display_name_fails,
+            CurrentFuzzedDisplaysSettingsApiBehaviour {
+                change_display_settings_error_on_commit: self
+                    .change_display_settings_error_on_commit,
+                change_display_settings_error_by_display,
+                getting_primary_display_name_fails: self.getting_primary_display_name_fails,
+            },
         );
 
-        ComputerFuzzer::new_with_display_settings_api(&mut self.computer_fuzzer, fuzzed_win_32)
+        ComputerFuzzer::new_with_display_settings_api(
+            &mut self.computer_fuzzer,
+            displays_settings_api,
+        )
     }
 
     fn generate_several(&mut self, n_display: usize) -> Vec<FuzzedDisplay> {
