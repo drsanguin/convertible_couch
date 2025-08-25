@@ -32,25 +32,9 @@ jobs:
 
     - name: Run Tests 🧪
       run: cargo test --verbose -- --nocapture
-      
-    - name: Install cargo-mutants 🧰
-      uses: taiki-e/install-action@v2
-      with:
-        tool: cargo-mutants
 
-    - name: Generate git.diff 🧰
-      run: git diff origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > git.diff
-
-    - name: Run Mutants Tests 🧟‍♂️
-      id: run_mutants_tests
-      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true --in-diff git.diff
-
-    - name: Archive results ⬆️
-      uses: actions/upload-artifact@v4
-      if: steps.run_mutants_tests.outcome == 'failure'
-      with:
-        name: mutation-report
-        path: mutants.out
+    - name: Mutation testing 🧟‍♂️
+      uses: ./.github/actions/mutation-testing
         
     - name: Run Benchmarks ⏱️
       run: cargo test --benches
