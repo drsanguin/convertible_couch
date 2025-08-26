@@ -246,4 +246,23 @@ impl<'a> DisplaysFuzzer<'a> {
 
         self
     }
+
+    pub fn for_which_getting_display_config_buffer_sizes_fails_with(
+        &mut self,
+        get_display_config_buffer_sizes_error: windows::Win32::Foundation::WIN32_ERROR,
+    ) -> &mut Self {
+        self.behaviour.get_display_config_buffer_sizes_error =
+            Some(get_display_config_buffer_sizes_error);
+
+        self
+    }
+
+    pub fn for_which_querying_display_config_fails_with(
+        &mut self,
+        query_display_config_error: windows::Win32::Foundation::WIN32_ERROR,
+    ) -> &mut Self {
+        self.behaviour.query_display_config_error = Some(query_display_config_error);
+
+        self
+    }
 }

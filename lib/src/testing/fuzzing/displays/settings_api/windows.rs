@@ -122,6 +122,17 @@ impl Win32 for FuzzedWin32 {
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
     ) -> WIN32_ERROR {
+        if self
+            .behaviour
+            .get_display_config_buffer_sizes_error
+            .is_some()
+        {
+            return self
+                .behaviour
+                .get_display_config_buffer_sizes_error
+                .unwrap();
+        }
+
         if flags != QDC_ONLY_ACTIVE_PATHS {
             return ERROR_INVALID_PARAMETER;
         }
@@ -151,6 +162,10 @@ impl Win32 for FuzzedWin32 {
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR {
+        if self.behaviour.query_display_config_error.is_some() {
+            return self.behaviour.query_display_config_error.unwrap();
+        }
+
         if flags != QDC_ONLY_ACTIVE_PATHS || currenttopologyid.is_some() {
             return ERROR_INVALID_PARAMETER;
         }
