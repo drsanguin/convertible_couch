@@ -229,3 +229,41 @@ fn it_should_report_query_display_config_errors() {
             ERROR_INVALID_PARAMETER.0)))
     );
 }
+
+#[test]
+fn it_should_handle_the_case_of_a_display_being_not_possible_to_enum_display_settings_on() {
+    // Arrange
+    let mut fuzzer = Fuzzer::new(func!(), true);
+
+    let (primary_display_name, secondary_display_name, secondary_display_name_2) =
+        fuzzer.generate_three_display_names();
+
+    let computer = fuzzer
+        .generate_computer()
+        .with_displays()
+        .of_which_there_are(3)
+        .whose_primary_is_named(primary_display_name.clone())
+        .with_a_secondary_named(secondary_display_name.clone())
+        .with_a_secondary_for_which_it_is_not_possible_to_enum_display_settings_on(
+            secondary_display_name_2,
+        )
+        .build_displays()
+        .build_computer();
+
+    let mut application = bootstrap_application(computer);
+
+    let args = ArgumentsBuilder::new()
+        .displays_only(&primary_display_name, &secondary_display_name)
+        .build();
+
+    // Act
+    let actual_result = application.execute(&args);
+
+    // Assert
+    assert_eq!(
+        actual_result,
+        Err(ApplicationError::Custom(String::from(
+            "The display driver failed the specified graphics mode."
+        )))
+    );
+}

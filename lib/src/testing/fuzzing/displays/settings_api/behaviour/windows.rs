@@ -9,6 +9,7 @@ pub struct FuzzedWindowsDisplaysSettingsApiBehaviour {
     pub getting_primary_display_name_fails: bool,
     pub get_display_config_buffer_sizes_error: Option<WIN32_ERROR>,
     pub query_display_config_error: Option<WIN32_ERROR>,
+    pub display_not_possible_to_enum_display_settings_on: Option<String>,
 }
 
 impl FuzzedDisplaysSettingsApiBehaviour for FuzzedWindowsDisplaysSettingsApiBehaviour {
@@ -19,6 +20,7 @@ impl FuzzedDisplaysSettingsApiBehaviour for FuzzedWindowsDisplaysSettingsApiBeha
             getting_primary_display_name_fails: false,
             get_display_config_buffer_sizes_error: None,
             query_display_config_error: None,
+            display_not_possible_to_enum_display_settings_on: None,
         }
     }
 }
