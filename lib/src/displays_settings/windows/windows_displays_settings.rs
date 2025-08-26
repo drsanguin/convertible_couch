@@ -181,7 +181,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                     0 => {
                         let current_display_device_path = from_utf16_trimed(&displayconfig_target_device_name.monitorDevicePath)?;
                         let raw_display_friendly_device_name = from_utf16_trimed(&displayconfig_target_device_name.monitorFriendlyDeviceName)?;
-                        let display_friendly_device_name = from_raw_display_name(raw_display_friendly_device_name.as_str());
+                        let display_friendly_device_name = from_raw_display_name(&raw_display_friendly_device_name);
 
                         names_by_device_ids.insert(current_display_device_path.clone(), display_friendly_device_name.clone());
                     },

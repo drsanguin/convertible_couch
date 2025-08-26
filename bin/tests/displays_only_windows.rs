@@ -40,10 +40,7 @@ fn it_should_report_committed_displays_settings_changes_errors(
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(
-            primary_display_name.as_str(),
-            secondary_display_name.as_str(),
-        )
+        .displays_only(&primary_display_name, &secondary_display_name)
         .build();
 
     // Act
@@ -77,10 +74,7 @@ fn it_should_report_displays_settings_changes_errors(
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(
-            primary_display_name.as_str(),
-            secondary_display_name.as_str(),
-        )
+        .displays_only(&primary_display_name, &secondary_display_name)
         .build();
 
     // Act
@@ -107,10 +101,7 @@ fn it_should_ask_for_reboot_when_committing_displays_settings_requires_it() {
     let mut application = bootstrap_application(computer);
 
     let args = ArgumentsBuilder::new()
-        .displays_only(
-            primary_display_name.as_str(),
-            secondary_display_name.as_str(),
-        )
+        .displays_only(&primary_display_name, &secondary_display_name)
         .build();
 
     // Act
