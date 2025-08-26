@@ -113,6 +113,25 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug integration test 'displays_and_speakers_windows'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=displays_and_speakers_windows",
+                    "--package=convertible_couch"
+                ],
+                "filter": {
+                    "name": "displays_and_speakers_windows",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug integration test 'displays_only'",
             "cargo": {
                 "args": [
