@@ -44,7 +44,6 @@ pub struct DisplaysFuzzer<'a> {
     min_n_display: usize,
     max_n_display: usize,
     includes_an_internal_display: bool,
-    forbidden_display_names: HashSet<&'a str>,
     forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
     primary_display_name: Option<String>,
     secondary_display_names: HashSet<String>,
@@ -63,7 +62,6 @@ impl<'a> DisplaysFuzzer<'a> {
             max_n_display: 0,
             min_n_display: 0,
             includes_an_internal_display: false,
-            forbidden_display_names: HashSet::new(),
             forbidden_device_ids: HashSet::new(),
             primary_display_name: None,
             secondary_display_names: HashSet::new(),
@@ -156,7 +154,7 @@ impl<'a> DisplaysFuzzer<'a> {
     }
 
     fn generate_several(&mut self, n_display: usize) -> Vec<FuzzedDisplay> {
-        let mut forbidden_display_names = HashSet::from_iter(self.forbidden_display_names.clone());
+        let mut forbidden_display_names = HashSet::new();
 
         let mut names_already_taken_count = self.secondary_display_names.len();
 
