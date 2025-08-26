@@ -1,5 +1,17 @@
-use super::{position::FuzzedDisplayPosition, video_output::FuzzedVideoOutput};
-use crate::displays_settings::windows::win_32::Win32;
+use crate::{
+    displays_settings::windows::win_32::Win32,
+    testing::fuzzing::displays::{
+        position::FuzzedDisplayPosition,
+        settings_api::{
+            behaviour::{
+                windows::FuzzedWindowsDisplaysSettingsApiBehaviour,
+                FuzzedDisplaysSettingsApiBehaviour,
+            },
+            FuzzedDisplaysSettingsApi,
+        },
+        video_output::FuzzedVideoOutput,
+    },
+};
 use std::{collections::HashMap, ffi::c_void, mem::size_of};
 use windows::{
     core::{BOOL, PCWSTR},
@@ -23,28 +35,22 @@ use windows::{
 #[derive(Clone)]
 pub struct FuzzedWin32 {
     video_outputs: Vec<FuzzedVideoOutput>,
-    change_display_settings_error_on_commit: Option<DISP_CHANGE>,
-    change_display_settings_error_by_display: HashMap<String, DISP_CHANGE>,
     display_changes_to_commit: HashMap<String, FuzzedDisplayPosition>,
-    getting_primary_display_name_fails: bool,
+    behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
 }
 
-impl FuzzedWin32 {
-    pub fn default() -> Self {
+impl FuzzedDisplaysSettingsApi for FuzzedWin32 {
+    fn default() -> Self {
         Self {
             video_outputs: vec![],
-            change_display_settings_error_on_commit: None,
-            change_display_settings_error_by_display: HashMap::new(),
             display_changes_to_commit: HashMap::new(),
-            getting_primary_display_name_fails: false,
+            behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour::default(),
         }
     }
 
-    pub fn new(
+    fn new(
         video_outputs: Vec<FuzzedVideoOutput>,
-        change_display_settings_error_on_commit: Option<DISP_CHANGE>,
-        change_display_settings_error_by_display: HashMap<String, DISP_CHANGE>,
-        getting_primary_display_name_fails: bool,
+        behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
     ) -> Self {
         let n_display = video_outputs
             .iter()
@@ -53,10 +59,8 @@ impl FuzzedWin32 {
 
         Self {
             video_outputs,
-            change_display_settings_error_on_commit,
-            change_display_settings_error_by_display,
             display_changes_to_commit: HashMap::with_capacity(n_display),
-            getting_primary_display_name_fails,
+            behaviour,
         }
     }
 }
@@ -97,7 +101,7 @@ impl Win32 for FuzzedWin32 {
                 .and_then(|video_output| {
                     let display = video_output.display.as_ref().unwrap();
 
-                    if self.getting_primary_display_name_fails
+                    if self.behaviour.getting_primary_display_name_fails
                         && display.position.is_positioned_at_origin()
                     {
                         return Some(1);
@@ -206,7 +210,7 @@ impl Win32 for FuzzedWin32 {
                 return DISP_CHANGE_FAILED;
             }
 
-            return match self.change_display_settings_error_on_commit {
+            return match self.behaviour.commit_display_settings_changes_error {
                 Some(change_display_settings_error) => change_display_settings_error,
                 _ => {
                     for (device_name, position) in self.display_changes_to_commit.iter() {
@@ -232,14 +236,12 @@ impl Win32 for FuzzedWin32 {
         unsafe {
             let device_name = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
 
-            let change_display_settings_error = self
-                .change_display_settings_error_by_display
-                .get(&device_name);
-
-            if change_display_settings_error
-                .is_some_and(|disp_change| *disp_change != DISP_CHANGE_RESTART)
+            if self
+                .behaviour
+                .change_display_settings_error
+                .is_some_and(|disp_change| disp_change != DISP_CHANGE_RESTART)
             {
-                return *change_display_settings_error.unwrap();
+                return self.behaviour.change_display_settings_error.unwrap();
             }
 
             return self
@@ -274,7 +276,7 @@ impl Win32 for FuzzedWin32 {
 
                     self.display_changes_to_commit.insert(device_name, position);
 
-                    let disp_change = if change_display_settings_error.is_some() {
+                    let disp_change = if self.behaviour.change_display_settings_error.is_some() {
                         DISP_CHANGE_RESTART
                     } else {
                         DISP_CHANGE_SUCCESSFUL

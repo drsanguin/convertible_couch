@@ -24,11 +24,11 @@ impl<'a> GuidFuzzer<'a> {
         format!("{low_time}-{mid_time}-{high_time_and_version}-{clock_sequence_and_variant}-{node}")
     }
 
-    pub fn generate_one_different_than(&mut self, forbidden_uuids: &HashSet<&str>) -> String {
+    pub fn generate_one_different_than(&mut self, forbidden_uuids: &HashSet<&String>) -> String {
         loop {
             let uuid = self.generate_one();
 
-            if forbidden_uuids.contains(uuid.as_str()) {
+            if forbidden_uuids.contains(&uuid) {
                 continue;
             }
 

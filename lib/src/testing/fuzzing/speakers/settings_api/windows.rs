@@ -33,16 +33,14 @@ pub struct FuzzedAudioEndpointLibrary {
     behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
 }
 
-impl FuzzedAudioEndpointLibrary {
-    pub fn default() -> Self {
+impl FuzzedSpeakersSettingsApi for FuzzedAudioEndpointLibrary {
+    fn default() -> Self {
         Self {
             speakers: vec![],
             behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour::default(),
         }
     }
-}
 
-impl FuzzedSpeakersSettingsApi for FuzzedAudioEndpointLibrary {
     fn new(
         speakers: Vec<FuzzedSpeaker>,
         behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,

@@ -1,7 +1,7 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
 use crate::testing::fuzzing::{
-    displays_settings::{
+    displays::{
         device_id::{DeviceIdFuzzer, FuzzedDeviceId},
         display_name::DisplayNameFuzzer,
     },
@@ -11,7 +11,7 @@ use crate::testing::fuzzing::{
 use self::computer::ComputerFuzzer;
 
 pub mod computer;
-pub mod displays_settings;
+pub mod displays;
 pub mod guid;
 pub mod speakers;
 

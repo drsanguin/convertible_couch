@@ -5,6 +5,8 @@ use crate::testing::fuzzing::speakers::{
 pub mod behaviour;
 
 pub trait FuzzedSpeakersSettingsApi {
+    fn default() -> Self;
+
     fn new(
         speakers: Vec<FuzzedSpeaker>,
         behaviour: CurrentFuzzedSpeakersSettingsApiBehaviour,

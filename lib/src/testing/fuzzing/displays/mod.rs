@@ -1,24 +1,32 @@
 use crate::testing::fuzzing::{
     computer::ComputerFuzzer,
-    displays_settings::{video_output::VideoOutputFuzzer, win_32::FuzzedWin32},
+    displays::{
+        device_id::{DeviceIdFuzzer, FuzzedDeviceId},
+        display_name::DisplayNameFuzzer,
+        position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
+        resolution::{FuzzedResolution, ResolutionFuzzer},
+        settings_api::{
+            behaviour::{
+                CurrentFuzzedDisplaysSettingsApiBehaviour, FuzzedDisplaysSettingsApiBehaviour,
+            },
+            CurrentFuzzedDisplaysSettingsApi, FuzzedDisplaysSettingsApi,
+        },
+        video_output::VideoOutputFuzzer,
+    },
 };
 
-use super::{
-    device_id::{DeviceIdFuzzer, FuzzedDeviceId},
-    display_name::DisplayNameFuzzer,
-    position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
-    resolution::{FuzzedResolution, ResolutionFuzzer},
-};
+use rand::{rngs::StdRng, seq::IteratorRandom, Rng, RngCore, SeedableRng};
 
-use rand::{
-    rngs::StdRng,
-    seq::{IndexedRandom, IteratorRandom},
-    Rng, RngCore, SeedableRng,
-};
-#[cfg(target_os = "windows")]
-use windows::Win32::Graphics::Gdi::DISP_CHANGE;
+use std::collections::HashSet;
 
-use std::collections::{HashMap, HashSet};
+pub mod config_mod_info_id;
+pub mod device_id;
+pub mod display_name;
+pub mod gsm_id;
+pub mod position;
+pub mod resolution;
+pub mod settings_api;
+pub mod video_output;
 
 #[derive(Clone)]
 pub struct FuzzedDisplay {
@@ -36,13 +44,10 @@ pub struct DisplaysFuzzer<'a> {
     min_n_display: usize,
     max_n_display: usize,
     includes_an_internal_display: bool,
-    forbidden_display_names: HashSet<&'a str>,
     forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
     primary_display_name: Option<String>,
     secondary_display_names: HashSet<String>,
-    change_display_settings_error_on_commit: Option<DISP_CHANGE>,
-    change_display_settings_error: Option<DISP_CHANGE>,
-    getting_primary_display_name_fails: bool,
+    behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour,
 }
 
 impl<'a> DisplaysFuzzer<'a> {
@@ -57,13 +62,10 @@ impl<'a> DisplaysFuzzer<'a> {
             max_n_display: 0,
             min_n_display: 0,
             includes_an_internal_display: false,
-            forbidden_display_names: HashSet::new(),
             forbidden_device_ids: HashSet::new(),
             primary_display_name: None,
             secondary_display_names: HashSet::new(),
-            change_display_settings_error_on_commit: None,
-            change_display_settings_error: None,
-            getting_primary_display_name_fails: false,
+            behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour::default(),
         }
     }
 
@@ -108,33 +110,6 @@ impl<'a> DisplaysFuzzer<'a> {
         self
     }
 
-    #[cfg(target_os = "windows")]
-    pub fn for_which_committing_the_display_changes_fails_with(
-        &mut self,
-        change_display_settings_error: DISP_CHANGE,
-    ) -> &mut Self {
-        self.change_display_settings_error_on_commit = Some(change_display_settings_error);
-
-        self
-    }
-
-    #[cfg(target_os = "windows")]
-    pub fn for_which_changing_the_display_settings_fails_for_some_displays(
-        &mut self,
-        change_display_settings_error: DISP_CHANGE,
-    ) -> &mut Self {
-        self.change_display_settings_error = Some(change_display_settings_error);
-
-        self
-    }
-
-    #[cfg(target_os = "windows")]
-    pub fn for_which_getting_the_primary_display_fails(&mut self) -> &mut Self {
-        self.getting_primary_display_name_fails = true;
-
-        self
-    }
-
     pub fn build_displays(&mut self) -> ComputerFuzzer {
         let n_video_output = self
             .rand
@@ -169,55 +144,28 @@ impl<'a> DisplaysFuzzer<'a> {
                     video_outputs[*video_output_index].plug_display(display);
             });
 
-        let mut change_display_settings_error_by_display = HashMap::new();
+        let displays_settings_api =
+            CurrentFuzzedDisplaysSettingsApi::new(video_outputs, self.behaviour.clone());
 
-        if self.change_display_settings_error.is_some() {
-            let possible_devices_paths = video_outputs
-                .iter()
-                .filter_map(|video_output| match &video_output.display {
-                    Some(_) => Some(video_output.device_name.clone()),
-                    None => None,
-                })
-                .collect::<Vec<String>>();
-
-            let n_display_on_error = self.rand.random_range(1..possible_devices_paths.len());
-
-            possible_devices_paths
-                .choose_multiple(&mut self.rand, n_display_on_error)
-                .for_each(|device_path| {
-                    change_display_settings_error_by_display.insert(
-                        String::from(device_path),
-                        self.change_display_settings_error.unwrap(),
-                    );
-                });
-        }
-
-        let fuzzed_win_32 = FuzzedWin32::new(
-            video_outputs,
-            self.change_display_settings_error_on_commit,
-            change_display_settings_error_by_display,
-            self.getting_primary_display_name_fails,
-        );
-
-        ComputerFuzzer::new_with_display_settings_api(&mut self.computer_fuzzer, fuzzed_win_32)
+        ComputerFuzzer::new_with_display_settings_api(
+            &mut self.computer_fuzzer,
+            displays_settings_api,
+        )
     }
 
     fn generate_several(&mut self, n_display: usize) -> Vec<FuzzedDisplay> {
-        let mut forbidden_display_names = HashSet::from_iter(self.forbidden_display_names.clone());
-
+        let mut forbidden_display_names = HashSet::new();
         let mut names_already_taken_count = self.secondary_display_names.len();
 
-        if self.primary_display_name.is_some() {
-            let primary_display_name = self.primary_display_name.as_mut().unwrap().as_str();
-            forbidden_display_names.insert(primary_display_name);
-            names_already_taken_count += 1;
-        }
+        match &self.primary_display_name {
+            Some(primary_display_name) => {
+                forbidden_display_names.insert(primary_display_name);
+                names_already_taken_count += 1;
+            }
+            None => {}
+        };
 
-        forbidden_display_names.extend(
-            self.secondary_display_names
-                .iter()
-                .map(|secondary_name| secondary_name.as_str()),
-        );
+        forbidden_display_names.extend(&self.secondary_display_names);
 
         let displays_resolutions =
             ResolutionFuzzer::new(&mut self.rand).generate_several(n_display);
@@ -269,5 +217,33 @@ impl<'a> DisplaysFuzzer<'a> {
                 }
             })
             .collect()
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl<'a> DisplaysFuzzer<'a> {
+    pub fn for_which_committing_the_display_changes_fails_with(
+        &mut self,
+        commit_display_settings_changes_error: windows::Win32::Graphics::Gdi::DISP_CHANGE,
+    ) -> &mut Self {
+        self.behaviour.commit_display_settings_changes_error =
+            Some(commit_display_settings_changes_error);
+
+        self
+    }
+
+    pub fn for_which_changing_the_display_settings_fails_with(
+        &mut self,
+        change_display_settings_error: windows::Win32::Graphics::Gdi::DISP_CHANGE,
+    ) -> &mut Self {
+        self.behaviour.change_display_settings_error = Some(change_display_settings_error);
+
+        self
+    }
+
+    pub fn for_which_getting_the_primary_display_fails(&mut self) -> &mut Self {
+        self.behaviour.getting_primary_display_name_fails = true;
+
+        self
     }
 }
