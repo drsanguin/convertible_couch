@@ -122,6 +122,17 @@ impl Win32 for FuzzedWin32 {
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
     ) -> WIN32_ERROR {
+        if self
+            .behaviour
+            .get_display_config_buffer_sizes_error
+            .is_some()
+        {
+            return self
+                .behaviour
+                .get_display_config_buffer_sizes_error
+                .unwrap();
+        }
+
         if flags != QDC_ONLY_ACTIVE_PATHS {
             return ERROR_INVALID_PARAMETER;
         }
@@ -151,6 +162,10 @@ impl Win32 for FuzzedWin32 {
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR {
+        if self.behaviour.query_display_config_error.is_some() {
+            return self.behaviour.query_display_config_error.unwrap();
+        }
+
         if flags != QDC_ONLY_ACTIVE_PATHS || currenttopologyid.is_some() {
             return ERROR_INVALID_PARAMETER;
         }
@@ -200,13 +215,21 @@ impl Win32 for FuzzedWin32 {
             && dwflags == CDS_TYPE::default()
             && lparam.is_none()
         {
-            if self
+            let displays_count = self
+                .video_outputs
+                .iter()
+                .filter(|video_output| video_output.display.is_some())
+                .count();
+
+            let changes_to_commit_count = self.display_changes_to_commit.len();
+
+            let displays_at_origin_count = self
                 .display_changes_to_commit
                 .values()
                 .filter(|position| position.is_positioned_at_origin())
-                .count()
-                != 1
-            {
+                .count();
+
+            if changes_to_commit_count != displays_count || displays_at_origin_count != 1 {
                 return DISP_CHANGE_FAILED;
             }
 
@@ -359,6 +382,17 @@ impl Win32 for FuzzedWin32 {
                 .find(|video_output| video_output.device_name == device_name)
                 .and_then(|video_output| video_output.display.clone())
                 .and_then(|display| {
+                    if self
+                        .behaviour
+                        .display_not_possible_to_enum_display_settings_on
+                        .as_ref()
+                        .is_some_and(|display_not_possible_to_enum_display_settings_on| {
+                            display.name == *display_not_possible_to_enum_display_settings_on
+                        })
+                    {
+                        return Some(BOOL(0));
+                    }
+
                     (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = display.position.x;
                     (*lpdevmode).Anonymous1.Anonymous2.dmPosition.y = display.position.y;
 

@@ -114,6 +114,7 @@ impl<'a> DisplaysFuzzer<'a> {
         let n_video_output = self
             .rand
             .random_range(self.min_n_display..=self.max_n_display);
+
         let n_display = self.rand.random_range(self.min_n_display..=n_video_output);
 
         let displays = self.generate_several(n_display);
@@ -243,6 +244,38 @@ impl<'a> DisplaysFuzzer<'a> {
 
     pub fn for_which_getting_the_primary_display_fails(&mut self) -> &mut Self {
         self.behaviour.getting_primary_display_name_fails = true;
+
+        self
+    }
+
+    pub fn for_which_getting_display_config_buffer_sizes_fails_with(
+        &mut self,
+        get_display_config_buffer_sizes_error: windows::Win32::Foundation::WIN32_ERROR,
+    ) -> &mut Self {
+        self.behaviour.get_display_config_buffer_sizes_error =
+            Some(get_display_config_buffer_sizes_error);
+
+        self
+    }
+
+    pub fn for_which_querying_display_config_fails_with(
+        &mut self,
+        query_display_config_error: windows::Win32::Foundation::WIN32_ERROR,
+    ) -> &mut Self {
+        self.behaviour.query_display_config_error = Some(query_display_config_error);
+
+        self
+    }
+
+    pub fn with_a_secondary_for_which_it_is_not_possible_to_enum_display_settings_on(
+        &mut self,
+        display_not_possible_to_enum_display_settings_on: String,
+    ) -> &mut Self {
+        self.secondary_display_names
+            .insert(display_not_possible_to_enum_display_settings_on.clone());
+        self.behaviour
+            .display_not_possible_to_enum_display_settings_on =
+            Some(display_not_possible_to_enum_display_settings_on);
 
         self
     }

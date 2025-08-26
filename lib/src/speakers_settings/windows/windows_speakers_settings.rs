@@ -152,10 +152,6 @@ fn are_pointers_equals(mut p1: *mut u16, mut p2: *mut u16) -> bool {
             return v2 == 0;
         }
 
-        if v2 == 0 {
-            return false;
-        }
-
         p1 = unsafe { p1.add(1) };
         p2 = unsafe { p2.add(1) };
     }
