@@ -16,7 +16,6 @@ use crate::testing::fuzzing::{
 };
 
 use rand::{rngs::StdRng, seq::IteratorRandom, Rng, RngCore, SeedableRng};
-use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
 use std::collections::HashSet;
 
@@ -230,7 +229,7 @@ impl<'a> DisplaysFuzzer<'a> {
 impl<'a> DisplaysFuzzer<'a> {
     pub fn for_which_committing_the_display_changes_fails_with(
         &mut self,
-        commit_display_settings_changes_error: DISP_CHANGE,
+        commit_display_settings_changes_error: windows::Win32::Graphics::Gdi::DISP_CHANGE,
     ) -> &mut Self {
         self.behaviour.commit_display_settings_changes_error =
             Some(commit_display_settings_changes_error);
@@ -240,7 +239,7 @@ impl<'a> DisplaysFuzzer<'a> {
 
     pub fn for_which_changing_the_display_settings_fails_with(
         &mut self,
-        change_display_settings_error: DISP_CHANGE,
+        change_display_settings_error: windows::Win32::Graphics::Gdi::DISP_CHANGE,
     ) -> &mut Self {
         self.behaviour.change_display_settings_error = Some(change_display_settings_error);
 
