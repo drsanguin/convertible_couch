@@ -1,5 +1,7 @@
 use windows::Win32::Graphics::Gdi::DISP_CHANGE;
 
+use crate::testing::fuzzing::displays::settings_api::behaviour::FuzzedDisplaysSettingsApiBehaviour;
+
 #[derive(Clone)]
 pub struct FuzzedWindowsDisplaysSettingsApiBehaviour {
     pub change_display_settings_error: Option<DISP_CHANGE>,
@@ -7,8 +9,8 @@ pub struct FuzzedWindowsDisplaysSettingsApiBehaviour {
     pub getting_primary_display_name_fails: bool,
 }
 
-impl FuzzedWindowsDisplaysSettingsApiBehaviour {
-    pub fn default() -> Self {
+impl FuzzedDisplaysSettingsApiBehaviour for FuzzedWindowsDisplaysSettingsApiBehaviour {
+    fn default() -> Self {
         Self {
             change_display_settings_error: None,
             commit_display_settings_changes_error: None,

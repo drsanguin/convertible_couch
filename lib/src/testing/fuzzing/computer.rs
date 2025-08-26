@@ -1,8 +1,14 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
 use crate::testing::fuzzing::{
-    displays::{settings_api::CurrentFuzzedDisplaysSettingsApi, DisplaysFuzzer},
-    speakers::{settings_api::CurrentFuzzedSpeakersSettingsApi, SpeakersFuzzer},
+    displays::{
+        settings_api::{CurrentFuzzedDisplaysSettingsApi, FuzzedDisplaysSettingsApi},
+        DisplaysFuzzer,
+    },
+    speakers::{
+        settings_api::{CurrentFuzzedSpeakersSettingsApi, FuzzedSpeakersSettingsApi},
+        SpeakersFuzzer,
+    },
 };
 
 pub struct FuzzedComputer {

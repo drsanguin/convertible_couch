@@ -6,7 +6,10 @@ use crate::testing::fuzzing::{
         position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
         resolution::{FuzzedResolution, ResolutionFuzzer},
         settings_api::{
-            behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour, CurrentFuzzedDisplaysSettingsApi,
+            behaviour::{
+                CurrentFuzzedDisplaysSettingsApiBehaviour, FuzzedDisplaysSettingsApiBehaviour,
+            },
+            CurrentFuzzedDisplaysSettingsApi, FuzzedDisplaysSettingsApi,
         },
         video_output::VideoOutputFuzzer,
     },
