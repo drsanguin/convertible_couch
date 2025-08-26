@@ -155,20 +155,17 @@ impl<'a> DisplaysFuzzer<'a> {
 
     fn generate_several(&mut self, n_display: usize) -> Vec<FuzzedDisplay> {
         let mut forbidden_display_names = HashSet::new();
-
         let mut names_already_taken_count = self.secondary_display_names.len();
 
-        if self.primary_display_name.is_some() {
-            let primary_display_name = self.primary_display_name.as_mut().unwrap().as_str();
-            forbidden_display_names.insert(primary_display_name);
-            names_already_taken_count += 1;
-        }
+        match &self.primary_display_name {
+            Some(primary_display_name) => {
+                forbidden_display_names.insert(primary_display_name);
+                names_already_taken_count += 1;
+            }
+            None => {}
+        };
 
-        forbidden_display_names.extend(
-            self.secondary_display_names
-                .iter()
-                .map(|secondary_name| secondary_name.as_str()),
-        );
+        forbidden_display_names.extend(&self.secondary_display_names);
 
         let displays_resolutions =
             ResolutionFuzzer::new(&mut self.rand).generate_several(n_display);

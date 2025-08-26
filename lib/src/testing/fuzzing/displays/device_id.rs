@@ -99,10 +99,10 @@ impl<'a> DeviceIdFuzzer<'a> {
         &mut self,
         forbidden_device_ids: &HashSet<&FuzzedDeviceId>,
     ) -> CommonDeviceIdPartsByComputer {
-        let forbidden_uuids = HashSet::<&str>::from_iter(
+        let forbidden_uuids = HashSet::from_iter(
             forbidden_device_ids
                 .iter()
-                .map(|forbidden_device_id| forbidden_device_id.uuid.as_str()),
+                .map(|forbidden_device_id| &forbidden_device_id.uuid),
         );
 
         let part_1 = self.rand.random_range(0..=9);
