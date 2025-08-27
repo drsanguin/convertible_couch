@@ -114,7 +114,7 @@ fn it_should_validate_the_desktop_and_couch_speaker_name() {
     assert_eq!(
         actual_result,
         Err(ApplicationError::Custom(String::from(
-            format!("Desktop and couch speakers are invalid, possible values are {default_speaker_name}, {alternative_speaker_name}")
+            format!("Desktop and couch speakers are invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]")
         )))
     );
 }
@@ -149,7 +149,7 @@ fn it_should_validate_the_desktop_speaker_name() {
     assert_eq!(
         actual_result,
         Err(ApplicationError::Custom(String::from(
-            format!("Desktop speaker is invalid, possible values are are {default_speaker_name}, {alternative_speaker_name}")
+            format!("Desktop speaker is invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]")
         )))
     );
 }
@@ -184,7 +184,7 @@ fn it_should_validate_the_couch_speaker_name() {
     assert_eq!(
         actual_result,
         Err(ApplicationError::Custom(String::from(
-            format!("Couch speaker is invalid, possible values are {default_speaker_name}, {alternative_speaker_name}")
+            format!("Couch speaker is invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]")
         )))
     );
 }

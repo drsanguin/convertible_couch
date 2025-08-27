@@ -82,7 +82,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         if desktop_speaker_id.is_null() && couch_speaker_id.is_null() {
             let possible_speakers_message_fragment =
                 get_possible_speakers_message_fragment(&audio_endpoints);
-            let error_message = format!("Desktop and couch speakers are invalid, possible values are {possible_speakers_message_fragment}");
+            let error_message = format!("Desktop and couch speakers are invalid, possible values are [{possible_speakers_message_fragment}]");
 
             return Err(ApplicationError::Custom(error_message));
         }
@@ -90,7 +90,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         if desktop_speaker_id.is_null() {
             let possible_speakers_message_fragment =
                 get_possible_speakers_message_fragment(&audio_endpoints);
-            let error_message = format!("Desktop speaker is invalid, possible values are are {possible_speakers_message_fragment}");
+            let error_message = format!("Desktop speaker is invalid, possible values are [{possible_speakers_message_fragment}]");
 
             return Err(ApplicationError::Custom(error_message));
         }
@@ -99,7 +99,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
             let possible_speakers_message_fragment =
                 get_possible_speakers_message_fragment(&audio_endpoints);
 
-            return Err(ApplicationError::Custom(format!("Couch speaker is invalid, possible values are {possible_speakers_message_fragment}")));
+            return Err(ApplicationError::Custom(format!("Couch speaker is invalid, possible values are [{possible_speakers_message_fragment}]")));
         }
 
         let is_current_default_speaker_the_desktop_one =
