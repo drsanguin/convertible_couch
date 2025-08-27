@@ -79,6 +79,14 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
             )));
         }
 
+        if desktop_speaker_id.is_null() && couch_speaker_id.is_null() {
+            let possible_speakers_message_fragment =
+                get_possible_speakers_message_fragment(&audio_endpoints);
+            let error_message = format!("Desktop and couch speakers are invalid, possible values are {possible_speakers_message_fragment}");
+
+            return Err(ApplicationError::Custom(error_message));
+        }
+
         if desktop_speaker_id.is_null() {
             let possible_speakers_message_fragment =
                 get_possible_speakers_message_fragment(&audio_endpoints);
