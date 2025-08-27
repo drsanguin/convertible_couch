@@ -58,42 +58,30 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
                 desktop_display_device_id = Some(device_id);
             }
 
-            if display_name.is_some_and(|x| x == couch_display_name) {
+            if display_name.is_some_and(|display_name| display_name == couch_display_name) {
                 couch_display_device_id = Some(device_id);
             }
         }
 
-        if desktop_display_device_id.is_none() && couch_display_device_id.is_none() {
+        let invalid_params_error_message =
+            match (desktop_display_device_id, couch_display_device_id) {
+                (None, None) => Some("Desktop and couch displays are invalid"),
+                (None, _) => Some("Desktop display is invalid"),
+                (_, None) => Some("Couch display is invalid"),
+                _ => None,
+            };
+
+        if invalid_params_error_message.is_some() {
+            let invalid_params_error_message_fragment = invalid_params_error_message.unwrap();
+
             let mut possible_values: Vec<String> = names_by_device_ids.into_values().collect();
-
             possible_values.sort();
+            let possible_values_fragment = possible_values.join(", ");
 
-            return Err(ApplicationError::Custom(format!(
-                "Desktop and couch displays are invalid, possible values are [{}]",
-                possible_values.join(", ")
-            )));
-        }
+            let error_message = format!("{invalid_params_error_message_fragment}, possible values are [{possible_values_fragment}]");
+            let error = ApplicationError::Custom(error_message);
 
-        if desktop_display_device_id.is_none() {
-            let mut possible_values: Vec<String> = names_by_device_ids.into_values().collect();
-
-            possible_values.sort();
-
-            return Err(ApplicationError::Custom(format!(
-                "Desktop display is invalid, possible values are [{}]",
-                possible_values.join(", ")
-            )));
-        }
-
-        if couch_display_device_id.is_none() {
-            let mut possible_values: Vec<String> = names_by_device_ids.into_values().collect();
-
-            possible_values.sort();
-
-            return Err(ApplicationError::Custom(format!(
-                "Couch display is invalid, possible values are [{}]",
-                possible_values.join(", ")
-            )));
+            return Err(error);
         }
 
         let (new_primary_display_device_id, new_primary_display_name) =
