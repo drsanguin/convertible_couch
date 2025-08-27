@@ -148,7 +148,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         let size_of_displayconfig_target_device_name =
             size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
 
-        for mode_information in mode_informations.into_iter() {
+        for mode_information in mode_informations {
             if mode_information.infoType != DISPLAYCONFIG_MODE_INFO_TYPE_TARGET {
                 continue;
             }
