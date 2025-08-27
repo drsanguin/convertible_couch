@@ -182,6 +182,17 @@ impl<'a> SpeakerNameFuzzer<'a> {
         (names.remove(0), names.remove(0), names.remove(0))
     }
 
+    pub fn generate_four(&mut self) -> (String, String, String, String) {
+        let mut names = self.generate_several(4, &HashSet::new());
+
+        (
+            names.remove(0),
+            names.remove(0),
+            names.remove(0),
+            names.remove(0),
+        )
+    }
+
     pub fn generate_several(
         &mut self,
         count: usize,

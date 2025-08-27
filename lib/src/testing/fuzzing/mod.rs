@@ -63,4 +63,8 @@ impl Fuzzer {
     pub fn generate_three_speakers_names(&mut self) -> (String, String, String) {
         SpeakerNameFuzzer::new(&mut self.rand).generate_three()
     }
+
+    pub fn generate_four_speakers_names(&mut self) -> (String, String, String, String) {
+        SpeakerNameFuzzer::new(&mut self.rand).generate_four()
+    }
 }

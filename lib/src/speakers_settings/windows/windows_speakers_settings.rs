@@ -79,19 +79,28 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
             )));
         }
 
-        if desktop_speaker_id.is_null() {
-            let possible_speakers_message_fragment =
-                get_possible_speakers_message_fragment(&audio_endpoints);
-            let error_message = format!("Desktop speaker is invalid, possible values are are {possible_speakers_message_fragment}");
+        let invalid_params_error_message =
+            match (desktop_speaker_id.is_null(), couch_speaker_id.is_null()) {
+                (true, true) => Some("Desktop and couch speakers are invalid"),
+                (true, _) => Some("Desktop speaker is invalid"),
+                (_, true) => Some("Couch speaker is invalid"),
+                _ => None,
+            };
 
-            return Err(ApplicationError::Custom(error_message));
-        }
+        if invalid_params_error_message.is_some() {
+            let invalid_params_error_message_fragment = invalid_params_error_message.unwrap();
 
-        if couch_speaker_id.is_null() {
-            let possible_speakers_message_fragment =
-                get_possible_speakers_message_fragment(&audio_endpoints);
+            let mut possible_audio_endpoints = audio_endpoints
+                .iter()
+                .map(|audio_endpoint| map_c_ushort_to_string(audio_endpoint.name))
+                .collect::<Vec<String>>();
+            possible_audio_endpoints.sort();
+            let possible_values_fragment = possible_audio_endpoints.join(", ");
 
-            return Err(ApplicationError::Custom(format!("Couch speaker is invalid, possible values are {possible_speakers_message_fragment}")));
+            let error_message = format!("{invalid_params_error_message_fragment}, possible values are [{possible_values_fragment}]");
+            let error = ApplicationError::Custom(error_message);
+
+            return Err(error);
         }
 
         let is_current_default_speaker_the_desktop_one =
@@ -155,15 +164,4 @@ fn are_pointers_equals(mut p1: *mut u16, mut p2: *mut u16) -> bool {
         p1 = unsafe { p1.add(1) };
         p2 = unsafe { p2.add(1) };
     }
-}
-
-fn get_possible_speakers_message_fragment(audio_endpoints: &Vec<AudioEndpoint>) -> String {
-    let mut possible_audio_endpoints = audio_endpoints
-        .iter()
-        .map(|audio_endpoint| map_c_ushort_to_string(audio_endpoint.name))
-        .collect::<Vec<String>>();
-
-    possible_audio_endpoints.sort();
-
-    possible_audio_endpoints.join(", ")
 }
