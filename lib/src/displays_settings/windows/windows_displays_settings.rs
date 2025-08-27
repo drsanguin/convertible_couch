@@ -42,8 +42,8 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
         let names_by_device_ids = self.get_all_displays_names()?;
         let positions_by_device_ids = self.get_all_displays_positions()?;
 
-        let mut desktop_display_device_id: Option<String> = None;
-        let mut couch_display_device_id: Option<String> = None;
+        let mut desktop_display_device_id: Option<&String> = None;
+        let mut couch_display_device_id: Option<&String> = None;
         let mut is_current_primary_display_the_desktop_one = false;
 
         for (device_id, position) in &positions_by_device_ids {
@@ -55,11 +55,11 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
             }
 
             if display_name.is_some_and(|x| x == desktop_display_name) {
-                desktop_display_device_id = Some(device_id.clone());
+                desktop_display_device_id = Some(device_id);
             }
 
             if display_name.is_some_and(|x| x == couch_display_name) {
-                couch_display_device_id = Some(device_id.clone());
+                couch_display_device_id = Some(device_id);
             }
         }
 
@@ -104,7 +104,7 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
             };
 
         let new_primary_display_position = positions_by_device_ids
-            .get(&new_primary_display_device_id)
+            .get(new_primary_display_device_id)
             .unwrap();
 
         let reboot_required = self.set_displays_to_position(new_primary_display_position)?;
@@ -191,10 +191,7 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             let display_friendly_device_name =
                 from_raw_display_name(&raw_display_friendly_device_name);
 
-            names_by_device_ids.insert(
-                current_display_device_path.clone(),
-                display_friendly_device_name.clone(),
-            );
+            names_by_device_ids.insert(current_display_device_path, display_friendly_device_name);
         }
 
         Ok(names_by_device_ids)
