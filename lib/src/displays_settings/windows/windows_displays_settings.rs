@@ -51,10 +51,10 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
 
             if position.x == 0 && position.y == 0 {
                 is_current_primary_display_the_desktop_one =
-                    display_name.is_some_and(|x| x == desktop_display_name);
+                    display_name.is_some_and(|display_name| display_name == desktop_display_name);
             }
 
-            if display_name.is_some_and(|x| x == desktop_display_name) {
+            if display_name.is_some_and(|display_name| display_name == desktop_display_name) {
                 desktop_display_device_id = Some(device_id);
             }
 
