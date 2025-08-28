@@ -1,4 +1,4 @@
-use rand::{rngs::StdRng, RngCore, SeedableRng};
+use rand::rngs::StdRng;
 
 use crate::testing::fuzzing::{
     displays::{settings_api::CurrentFuzzedDisplaysSettingsApi, DisplaysFuzzer},
@@ -45,11 +45,13 @@ impl ComputerFuzzer {
     }
 
     pub fn with_displays(&mut self) -> DisplaysFuzzer<'_> {
-        DisplaysFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
+        let computer_fuzzer = self.clone();
+        DisplaysFuzzer::new(&mut self.rand, computer_fuzzer)
     }
 
-    pub fn with_speakers(&mut self) -> SpeakersFuzzer {
-        SpeakersFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()), self.clone())
+    pub fn with_speakers(&mut self) -> SpeakersFuzzer<'_> {
+        let computer_fuzzer = self.clone();
+        SpeakersFuzzer::new(&mut self.rand, computer_fuzzer)
     }
 
     pub fn build_computer(&mut self) -> FuzzedComputer {

@@ -13,7 +13,7 @@ use crate::testing::fuzzing::{
     },
 };
 
-use rand::{rngs::StdRng, seq::IteratorRandom, Rng, RngCore, SeedableRng};
+use rand::{rngs::StdRng, seq::IteratorRandom, Rng};
 
 use std::collections::HashSet;
 
@@ -37,7 +37,7 @@ pub struct FuzzedDisplay {
 }
 
 pub struct DisplaysFuzzer<'a> {
-    rand: StdRng,
+    rand: &'a mut StdRng,
     computer_fuzzer: ComputerFuzzer,
     min_n_display: usize,
     max_n_display: usize,
@@ -53,7 +53,7 @@ impl<'a> DisplaysFuzzer<'a> {
     /// Which implies that the theoretical maximum is 162 displays with a 1024x768 resolution.
     const MAX_N_DISPLAY: usize = 162;
 
-    pub fn new(rand: StdRng, computer_fuzzer: ComputerFuzzer) -> Self {
+    pub fn new(rand: &'a mut StdRng, computer_fuzzer: ComputerFuzzer) -> Self {
         Self {
             rand,
             computer_fuzzer,
@@ -166,9 +166,8 @@ impl<'a> DisplaysFuzzer<'a> {
 
         let displays_resolutions =
             ResolutionFuzzer::new(&mut self.rand).generate_several(n_display);
-        let positioned_resolutions =
-            DisplayPositionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-                .generate_several(&displays_resolutions, self.includes_an_internal_display);
+        let positioned_resolutions = DisplayPositionFuzzer::new(&mut self.rand)
+            .generate_several(&displays_resolutions, self.includes_an_internal_display);
         let mut names = DisplayNameFuzzer::new(&mut self.rand).generate_several(
             n_display - names_already_taken_count,
             &forbidden_display_names,

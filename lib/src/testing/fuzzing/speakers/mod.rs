@@ -25,8 +25,8 @@ pub struct FuzzedSpeaker {
     pub is_default: bool,
 }
 
-pub struct SpeakersFuzzer {
-    rand: StdRng,
+pub struct SpeakersFuzzer<'a> {
+    rand: &'a mut StdRng,
     computer_fuzzer: ComputerFuzzer,
     min_count: usize,
     max_count: usize,
@@ -35,10 +35,10 @@ pub struct SpeakersFuzzer {
     behaviour: CurrentFuzzedSpeakersSettingsApiBehaviour,
 }
 
-impl SpeakersFuzzer {
+impl<'a> SpeakersFuzzer<'a> {
     const MAX_SPEAKERS_COUNT: usize = 256;
 
-    pub fn new(rand: StdRng, computer_fuzzer: ComputerFuzzer) -> Self {
+    pub fn new(rand: &'a mut StdRng, computer_fuzzer: ComputerFuzzer) -> Self {
         Self {
             rand,
             computer_fuzzer,
@@ -125,7 +125,7 @@ impl SpeakersFuzzer {
 }
 
 #[cfg(target_os = "windows")]
-impl SpeakersFuzzer {
+impl<'a> SpeakersFuzzer<'a> {
     pub fn for_which_getting_the_speakers_count_fails(&mut self) -> &mut Self {
         self.behaviour.getting_the_speakers_count_fails = true;
 
