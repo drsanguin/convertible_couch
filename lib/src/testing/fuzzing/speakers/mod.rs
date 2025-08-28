@@ -6,10 +6,8 @@ use crate::testing::fuzzing::{
     computer::ComputerFuzzer,
     speakers::{
         settings_api::{
-            behaviour::{
-                CurrentFuzzedSpeakersSettingsApiBehaviour, FuzzedSpeakersSettingsApiBehaviour,
-            },
-            CurrentFuzzedSpeakersSettingsApi, FuzzedSpeakersSettingsApi,
+            behaviour::CurrentFuzzedSpeakersSettingsApiBehaviour, CurrentFuzzedSpeakersSettingsApi,
+            FuzzedSpeakersSettingsApi,
         },
         speaker_id::SpeakerIdFuzzer,
         speaker_name::SpeakerNameFuzzer,

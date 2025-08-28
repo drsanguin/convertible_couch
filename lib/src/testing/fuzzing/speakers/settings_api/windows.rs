@@ -7,10 +7,7 @@ use crate::{
     },
     testing::fuzzing::speakers::{
         settings_api::{
-            behaviour::{
-                windows::FuzzedWindowsSpeakersSettingsApiBehaviour,
-                FuzzedSpeakersSettingsApiBehaviour,
-            },
+            behaviour::windows::FuzzedWindowsSpeakersSettingsApiBehaviour,
             FuzzedSpeakersSettingsApi,
         },
         FuzzedSpeaker,
@@ -27,20 +24,13 @@ use std::{
     },
 };
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct FuzzedAudioEndpointLibrary {
     speakers: Vec<FuzzedSpeaker>,
     behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
 }
 
 impl FuzzedSpeakersSettingsApi for FuzzedAudioEndpointLibrary {
-    fn default() -> Self {
-        Self {
-            speakers: vec![],
-            behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour::default(),
-        }
-    }
-
     fn new(
         speakers: Vec<FuzzedSpeaker>,
         behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
