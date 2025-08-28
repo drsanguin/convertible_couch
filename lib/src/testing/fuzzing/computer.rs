@@ -1,8 +1,7 @@
-use rand::rngs::StdRng;
-
 use crate::testing::fuzzing::{
     displays::{settings_api::CurrentFuzzedDisplaysSettingsApi, DisplaysFuzzer},
     speakers::{settings_api::CurrentFuzzedSpeakersSettingsApi, SpeakersFuzzer},
+    Fuzzer,
 };
 
 pub struct FuzzedComputer {
@@ -10,16 +9,16 @@ pub struct FuzzedComputer {
     pub speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
 }
 
-pub struct ComputerFuzzer {
-    pub rand: StdRng,
+pub struct ComputerFuzzer<'a> {
+    pub fuzzer: &'a mut Fuzzer,
     displays_settings_api: CurrentFuzzedDisplaysSettingsApi,
     speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
 }
 
-impl ComputerFuzzer {
-    pub fn new(rand: StdRng) -> Self {
+impl<'a> ComputerFuzzer<'a> {
+    pub fn new(fuzzer: &'a mut Fuzzer) -> Self {
         Self {
-            rand,
+            fuzzer,
             displays_settings_api: CurrentFuzzedDisplaysSettingsApi::default(),
             speakers_settings_api: CurrentFuzzedSpeakersSettingsApi::default(),
         }
@@ -43,11 +42,11 @@ impl ComputerFuzzer {
         self
     }
 
-    pub fn with_displays(&mut self) -> DisplaysFuzzer<'_> {
+    pub fn with_displays(&'a mut self) -> DisplaysFuzzer<'a> {
         DisplaysFuzzer::new(self)
     }
 
-    pub fn with_speakers(&mut self) -> SpeakersFuzzer<'_> {
+    pub fn with_speakers(&'a mut self) -> SpeakersFuzzer<'a> {
         SpeakersFuzzer::new(self)
     }
 
