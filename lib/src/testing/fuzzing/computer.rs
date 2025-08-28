@@ -3,6 +3,7 @@ use rand::rngs::StdRng;
 use crate::testing::fuzzing::{
     displays::{settings_api::CurrentFuzzedDisplaysSettingsApi, DisplaysFuzzer},
     speakers::{settings_api::CurrentFuzzedSpeakersSettingsApi, SpeakersFuzzer},
+    ComputerBuilder,
 };
 
 pub struct FuzzedComputer {
@@ -50,8 +51,10 @@ impl<'a> ComputerFuzzer<'a> {
     pub fn with_speakers(&'a mut self) -> SpeakersFuzzer<'a> {
         SpeakersFuzzer::new(self)
     }
+}
 
-    pub fn build_computer(&mut self) -> FuzzedComputer {
+impl ComputerBuilder<'_> for ComputerFuzzer<'_> {
+    fn build_computer(&mut self) -> FuzzedComputer {
         FuzzedComputer {
             displays_settings_api: self.displays_settings_api.clone(),
             speakers_settings_api: self.speakers_settings_api.clone(),

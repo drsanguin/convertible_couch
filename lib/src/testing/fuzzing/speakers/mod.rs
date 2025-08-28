@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use rand::Rng;
 
 use crate::testing::fuzzing::{
-    computer::ComputerFuzzer,
+    computer::{ComputerFuzzer, FuzzedComputer},
     speakers::{
         settings_api::{
             behaviour::CurrentFuzzedSpeakersSettingsApiBehaviour, CurrentFuzzedSpeakersSettingsApi,
@@ -12,6 +12,7 @@ use crate::testing::fuzzing::{
         speaker_id::SpeakerIdFuzzer,
         speaker_name::SpeakerNameFuzzer,
     },
+    ComputerBuilder,
 };
 
 pub mod settings_api;
@@ -122,6 +123,12 @@ impl<'a> SpeakersFuzzer<'a> {
 
         self.computer_fuzzer
             .set_speakers_settings_api(fuzzed_speakers_settings_api)
+    }
+}
+
+impl<'a> ComputerBuilder<'a> for SpeakersFuzzer<'a> {
+    fn build_computer(&'a mut self) -> FuzzedComputer {
+        self.build_speakers().build_computer()
     }
 }
 

@@ -8,7 +8,7 @@ use convertible_couch::{
 use convertible_couch_lib::{
     displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
     func,
-    testing::fuzzing::Fuzzer,
+    testing::fuzzing::{ComputerBuilder, Fuzzer},
     ApplicationError,
 };
 
@@ -25,7 +25,6 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -62,7 +61,6 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -102,7 +100,6 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
         .of_which_there_are_at_least(2)
         .including_an_internal_display()
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -139,7 +136,6 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
         .of_which_there_are_at_least(2)
         .including_an_internal_display()
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -179,7 +175,6 @@ fn it_should_validate_the_desktop_display() {
         .of_which_there_are(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -214,7 +209,6 @@ fn it_should_validate_the_couch_display() {
         .of_which_there_are(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -253,7 +247,6 @@ fn it_should_validate_both_desktop_and_couch_displays() {
         .of_which_there_are(2)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -288,7 +281,6 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .for_which_getting_the_primary_display_fails()
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);

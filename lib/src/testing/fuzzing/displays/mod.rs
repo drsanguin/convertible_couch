@@ -1,5 +1,5 @@
 use crate::testing::fuzzing::{
-    computer::ComputerFuzzer,
+    computer::{ComputerFuzzer, FuzzedComputer},
     displays::{
         device_id::{DeviceIdFuzzer, FuzzedDeviceId},
         display_name::DisplayNameFuzzer,
@@ -11,6 +11,7 @@ use crate::testing::fuzzing::{
         },
         video_output::VideoOutputFuzzer,
     },
+    ComputerBuilder,
 };
 
 use rand::{seq::IteratorRandom, Rng};
@@ -215,6 +216,12 @@ impl<'a> DisplaysFuzzer<'a> {
                 }
             })
             .collect()
+    }
+}
+
+impl<'a> ComputerBuilder<'a> for DisplaysFuzzer<'a> {
+    fn build_computer(&'a mut self) -> FuzzedComputer {
+        self.build_displays().build_computer()
     }
 }
 

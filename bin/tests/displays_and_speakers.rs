@@ -3,8 +3,10 @@ use convertible_couch::{
     testing::arrangements::{bootstrap_application, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
-    displays_settings::DisplaysSettingsResult, func, speakers_settings::SpeakersSettingsResult,
-    testing::fuzzing::Fuzzer,
+    displays_settings::DisplaysSettingsResult,
+    func,
+    speakers_settings::SpeakersSettingsResult,
+    testing::fuzzing::{ComputerBuilder, Fuzzer},
 };
 
 #[test]
@@ -26,7 +28,6 @@ fn it_should_change_primary_display_and_default_speaker() {
         .of_which_there_are_at_least(2)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -77,7 +78,6 @@ fn it_should_change_primary_display_and_default_speaker_back_and_forth() {
         .of_which_there_are_at_least(2)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
