@@ -76,7 +76,7 @@ impl SpeakersFuzzer {
         self
     }
 
-    pub fn build_speakers(&mut self) -> ComputerFuzzer {
+    pub fn build_speakers(&mut self) -> &mut ComputerFuzzer {
         let mut names_already_taken = HashSet::new();
 
         if self.default_speaker_name.is_some() {
@@ -119,7 +119,8 @@ impl SpeakersFuzzer {
         let fuzzed_speakers_settings_api =
             CurrentFuzzedSpeakersSettingsApi::new(speakers, self.behaviour.clone());
 
-        ComputerFuzzer::new_with_speakers(&mut self.computer_fuzzer, fuzzed_speakers_settings_api)
+        self.computer_fuzzer
+            .set_speakers_settings_api(fuzzed_speakers_settings_api)
     }
 }
 

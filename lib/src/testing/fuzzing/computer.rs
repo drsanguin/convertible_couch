@@ -26,26 +26,22 @@ impl ComputerFuzzer {
         }
     }
 
-    pub fn new_with_display_settings_api(
-        computer_fuzzer: &mut ComputerFuzzer,
+    pub fn set_displays_settings_api(
+        &mut self,
         displays_settings_api: CurrentFuzzedDisplaysSettingsApi,
-    ) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(computer_fuzzer.rand.next_u64()),
-            displays_settings_api,
-            speakers_settings_api: computer_fuzzer.speakers_settings_api.clone(),
-        }
+    ) -> &mut Self {
+        self.displays_settings_api = displays_settings_api;
+
+        self
     }
 
-    pub fn new_with_speakers(
-        computer_fuzzer: &mut ComputerFuzzer,
+    pub fn set_speakers_settings_api(
+        &mut self,
         speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
-    ) -> Self {
-        Self {
-            rand: StdRng::seed_from_u64(computer_fuzzer.rand.next_u64()),
-            displays_settings_api: computer_fuzzer.displays_settings_api.clone(),
-            speakers_settings_api,
-        }
+    ) -> &mut Self {
+        self.speakers_settings_api = speakers_settings_api;
+
+        self
     }
 
     pub fn with_displays(&mut self) -> DisplaysFuzzer<'_> {

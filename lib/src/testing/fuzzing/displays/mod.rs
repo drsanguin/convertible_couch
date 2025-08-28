@@ -108,7 +108,7 @@ impl<'a> DisplaysFuzzer<'a> {
         self
     }
 
-    pub fn build_displays(&mut self) -> ComputerFuzzer {
+    pub fn build_displays(&mut self) -> &mut ComputerFuzzer {
         let n_video_output = self
             .rand
             .random_range(self.min_n_display..=self.max_n_display);
@@ -146,10 +146,8 @@ impl<'a> DisplaysFuzzer<'a> {
         let displays_settings_api =
             CurrentFuzzedDisplaysSettingsApi::new(video_outputs, self.behaviour.clone());
 
-        ComputerFuzzer::new_with_display_settings_api(
-            &mut self.computer_fuzzer,
-            displays_settings_api,
-        )
+        self.computer_fuzzer
+            .set_displays_settings_api(displays_settings_api)
     }
 
     fn generate_several(&mut self, n_display: usize) -> Vec<FuzzedDisplay> {
