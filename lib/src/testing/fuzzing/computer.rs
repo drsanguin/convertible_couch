@@ -10,9 +10,8 @@ pub struct FuzzedComputer {
     pub speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
 }
 
-#[derive(Clone)]
 pub struct ComputerFuzzer {
-    rand: StdRng,
+    pub rand: StdRng,
     displays_settings_api: CurrentFuzzedDisplaysSettingsApi,
     speakers_settings_api: CurrentFuzzedSpeakersSettingsApi,
 }
@@ -45,13 +44,11 @@ impl ComputerFuzzer {
     }
 
     pub fn with_displays(&mut self) -> DisplaysFuzzer<'_> {
-        let computer_fuzzer = self.clone();
-        DisplaysFuzzer::new(&mut self.rand, computer_fuzzer)
+        DisplaysFuzzer::new(self)
     }
 
     pub fn with_speakers(&mut self) -> SpeakersFuzzer<'_> {
-        let computer_fuzzer = self.clone();
-        SpeakersFuzzer::new(&mut self.rand, computer_fuzzer)
+        SpeakersFuzzer::new(self)
     }
 
     pub fn build_computer(&mut self) -> FuzzedComputer {

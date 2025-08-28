@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use rand::{rngs::StdRng, Rng};
+use rand::Rng;
 
 use crate::testing::fuzzing::{
     computer::ComputerFuzzer,
@@ -26,8 +26,7 @@ pub struct FuzzedSpeaker {
 }
 
 pub struct SpeakersFuzzer<'a> {
-    rand: &'a mut StdRng,
-    computer_fuzzer: ComputerFuzzer,
+    computer_fuzzer: &'a mut ComputerFuzzer,
     min_count: usize,
     max_count: usize,
     default_speaker_name: Option<String>,
@@ -38,9 +37,8 @@ pub struct SpeakersFuzzer<'a> {
 impl<'a> SpeakersFuzzer<'a> {
     const MAX_SPEAKERS_COUNT: usize = 256;
 
-    pub fn new(rand: &'a mut StdRng, computer_fuzzer: ComputerFuzzer) -> Self {
+    pub fn new(computer_fuzzer: &'a mut ComputerFuzzer) -> Self {
         Self {
-            rand,
             computer_fuzzer,
             min_count: 0,
             max_count: 0,
@@ -86,16 +84,19 @@ impl<'a> SpeakersFuzzer<'a> {
 
         names_already_taken.extend(self.alternative_names.clone());
 
-        let count = self.rand.random_range(self.min_count..=self.max_count);
+        let count = self
+            .computer_fuzzer
+            .rand
+            .random_range(self.min_count..=self.max_count);
 
-        let names_not_taken = SpeakerNameFuzzer::new(&mut self.rand)
+        let names_not_taken = SpeakerNameFuzzer::new(&mut self.computer_fuzzer.rand)
             .generate_several(count - names_already_taken.len(), &names_already_taken);
 
         let mut names = Vec::with_capacity(count);
         names.extend(names_already_taken);
         names.extend(names_not_taken);
 
-        let ids = SpeakerIdFuzzer::new(&mut self.rand).generate_several(count);
+        let ids = SpeakerIdFuzzer::new(&mut self.computer_fuzzer.rand).generate_several(count);
 
         let default_speaker_index = if self.default_speaker_name.is_some() {
             let default_speaker_name = self.default_speaker_name.clone().unwrap();
@@ -105,7 +106,7 @@ impl<'a> SpeakersFuzzer<'a> {
                 .position(|name| name == &default_speaker_name)
                 .unwrap()
         } else {
-            self.rand.random_range(0..count)
+            self.computer_fuzzer.rand.random_range(0..count)
         };
 
         let speakers = (0..count)
