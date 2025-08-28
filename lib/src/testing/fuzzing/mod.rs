@@ -16,7 +16,7 @@ pub mod guid;
 pub mod speakers;
 
 pub struct Fuzzer {
-    pub rand: StdRng,
+    rand: StdRng,
 }
 
 impl Fuzzer {
@@ -33,7 +33,7 @@ impl Fuzzer {
     }
 
     pub fn generate_computer(&mut self) -> ComputerFuzzer<'_> {
-        ComputerFuzzer::new(self)
+        ComputerFuzzer::new(&mut self.rand)
     }
 
     pub fn generate_display_name(&mut self) -> String {

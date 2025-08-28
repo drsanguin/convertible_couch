@@ -86,19 +86,17 @@ impl<'a> SpeakersFuzzer<'a> {
 
         let count = self
             .computer_fuzzer
-            .fuzzer
             .rand
             .random_range(self.min_count..=self.max_count);
 
-        let names_not_taken = SpeakerNameFuzzer::new(&mut self.computer_fuzzer.fuzzer.rand)
+        let names_not_taken = SpeakerNameFuzzer::new(&mut self.computer_fuzzer.rand)
             .generate_several(count - names_already_taken.len(), &names_already_taken);
 
         let mut names = Vec::with_capacity(count);
         names.extend(names_already_taken);
         names.extend(names_not_taken);
 
-        let ids =
-            SpeakerIdFuzzer::new(&mut self.computer_fuzzer.fuzzer.rand).generate_several(count);
+        let ids = SpeakerIdFuzzer::new(&mut self.computer_fuzzer.rand).generate_several(count);
 
         let default_speaker_index = if self.default_speaker_name.is_some() {
             let default_speaker_name = self.default_speaker_name.clone().unwrap();
@@ -108,7 +106,7 @@ impl<'a> SpeakersFuzzer<'a> {
                 .position(|name| name == &default_speaker_name)
                 .unwrap()
         } else {
-            self.computer_fuzzer.fuzzer.rand.random_range(0..count)
+            self.computer_fuzzer.rand.random_range(0..count)
         };
 
         let speakers = (0..count)
