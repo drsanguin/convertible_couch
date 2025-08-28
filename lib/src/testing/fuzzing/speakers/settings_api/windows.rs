@@ -114,7 +114,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
     }
 }
 
-pub fn map_string_to_c_ushort(string: &str) -> *mut c_ushort {
+fn map_string_to_c_ushort(string: &str) -> *mut c_ushort {
     let wide: Vec<c_ushort> = OsStr::new(string)
         .encode_wide()
         .chain(once(0)) // Null terminator
