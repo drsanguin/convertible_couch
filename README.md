@@ -1,10 +1,11 @@
 # convertible_couch
 
-[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+### Automate Windows Display & Speaker configuration to play PC video games from your couch
 
----
-
-Automate Windows Display & Speaker configuration to play PC video games from your couch
+![Deps.rs Repository Dependencies](https://img.shields.io/deps-rs/repo/github/drsanguin/convertible_couch)
+![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/drsanguin/convertible_couch)
+![GitHub repo size](https://img.shields.io/github/repo-size/drsanguin/convertible_couch)
 
 ## Status
 
