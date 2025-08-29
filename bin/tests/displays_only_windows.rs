@@ -5,7 +5,10 @@ use convertible_couch::{
     testing::arrangements::{bootstrap_application, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
-    displays_settings::DisplaysSettingsResult, func, testing::fuzzing::Fuzzer, ApplicationError,
+    displays_settings::DisplaysSettingsResult,
+    func,
+    testing::fuzzing::{ComputerBuilder, Fuzzer},
+    ApplicationError,
 };
 use test_case::test_case;
 use windows::Win32::{
@@ -37,7 +40,6 @@ fn it_should_report_committed_displays_settings_changes_errors(
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .for_which_committing_the_display_changes_fails_with(disp_change)
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -71,7 +73,6 @@ fn it_should_report_displays_settings_changes_errors(
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .for_which_changing_the_display_settings_fails_with(disp_change)
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -98,7 +99,6 @@ fn it_should_ask_for_reboot_when_committing_displays_settings_requires_it() {
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .for_which_committing_the_display_changes_fails_with(DISP_CHANGE_RESTART)
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -136,7 +136,6 @@ fn it_should_ask_for_reboot_when_changing_displays_settings_requires_it() {
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .for_which_changing_the_display_settings_fails_with(DISP_CHANGE_RESTART)
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -174,7 +173,6 @@ fn it_should_report_get_display_config_buffer_sizes_errors() {
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .for_which_getting_display_config_buffer_sizes_fails_with(ERROR_INVALID_PARAMETER)
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -209,7 +207,6 @@ fn it_should_report_query_display_config_errors() {
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
         .for_which_querying_display_config_fails_with(ERROR_INVALID_PARAMETER)
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -247,7 +244,6 @@ fn it_should_handle_the_case_of_a_display_being_not_possible_to_enum_display_set
         .with_a_secondary_for_which_it_is_not_possible_to_enum_display_settings_on(
             secondary_display_name_2,
         )
-        .build_displays()
         .build_computer();
 
     let mut application = bootstrap_application(computer);

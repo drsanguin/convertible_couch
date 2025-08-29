@@ -1,6 +1,4 @@
-pub trait FuzzedSpeakersSettingsApiBehaviour {
-    fn default() -> Self;
-}
+pub trait FuzzedSpeakersSettingsApiBehaviour: Clone + Default {}
 
 #[cfg(target_os = "windows")]
 pub mod windows;

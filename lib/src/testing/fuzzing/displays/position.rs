@@ -28,12 +28,12 @@ impl Display for FuzzedDisplayPosition {
     }
 }
 
-pub struct DisplayPositionFuzzer {
-    rand: StdRng,
+pub struct DisplayPositionFuzzer<'a> {
+    rand: &'a mut StdRng,
 }
 
-impl DisplayPositionFuzzer {
-    pub fn new(rand: StdRng) -> Self {
+impl<'a> DisplayPositionFuzzer<'a> {
+    pub fn new(rand: &'a mut StdRng) -> Self {
         Self { rand }
     }
 
@@ -79,11 +79,11 @@ impl DisplayPositionFuzzer {
         positions.append(&mut displays_positions_by_axis.left_up);
 
         if has_an_internal_display {
-            positions.shuffle(&mut self.rand);
+            positions.shuffle(self.rand);
             positions.insert(0, primary_display_positioned);
         } else {
             positions.push(primary_display_positioned);
-            positions.shuffle(&mut self.rand);
+            positions.shuffle(self.rand);
         }
 
         assert_eq!(

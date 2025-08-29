@@ -1,6 +1,7 @@
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 
 use crate::testing::fuzzing::{
+    computer::FuzzedComputer,
     displays::{
         device_id::{DeviceIdFuzzer, FuzzedDeviceId},
         display_name::DisplayNameFuzzer,
@@ -14,6 +15,10 @@ pub mod computer;
 pub mod displays;
 pub mod guid;
 pub mod speakers;
+
+pub trait ComputerBuilder<'a> {
+    fn build_computer(&'a mut self) -> FuzzedComputer;
+}
 
 pub struct Fuzzer {
     rand: StdRng,
@@ -32,8 +37,8 @@ impl Fuzzer {
         }
     }
 
-    pub fn generate_computer(&mut self) -> ComputerFuzzer {
-        ComputerFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
+    pub fn generate_computer(&mut self) -> ComputerFuzzer<'_> {
+        ComputerFuzzer::new(&mut self.rand)
     }
 
     pub fn generate_display_name(&mut self) -> String {

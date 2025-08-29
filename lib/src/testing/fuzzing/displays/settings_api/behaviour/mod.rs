@@ -1,6 +1,4 @@
-pub trait FuzzedDisplaysSettingsApiBehaviour {
-    fn default() -> Self;
-}
+pub trait FuzzedDisplaysSettingsApiBehaviour: Clone + Default {}
 
 #[cfg(target_os = "windows")]
 pub mod windows;

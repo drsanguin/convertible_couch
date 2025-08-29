@@ -3,10 +3,7 @@ use crate::{
     testing::fuzzing::displays::{
         position::FuzzedDisplayPosition,
         settings_api::{
-            behaviour::{
-                windows::FuzzedWindowsDisplaysSettingsApiBehaviour,
-                FuzzedDisplaysSettingsApiBehaviour,
-            },
+            behaviour::windows::FuzzedWindowsDisplaysSettingsApiBehaviour,
             FuzzedDisplaysSettingsApi,
         },
         video_output::FuzzedVideoOutput,
@@ -32,7 +29,7 @@ use windows::{
     },
 };
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct FuzzedWin32 {
     video_outputs: Vec<FuzzedVideoOutput>,
     display_changes_to_commit: HashMap<String, FuzzedDisplayPosition>,
@@ -40,14 +37,6 @@ pub struct FuzzedWin32 {
 }
 
 impl FuzzedDisplaysSettingsApi for FuzzedWin32 {
-    fn default() -> Self {
-        Self {
-            video_outputs: vec![],
-            display_changes_to_commit: HashMap::new(),
-            behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour::default(),
-        }
-    }
-
     fn new(
         video_outputs: Vec<FuzzedVideoOutput>,
         behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,

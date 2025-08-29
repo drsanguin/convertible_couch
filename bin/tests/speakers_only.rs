@@ -3,7 +3,10 @@ use convertible_couch::{
     testing::arrangements::{bootstrap_application, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
-    func, speakers_settings::SpeakersSettingsResult, testing::fuzzing::Fuzzer, ApplicationError,
+    func,
+    speakers_settings::SpeakersSettingsResult,
+    testing::fuzzing::{ComputerBuilder, Fuzzer},
+    ApplicationError,
 };
 
 #[test]
@@ -19,7 +22,6 @@ fn it_should_change_the_default_speaker() {
         .of_which_there_are_at_least(2)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -55,7 +57,6 @@ fn it_should_change_the_default_speaker_back_and_forth() {
         .of_which_there_are_at_least(2)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -98,7 +99,6 @@ fn it_should_validate_the_desktop_and_couch_speaker_name() {
         .of_which_there_are(2)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -133,7 +133,6 @@ fn it_should_validate_the_desktop_speaker_name() {
         .of_which_there_are(2)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -168,7 +167,6 @@ fn it_should_validate_the_couch_speaker_name() {
         .of_which_there_are(2)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);

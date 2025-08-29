@@ -1,7 +1,11 @@
 #![cfg(target_os = "windows")]
 
 use convertible_couch::testing::arrangements::{bootstrap_application, ArgumentsBuilder};
-use convertible_couch_lib::{func, testing::fuzzing::Fuzzer, ApplicationError};
+use convertible_couch_lib::{
+    func,
+    testing::fuzzing::{ComputerBuilder, Fuzzer},
+    ApplicationError,
+};
 
 #[test]
 fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
@@ -17,7 +21,6 @@ fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
         .for_which_getting_the_speakers_count_fails()
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -52,7 +55,6 @@ fn it_should_return_an_error_if_getting_the_speakers_fails() {
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
         .for_which_getting_the_speakers_fails()
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -87,7 +89,6 @@ fn it_should_return_an_error_if_getting_the_current_default_speaker_fails() {
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
         .for_which_getting_the_default_speaker_fails()
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -122,7 +123,6 @@ fn it_should_return_an_error_if_setting_the_default_speaker_fails() {
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
         .for_which_setting_the_default_speaker_fails()
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);

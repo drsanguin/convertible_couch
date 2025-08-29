@@ -1,5 +1,9 @@
 use convertible_couch::testing::arrangements::{bootstrap_application, ArgumentsBuilder};
-use convertible_couch_lib::{func, testing::fuzzing::Fuzzer, ApplicationError};
+use convertible_couch_lib::{
+    func,
+    testing::fuzzing::{ComputerBuilder, Fuzzer},
+    ApplicationError,
+};
 use windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM;
 
 #[test]
@@ -22,7 +26,6 @@ fn it_should_report_a_displays_settings_error() {
         .of_which_there_are_at_least(2)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -66,7 +69,6 @@ fn it_should_report_a_speakers_settings_error() {
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
         .for_which_setting_the_default_speaker_fails()
-        .build_speakers()
         .build_computer();
 
     let mut application = bootstrap_application(computer);

@@ -1,21 +1,20 @@
 use crate::testing::fuzzing::{
-    computer::ComputerFuzzer,
+    computer::{ComputerFuzzer, FuzzedComputer},
     displays::{
         device_id::{DeviceIdFuzzer, FuzzedDeviceId},
         display_name::DisplayNameFuzzer,
         position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
         resolution::{FuzzedResolution, ResolutionFuzzer},
         settings_api::{
-            behaviour::{
-                CurrentFuzzedDisplaysSettingsApiBehaviour, FuzzedDisplaysSettingsApiBehaviour,
-            },
-            CurrentFuzzedDisplaysSettingsApi, FuzzedDisplaysSettingsApi,
+            behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour, CurrentFuzzedDisplaysSettingsApi,
+            FuzzedDisplaysSettingsApi,
         },
         video_output::VideoOutputFuzzer,
     },
+    ComputerBuilder,
 };
 
-use rand::{rngs::StdRng, seq::IteratorRandom, Rng, RngCore, SeedableRng};
+use rand::{seq::IteratorRandom, Rng};
 
 use std::collections::HashSet;
 
@@ -39,8 +38,7 @@ pub struct FuzzedDisplay {
 }
 
 pub struct DisplaysFuzzer<'a> {
-    rand: StdRng,
-    computer_fuzzer: ComputerFuzzer,
+    computer_fuzzer: &'a mut ComputerFuzzer<'a>,
     min_n_display: usize,
     max_n_display: usize,
     includes_an_internal_display: bool,
@@ -55,9 +53,8 @@ impl<'a> DisplaysFuzzer<'a> {
     /// Which implies that the theoretical maximum is 162 displays with a 1024x768 resolution.
     const MAX_N_DISPLAY: usize = 162;
 
-    pub fn new(rand: StdRng, computer_fuzzer: ComputerFuzzer) -> Self {
+    pub fn new(computer_fuzzer: &'a mut ComputerFuzzer<'a>) -> Self {
         Self {
-            rand,
             computer_fuzzer,
             max_n_display: 0,
             min_n_display: 0,
@@ -110,12 +107,16 @@ impl<'a> DisplaysFuzzer<'a> {
         self
     }
 
-    pub fn build_displays(&mut self) -> ComputerFuzzer {
+    pub fn build_displays(&'a mut self) -> &'a mut ComputerFuzzer<'a> {
         let n_video_output = self
+            .computer_fuzzer
             .rand
             .random_range(self.min_n_display..=self.max_n_display);
 
-        let n_display = self.rand.random_range(self.min_n_display..=n_video_output);
+        let n_display = self
+            .computer_fuzzer
+            .rand
+            .random_range(self.min_n_display..=n_video_output);
 
         let displays = self.generate_several(n_display);
 
@@ -131,7 +132,7 @@ impl<'a> DisplaysFuzzer<'a> {
             .iter()
             .enumerate()
             .map(|(index, _video_output)| index)
-            .choose_multiple(&mut self.rand, n_display);
+            .choose_multiple(&mut self.computer_fuzzer.rand, n_display);
 
         video_outputs_to_plug_in_indexes.sort();
 
@@ -148,10 +149,8 @@ impl<'a> DisplaysFuzzer<'a> {
         let displays_settings_api =
             CurrentFuzzedDisplaysSettingsApi::new(video_outputs, self.behaviour.clone());
 
-        ComputerFuzzer::new_with_display_settings_api(
-            &mut self.computer_fuzzer,
-            displays_settings_api,
-        )
+        self.computer_fuzzer
+            .set_displays_settings_api(displays_settings_api)
     }
 
     fn generate_several(&mut self, n_display: usize) -> Vec<FuzzedDisplay> {
@@ -169,11 +168,10 @@ impl<'a> DisplaysFuzzer<'a> {
         forbidden_display_names.extend(&self.secondary_display_names);
 
         let displays_resolutions =
-            ResolutionFuzzer::new(&mut self.rand).generate_several(n_display);
-        let positioned_resolutions =
-            DisplayPositionFuzzer::new(StdRng::seed_from_u64(self.rand.next_u64()))
-                .generate_several(&displays_resolutions, self.includes_an_internal_display);
-        let mut names = DisplayNameFuzzer::new(&mut self.rand).generate_several(
+            ResolutionFuzzer::new(&mut self.computer_fuzzer.rand).generate_several(n_display);
+        let positioned_resolutions = DisplayPositionFuzzer::new(&mut self.computer_fuzzer.rand)
+            .generate_several(&displays_resolutions, self.includes_an_internal_display);
+        let mut names = DisplayNameFuzzer::new(&mut self.computer_fuzzer.rand).generate_several(
             n_display - names_already_taken_count,
             &forbidden_display_names,
         );
@@ -193,7 +191,7 @@ impl<'a> DisplaysFuzzer<'a> {
             names.swap(primary_position_source_index, primary_position_target_index);
         }
 
-        let device_ids = DeviceIdFuzzer::new(&mut self.rand)
+        let device_ids = DeviceIdFuzzer::new(&mut self.computer_fuzzer.rand)
             .generate_several(n_display, &self.forbidden_device_ids);
 
         (0..n_display)
@@ -218,6 +216,12 @@ impl<'a> DisplaysFuzzer<'a> {
                 }
             })
             .collect()
+    }
+}
+
+impl<'a> ComputerBuilder<'a> for DisplaysFuzzer<'a> {
+    fn build_computer(&'a mut self) -> FuzzedComputer {
+        self.build_displays().build_computer()
     }
 }
 

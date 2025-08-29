@@ -5,9 +5,7 @@ use crate::testing::fuzzing::displays::{
 
 pub mod behaviour;
 
-pub trait FuzzedDisplaysSettingsApi {
-    fn default() -> Self;
-
+pub trait FuzzedDisplaysSettingsApi: Default {
     fn new(
         video_outputs: Vec<FuzzedVideoOutput>,
         behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour,
