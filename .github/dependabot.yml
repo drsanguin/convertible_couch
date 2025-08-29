@@ -1,5 +1,3 @@
-# https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference
-
 version: 2
 updates:
   - package-ecosystem: "github-actions"
@@ -12,6 +10,7 @@ updates:
     target-branch: "develop"
     commit-message:
       prefix: "build"
+      include: "scope"
     groups:
       github-actions:
         patterns:
@@ -26,6 +25,7 @@ updates:
     target-branch: "develop"
     commit-message:
       prefix: "build"
+      include: "scope"
     groups:
       cargo:
         patterns:
