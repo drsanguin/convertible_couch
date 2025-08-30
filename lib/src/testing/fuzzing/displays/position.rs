@@ -39,7 +39,7 @@ impl<'a> DisplayPositionFuzzer<'a> {
 
     pub fn generate_several(
         &mut self,
-        resolutions: &Vec<FuzzedResolution>,
+        resolutions: &[FuzzedResolution],
         has_an_internal_display: bool,
     ) -> Vec<FuzzedDisplayPositionedResolution> {
         let n_display = resolutions.len();
@@ -172,7 +172,7 @@ impl<'a> DisplayPositionFuzzer<'a> {
     ) {
         let previous_resolution_position = axis_displays_positions
             .last()
-            .unwrap_or(&primary_display_positioned);
+            .unwrap_or(primary_display_positioned);
 
         let x = match horizontal_move {
             HorizontalMove::None => 0,

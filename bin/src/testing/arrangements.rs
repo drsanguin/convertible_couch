@@ -40,6 +40,12 @@ pub struct ArgumentsBuilder<'a> {
     couch_speaker_name: Option<&'a str>,
 }
 
+impl<'a> Default for ArgumentsBuilder<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> ArgumentsBuilder<'a> {
     pub fn new() -> Self {
         Self {

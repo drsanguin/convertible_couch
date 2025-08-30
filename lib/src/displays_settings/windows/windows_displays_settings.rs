@@ -71,9 +71,7 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
                 _ => None,
             };
 
-        if invalid_params_error_message.is_some() {
-            let invalid_params_error_message_fragment = invalid_params_error_message.unwrap();
-
+        if let Some(invalid_params_error_message_fragment) = invalid_params_error_message {
             let mut possible_values: Vec<String> = names_by_device_ids.into_values().collect();
             possible_values.sort();
             let possible_values_fragment = possible_values.join(", ");
@@ -109,12 +107,13 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         let mut path_informations_length = u32::default();
         let mut mode_informations_length = u32::default();
 
-        let get_display_config_buffer_sizes_return_code =
+        let get_display_config_buffer_sizes_return_code = unsafe {
             self.win32.get_display_config_buffer_sizes(
                 QDC_ONLY_ACTIVE_PATHS,
                 &mut path_informations_length,
                 &mut mode_informations_length,
-            );
+            )
+        };
 
         if get_display_config_buffer_sizes_return_code.is_err() {
             let error_message = format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {}", get_display_config_buffer_sizes_return_code.0);
@@ -128,14 +127,16 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         let mut mode_informations =
             vec![DISPLAYCONFIG_MODE_INFO::default(); mode_informations_length.try_into()?];
 
-        let query_display_config_return_code = self.win32.query_display_config(
-            QDC_ONLY_ACTIVE_PATHS,
-            &mut path_informations_length,
-            path_informations.as_mut_ptr(),
-            &mut mode_informations_length,
-            mode_informations.as_mut_ptr(),
-            None,
-        );
+        let query_display_config_return_code = unsafe {
+            self.win32.query_display_config(
+                QDC_ONLY_ACTIVE_PATHS,
+                &mut path_informations_length,
+                path_informations.as_mut_ptr(),
+                &mut mode_informations_length,
+                mode_informations.as_mut_ptr(),
+                None,
+            )
+        };
 
         if query_display_config_return_code.is_err() {
             let error_message = format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {}", query_display_config_return_code.0);
@@ -153,17 +154,20 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let mut displayconfig_target_device_name = DISPLAYCONFIG_TARGET_DEVICE_NAME::default();
-            displayconfig_target_device_name.header = DISPLAYCONFIG_DEVICE_INFO_HEADER {
-                r#type: DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME,
-                size: size_of_displayconfig_target_device_name,
-                adapterId: mode_information.adapterId,
-                id: mode_information.id,
+            let mut displayconfig_target_device_name = DISPLAYCONFIG_TARGET_DEVICE_NAME {
+                header: DISPLAYCONFIG_DEVICE_INFO_HEADER {
+                    r#type: DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME,
+                    size: size_of_displayconfig_target_device_name,
+                    adapterId: mode_information.adapterId,
+                    id: mode_information.id,
+                },
+                ..Default::default()
             };
 
-            let display_config_get_device_info_result = self
-                .win32
-                .display_config_get_device_info(&mut displayconfig_target_device_name.header);
+            let display_config_get_device_info_result = unsafe {
+                self.win32
+                    .display_config_get_device_info(&mut displayconfig_target_device_name.header)
+            };
 
             if display_config_get_device_info_result != 0 {
                 let error_message = format!("Failed to retrieve display configuration information about the device {} because of error {}", mode_information.id, display_config_get_device_info_result);
@@ -193,15 +197,16 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         for idevnum in 0..=u32::MAX {
             let mut display_adapter = get_default_display_devicew();
 
-            let is_success_display_adapter = self
-                .win32
-                .enum_display_devices_w(
-                    PCWSTR::null(),
-                    idevnum,
-                    &mut display_adapter,
-                    EDD_GET_DEVICE_INTERFACE_NAME,
-                )
-                .as_bool();
+            let is_success_display_adapter = unsafe {
+                self.win32
+                    .enum_display_devices_w(
+                        PCWSTR::null(),
+                        idevnum,
+                        &mut display_adapter,
+                        EDD_GET_DEVICE_INTERFACE_NAME,
+                    )
+                    .as_bool()
+            };
 
             if !is_success_display_adapter {
                 break;
@@ -210,15 +215,16 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             let display_adapter_device_name = get_pcwstr_from_raw(&display_adapter.DeviceName);
             let mut display_device = get_default_display_devicew();
 
-            let is_success_display_device = self
-                .win32
-                .enum_display_devices_w(
-                    display_adapter_device_name,
-                    0,
-                    &mut display_device,
-                    EDD_GET_DEVICE_INTERFACE_NAME,
-                )
-                .as_bool();
+            let is_success_display_device = unsafe {
+                self.win32
+                    .enum_display_devices_w(
+                        display_adapter_device_name,
+                        0,
+                        &mut display_device,
+                        EDD_GET_DEVICE_INTERFACE_NAME,
+                    )
+                    .as_bool()
+            };
 
             if !is_success_display_device {
                 let display_adapter_device_name =
@@ -231,14 +237,15 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             let mut display_adapter_graphics_mode = get_default_devmodew();
 
-            let has_enum_display_settings_succeded = self
-                .win32
-                .enum_display_settings_w(
-                    display_adapter_device_name,
-                    ENUM_CURRENT_SETTINGS,
-                    &mut display_adapter_graphics_mode,
-                )
-                .as_bool();
+            let has_enum_display_settings_succeded = unsafe {
+                self.win32
+                    .enum_display_settings_w(
+                        display_adapter_device_name,
+                        ENUM_CURRENT_SETTINGS,
+                        &mut display_adapter_graphics_mode,
+                    )
+                    .as_bool()
+            };
 
             if !has_enum_display_settings_succeded {
                 let display_adapter_device_name =
@@ -281,15 +288,16 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
         for idevnum in 0..=u32::MAX {
             let mut display_adapter = get_default_display_devicew();
 
-            let is_success_display_adapter = self
-                .win32
-                .enum_display_devices_w(
-                    PCWSTR::null(),
-                    idevnum,
-                    &mut display_adapter,
-                    EDD_GET_DEVICE_INTERFACE_NAME,
-                )
-                .as_bool();
+            let is_success_display_adapter = unsafe {
+                self.win32
+                    .enum_display_devices_w(
+                        PCWSTR::null(),
+                        idevnum,
+                        &mut display_adapter,
+                        EDD_GET_DEVICE_INTERFACE_NAME,
+                    )
+                    .as_bool()
+            };
 
             if !is_success_display_adapter {
                 break;
@@ -298,15 +306,16 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             let display_adapter_device_name = get_pcwstr_from_raw(&display_adapter.DeviceName);
             let mut display_device = get_default_display_devicew();
 
-            let is_success_display_device = self
-                .win32
-                .enum_display_devices_w(
-                    display_adapter_device_name,
-                    0,
-                    &mut display_device,
-                    EDD_GET_DEVICE_INTERFACE_NAME,
-                )
-                .as_bool();
+            let is_success_display_device = unsafe {
+                self.win32
+                    .enum_display_devices_w(
+                        display_adapter_device_name,
+                        0,
+                        &mut display_device,
+                        EDD_GET_DEVICE_INTERFACE_NAME,
+                    )
+                    .as_bool()
+            };
 
             if !is_success_display_device {
                 let display_adapter_device_name =
@@ -319,14 +328,15 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
 
             let mut display_adapter_graphics_mode = get_default_devmodew();
 
-            let has_enum_display_settings_succeded = self
-                .win32
-                .enum_display_settings_w(
-                    display_adapter_device_name,
-                    ENUM_CURRENT_SETTINGS,
-                    &mut display_adapter_graphics_mode,
-                )
-                .as_bool();
+            let has_enum_display_settings_succeded = unsafe {
+                self.win32
+                    .enum_display_settings_w(
+                        display_adapter_device_name,
+                        ENUM_CURRENT_SETTINGS,
+                        &mut display_adapter_graphics_mode,
+                    )
+                    .as_bool()
+            };
 
             if !has_enum_display_settings_succeded {
                 let display_adapter_device_name =
@@ -356,13 +366,15 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 dwflags |= CDS_SET_PRIMARY;
             }
 
-            let change_display_settings_ex_result = self.win32.change_display_settings_ex_w(
-                display_adapter_device_name,
-                Some(&display_adapter_graphics_mode),
-                None,
-                dwflags,
-                None,
-            );
+            let change_display_settings_ex_result = unsafe {
+                self.win32.change_display_settings_ex_w(
+                    display_adapter_device_name,
+                    Some(&display_adapter_graphics_mode),
+                    None,
+                    dwflags,
+                    None,
+                )
+            };
 
             match change_display_settings_ex_result {
                 DISP_CHANGE_SUCCESSFUL => continue,
@@ -379,13 +391,15 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
             }
         }
 
-        let change_display_settings_ex_result = self.win32.change_display_settings_ex_w(
-            PCWSTR::null(),
-            None,
-            None,
-            CDS_TYPE::default(),
-            None,
-        );
+        let change_display_settings_ex_result = unsafe {
+            self.win32.change_display_settings_ex_w(
+                PCWSTR::null(),
+                None,
+                None,
+                CDS_TYPE::default(),
+                None,
+            )
+        };
 
         match change_display_settings_ex_result {
             DISP_CHANGE_SUCCESSFUL => Ok(reboot_required),
@@ -462,7 +476,7 @@ fn map_disp_change_to_string(disp_change: DISP_CHANGE) -> String {
 }
 
 fn from_raw_display_name(raw_display_name: &str) -> String {
-    let display_name = if raw_display_name == "" {
+    let display_name = if raw_display_name.is_empty() {
         INTERNAL_DISPLAY_NAME
     } else {
         raw_display_name

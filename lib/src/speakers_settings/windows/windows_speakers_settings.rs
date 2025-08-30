@@ -3,7 +3,6 @@ use std::{
     os::{raw::c_ushort, windows::ffi::OsStringExt},
     ptr::null_mut,
     slice::from_raw_parts_mut,
-    usize,
 };
 
 use crate::{
@@ -42,9 +41,10 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         let audio_endpoints_count_as_usize = usize::try_from(audio_endpoints_count)?;
         let mut audio_endpoints = vec![AudioEndpoint::default(); audio_endpoints_count_as_usize];
 
-        let get_all_audio_endpoints = self
-            .audio_endpoint_library
-            .get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count);
+        let get_all_audio_endpoints = unsafe {
+            self.audio_endpoint_library
+                .get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count)
+        };
 
         if get_all_audio_endpoints != 0 {
             return Err(ApplicationError::Custom(String::from(
@@ -57,7 +57,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         let mut current_speaker_id: *mut u16 = null_mut();
 
         for audio_endpoint in &audio_endpoints {
-            let name = map_c_ushort_to_string(audio_endpoint.name);
+            let name = unsafe { map_c_ushort_to_string(audio_endpoint.name) };
             let is_default = audio_endpoint.is_default == 1;
 
             if name == desktop_speaker_name {
@@ -74,9 +74,9 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         }
 
         if current_speaker_id.is_null() {
-            return Err(ApplicationError::Custom(format!(
-                "Failed to get the current default speaker"
-            )));
+            return Err(ApplicationError::Custom(
+                "Failed to get the current default speaker".to_string(),
+            ));
         }
 
         let invalid_params_error_message =
@@ -87,12 +87,10 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
                 _ => None,
             };
 
-        if invalid_params_error_message.is_some() {
-            let invalid_params_error_message_fragment = invalid_params_error_message.unwrap();
-
+        if let Some(invalid_params_error_message_fragment) = invalid_params_error_message {
             let mut possible_audio_endpoints = audio_endpoints
                 .iter()
-                .map(|audio_endpoint| map_c_ushort_to_string(audio_endpoint.name))
+                .map(|audio_endpoint| unsafe { map_c_ushort_to_string(audio_endpoint.name) })
                 .collect::<Vec<String>>();
             possible_audio_endpoints.sort();
             let possible_values_fragment = possible_audio_endpoints.join(", ");
@@ -113,9 +111,10 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
                 (desktop_speaker_id, desktop_speaker_name)
             };
 
-        let set_speaker_result = self
-            .audio_endpoint_library
-            .set_default_audio_endpoint(new_default_speaker_id);
+        let set_speaker_result = unsafe {
+            self.audio_endpoint_library
+                .set_default_audio_endpoint(new_default_speaker_id)
+        };
 
         if set_speaker_result != 0 {
             return Err(ApplicationError::Custom(String::from(
@@ -131,11 +130,25 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
     }
 }
 
-pub fn map_c_ushort_to_string(id: *mut c_ushort) -> String {
+/// # Safety
+/// This function is unsafe because it dereferences a raw pointer and walks
+/// memory until a null terminator is found:
+/// - `id` must be non-null and point to a valid, readable, properly aligned
+///   UTF-16 string in memory.
+/// - The sequence of `c_ushort` values must be null-terminated; otherwise the
+///   function will read past allocated memory, causing undefined behavior
+///   (segfaults, memory corruption).
+/// - The memory backing `id` must remain valid for the entire duration of the
+///   call.
+/// - The caller must ensure that the pointed-to string is not modified from
+///   another thread while this function is executing, to avoid race conditions.
+///
+/// Failure to uphold these conditions may result in undefined behavior.
+pub unsafe fn map_c_ushort_to_string(id: *mut c_ushort) -> String {
     let mut len = 0;
 
     for i in 0..=usize::MAX {
-        if unsafe { *id.add(i) } != 0 {
+        if *id.add(i) != 0 {
             continue;
         }
 
@@ -143,7 +156,7 @@ pub fn map_c_ushort_to_string(id: *mut c_ushort) -> String {
         break;
     }
 
-    let slice = unsafe { from_raw_parts_mut(id, len) };
+    let slice = from_raw_parts_mut(id, len);
 
     OsString::from_wide(slice).to_string_lossy().into_owned()
 }

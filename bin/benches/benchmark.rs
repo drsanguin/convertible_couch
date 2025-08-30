@@ -91,7 +91,7 @@ fn change_primary_display(criterion: &mut Criterion) {
     for display_count in COUNTS {
         group.throughput(Throughput::Elements(u64::try_from(display_count).unwrap()));
         group.bench_with_input(
-            BenchmarkId::from_parameter(&display_count),
+            BenchmarkId::from_parameter(display_count),
             &display_count,
             |bencher, display_count| {
                 bencher.iter_batched(
@@ -132,7 +132,7 @@ fn change_default_speaker(criterion: &mut Criterion) {
     for speakers_count in COUNTS {
         group.throughput(Throughput::Elements(u64::try_from(speakers_count).unwrap()));
         group.bench_with_input(
-            BenchmarkId::from_parameter(&speakers_count),
+            BenchmarkId::from_parameter(speakers_count),
             &speakers_count,
             |bencher, speakers_count| {
                 bencher.iter_batched(

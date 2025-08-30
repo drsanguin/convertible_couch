@@ -29,4 +29,4 @@ pub use windows::win_32::windows_api_based_win_32::WindowsApiBasedWin32 as Curre
 pub use windows::win_32::Win32 as CurrentDisplaysSettingsApiTrait;
 
 #[cfg(target_os = "windows")]
-pub const INTERNAL_DISPLAY_NAME: &'static str = "Internal Display";
+pub const INTERNAL_DISPLAY_NAME: &str = "Internal Display";

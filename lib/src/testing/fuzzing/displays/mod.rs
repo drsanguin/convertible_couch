@@ -157,21 +157,18 @@ impl<'a> DisplaysFuzzer<'a> {
         let mut forbidden_display_names = HashSet::new();
         let mut names_already_taken_count = self.secondary_display_names.len();
 
-        match &self.primary_display_name {
-            Some(primary_display_name) => {
-                forbidden_display_names.insert(primary_display_name);
-                names_already_taken_count += 1;
-            }
-            None => {}
+        if let Some(primary_display_name) = &self.primary_display_name {
+            forbidden_display_names.insert(primary_display_name);
+            names_already_taken_count += 1;
         };
 
         forbidden_display_names.extend(&self.secondary_display_names);
 
         let displays_resolutions =
-            ResolutionFuzzer::new(&mut self.computer_fuzzer.rand).generate_several(n_display);
-        let positioned_resolutions = DisplayPositionFuzzer::new(&mut self.computer_fuzzer.rand)
+            ResolutionFuzzer::new(self.computer_fuzzer.rand).generate_several(n_display);
+        let positioned_resolutions = DisplayPositionFuzzer::new(self.computer_fuzzer.rand)
             .generate_several(&displays_resolutions, self.includes_an_internal_display);
-        let mut names = DisplayNameFuzzer::new(&mut self.computer_fuzzer.rand).generate_several(
+        let mut names = DisplayNameFuzzer::new(self.computer_fuzzer.rand).generate_several(
             n_display - names_already_taken_count,
             &forbidden_display_names,
         );
@@ -191,7 +188,7 @@ impl<'a> DisplaysFuzzer<'a> {
             names.swap(primary_position_source_index, primary_position_target_index);
         }
 
-        let device_ids = DeviceIdFuzzer::new(&mut self.computer_fuzzer.rand)
+        let device_ids = DeviceIdFuzzer::new(self.computer_fuzzer.rand)
             .generate_several(n_display, &self.forbidden_device_ids);
 
         (0..n_display)
