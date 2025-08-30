@@ -40,7 +40,7 @@ Use the summary field to provide a succinct description of the change:
   - don't capitalize the first letter
   - no dot (.) at the end
 -->
-build(scope): lorem ipsum
+build(lorem-ipsum): lorem ipsum
 
 <!--
 Commit Message Body :
@@ -54,7 +54,7 @@ Just as in the summary, use the imperative, present tense: "fix" not "fixed" nor
 
 Explain the motivation for the change in the commit message body. This commit message should explain why you are making the change. You can include a comparison of the previous behavior with the new behavior in order to illustrate the impact of the change.
 -->
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris fermentum eget neque dignissim feugiat. Suspendisse potenti. Proin nulla ipsum, interdum ullamcorper augue sed, sodales dictum sem. Integer quis mauris sit amet leo condimentum fermentum quis et sapien. 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sed justo sodales, placerat sem non, elementum ligula. Praesent est quam, faucibus eget mauris vitae, sollicitudin placerat sem. Donec dui lacus, efficitur a vehicula vitae, interdum ut est. Aenean vitae nibh sed ligula eleifend bibendum sit amet eu nisl. Quisque cursus diam at justo porta convallis. Morbi eu mauris at sapien convallis lacinia pharetra et lacus. Nunc nec mauris lacinia lorem posuere posuere. Phasellus molestie aliquet lectus, id rhoncus urna blandit sit amet. Nulla scelerisque dolor nec arcu volutpat, ut ornare lacus consequat. Morbi tincidunt arcu vel ex fermentum tristique. Donec id metus a metus blandit efficitur eu eget nulla. Sed nec mi tincidunt, maximus justo vitae, egestas ante.
 
 <!--
 Commit Message Footer :
@@ -85,7 +85,8 @@ Similarly, a Deprecation section should start with DEPRECATED: followed by a sho
 -->
 BREAKING CHANGE: lorem ipsum
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris fermentum eget neque dignissim feugiat. Suspendisse potenti. Proin nulla ipsum, interdum ullamcorper augue sed, sodales dictum sem. Integer quis mauris sit amet leo condimentum fermentum quis et sapien. 
+Aenean tempor lorem nulla, id pharetra diam lobortis nec. Nullam tellus nulla, gravida sed malesuada vel, condimentum at ipsum. Proin vel ipsum sed mi egestas finibus. Donec sit amet odio interdum, tempor ex a, mattis sapien. Sed pulvinar consectetur faucibus. Integer gravida enim nisi. Nullam fermentum est eu aliquam hendrerit. Suspendisse diam odio, elementum ut malesuada vel, molestie id dolor. Quisque et nisl rutrum, lobortis dui id, tempus eros. Nunc luctus nisi ante, ut semper augue aliquet eget. Curabitur hendrerit mattis nisl, non rhoncus libero pellentesque vel. Praesent et tellus ipsum. Phasellus tempor tincidunt lacinia.
+
 
 Fixes #42
 
