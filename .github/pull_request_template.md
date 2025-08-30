@@ -1,20 +1,18 @@
----
-name: "CI"
-about: "Changes to our CI configuration files and scripts (examples: Github Actions, Dependabot)"
-title: "ci(<scope>): <subject>"
-labels: "build"
-assignees: drsanguin
-
----
 <!-- The header is mandatory and must conform to the Commit Message Header format.
-build(<scope>): <short summary>
-          │             │
-          │             └─⫸ Summary in present tense. Not capitalized. No period at the end.
-          │
-          └─⫸ Commit Scope: deps|displays|speakers|common
+<type>(<scope>): <short summary>
+  │       │             │
+  │       │             └─⫸ Summary in present tense. Not capitalized. No period at the end.
+  │       │
+  │       └─⫸ Commit Scope: animations|bazel|benchpress|common|compiler|compiler-cli|core|
+  │                          elements|forms|http|language-service|localize|platform-browser|
+  │                          platform-browser-dynamic|platform-server|router|service-worker|
+  │                          upgrade|zone.js|packaging|changelog|docs-infra|migrations|
+  │                          devtools
+  │
+  └─⫸ Commit Type: build|ci|docs|feat|fix|perf|refactor|test
 
 The <summary> field is mandatory, the (<scope>) field is optional. -->
-build(<scope>): <short summary>
+build|ci|docs|feat|fix|perf|refactor|test(<scope>): <short summary>
 
 <!-- The body is mandatory for all commits except for those of type "docs". When the body is present it must be at least 20 characters long and must conform to the Commit Message Body format.
 Just as in the summary, use the imperative, present tense: "fix" not "fixed" nor "fixes".
