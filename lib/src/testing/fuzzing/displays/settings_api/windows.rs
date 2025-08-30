@@ -55,7 +55,7 @@ impl FuzzedDisplaysSettingsApi for FuzzedWin32 {
 }
 
 impl Win32 for FuzzedWin32 {
-    fn display_config_get_device_info(
+    unsafe fn display_config_get_device_info(
         &self,
         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
     ) -> i32 {
@@ -66,46 +66,44 @@ impl Win32 for FuzzedWin32 {
         let size_of_displayconfig_target_device_name =
             u32::try_from(size_of_displayconfig_target_device_name_as_usize).unwrap();
 
-        unsafe {
-            if (*request_packet).header.r#type != DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME
-                || (*request_packet).header.size != size_of_displayconfig_target_device_name
-            {
-                return 1;
-            }
-
-            let config_mode_info_id = (*request_packet).header.id;
-
-            self.video_outputs
-                .iter()
-                .find(|video_output| {
-                    if video_output.display.is_none() {
-                        return false;
-                    }
-
-                    match &video_output.display {
-                        Some(display) => display.config_mode_info_id == config_mode_info_id,
-                        None => false,
-                    }
-                })
-                .map(|video_output| {
-                    let display = video_output.display.as_ref().unwrap();
-
-                    if self.behaviour.getting_primary_display_name_fails
-                        && display.position.is_positioned_at_origin()
-                    {
-                        return 1;
-                    }
-
-                    (*request_packet).monitorDevicePath = encode_utf16::<128>(&display.device_id);
-                    (*request_packet).monitorFriendlyDeviceName = encode_utf16::<64>(&display.name);
-
-                    0
-                })
-                .unwrap_or(1)
+        if (*request_packet).header.r#type != DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME
+            || (*request_packet).header.size != size_of_displayconfig_target_device_name
+        {
+            return 1;
         }
+
+        let config_mode_info_id = (*request_packet).header.id;
+
+        self.video_outputs
+            .iter()
+            .find(|video_output| {
+                if video_output.display.is_none() {
+                    return false;
+                }
+
+                match &video_output.display {
+                    Some(display) => display.config_mode_info_id == config_mode_info_id,
+                    None => false,
+                }
+            })
+            .map(|video_output| {
+                let display = video_output.display.as_ref().unwrap();
+
+                if self.behaviour.getting_primary_display_name_fails
+                    && display.position.is_positioned_at_origin()
+                {
+                    return 1;
+                }
+
+                (*request_packet).monitorDevicePath = encode_utf16::<128>(&display.device_id);
+                (*request_packet).monitorFriendlyDeviceName = encode_utf16::<64>(&display.name);
+
+                0
+            })
+            .unwrap_or(1)
     }
 
-    fn get_display_config_buffer_sizes(
+    unsafe fn get_display_config_buffer_sizes(
         &self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         numpatharrayelements: *mut u32,
@@ -134,15 +132,13 @@ impl Win32 for FuzzedWin32 {
 
         let n_displays_as_u32 = u32::try_from(n_displays).unwrap();
 
-        unsafe {
-            *numpatharrayelements = n_displays_as_u32;
-            *nummodeinfoarrayelements = n_displays_as_u32 * 2;
+        *numpatharrayelements = n_displays_as_u32;
+        *nummodeinfoarrayelements = n_displays_as_u32 * 2;
 
-            ERROR_SUCCESS
-        }
+        ERROR_SUCCESS
     }
 
-    fn query_display_config(
+    unsafe fn query_display_config(
         &self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         _numpatharrayelements: *mut u32,
@@ -159,38 +155,36 @@ impl Win32 for FuzzedWin32 {
             return ERROR_INVALID_PARAMETER;
         }
 
-        unsafe {
-            let mode_informations_size = usize::try_from(*nummodeinfoarrayelements).unwrap();
+        let mode_informations_size = usize::try_from(*nummodeinfoarrayelements).unwrap();
 
-            for i in 0..mode_informations_size {
-                let mode_information = modeinfoarray.add(i);
+        for i in 0..mode_informations_size {
+            let mode_information = modeinfoarray.add(i);
 
-                if i % 2 != 0 {
-                    continue;
-                }
-
-                match self
-                    .video_outputs
-                    .iter()
-                    .filter_map(|video_output| match &video_output.display {
-                        Some(display) => Some(display),
-                        None => None,
-                    })
-                    .nth(i / 2)
-                {
-                    Some(display) => {
-                        (*mode_information).infoType = DISPLAYCONFIG_MODE_INFO_TYPE_TARGET;
-                        (*mode_information).id = display.config_mode_info_id;
-                    }
-                    None => return ERROR_INVALID_PARAMETER,
-                }
+            if i % 2 != 0 {
+                continue;
             }
 
-            ERROR_SUCCESS
+            match self
+                .video_outputs
+                .iter()
+                .filter_map(|video_output| match &video_output.display {
+                    Some(display) => Some(display),
+                    None => None,
+                })
+                .nth(i / 2)
+            {
+                Some(display) => {
+                    (*mode_information).infoType = DISPLAYCONFIG_MODE_INFO_TYPE_TARGET;
+                    (*mode_information).id = display.config_mode_info_id;
+                }
+                None => return ERROR_INVALID_PARAMETER,
+            }
         }
+
+        ERROR_SUCCESS
     }
 
-    fn change_display_settings_ex_w(
+    unsafe fn change_display_settings_ex_w(
         &mut self,
         lpszdevicename: PCWSTR,
         lpdevmode: Option<*const DEVMODEW>,
@@ -245,60 +239,56 @@ impl Win32 for FuzzedWin32 {
             };
         }
 
-        unsafe {
-            let device_name = String::from_utf16(lpszdevicename.as_wide()).unwrap();
+        let device_name = String::from_utf16(lpszdevicename.as_wide()).unwrap();
 
-            if self
-                .behaviour
-                .change_display_settings_error
-                .is_some_and(|disp_change| disp_change != DISP_CHANGE_RESTART)
-            {
-                return self.behaviour.change_display_settings_error.unwrap();
-            }
-
-            self
-                .video_outputs
-                .iter()
-                .find(|video_output| video_output.device_name == device_name)
-                .and_then(|video_output| video_output.display.clone())
-                .and_then(|display| {
-                    lpdevmode.map(|graphic_mode| (
-                            display,
-                            FuzzedDisplayPosition {
-                                x: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.x,
-                                y: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.y,
-                            },
-                        ))
-                })
-                .map(|(display, position)| {
-                    if hwnd.is_some()
-                        || lparam.is_some()
-                        || (dwflags & CDS_UPDATEREGISTRY == CDS_TYPE::default())
-                        || (dwflags & CDS_NORESET == CDS_TYPE::default())
-                        || (position.is_positioned_at_origin()
-                            && (dwflags & CDS_SET_PRIMARY == CDS_TYPE::default()
-                                || display.primary))
-                        || (!position.is_positioned_at_origin()
-                            && (dwflags & CDS_SET_PRIMARY == CDS_SET_PRIMARY))
-                    {
-                        return DISP_CHANGE_BADPARAM;
-                    }
-
-                    self.display_changes_to_commit.insert(device_name, position);
-
-                    
-
-                    if self.behaviour.change_display_settings_error.is_some() {
-                        DISP_CHANGE_RESTART
-                    } else {
-                        DISP_CHANGE_SUCCESSFUL
-                    }
-                })
-                .unwrap_or(DISP_CHANGE_BADPARAM)
+        if self
+            .behaviour
+            .change_display_settings_error
+            .is_some_and(|disp_change| disp_change != DISP_CHANGE_RESTART)
+        {
+            return self.behaviour.change_display_settings_error.unwrap();
         }
+
+        self.video_outputs
+            .iter()
+            .find(|video_output| video_output.device_name == device_name)
+            .and_then(|video_output| video_output.display.clone())
+            .and_then(|display| {
+                lpdevmode.map(|graphic_mode| {
+                    (
+                        display,
+                        FuzzedDisplayPosition {
+                            x: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.x,
+                            y: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.y,
+                        },
+                    )
+                })
+            })
+            .map(|(display, position)| {
+                if hwnd.is_some()
+                    || lparam.is_some()
+                    || (dwflags & CDS_UPDATEREGISTRY == CDS_TYPE::default())
+                    || (dwflags & CDS_NORESET == CDS_TYPE::default())
+                    || (position.is_positioned_at_origin()
+                        && (dwflags & CDS_SET_PRIMARY == CDS_TYPE::default() || display.primary))
+                    || (!position.is_positioned_at_origin()
+                        && (dwflags & CDS_SET_PRIMARY == CDS_SET_PRIMARY))
+                {
+                    return DISP_CHANGE_BADPARAM;
+                }
+
+                self.display_changes_to_commit.insert(device_name, position);
+
+                if self.behaviour.change_display_settings_error.is_some() {
+                    DISP_CHANGE_RESTART
+                } else {
+                    DISP_CHANGE_SUCCESSFUL
+                }
+            })
+            .unwrap_or(DISP_CHANGE_BADPARAM)
     }
 
-    fn enum_display_devices_w(
+    unsafe fn enum_display_devices_w(
         &self,
         lpdevice: PCWSTR,
         idevnum: u32,
@@ -312,7 +302,7 @@ impl Win32 for FuzzedWin32 {
             if self.video_outputs.is_empty()
                 || dwflags != EDD_GET_DEVICE_INTERFACE_NAME
                 || video_output_index > self.video_outputs.len() - 1
-                || (unsafe { *lpdisplaydevice }).cb == 0
+                || (*lpdisplaydevice).cb == 0
             {
                 return BOOL(0);
             }
@@ -320,11 +310,9 @@ impl Win32 for FuzzedWin32 {
             let video_output = &self.video_outputs[video_output_index];
             let device_name = encode_utf16::<32>(&video_output.device_name);
 
-            unsafe {
-                (*lpdisplaydevice).DeviceName = device_name;
+            (*lpdisplaydevice).DeviceName = device_name;
 
-                BOOL(1)
-            }
+            BOOL(1)
         }
         // Iterating though displays
         else {
@@ -332,61 +320,57 @@ impl Win32 for FuzzedWin32 {
                 return BOOL(0);
             }
 
-            unsafe {
-                let device_name = String::from_utf16(lpdevice.as_wide()).unwrap();
-
-                self.video_outputs
-                    .iter()
-                    .find(|video_output| video_output.device_name == device_name)
-                    .and_then(|video_output| video_output.display.clone())
-                    .map(|display| {
-                        let device_id = encode_utf16::<128>(&display.device_id);
-
-                        (*lpdisplaydevice).DeviceID = device_id;
-
-                        BOOL(1)
-                    })
-                    .unwrap_or(BOOL(0))
-            }
-        }
-    }
-
-    fn enum_display_settings_w(
-        &self,
-        lpszdevicename: PCWSTR,
-        imodenum: ENUM_DISPLAY_SETTINGS_MODE,
-        lpdevmode: *mut DEVMODEW,
-    ) -> BOOL {
-        if imodenum != ENUM_CURRENT_SETTINGS || (unsafe { *lpdevmode }).dmSize == 0 {
-            return BOOL(0);
-        }
-
-        unsafe {
-            let device_name = String::from_utf16(lpszdevicename.as_wide()).unwrap();
+            let device_name = String::from_utf16(lpdevice.as_wide()).unwrap();
 
             self.video_outputs
                 .iter()
                 .find(|video_output| video_output.device_name == device_name)
                 .and_then(|video_output| video_output.display.clone())
                 .map(|display| {
-                    if self
-                        .behaviour
-                        .display_not_possible_to_enum_display_settings_on
-                        .as_ref()
-                        .is_some_and(|display_not_possible_to_enum_display_settings_on| {
-                            display.name == *display_not_possible_to_enum_display_settings_on
-                        })
-                    {
-                        return BOOL(0);
-                    }
+                    let device_id = encode_utf16::<128>(&display.device_id);
 
-                    (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = display.position.x;
-                    (*lpdevmode).Anonymous1.Anonymous2.dmPosition.y = display.position.y;
+                    (*lpdisplaydevice).DeviceID = device_id;
 
                     BOOL(1)
                 })
                 .unwrap_or(BOOL(0))
         }
+    }
+
+    unsafe fn enum_display_settings_w(
+        &self,
+        lpszdevicename: PCWSTR,
+        imodenum: ENUM_DISPLAY_SETTINGS_MODE,
+        lpdevmode: *mut DEVMODEW,
+    ) -> BOOL {
+        if imodenum != ENUM_CURRENT_SETTINGS || (*lpdevmode).dmSize == 0 {
+            return BOOL(0);
+        }
+
+        let device_name = String::from_utf16(lpszdevicename.as_wide()).unwrap();
+
+        self.video_outputs
+            .iter()
+            .find(|video_output| video_output.device_name == device_name)
+            .and_then(|video_output| video_output.display.clone())
+            .map(|display| {
+                if self
+                    .behaviour
+                    .display_not_possible_to_enum_display_settings_on
+                    .as_ref()
+                    .is_some_and(|display_not_possible_to_enum_display_settings_on| {
+                        display.name == *display_not_possible_to_enum_display_settings_on
+                    })
+                {
+                    return BOOL(0);
+                }
+
+                (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = display.position.x;
+                (*lpdevmode).Anonymous1.Anonymous2.dmPosition.y = display.position.y;
+
+                BOOL(1)
+            })
+            .unwrap_or(BOOL(0))
     }
 }
 

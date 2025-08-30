@@ -48,7 +48,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
         }
     }
 
-    fn get_all_audio_endpoints(
+    unsafe fn get_all_audio_endpoints(
         &self,
         out_audio_endpoints: *mut AudioEndpoint,
         audio_endpoints_count: c_int,
@@ -64,7 +64,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
         }
 
         for i in 0..speakers_count_as_usize.unwrap() {
-            let out_audio_endpoint = unsafe { &mut *out_audio_endpoints.add(i) };
+            let out_audio_endpoint = &mut *out_audio_endpoints.add(i);
             let speaker = &self.speakers[i];
 
             let audio_endpoint_id = map_string_to_c_ushort(&speaker.id);
@@ -85,7 +85,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
         0
     }
 
-    fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
+    unsafe fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
         if self.behaviour.setting_the_default_speaker_fails {
             return -1;
         }

@@ -15,19 +15,45 @@ use windows::{
 pub mod windows_api_based_win_32;
 
 pub trait Win32 {
-    fn display_config_get_device_info(
+    /// # Safety
+    /// This function is unsafe because it dereferences a raw pointer:
+    /// - `requestpacket` must be non-null and point to valid, writable memory.
+    /// - The memory referenced by `requestpacket` must remain valid for the duration
+    ///   of the call.
+    /// - The caller must ensure that `requestpacket` is correctly sized and aligned
+    ///   for a [`DISPLAYCONFIG_DEVICE_INFO_HEADER`] structure and any expected
+    ///   subtype it represents.
+    /// - Passing an invalid or incorrectly initialized pointer leads to undefined
+    ///   behavior (e.g., crashes, memory corruption).
+    ///
+    /// The caller is responsible for ensuring all of these conditions are upheld.
+    unsafe fn display_config_get_device_info(
         &self,
         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
     ) -> i32;
 
-    fn get_display_config_buffer_sizes(
+    /// # Safety
+    /// - `numpatharrayelements` and `nummodeinfoarrayelements` must be non-null and
+    ///   point to valid, writable `u32` memory locations.
+    /// - The caller must ensure these pointers remain valid and properly aligned
+    ///   for the duration of the call.
+    /// - Passing null or invalid pointers results in undefined behavior.
+    unsafe fn get_display_config_buffer_sizes(
         &self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
     ) -> WIN32_ERROR;
 
-    fn query_display_config(
+    /// # Safety
+    /// - All pointer arguments (`numpatharrayelements`, `patharray`,
+    ///   `nummodeinfoarrayelements`, `modeinfoarray`, and optionally
+    ///   `currenttopologyid`) must be valid, properly aligned, and point to
+    ///   sufficiently large writable memory.
+    /// - The caller must correctly initialize the input sizes before the call.
+    /// - Buffers must remain valid for the duration of the call.
+    /// - Passing invalid or undersized buffers leads to undefined behavior.
+    unsafe fn query_display_config(
         &self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         numpatharrayelements: *mut u32,
@@ -37,7 +63,13 @@ pub trait Win32 {
         currenttopologyid: ::core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR;
 
-    fn change_display_settings_ex_w(
+    /// # Safety
+    /// - `lpszdevicename` must be a valid, null-terminated UTF-16 string (if not null).
+    /// - `lpdevmode` must point to a valid, readable [`DEVMODEW`] structure (if provided).
+    /// - `lparam` must point to valid, properly aligned memory if used.
+    /// - All pointers must remain valid for the duration of the call.
+    /// - Passing invalid or incorrectly initialized pointers results in undefined behavior.
+    unsafe fn change_display_settings_ex_w(
         &mut self,
         lpszdevicename: PCWSTR,
         lpdevmode: ::core::option::Option<*const DEVMODEW>,
@@ -46,7 +78,14 @@ pub trait Win32 {
         lparam: ::core::option::Option<*const ::core::ffi::c_void>,
     ) -> DISP_CHANGE;
 
-    fn enum_display_devices_w(
+    /// # Safety
+    /// - `lpdevice`, if non-null, must be a valid, null-terminated UTF-16 string.
+    /// - `lpdisplaydevice` must be non-null, valid, and point to a writable
+    ///   [`DISPLAY_DEVICEW`] structure of sufficient size. The `cb` field of the
+    ///   structure must be set correctly by the caller before the call.
+    /// - All pointers must remain valid and properly aligned during the call.
+    /// - Passing invalid or incorrectly sized memory leads to undefined behavior.
+    unsafe fn enum_display_devices_w(
         &self,
         lpdevice: PCWSTR,
         idevnum: u32,
@@ -54,7 +93,14 @@ pub trait Win32 {
         dwflags: u32,
     ) -> BOOL;
 
-    fn enum_display_settings_w(
+    /// # Safety
+    /// - `lpszdevicename`, if non-null, must be a valid, null-terminated UTF-16 string.
+    /// - `lpdevmode` must be non-null, valid, and point to a writable
+    ///   [`DEVMODEW`] structure of sufficient size. The `dmSize` field must be set
+    ///   correctly by the caller before the call.
+    /// - All pointers must remain valid and properly aligned during the call.
+    /// - Passing invalid or incorrectly sized memory leads to undefined behavior.
+    unsafe fn enum_display_settings_w(
         &self,
         lpszdevicename: PCWSTR,
         imodenum: ENUM_DISPLAY_SETTINGS_MODE,
