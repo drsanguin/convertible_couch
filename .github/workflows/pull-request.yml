@@ -30,6 +30,9 @@ jobs:
       env:
         RUSTFLAGS: -D warnings
 
+    - name: Linting 📝
+      uses: ./.github/actions/linting
+
     - name: Run Tests 🧪
       run: cargo test --verbose -- --nocapture
 
