@@ -1,5 +1,3 @@
-#![cfg(target_os = "windows")]
-
 use crate::testing::fuzzing::speakers::settings_api::behaviour::FuzzedSpeakersSettingsApiBehaviour;
 
 #[derive(Clone, Default)]

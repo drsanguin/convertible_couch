@@ -3,7 +3,6 @@ use std::{
     os::{raw::c_ushort, windows::ffi::OsStringExt},
     ptr::null_mut,
     slice::from_raw_parts_mut,
-    usize,
 };
 
 use crate::{
@@ -74,7 +73,9 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         }
 
         if current_speaker_id.is_null() {
-            return Err(ApplicationError::Custom("Failed to get the current default speaker".to_string()));
+            return Err(ApplicationError::Custom(
+                "Failed to get the current default speaker".to_string(),
+            ));
         }
 
         let invalid_params_error_message =
@@ -85,9 +86,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
                 _ => None,
             };
 
-        if invalid_params_error_message.is_some() {
-            let invalid_params_error_message_fragment = invalid_params_error_message.unwrap();
-
+        if let Some(invalid_params_error_message_fragment) = invalid_params_error_message {
             let mut possible_audio_endpoints = audio_endpoints
                 .iter()
                 .map(|audio_endpoint| map_c_ushort_to_string(audio_endpoint.name))

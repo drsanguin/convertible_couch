@@ -71,9 +71,7 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
                 _ => None,
             };
 
-        if invalid_params_error_message.is_some() {
-            let invalid_params_error_message_fragment = invalid_params_error_message.unwrap();
-
+        if let Some(invalid_params_error_message_fragment) = invalid_params_error_message {
             let mut possible_values: Vec<String> = names_by_device_ids.into_values().collect();
             possible_values.sort();
             let possible_values_fragment = possible_values.join(", ");
@@ -153,12 +151,14 @@ impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
                 continue;
             }
 
-            let mut displayconfig_target_device_name = DISPLAYCONFIG_TARGET_DEVICE_NAME::default();
-            displayconfig_target_device_name.header = DISPLAYCONFIG_DEVICE_INFO_HEADER {
-                r#type: DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME,
-                size: size_of_displayconfig_target_device_name,
-                adapterId: mode_information.adapterId,
-                id: mode_information.id,
+            let mut displayconfig_target_device_name = DISPLAYCONFIG_TARGET_DEVICE_NAME {
+                header: DISPLAYCONFIG_DEVICE_INFO_HEADER {
+                    r#type: DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME,
+                    size: size_of_displayconfig_target_device_name,
+                    adapterId: mode_information.adapterId,
+                    id: mode_information.id,
+                },
+                ..Default::default()
             };
 
             let display_config_get_device_info_result = self

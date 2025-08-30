@@ -39,7 +39,7 @@ impl<'a> DisplayPositionFuzzer<'a> {
 
     pub fn generate_several(
         &mut self,
-        resolutions: &Vec<FuzzedResolution>,
+        resolutions: &[FuzzedResolution],
         has_an_internal_display: bool,
     ) -> Vec<FuzzedDisplayPositionedResolution> {
         let n_display = resolutions.len();

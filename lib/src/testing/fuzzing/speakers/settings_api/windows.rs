@@ -1,5 +1,3 @@
-#![cfg(target_os = "windows")]
-
 use crate::{
     speakers_settings::windows::{
         audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary},
