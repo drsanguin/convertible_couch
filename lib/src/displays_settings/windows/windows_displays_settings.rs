@@ -462,7 +462,7 @@ fn map_disp_change_to_string(disp_change: DISP_CHANGE) -> String {
 }
 
 fn from_raw_display_name(raw_display_name: &str) -> String {
-    let display_name = if raw_display_name == "" {
+    let display_name = if raw_display_name.is_empty() {
         INTERNAL_DISPLAY_NAME
     } else {
         raw_display_name

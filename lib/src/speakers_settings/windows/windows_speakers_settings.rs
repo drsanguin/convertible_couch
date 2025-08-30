@@ -74,9 +74,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         }
 
         if current_speaker_id.is_null() {
-            return Err(ApplicationError::Custom(format!(
-                "Failed to get the current default speaker"
-            )));
+            return Err(ApplicationError::Custom("Failed to get the current default speaker".to_string()));
         }
 
         let invalid_params_error_message =

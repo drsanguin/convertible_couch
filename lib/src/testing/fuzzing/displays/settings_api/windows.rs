@@ -87,19 +87,19 @@ impl Win32 for FuzzedWin32 {
                         None => false,
                     }
                 })
-                .and_then(|video_output| {
+                .map(|video_output| {
                     let display = video_output.display.as_ref().unwrap();
 
                     if self.behaviour.getting_primary_display_name_fails
                         && display.position.is_positioned_at_origin()
                     {
-                        return Some(1);
+                        return 1;
                     }
 
                     (*request_packet).monitorDevicePath = encode_utf16::<128>(&display.device_id);
                     (*request_packet).monitorFriendlyDeviceName = encode_utf16::<64>(&display.name);
 
-                    Some(0)
+                    0
                 })
                 .unwrap_or(1)
         }
@@ -200,7 +200,7 @@ impl Win32 for FuzzedWin32 {
     ) -> DISP_CHANGE {
         if lpszdevicename == PCWSTR::null()
             && lpdevmode.is_none()
-            && hwnd == None
+            && hwnd.is_none()
             && dwflags == CDS_TYPE::default()
             && lparam.is_none()
         {
@@ -246,7 +246,7 @@ impl Win32 for FuzzedWin32 {
         }
 
         unsafe {
-            let device_name = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
+            let device_name = String::from_utf16(lpszdevicename.as_wide()).unwrap();
 
             if self
                 .behaviour
@@ -256,24 +256,22 @@ impl Win32 for FuzzedWin32 {
                 return self.behaviour.change_display_settings_error.unwrap();
             }
 
-            return self
+            self
                 .video_outputs
                 .iter()
                 .find(|video_output| video_output.device_name == device_name)
                 .and_then(|video_output| video_output.display.clone())
                 .and_then(|display| {
-                    lpdevmode.and_then(|graphic_mode| {
-                        Some((
+                    lpdevmode.map(|graphic_mode| (
                             display,
                             FuzzedDisplayPosition {
                                 x: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.x,
                                 y: (*graphic_mode).Anonymous1.Anonymous2.dmPosition.y,
                             },
                         ))
-                    })
                 })
-                .and_then(|(display, position)| {
-                    if hwnd != None
+                .map(|(display, position)| {
+                    if hwnd.is_some()
                         || lparam.is_some()
                         || (dwflags & CDS_UPDATEREGISTRY == CDS_TYPE::default())
                         || (dwflags & CDS_NORESET == CDS_TYPE::default())
@@ -283,20 +281,20 @@ impl Win32 for FuzzedWin32 {
                         || (!position.is_positioned_at_origin()
                             && (dwflags & CDS_SET_PRIMARY == CDS_SET_PRIMARY))
                     {
-                        return Some(DISP_CHANGE_BADPARAM);
+                        return DISP_CHANGE_BADPARAM;
                     }
 
                     self.display_changes_to_commit.insert(device_name, position);
 
-                    let disp_change = if self.behaviour.change_display_settings_error.is_some() {
+                    
+
+                    if self.behaviour.change_display_settings_error.is_some() {
                         DISP_CHANGE_RESTART
                     } else {
                         DISP_CHANGE_SUCCESSFUL
-                    };
-
-                    Some(disp_change)
+                    }
                 })
-                .unwrap_or(DISP_CHANGE_BADPARAM);
+                .unwrap_or(DISP_CHANGE_BADPARAM)
         }
     }
 
@@ -335,18 +333,18 @@ impl Win32 for FuzzedWin32 {
             }
 
             unsafe {
-                let device_name = String::from_utf16(&lpdevice.as_wide()).unwrap();
+                let device_name = String::from_utf16(lpdevice.as_wide()).unwrap();
 
                 self.video_outputs
                     .iter()
                     .find(|video_output| video_output.device_name == device_name)
                     .and_then(|video_output| video_output.display.clone())
-                    .and_then(|display| {
+                    .map(|display| {
                         let device_id = encode_utf16::<128>(&display.device_id);
 
                         (*lpdisplaydevice).DeviceID = device_id;
 
-                        Some(BOOL(1))
+                        BOOL(1)
                     })
                     .unwrap_or(BOOL(0))
             }
@@ -364,13 +362,13 @@ impl Win32 for FuzzedWin32 {
         }
 
         unsafe {
-            let device_name = String::from_utf16(&lpszdevicename.as_wide()).unwrap();
+            let device_name = String::from_utf16(lpszdevicename.as_wide()).unwrap();
 
             self.video_outputs
                 .iter()
                 .find(|video_output| video_output.device_name == device_name)
                 .and_then(|video_output| video_output.display.clone())
-                .and_then(|display| {
+                .map(|display| {
                     if self
                         .behaviour
                         .display_not_possible_to_enum_display_settings_on
@@ -379,13 +377,13 @@ impl Win32 for FuzzedWin32 {
                             display.name == *display_not_possible_to_enum_display_settings_on
                         })
                     {
-                        return Some(BOOL(0));
+                        return BOOL(0);
                     }
 
                     (*lpdevmode).Anonymous1.Anonymous2.dmPosition.x = display.position.x;
                     (*lpdevmode).Anonymous1.Anonymous2.dmPosition.y = display.position.y;
 
-                    Some(BOOL(1))
+                    BOOL(1)
                 })
                 .unwrap_or(BOOL(0))
         }

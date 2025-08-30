@@ -172,7 +172,7 @@ impl<'a> DisplayPositionFuzzer<'a> {
     ) {
         let previous_resolution_position = axis_displays_positions
             .last()
-            .unwrap_or(&primary_display_positioned);
+            .unwrap_or(primary_display_positioned);
 
         let x = match horizontal_move {
             HorizontalMove::None => 0,

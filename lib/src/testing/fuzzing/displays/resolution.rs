@@ -133,7 +133,7 @@ impl<'a> ResolutionFuzzer<'a> {
     }
 
     pub fn generate_one(&mut self) -> FuzzedResolution {
-        FuzzedResolution::ALL.choose(self.rand).unwrap().clone()
+        *FuzzedResolution::ALL.choose(self.rand).unwrap()
     }
 
     pub fn generate_several(&mut self, count: usize) -> Vec<FuzzedResolution> {

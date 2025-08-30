@@ -36,8 +36,8 @@ impl FuzzedSpeakersSettingsApi for FuzzedAudioEndpointLibrary {
         behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
     ) -> Self {
         Self {
-            speakers: speakers,
-            behaviour: behaviour,
+            speakers,
+            behaviour,
         }
     }
 }
