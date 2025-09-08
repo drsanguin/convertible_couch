@@ -229,7 +229,6 @@ dependencies = [
 name = "convertible_couch_lib"
 version = "1.0.0"
 dependencies = [
- "clap",
  "log",
  "log4rs",
  "rand",
