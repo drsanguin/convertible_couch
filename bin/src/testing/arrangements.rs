@@ -1,6 +1,5 @@
 use convertible_couch_lib::{
     displays_settings::CurrentDisplaysSettings,
-    log::LogLevel,
     speakers_settings::CurrentSpeakersSettings,
     testing::fuzzing::{
         computer::FuzzedComputer, displays::settings_api::CurrentFuzzedDisplaysSettingsApi,
@@ -10,7 +9,9 @@ use convertible_couch_lib::{
 
 use crate::{
     application::Application,
-    commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions},
+    commands::{
+        Arguments, Commands, DisplaysOptions, LogLevelOption, SharedOptions, SpeakersOptions,
+    },
 };
 
 pub fn bootstrap_application(
@@ -110,7 +111,7 @@ impl<'a> ArgumentsBuilder<'a> {
                         displays,
                         speakers,
                         shared: SharedOptions {
-                            log_level: LogLevel::Off,
+                            log_level: LogLevelOption::Off,
                         },
                     },
                 }
@@ -122,7 +123,7 @@ impl<'a> ArgumentsBuilder<'a> {
                     command: Commands::DisplaysOnly {
                         displays,
                         shared: SharedOptions {
-                            log_level: LogLevel::Off,
+                            log_level: LogLevelOption::Off,
                         },
                     },
                 }
@@ -134,7 +135,7 @@ impl<'a> ArgumentsBuilder<'a> {
                     command: Commands::SpeakersOnly {
                         speakers,
                         shared: SharedOptions {
-                            log_level: LogLevel::Off,
+                            log_level: LogLevelOption::Off,
                         },
                     },
                 }
