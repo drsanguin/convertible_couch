@@ -25,7 +25,7 @@ criterion = { version = "0.7.0", features = ["html_reports"] }
 test-case = "3.3.1"
 
 [target.'cfg(windows)'.dev-dependencies]
-windows = { version = "0.62.0", features = ["Win32_Graphics_Gdi"] }
+windows = { version = "0.62.1", features = ["Win32_Graphics_Gdi"] }
 
 [[bench]]
 name = "benchmark"
