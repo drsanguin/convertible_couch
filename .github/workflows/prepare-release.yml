@@ -21,6 +21,9 @@ jobs:
       - name: Setup Semantic Release
         uses: ./.github/actions/setup-semantic-release
 
+      - name: Install cargo edit
+        run: cargo install cargo-edit -F set-version
+
       - name: Bump Cargo.toml version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
