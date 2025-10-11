@@ -1,7 +1,7 @@
 {
   "branches": [
-    "main",
-    "release/*",
+    { "name": "main", "prerelease": false },
+    { "name": "release/*", "prerelease": false },
     { "name": "ci/semantic-release", "prerelease": false }
   ],
   "plugins": [
@@ -11,7 +11,7 @@
       "@semantic-release/github",
       {
         "assets": [
-          { "path": "convertible_couch.zip" }
+          { "path": "convertible_couch.zip", "label": "Compiled Distribution (ZIP)" }
         ]
       }
     ]
