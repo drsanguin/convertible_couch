@@ -9,13 +9,13 @@ runs:
         tool: cargo-mutants
 
     - name: Generate git.diff 🧰
-      run: git diff origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > git.diff
       shell: pwsh
+      run: git diff origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > git.diff
 
     - name: Run cargo-mutants 🧟‍♂️
       id: run-cargo-mutants
-      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true --in-diff git.diff
       shell: pwsh
+      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true --in-diff git.diff
 
     - name: Archive results ⬆️
       uses: actions/upload-artifact@v4

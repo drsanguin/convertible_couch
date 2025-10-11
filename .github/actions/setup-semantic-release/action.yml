@@ -1,0 +1,10 @@
+name: Setup Semantic Release
+description: Install Semantic Release binary and plugins
+runs:
+  using: composite
+  steps:
+    - name: Install Semantic Release and Plugins 🧰
+      shell: pwsh
+      run: |
+        npm install -g semantic-release `
+          @semantic-release/github
