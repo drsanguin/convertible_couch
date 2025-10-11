@@ -8,24 +8,24 @@ runs:
   using: composite
   steps:
     - name: Install nightly Toolchain 🧰
-      run: rustup update nightly
       shell: pwsh
+      run: rustup update nightly
 
     - name: Set nightly Toolchain as default 🧰
-      run: rustup default nightly
       shell: pwsh
+      run: rustup default nightly
 
     - name: Install llvm-tools 🧰
-      run: rustup component add llvm-tools
       shell: pwsh
+      run: rustup component add llvm-tools
 
     - name: Generate LLVM Coverage 📊
       env:
         CARGO_INCREMENTAL: 0
         RUSTFLAGS: -Cinstrument-coverage
         LLVM_PROFILE_FILE: convertible_couch-%p-%m.profraw
-      run: cargo test
       shell: pwsh
+      run: cargo test
 
     - name: Install grcov 🧰
       uses: taiki-e/install-action@v2
@@ -33,6 +33,7 @@ runs:
         tool: grcov
 
     - name: Generate lcov Coverage 📊
+      shell: pwsh
       run: |
         grcov . `
           --binary-path ./target/debug/ `
@@ -51,7 +52,6 @@ runs:
           --excl-line "^\s*#\[cfg\(test\)\]" `
           --excl-start "^(\s*mod tests \{)|(pub fn configure_logger\()|(impl From<ConfigErrors> for ApplicationError \{)|(impl From<SetLoggerError> for ApplicationError \{)" `
           --excl-stop "^\}"
-      shell: pwsh
 
     - name: Upload Coverage to Coveralls ⬆️
       uses: coverallsapp/github-action@v2

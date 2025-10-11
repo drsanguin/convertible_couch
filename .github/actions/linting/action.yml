@@ -8,9 +8,9 @@ runs:
   using: composite
   steps:
     - name: Install clippy 🧰
-      run: rustup component add clippy
       shell: pwsh
+      run: rustup component add clippy
 
     - name: Run clippy 📝
-      run: cargo clippy --all-targets --all-features -- -D warnings
       shell: pwsh
+      run: cargo clippy --all-targets --all-features -- -D warnings
