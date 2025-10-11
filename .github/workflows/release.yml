@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  # pull-requests: write
+  # issues: write
 
 jobs:
   semantic-release:
@@ -26,12 +28,10 @@ jobs:
         uses: ./.github/actions/setup-semantic-release
 
       - name: Build Binaries
-        run: cargo build --release
+        run: cargo build --release --bins
 
       - name: Package Artifacts
-        run: |
-          mkdir artifacts
-          Copy-Item "target/release/*" -Destination "artifacts" -Recurse
+        run: tar -czf convertible_couch.tar.gz -C .\target\release\ *.exe *.dll
 
       - name: Semantic Release
         env:
