@@ -4,15 +4,14 @@ on:
   push:
     branches:
       - main
-      - ci/semantic-release
 
 permissions:
   contents: write
-  # pull-requests: write
-  # issues: write
+  pull-requests: write
+  issues: write
 
 jobs:
-  semantic-release:
+  release:
     runs-on: windows-latest
 
     steps:
@@ -24,16 +23,16 @@ jobs:
       - name: Setup Dev Environment 🧰
         uses: ./.github/actions/setup-dev-environment
 
-      - name: Setup Semantic Release
+      - name: Setup Semantic Release 🧰
         uses: ./.github/actions/setup-semantic-release
 
-      - name: Build Binaries
+      - name: Compile 🏗️
         run: cargo build --release --bins
 
-      - name: Package Artifacts
+      - name: Package Artifacts 📦
         run: Compress-Archive -Path .\target\release\*.exe, .\target\release\*.dll -DestinationPath convertible_couch.zip
 
-      - name: Semantic Release
+      - name: Semantic Release 🚀
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release

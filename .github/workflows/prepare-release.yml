@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  change-project-version:
+  bump-version:
     runs-on: windows-latest
 
     steps:
@@ -17,13 +17,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Semantic Release
+      - name: Setup Semantic Release 🧰
         uses: ./.github/actions/setup-semantic-release
 
-      - name: Install cargo edit
+      - name: Install cargo-edit 🧰
         run: cargo install cargo-edit -F set-version
 
-      - name: Bump Cargo.toml version
+      - name: Bump Version 🏷️
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
