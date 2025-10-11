@@ -22,6 +22,7 @@ jobs:
         run: |
           # Extract next version without tagging
           $semanticOutput = npx semantic-release --dry-run
+          Write-Host $semanticOutput
           $versionLine = $semanticOutput | Select-String "The next release version is"
           if ($versionLine) {
             $VERSION = ($versionLine -split " ")[-1]
