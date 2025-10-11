@@ -11,7 +11,7 @@
       "@semantic-release/github",
       {
         "assets": [
-          { "path": "convertible_couch.tar.gz" }
+          { "path": "convertible_couch.zip" }
         ]
       }
     ]

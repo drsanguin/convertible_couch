@@ -31,7 +31,7 @@ jobs:
         run: cargo build --release --bins
 
       - name: Package Artifacts
-        run: tar -czf convertible_couch.tar.gz -C .\target\release\ *.exe *.dll
+        run: Compress-Archive -Path .\target\release\*.exe, .\target\release\*.dll -DestinationPath convertible_couch.zip
 
       - name: Semantic Release
         env:
