@@ -6,6 +6,9 @@ on:
       - 'ci/semantic-release'
       # - 'release/*'
 
+permissions:
+  contents: write
+
 jobs:
   change-project-version:
     runs-on: windows-latest
