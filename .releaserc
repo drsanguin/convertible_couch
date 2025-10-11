@@ -14,7 +14,7 @@
           {
             "path": "convertible_couch.zip",
             "name": "convertible_couch-v${nextRelease.version}.zip",
-            "label": "Compiled Distribution v${nextRelease.version} (ZIP)"
+            "label": "Compiled Distribution v${nextRelease.version} (zip)"
           }
         ]
       }
