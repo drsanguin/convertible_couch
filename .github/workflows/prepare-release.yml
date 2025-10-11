@@ -3,7 +3,8 @@ name: Prepare Release
 on:
   push:
     branches:
-      - 'release/*'
+      - 'ci/semantic-release'
+      # - 'release/*'
 
 jobs:
   change-project-version:
