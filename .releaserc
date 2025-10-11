@@ -2,7 +2,7 @@
   "branches": [
     "main",
     "release/*",
-    "ci/semantic-release"
+    { "name": "ci/semantic-release", "prerelease": false }
   ],
   "plugins": [
     "@semantic-release/commit-analyzer",
