@@ -19,6 +19,8 @@ jobs:
         uses: ./.github/actions/setup-semantic-release
 
       - name: Bump Cargo.toml version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Extract next version without tagging
           $semanticOutput = npx semantic-release --dry-run
