@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  semantic-release:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Setup Semantic Release
+        uses: ./.github/actions/setup-semantic-release
+
+      - name: Build Binaries
+        run: cargo build --release
+
+      - name: Package Artifacts
+        run: |
+          mkdir artifacts
+          Copy-Item "target/release/*" -Destination "artifacts" -Recurse
+
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
