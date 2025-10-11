@@ -4,14 +4,14 @@ use convertible_couch_lib::{
     displays_settings::{
         CurrentDisplaysSettingsApiTrait, DisplaysSettings, DisplaysSettingsResult,
     },
-    log::configure_logger,
+    log::{configure_logger, LogLevel},
     speakers_settings::{
         CurrentSpeakersSettingsApiTrait, SpeakersSettings, SpeakersSettingsResult,
     },
     ApplicationError,
 };
 
-use crate::commands::{Arguments, Commands};
+use crate::commands::{Arguments, Commands, LogLevelOption};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ApplicationResult {
@@ -66,7 +66,9 @@ impl<
                 speakers,
                 shared,
             } => {
-                configure_logger(&shared.log_level)?;
+                let log_level = map_to_log_level(&shared.log_level);
+
+                configure_logger(&log_level)?;
 
                 let displays_result = self.displays_settings.change_primary_display(
                     &displays.desktop_display_name,
@@ -84,7 +86,9 @@ impl<
                 })
             }
             Commands::DisplaysOnly { displays, shared } => {
-                configure_logger(&shared.log_level)?;
+                let log_level = map_to_log_level(&shared.log_level);
+
+                configure_logger(&log_level)?;
 
                 let displays_result = self.displays_settings.change_primary_display(
                     &displays.desktop_display_name,
@@ -94,7 +98,9 @@ impl<
                 Ok(ApplicationResult::DisplaysOnly { displays_result })
             }
             Commands::SpeakersOnly { speakers, shared } => {
-                configure_logger(&shared.log_level)?;
+                let log_level = map_to_log_level(&shared.log_level);
+
+                configure_logger(&log_level)?;
 
                 let speakers_result = self.speakers_settings.change_default_speaker(
                     &speakers.desktop_speaker_name,
@@ -104,5 +110,36 @@ impl<
                 Ok(ApplicationResult::SpeakersOnly { speakers_result })
             }
         }
+    }
+}
+
+fn map_to_log_level(log_level_option: &LogLevelOption) -> LogLevel {
+    match log_level_option {
+        LogLevelOption::Off => LogLevel::Off,
+        LogLevelOption::Error => LogLevel::Error,
+        LogLevelOption::Warn => LogLevel::Warn,
+        LogLevelOption::Info => LogLevel::Info,
+        LogLevelOption::Debug => LogLevel::Debug,
+        LogLevelOption::Trace => LogLevel::Trace,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use convertible_couch_lib::log::LogLevel;
+    use test_case::test_case;
+
+    use crate::{application::map_to_log_level, commands::LogLevelOption};
+
+    #[test_case(LogLevelOption::Off => LogLevel::Off)]
+    #[test_case(LogLevelOption::Error => LogLevel::Error)]
+    #[test_case(LogLevelOption::Warn => LogLevel::Warn)]
+    #[test_case(LogLevelOption::Info => LogLevel::Info)]
+    #[test_case(LogLevelOption::Debug => LogLevel::Debug)]
+    #[test_case(LogLevelOption::Trace => LogLevel::Trace)]
+    fn it_should_map_a_log_level_option_to_the_expected_log_level(
+        log_level_option: LogLevelOption,
+    ) -> LogLevel {
+        map_to_log_level(&log_level_option)
     }
 }

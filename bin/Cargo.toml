@@ -1,6 +1,6 @@
 [package]
 name = "convertible_couch"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 authors = ["Thomas PEREZ"]
 description = "Automate Windows display configuration to play from your couch"
@@ -13,8 +13,8 @@ LegalCopyright = "Copyright © 2024 convertible_couch"
 OriginalFilename = "convertible_couch.exe"
 
 [dependencies]
-clap = { version = "4.5.45", features = ["derive"] }
-log = "0.4.27"
+clap = { version = "4.5.48", features = ["derive"] }
+log = "0.4.28"
 convertible_couch_lib = { path = "../lib"}
 
 [build-dependencies]
@@ -25,7 +25,7 @@ criterion = { version = "0.7.0", features = ["html_reports"] }
 test-case = "3.3.1"
 
 [target.'cfg(windows)'.dev-dependencies]
-windows = { version = "0.61.3", features = ["Win32_Graphics_Gdi"] }
+windows = { version = "0.62.1", features = ["Win32_Graphics_Gdi"] }
 
 [[bench]]
 name = "benchmark"

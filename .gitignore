@@ -11,3 +11,7 @@ target/
 
 # cargo mutants reports
 /mutants.*
+
+# Semantic Release temporary files
+node_modules/
+package*.json

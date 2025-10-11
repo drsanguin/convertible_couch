@@ -1,5 +1,3 @@
-#![cfg(target_os = "windows")]
-
 use crate::{
     speakers_settings::windows::{
         audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary},
@@ -7,10 +5,7 @@ use crate::{
     },
     testing::fuzzing::speakers::{
         settings_api::{
-            behaviour::{
-                windows::FuzzedWindowsSpeakersSettingsApiBehaviour,
-                FuzzedSpeakersSettingsApiBehaviour,
-            },
+            behaviour::windows::FuzzedWindowsSpeakersSettingsApiBehaviour,
             FuzzedSpeakersSettingsApi,
         },
         FuzzedSpeaker,
@@ -27,19 +22,10 @@ use std::{
     },
 };
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct FuzzedAudioEndpointLibrary {
     speakers: Vec<FuzzedSpeaker>,
     behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
-}
-
-impl FuzzedAudioEndpointLibrary {
-    pub fn default() -> Self {
-        Self {
-            speakers: vec![],
-            behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour::default(),
-        }
-    }
 }
 
 impl FuzzedSpeakersSettingsApi for FuzzedAudioEndpointLibrary {
@@ -48,8 +34,8 @@ impl FuzzedSpeakersSettingsApi for FuzzedAudioEndpointLibrary {
         behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
     ) -> Self {
         Self {
-            speakers: speakers,
-            behaviour: behaviour,
+            speakers,
+            behaviour,
         }
     }
 }
@@ -62,7 +48,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
         }
     }
 
-    fn get_all_audio_endpoints(
+    unsafe fn get_all_audio_endpoints(
         &self,
         out_audio_endpoints: *mut AudioEndpoint,
         audio_endpoints_count: c_int,
@@ -78,7 +64,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
         }
 
         for i in 0..speakers_count_as_usize.unwrap() {
-            let out_audio_endpoint = unsafe { &mut *out_audio_endpoints.add(i) };
+            let out_audio_endpoint = &mut *out_audio_endpoints.add(i);
             let speaker = &self.speakers[i];
 
             let audio_endpoint_id = map_string_to_c_ushort(&speaker.id);
@@ -99,7 +85,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
         0
     }
 
-    fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
+    unsafe fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
         if self.behaviour.setting_the_default_speaker_fails {
             return -1;
         }
@@ -126,7 +112,7 @@ impl AudioEndpointLibrary for FuzzedAudioEndpointLibrary {
     }
 }
 
-pub fn map_string_to_c_ushort(string: &str) -> *mut c_ushort {
+fn map_string_to_c_ushort(string: &str) -> *mut c_ushort {
     let wide: Vec<c_ushort> = OsStr::new(string)
         .encode_wide()
         .chain(once(0)) // Null terminator

@@ -25,15 +25,15 @@ impl AudioEndpointLibrary for DllBasedAudioEndpointLibrary {
         unsafe { get_all_audio_endpoints_count() }
     }
 
-    fn get_all_audio_endpoints(
+    unsafe fn get_all_audio_endpoints(
         &self,
         out_audio_endpoints: *mut AudioEndpoint,
         audio_endpoints_count: c_int,
     ) -> c_int {
-        unsafe { get_all_audio_endpoints(out_audio_endpoints, audio_endpoints_count) }
+        get_all_audio_endpoints(out_audio_endpoints, audio_endpoints_count)
     }
 
-    fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
-        unsafe { set_default_audio_endpoint(id) }
+    unsafe fn set_default_audio_endpoint(&mut self, id: *mut c_ushort) -> c_int {
+        set_default_audio_endpoint(id)
     }
 }

@@ -1,0 +1,32 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    allow:
+      - dependency-type: "all"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    target-branch: "develop"
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: "cargo"
+    allow:
+      - dependency-type: "all"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    target-branch: "develop"
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    groups:
+      cargo:
+        patterns:
+          - "*"

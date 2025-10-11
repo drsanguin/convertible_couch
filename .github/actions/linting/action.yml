@@ -1,0 +1,16 @@
+name: Linting 📝
+description: Catch all common Rust code mistakes
+inputs:
+  github-token:
+    description: "GitHub API token"
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Install clippy 🧰
+      shell: pwsh
+      run: rustup component add clippy
+
+    - name: Run clippy 📝
+      shell: pwsh
+      run: cargo clippy --all-targets --all-features -- -D warnings

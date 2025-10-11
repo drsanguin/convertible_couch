@@ -1,0 +1,25 @@
+name: Mutation Testing 🧟‍♂️
+description: Evaluate the quality of existing tests
+runs:
+  using: composite
+  steps:
+    - name: Install cargo-mutants 🧰
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-mutants
+
+    - name: Generate git.diff 🧰
+      shell: pwsh
+      run: git diff origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > git.diff
+
+    - name: Run cargo-mutants 🧟‍♂️
+      id: run-cargo-mutants
+      shell: pwsh
+      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true --in-diff git.diff
+
+    - name: Archive results ⬆️
+      uses: actions/upload-artifact@v4
+      if: steps.run-cargo-mutants.outcome == 'failure'
+      with:
+        name: mutation-testing-report
+        path: mutants.out

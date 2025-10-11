@@ -1,5 +1,8 @@
 use convertible_couch::testing::arrangements::{bootstrap_application, ArgumentsBuilder};
-use convertible_couch_lib::{func, testing::fuzzing::Fuzzer};
+use convertible_couch_lib::{
+    func,
+    testing::fuzzing::{ComputerBuilder, Fuzzer},
+};
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
 use std::fmt::{Display, Formatter, Result};
 
@@ -57,7 +60,6 @@ fn change_primary_display_and_default_speaker(criterion: &mut Criterion) {
                                 .of_which_there_are(bench_parameter.speakers_count)
                                 .whose_default_one_is_named(default_speaker_name.clone())
                                 .with_an_alternative_one_named(alternative_speaker_name.clone())
-                                .build_speakers()
                                 .build_computer();
 
                             let application = bootstrap_application(computer);
@@ -89,7 +91,7 @@ fn change_primary_display(criterion: &mut Criterion) {
     for display_count in COUNTS {
         group.throughput(Throughput::Elements(u64::try_from(display_count).unwrap()));
         group.bench_with_input(
-            BenchmarkId::from_parameter(&display_count),
+            BenchmarkId::from_parameter(display_count),
             &display_count,
             |bencher, display_count| {
                 bencher.iter_batched(
@@ -105,7 +107,6 @@ fn change_primary_display(criterion: &mut Criterion) {
                             .of_which_there_are(*display_count)
                             .whose_primary_is_named(primary_display_name.clone())
                             .with_a_secondary_named(secondary_display_name.clone())
-                            .build_displays()
                             .build_computer();
 
                         let application = bootstrap_application(computer);
@@ -131,7 +132,7 @@ fn change_default_speaker(criterion: &mut Criterion) {
     for speakers_count in COUNTS {
         group.throughput(Throughput::Elements(u64::try_from(speakers_count).unwrap()));
         group.bench_with_input(
-            BenchmarkId::from_parameter(&speakers_count),
+            BenchmarkId::from_parameter(speakers_count),
             &speakers_count,
             |bencher, speakers_count| {
                 bencher.iter_batched(
@@ -147,7 +148,6 @@ fn change_default_speaker(criterion: &mut Criterion) {
                             .of_which_there_are(*speakers_count)
                             .whose_default_one_is_named(default_speaker_name.clone())
                             .with_an_alternative_one_named(alternative_speaker_name.clone())
-                            .build_speakers()
                             .build_computer();
 
                         let application = bootstrap_application(computer);

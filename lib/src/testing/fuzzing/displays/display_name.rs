@@ -118,14 +118,14 @@ impl<'a> DisplayNameFuzzer<'a> {
     pub fn generate_several(
         &mut self,
         count: usize,
-        forbidden_display_names: &HashSet<&str>,
+        forbidden_display_names: &HashSet<&String>,
     ) -> Vec<String> {
         let mut names = BTreeSet::new();
 
         while names.len() != count {
             let name = self.generate_one();
 
-            if forbidden_display_names.contains(&name.as_str()) {
+            if forbidden_display_names.contains(&name) {
                 continue;
             }
 

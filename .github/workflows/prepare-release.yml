@@ -1,0 +1,50 @@
+name: Prepare Release
+
+on:
+  push:
+    branches:
+      - 'release/*'
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Semantic Release 🧰
+        uses: ./.github/actions/setup-semantic-release
+
+      - name: Install cargo-edit 🧰
+        run: cargo install cargo-edit -F set-version
+
+      - name: Bump Version 🏷️
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Extract next version without tagging
+          $semanticOutput = npx semantic-release --dry-run
+          Write-Host $semanticOutput
+          $versionLine = $semanticOutput | Select-String "The next release version is"
+          if ($versionLine) {
+            $VERSION = ($versionLine -split " ")[-1]
+            Write-Host "Detected version: $VERSION"
+
+            if ($VERSION) {
+              # Update version for each workspace member
+              cargo set-version --workspace $VERSION
+
+              git config user.name "github-actions"
+              git config user.email "github-actions@github.com"
+              git add Cargo.toml **/Cargo.toml Cargo.lock
+              git commit -m "chore(release): bump version to $VERSION"
+              git push origin HEAD
+            }
+          } else {
+            Write-Host "No new version detected, skipping."
+          }

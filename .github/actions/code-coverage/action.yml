@@ -1,0 +1,60 @@
+name: Code Coverage 📊
+description: Generate and upload code coverage
+inputs:
+  github-token:
+    description: "GitHub API token"
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Install nightly Toolchain 🧰
+      shell: pwsh
+      run: rustup update nightly
+
+    - name: Set nightly Toolchain as default 🧰
+      shell: pwsh
+      run: rustup default nightly
+
+    - name: Install llvm-tools 🧰
+      shell: pwsh
+      run: rustup component add llvm-tools
+
+    - name: Generate LLVM Coverage 📊
+      env:
+        CARGO_INCREMENTAL: 0
+        RUSTFLAGS: -Cinstrument-coverage
+        LLVM_PROFILE_FILE: convertible_couch-%p-%m.profraw
+      shell: pwsh
+      run: cargo test
+
+    - name: Install grcov 🧰
+      uses: taiki-e/install-action@v2
+      with:
+        tool: grcov
+
+    - name: Generate lcov Coverage 📊
+      shell: pwsh
+      run: |
+        grcov . `
+          --binary-path ./target/debug/ `
+          --output-types lcov `
+          --source-dir . `
+          --branch `
+          --output-path lcov.info `
+          --ignore-not-existing `
+          --ignore C:/*/.cargo/* `
+          --ignore */src/testing/* `
+          --ignore */tests/* `
+          --ignore bin/src/main.rs `
+          --ignore */build.rs `
+          --ignore lib/src/displays_settings/windows/win_32/windows_api_based_win_32.rs `
+          --ignore lib/src/speakers_settings/windows/audio_endpoint_library/dll_based_audio_endpoint_library.rs `
+          --excl-line "^\s*#\[cfg\(test\)\]" `
+          --excl-start "^(\s*mod tests \{)|(pub fn configure_logger\()|(impl From<ConfigErrors> for ApplicationError \{)|(impl From<SetLoggerError> for ApplicationError \{)" `
+          --excl-stop "^\}"
+
+    - name: Upload Coverage to Coveralls ⬆️
+      uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ inputs.github-token }}
+        file: lcov.info

@@ -1,0 +1,7 @@
+name: Setup Dev Environment 🧰
+description: Install windows development related tools
+runs:
+  using: composite
+  steps:
+    - name: Setup MSBuild path 🧰
+      uses: microsoft/setup-msbuild@v2

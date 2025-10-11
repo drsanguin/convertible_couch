@@ -1,12 +1,16 @@
-use crate::application::Application;
-use crate::commands::{Arguments, Commands, DisplaysOptions, SharedOptions, SpeakersOptions};
 use convertible_couch_lib::{
     displays_settings::CurrentDisplaysSettings,
-    log::LogLevel,
     speakers_settings::CurrentSpeakersSettings,
     testing::fuzzing::{
-        computer::FuzzedComputer, displays_settings::CurrentFuzzedDisplaysSettingsApi,
+        computer::FuzzedComputer, displays::settings_api::CurrentFuzzedDisplaysSettingsApi,
         speakers::settings_api::CurrentFuzzedSpeakersSettingsApi,
+    },
+};
+
+use crate::{
+    application::Application,
+    commands::{
+        Arguments, Commands, DisplaysOptions, LogLevelOption, SharedOptions, SpeakersOptions,
     },
 };
 
@@ -35,6 +39,12 @@ pub struct ArgumentsBuilder<'a> {
     couch_display_name: Option<&'a str>,
     desktop_speaker_name: Option<&'a str>,
     couch_speaker_name: Option<&'a str>,
+}
+
+impl<'a> Default for ArgumentsBuilder<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<'a> ArgumentsBuilder<'a> {
@@ -101,7 +111,7 @@ impl<'a> ArgumentsBuilder<'a> {
                         displays,
                         speakers,
                         shared: SharedOptions {
-                            log_level: LogLevel::Off,
+                            log_level: LogLevelOption::Off,
                         },
                     },
                 }
@@ -113,7 +123,7 @@ impl<'a> ArgumentsBuilder<'a> {
                     command: Commands::DisplaysOnly {
                         displays,
                         shared: SharedOptions {
-                            log_level: LogLevel::Off,
+                            log_level: LogLevelOption::Off,
                         },
                     },
                 }
@@ -125,7 +135,7 @@ impl<'a> ArgumentsBuilder<'a> {
                     command: Commands::SpeakersOnly {
                         speakers,
                         shared: SharedOptions {
-                            log_level: LogLevel::Off,
+                            log_level: LogLevelOption::Off,
                         },
                     },
                 }
