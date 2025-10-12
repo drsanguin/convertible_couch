@@ -64,7 +64,8 @@ fn change_primary_display_and_default_speaker(criterion: &mut Criterion) {
 
                             let application = bootstrap_application(computer);
 
-                            let args = ArgumentsBuilder::new()
+                            let args = ArgumentsBuilder::default()
+                                .change()
                                 .displays_and_speakers(
                                     &primary_display_name,
                                     &secondary_display_name,
@@ -111,7 +112,8 @@ fn change_primary_display(criterion: &mut Criterion) {
 
                         let application = bootstrap_application(computer);
 
-                        let args = ArgumentsBuilder::new()
+                        let args = ArgumentsBuilder::default()
+                            .change()
                             .displays_only(&primary_display_name, &secondary_display_name)
                             .build();
 
@@ -152,7 +154,8 @@ fn change_default_speaker(criterion: &mut Criterion) {
 
                         let application = bootstrap_application(computer);
 
-                        let args = ArgumentsBuilder::new()
+                        let args = ArgumentsBuilder::default()
+                            .change()
                             .speakers_only(&default_speaker_name, &alternative_speaker_name)
                             .build();
 

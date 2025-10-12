@@ -1,7 +1,7 @@
 use super::win_32::Win32;
 use crate::{
     displays_settings::{DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
-    ApplicationError,
+    ApplicationError, DeviceInfo,
 };
 use log::warn;
 use std::{collections::HashMap, fmt::Debug, mem};
@@ -99,6 +99,21 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
             reboot_required,
             new_primary_display: new_primary_display_name.to_string(),
         })
+    }
+
+    fn get_displays_infos(&self) -> Result<Vec<DeviceInfo>, ApplicationError> {
+        let names_by_device_ids = self.get_all_displays_names()?;
+
+        let mut devices = names_by_device_ids
+            .values()
+            .map(|value| DeviceInfo {
+                name: value.clone(),
+            })
+            .collect::<Vec<_>>();
+
+        devices.sort_by(|a, b| a.name.cmp(&b.name));
+
+        Ok(devices)
     }
 }
 

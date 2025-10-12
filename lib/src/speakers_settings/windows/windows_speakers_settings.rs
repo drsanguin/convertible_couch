@@ -7,7 +7,7 @@ use std::{
 
 use crate::{
     speakers_settings::{SpeakersSettings, SpeakersSettingsResult},
-    ApplicationError,
+    ApplicationError, DeviceInfo,
 };
 
 use super::audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
@@ -127,6 +127,41 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         };
 
         Ok(result)
+    }
+
+    fn get_speakers_infos(&self) -> Result<Vec<DeviceInfo>, ApplicationError> {
+        let audio_endpoints_count = self.audio_endpoint_library.get_all_audio_endpoints_count();
+
+        if audio_endpoints_count == -1 {
+            return Err(ApplicationError::Custom(String::from(
+                "Failed to get the number of speakers",
+            )));
+        }
+
+        let audio_endpoints_count_as_usize = usize::try_from(audio_endpoints_count)?;
+        let mut audio_endpoints = vec![AudioEndpoint::default(); audio_endpoints_count_as_usize];
+
+        let get_all_audio_endpoints = unsafe {
+            self.audio_endpoint_library
+                .get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count)
+        };
+
+        if get_all_audio_endpoints != 0 {
+            return Err(ApplicationError::Custom(String::from(
+                "Failed to get the speakers",
+            )));
+        }
+
+        let mut devices = audio_endpoints
+            .iter()
+            .map(|audio_endpoint| audio_endpoint.name)
+            .map(|name| unsafe { map_c_ushort_to_string(name) })
+            .map(|name| DeviceInfo { name })
+            .collect::<Vec<_>>();
+
+        devices.sort_by(|a, b| a.name.cmp(&b.name));
+
+        Ok(devices)
     }
 }
 

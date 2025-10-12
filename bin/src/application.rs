@@ -8,15 +8,22 @@ use convertible_couch_lib::{
     speakers_settings::{
         CurrentSpeakersSettingsApiTrait, SpeakersSettings, SpeakersSettingsResult,
     },
-    ApplicationError,
+    ApplicationError, DeviceInfo,
 };
 
 use crate::commands::{
-    change::ChangeCommands, shared::log_level_option::LogLevelOption, Arguments,
+    change::ChangeCommands, info::Device, shared::log_level_option::LogLevelOption, Arguments,
+    Commands,
 };
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ApplicationResult {
+    Change(ApplicationChangeResult),
+    Info(ApplicationInfoResult),
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum ApplicationChangeResult {
     DisplaysAndSpeakers {
         displays_result: DisplaysSettingsResult,
         speakers_result: SpeakersSettingsResult,
@@ -26,6 +33,20 @@ pub enum ApplicationResult {
     },
     SpeakersOnly {
         speakers_result: SpeakersSettingsResult,
+    },
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum ApplicationInfoResult {
+    DisplaysAndSpeakers {
+        displays_result: Vec<DeviceInfo>,
+        speakers_result: Vec<DeviceInfo>,
+    },
+    DisplaysOnly {
+        displays_result: Vec<DeviceInfo>,
+    },
+    SpeakersOnly {
+        speakers_result: Vec<DeviceInfo>,
     },
 }
 
@@ -63,7 +84,7 @@ impl<
 
     pub fn execute(&mut self, args: &Arguments) -> Result<ApplicationResult, ApplicationError> {
         match &args.command {
-            crate::commands::Commands::Change(change_commands) => match change_commands {
+            Commands::Change(change_commands) => match change_commands {
                 ChangeCommands::DisplaysAndSpeakers {
                     displays,
                     speakers,
@@ -83,10 +104,12 @@ impl<
                         &speakers.couch_speaker_name,
                     )?;
 
-                    Ok(ApplicationResult::DisplaysAndSpeakers {
-                        displays_result,
-                        speakers_result,
-                    })
+                    Ok(ApplicationResult::Change(
+                        ApplicationChangeResult::DisplaysAndSpeakers {
+                            displays_result,
+                            speakers_result,
+                        },
+                    ))
                 }
                 ChangeCommands::DisplaysOnly { displays, shared } => {
                     let log_level = map_to_log_level(&shared.log_level);
@@ -98,7 +121,9 @@ impl<
                         &displays.couch_display_name,
                     )?;
 
-                    Ok(ApplicationResult::DisplaysOnly { displays_result })
+                    Ok(ApplicationResult::Change(
+                        ApplicationChangeResult::DisplaysOnly { displays_result },
+                    ))
                 }
                 ChangeCommands::SpeakersOnly { speakers, shared } => {
                     let log_level = map_to_log_level(&shared.log_level);
@@ -110,10 +135,44 @@ impl<
                         &speakers.couch_speaker_name,
                     )?;
 
-                    Ok(ApplicationResult::SpeakersOnly { speakers_result })
+                    Ok(ApplicationResult::Change(
+                        ApplicationChangeResult::SpeakersOnly { speakers_result },
+                    ))
                 }
             },
-            crate::commands::Commands::Info { device, shared } => todo!(),
+            Commands::Info { device, shared } => {
+                let log_level = map_to_log_level(&shared.log_level);
+
+                configure_logger(&log_level)?;
+
+                match device {
+                    Device::DisplaysAndSpeakers => {
+                        let displays_result = self.displays_settings.get_displays_infos()?;
+                        let speakers_result = self.speakers_settings.get_speakers_infos()?;
+
+                        Ok(ApplicationResult::Info(
+                            ApplicationInfoResult::DisplaysAndSpeakers {
+                                displays_result,
+                                speakers_result,
+                            },
+                        ))
+                    }
+                    Device::DisplaysOnly => {
+                        let displays_result = self.displays_settings.get_displays_infos()?;
+
+                        Ok(ApplicationResult::Info(
+                            ApplicationInfoResult::DisplaysOnly { displays_result },
+                        ))
+                    }
+                    Device::SpeakersOnly => {
+                        let speakers_result = self.speakers_settings.get_speakers_infos()?;
+
+                        Ok(ApplicationResult::Info(
+                            ApplicationInfoResult::SpeakersOnly { speakers_result },
+                        ))
+                    }
+                }
+            }
         }
     }
 }

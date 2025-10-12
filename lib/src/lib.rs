@@ -47,6 +47,11 @@ impl From<TryFromIntError> for ApplicationError {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub struct DeviceInfo {
+    pub name: String,
+}
+
 #[cfg(test)]
 mod tests {
     use crate::ApplicationError;

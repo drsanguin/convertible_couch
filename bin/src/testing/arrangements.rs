@@ -11,6 +11,7 @@ use crate::{
     application::Application,
     commands::{
         change::{ChangeCommands, DisplaysOptions, SpeakersOptions},
+        info::Device,
         shared::{log_level_option::LogLevelOption, SharedOptions},
         Arguments, Commands,
     },
@@ -35,7 +36,25 @@ pub fn bootstrap_application(
     )
 }
 
-pub struct ArgumentsBuilder<'a> {
+pub struct ArgumentsBuilder;
+
+impl Default for ArgumentsBuilder {
+    fn default() -> Self {
+        Self
+    }
+}
+
+impl ArgumentsBuilder {
+    pub fn change<'a>(self) -> ChangeCommandBuilder<'a> {
+        ChangeCommandBuilder::default()
+    }
+
+    pub fn info(self) -> InfoCommandBuilder {
+        InfoCommandBuilder::default()
+    }
+}
+
+pub struct ChangeCommandBuilder<'a> {
     argument_command_type: Option<ArgumentCommandType>,
     desktop_display_name: Option<&'a str>,
     couch_display_name: Option<&'a str>,
@@ -43,14 +62,8 @@ pub struct ArgumentsBuilder<'a> {
     couch_speaker_name: Option<&'a str>,
 }
 
-impl<'a> Default for ArgumentsBuilder<'a> {
+impl<'a> Default for ChangeCommandBuilder<'a> {
     fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<'a> ArgumentsBuilder<'a> {
-    pub fn new() -> Self {
         Self {
             argument_command_type: None,
             desktop_display_name: None,
@@ -59,7 +72,9 @@ impl<'a> ArgumentsBuilder<'a> {
             couch_speaker_name: None,
         }
     }
+}
 
+impl<'a> ChangeCommandBuilder<'a> {
     pub fn displays_and_speakers(
         &mut self,
         desktop_display_name: &'a str,
@@ -170,4 +185,67 @@ enum ArgumentCommandType {
     DisplaysAndSpeakers,
     DisplaysOnly,
     SpeakersOnly,
+}
+
+pub struct InfoCommandBuilder {
+    argument_command_type: Option<ArgumentCommandType>,
+}
+
+impl Default for InfoCommandBuilder {
+    fn default() -> Self {
+        Self {
+            argument_command_type: None,
+        }
+    }
+}
+
+impl InfoCommandBuilder {
+    pub fn displays_and_speakers(&mut self) -> &mut Self {
+        self.argument_command_type = Some(ArgumentCommandType::DisplaysAndSpeakers);
+
+        self
+    }
+
+    pub fn displays_only(&mut self) -> &mut Self {
+        self.argument_command_type = Some(ArgumentCommandType::DisplaysOnly);
+
+        self
+    }
+
+    pub fn speakers_only(&mut self) -> &mut Self {
+        self.argument_command_type = Some(ArgumentCommandType::SpeakersOnly);
+
+        self
+    }
+
+    pub fn build(&mut self) -> Arguments {
+        let argument_command_type = self.argument_command_type.as_ref().unwrap();
+
+        match argument_command_type {
+            ArgumentCommandType::DisplaysAndSpeakers => Arguments {
+                command: Commands::Info {
+                    device: Device::DisplaysAndSpeakers,
+                    shared: SharedOptions {
+                        log_level: LogLevelOption::Off,
+                    },
+                },
+            },
+            ArgumentCommandType::DisplaysOnly => Arguments {
+                command: Commands::Info {
+                    device: Device::DisplaysOnly,
+                    shared: SharedOptions {
+                        log_level: LogLevelOption::Off,
+                    },
+                },
+            },
+            ArgumentCommandType::SpeakersOnly => Arguments {
+                command: Commands::Info {
+                    device: Device::SpeakersOnly,
+                    shared: SharedOptions {
+                        log_level: LogLevelOption::Off,
+                    },
+                },
+            },
+        }
+    }
 }

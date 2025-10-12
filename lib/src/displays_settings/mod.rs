@@ -1,4 +1,4 @@
-use crate::ApplicationError;
+use crate::{ApplicationError, DeviceInfo};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct DisplaysSettingsResult {
@@ -14,6 +14,8 @@ pub trait DisplaysSettings<TDisplaysSettingsApi> {
         desktop_display_name: &str,
         couch_display_name: &str,
     ) -> Result<DisplaysSettingsResult, ApplicationError>;
+
+    fn get_displays_infos(&self) -> Result<Vec<DeviceInfo>, ApplicationError>;
 }
 
 #[cfg(target_os = "windows")]

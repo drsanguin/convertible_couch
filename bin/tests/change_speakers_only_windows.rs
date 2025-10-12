@@ -25,7 +25,8 @@ fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
@@ -59,7 +60,8 @@ fn it_should_return_an_error_if_getting_the_speakers_fails() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
@@ -93,7 +95,8 @@ fn it_should_return_an_error_if_getting_the_current_default_speaker_fails() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
@@ -127,7 +130,8 @@ fn it_should_return_an_error_if_setting_the_default_speaker_fails() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 

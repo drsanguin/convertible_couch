@@ -1,4 +1,4 @@
-use crate::ApplicationError;
+use crate::{ApplicationError, DeviceInfo};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct SpeakersSettingsResult {
@@ -13,6 +13,8 @@ pub trait SpeakersSettings<TSpeakersSettingsApi> {
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
     ) -> Result<SpeakersSettingsResult, ApplicationError>;
+
+    fn get_speakers_infos(&self) -> Result<Vec<DeviceInfo>, ApplicationError>;
 }
 
 #[cfg(target_os = "windows")]

@@ -30,7 +30,8 @@ fn it_should_report_a_displays_settings_error() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_and_speakers(
             &primary_display_name,
             &secondary_display_name,
@@ -73,7 +74,8 @@ fn it_should_report_a_speakers_settings_error() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_and_speakers(
             &primary_display_name,
             &secondary_display_name,

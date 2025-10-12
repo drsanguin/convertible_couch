@@ -1,5 +1,5 @@
 use convertible_couch::{
-    application::ApplicationResult,
+    application::{ApplicationChangeResult, ApplicationResult},
     testing::{
         arrangements::{bootstrap_application, ArgumentsBuilder},
         assertions::assert_that_result_is_an_error_who_starts_with,
@@ -29,7 +29,8 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
 
@@ -39,12 +40,14 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::DisplaysOnly {
-            displays_result: DisplaysSettingsResult {
-                new_primary_display: secondary_display_name,
-                reboot_required: false
+        Ok(ApplicationResult::Change(
+            ApplicationChangeResult::DisplaysOnly {
+                displays_result: DisplaysSettingsResult {
+                    new_primary_display: secondary_display_name,
+                    reboot_required: false
+                }
             }
-        })
+        ))
     );
 }
 
@@ -65,7 +68,8 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
 
@@ -77,12 +81,14 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::DisplaysOnly {
-            displays_result: DisplaysSettingsResult {
-                new_primary_display: primary_display_name,
-                reboot_required: false
+        Ok(ApplicationResult::Change(
+            ApplicationChangeResult::DisplaysOnly {
+                displays_result: DisplaysSettingsResult {
+                    new_primary_display: primary_display_name,
+                    reboot_required: false
+                }
             }
-        })
+        ))
     );
 }
 
@@ -104,7 +110,8 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_only(INTERNAL_DISPLAY_NAME, &secondary_display_name)
         .build();
 
@@ -114,12 +121,14 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::DisplaysOnly {
-            displays_result: DisplaysSettingsResult {
-                new_primary_display: secondary_display_name,
-                reboot_required: false,
+        Ok(ApplicationResult::Change(
+            ApplicationChangeResult::DisplaysOnly {
+                displays_result: DisplaysSettingsResult {
+                    new_primary_display: secondary_display_name,
+                    reboot_required: false,
+                }
             }
-        })
+        ))
     );
 }
 
@@ -140,7 +149,8 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_only(INTERNAL_DISPLAY_NAME, &secondary_display_name)
         .build();
 
@@ -152,12 +162,14 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::DisplaysOnly {
-            displays_result: DisplaysSettingsResult {
-                new_primary_display: String::from(INTERNAL_DISPLAY_NAME),
-                reboot_required: false,
+        Ok(ApplicationResult::Change(
+            ApplicationChangeResult::DisplaysOnly {
+                displays_result: DisplaysSettingsResult {
+                    new_primary_display: String::from(INTERNAL_DISPLAY_NAME),
+                    reboot_required: false,
+                }
             }
-        })
+        ))
     );
 }
 
@@ -179,7 +191,8 @@ fn it_should_validate_the_desktop_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_only(&invalid_display_name, &secondary_display_name)
         .build();
 
@@ -213,7 +226,8 @@ fn it_should_validate_the_couch_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_only(&primary_display_name, &invalid_display_name)
         .build();
 
@@ -251,7 +265,8 @@ fn it_should_validate_both_desktop_and_couch_displays() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_only(&invalid_desktop_display_name, &invalid_couch_display_name)
         .build();
 
@@ -285,7 +300,8 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder::default()
+        .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
 
