@@ -16,20 +16,8 @@ pub struct WindowsSoundSettings<TAudioEndpointLibrary: AudioEndpointLibrary> {
     audio_endpoint_library: TAudioEndpointLibrary,
 }
 
-impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpointLibrary>
-    for WindowsSoundSettings<TAudioEndpointLibrary>
-{
-    fn new(speakers_settings_api: TAudioEndpointLibrary) -> Self {
-        Self {
-            audio_endpoint_library: speakers_settings_api,
-        }
-    }
-
-    fn change_default_speaker(
-        &mut self,
-        desktop_speaker_name: &str,
-        couch_speaker_name: &str,
-    ) -> Result<SpeakersSettingsResult, ApplicationError> {
+impl<TAudioEndpointLibrary: AudioEndpointLibrary> WindowsSoundSettings<TAudioEndpointLibrary> {
+    fn get_all_audio_endpoints(&self) -> Result<Vec<AudioEndpoint>, ApplicationError> {
         let audio_endpoints_count = self.audio_endpoint_library.get_all_audio_endpoints_count();
 
         if audio_endpoints_count == -1 {
@@ -51,6 +39,26 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
                 "Failed to get the speakers",
             )));
         }
+
+        Ok(audio_endpoints)
+    }
+}
+
+impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpointLibrary>
+    for WindowsSoundSettings<TAudioEndpointLibrary>
+{
+    fn new(speakers_settings_api: TAudioEndpointLibrary) -> Self {
+        Self {
+            audio_endpoint_library: speakers_settings_api,
+        }
+    }
+
+    fn change_default_speaker(
+        &mut self,
+        desktop_speaker_name: &str,
+        couch_speaker_name: &str,
+    ) -> Result<SpeakersSettingsResult, ApplicationError> {
+        let audio_endpoints = self.get_all_audio_endpoints()?;
 
         let mut desktop_speaker_id: *mut u16 = null_mut();
         let mut couch_speaker_id: *mut u16 = null_mut();
@@ -130,27 +138,7 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
     }
 
     fn get_speakers_infos(&self) -> Result<Vec<DeviceInfo>, ApplicationError> {
-        let audio_endpoints_count = self.audio_endpoint_library.get_all_audio_endpoints_count();
-
-        if audio_endpoints_count == -1 {
-            return Err(ApplicationError::Custom(String::from(
-                "Failed to get the number of speakers",
-            )));
-        }
-
-        let audio_endpoints_count_as_usize = usize::try_from(audio_endpoints_count)?;
-        let mut audio_endpoints = vec![AudioEndpoint::default(); audio_endpoints_count_as_usize];
-
-        let get_all_audio_endpoints = unsafe {
-            self.audio_endpoint_library
-                .get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count)
-        };
-
-        if get_all_audio_endpoints != 0 {
-            return Err(ApplicationError::Custom(String::from(
-                "Failed to get the speakers",
-            )));
-        }
+        let audio_endpoints = self.get_all_audio_endpoints()?;
 
         let mut devices = audio_endpoints
             .iter()
