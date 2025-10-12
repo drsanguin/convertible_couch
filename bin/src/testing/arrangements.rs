@@ -54,24 +54,13 @@ impl ArgumentsBuilder {
     }
 }
 
+#[derive(Default)]
 pub struct ChangeCommandBuilder<'a> {
     argument_command_type: Option<ArgumentCommandType>,
     desktop_display_name: Option<&'a str>,
     couch_display_name: Option<&'a str>,
     desktop_speaker_name: Option<&'a str>,
     couch_speaker_name: Option<&'a str>,
-}
-
-impl<'a> Default for ChangeCommandBuilder<'a> {
-    fn default() -> Self {
-        Self {
-            argument_command_type: None,
-            desktop_display_name: None,
-            couch_display_name: None,
-            desktop_speaker_name: None,
-            couch_speaker_name: None,
-        }
-    }
 }
 
 impl<'a> ChangeCommandBuilder<'a> {
@@ -187,16 +176,9 @@ enum ArgumentCommandType {
     SpeakersOnly,
 }
 
+#[derive(Default)]
 pub struct InfoCommandBuilder {
     argument_command_type: Option<ArgumentCommandType>,
-}
-
-impl Default for InfoCommandBuilder {
-    fn default() -> Self {
-        Self {
-            argument_command_type: None,
-        }
-    }
 }
 
 impl InfoCommandBuilder {

@@ -29,7 +29,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
@@ -68,7 +68,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
@@ -110,7 +110,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(INTERNAL_DISPLAY_NAME, &secondary_display_name)
         .build();
@@ -149,7 +149,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(INTERNAL_DISPLAY_NAME, &secondary_display_name)
         .build();
@@ -191,7 +191,7 @@ fn it_should_validate_the_desktop_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&invalid_display_name, &secondary_display_name)
         .build();
@@ -226,7 +226,7 @@ fn it_should_validate_the_couch_display() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &invalid_display_name)
         .build();
@@ -265,7 +265,7 @@ fn it_should_validate_both_desktop_and_couch_displays() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&invalid_desktop_display_name, &invalid_couch_display_name)
         .build();
@@ -300,7 +300,7 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();

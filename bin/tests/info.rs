@@ -31,10 +31,7 @@ fn it_should_get_informations_about_displays_and_speakers() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
-        .info()
-        .displays_and_speakers()
-        .build();
+    let args = ArgumentsBuilder.info().displays_and_speakers().build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -82,7 +79,7 @@ fn it_should_get_informations_about_displays_only() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default().info().displays_only().build();
+    let args = ArgumentsBuilder.info().displays_only().build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -122,7 +119,7 @@ fn it_should_get_informations_about_speakers_only() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default().info().speakers_only().build();
+    let args = ArgumentsBuilder.info().speakers_only().build();
 
     // Act
     let actual_result = application.execute(&args);

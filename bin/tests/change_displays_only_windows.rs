@@ -44,7 +44,7 @@ fn it_should_report_committed_displays_settings_changes_errors(
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
@@ -78,7 +78,7 @@ fn it_should_report_displays_settings_changes_errors(
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
@@ -105,7 +105,7 @@ fn it_should_ask_for_reboot_when_committing_displays_settings_requires_it() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
@@ -145,7 +145,7 @@ fn it_should_ask_for_reboot_when_changing_displays_settings_requires_it() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
@@ -185,7 +185,7 @@ fn it_should_report_get_display_config_buffer_sizes_errors() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
@@ -220,7 +220,7 @@ fn it_should_report_query_display_config_errors() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
@@ -258,7 +258,7 @@ fn it_should_handle_the_case_of_a_display_being_not_possible_to_enum_display_set
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();

@@ -32,7 +32,7 @@ fn it_should_change_primary_display_and_default_speaker() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_and_speakers(
             &primary_display_name,
@@ -85,7 +85,7 @@ fn it_should_change_primary_display_and_default_speaker_back_and_forth() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::default()
+    let args = ArgumentsBuilder
         .change()
         .displays_and_speakers(
             &primary_display_name,
