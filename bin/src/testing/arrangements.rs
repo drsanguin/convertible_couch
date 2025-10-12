@@ -10,7 +10,9 @@ use convertible_couch_lib::{
 use crate::{
     application::Application,
     commands::{
-        Arguments, Commands, DisplaysOptions, LogLevelOption, SharedOptions, SpeakersOptions,
+        change::{ChangeCommands, DisplaysOptions, SpeakersOptions},
+        shared::{log_level_option::LogLevelOption, SharedOptions},
+        Arguments, Commands,
     },
 };
 
@@ -107,37 +109,37 @@ impl<'a> ArgumentsBuilder<'a> {
                 let speakers = self.build_speakers_options();
 
                 Arguments {
-                    command: Commands::DisplaysAndSpeakers {
+                    command: Commands::Change(ChangeCommands::DisplaysAndSpeakers {
                         displays,
                         speakers,
                         shared: SharedOptions {
                             log_level: LogLevelOption::Off,
                         },
-                    },
+                    }),
                 }
             }
             ArgumentCommandType::DisplaysOnly => {
                 let displays = self.build_displays_options();
 
                 Arguments {
-                    command: Commands::DisplaysOnly {
+                    command: Commands::Change(ChangeCommands::DisplaysOnly {
                         displays,
                         shared: SharedOptions {
                             log_level: LogLevelOption::Off,
                         },
-                    },
+                    }),
                 }
             }
             ArgumentCommandType::SpeakersOnly => {
                 let speakers = self.build_speakers_options();
 
                 Arguments {
-                    command: Commands::SpeakersOnly {
+                    command: Commands::Change(ChangeCommands::SpeakersOnly {
                         speakers,
                         shared: SharedOptions {
                             log_level: LogLevelOption::Off,
                         },
-                    },
+                    }),
                 }
             }
         }

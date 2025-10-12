@@ -11,7 +11,9 @@ use convertible_couch_lib::{
     ApplicationError,
 };
 
-use crate::commands::{Arguments, Commands, LogLevelOption};
+use crate::commands::{
+    change::ChangeCommands, shared::log_level_option::LogLevelOption, Arguments,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ApplicationResult {
@@ -61,54 +63,57 @@ impl<
 
     pub fn execute(&mut self, args: &Arguments) -> Result<ApplicationResult, ApplicationError> {
         match &args.command {
-            Commands::DisplaysAndSpeakers {
-                displays,
-                speakers,
-                shared,
-            } => {
-                let log_level = map_to_log_level(&shared.log_level);
+            crate::commands::Commands::Change(change_commands) => match change_commands {
+                ChangeCommands::DisplaysAndSpeakers {
+                    displays,
+                    speakers,
+                    shared,
+                } => {
+                    let log_level = map_to_log_level(&shared.log_level);
 
-                configure_logger(&log_level)?;
+                    configure_logger(&log_level)?;
 
-                let displays_result = self.displays_settings.change_primary_display(
-                    &displays.desktop_display_name,
-                    &displays.couch_display_name,
-                )?;
+                    let displays_result = self.displays_settings.change_primary_display(
+                        &displays.desktop_display_name,
+                        &displays.couch_display_name,
+                    )?;
 
-                let speakers_result = self.speakers_settings.change_default_speaker(
-                    &speakers.desktop_speaker_name,
-                    &speakers.couch_speaker_name,
-                )?;
+                    let speakers_result = self.speakers_settings.change_default_speaker(
+                        &speakers.desktop_speaker_name,
+                        &speakers.couch_speaker_name,
+                    )?;
 
-                Ok(ApplicationResult::DisplaysAndSpeakers {
-                    displays_result,
-                    speakers_result,
-                })
-            }
-            Commands::DisplaysOnly { displays, shared } => {
-                let log_level = map_to_log_level(&shared.log_level);
+                    Ok(ApplicationResult::DisplaysAndSpeakers {
+                        displays_result,
+                        speakers_result,
+                    })
+                }
+                ChangeCommands::DisplaysOnly { displays, shared } => {
+                    let log_level = map_to_log_level(&shared.log_level);
 
-                configure_logger(&log_level)?;
+                    configure_logger(&log_level)?;
 
-                let displays_result = self.displays_settings.change_primary_display(
-                    &displays.desktop_display_name,
-                    &displays.couch_display_name,
-                )?;
+                    let displays_result = self.displays_settings.change_primary_display(
+                        &displays.desktop_display_name,
+                        &displays.couch_display_name,
+                    )?;
 
-                Ok(ApplicationResult::DisplaysOnly { displays_result })
-            }
-            Commands::SpeakersOnly { speakers, shared } => {
-                let log_level = map_to_log_level(&shared.log_level);
+                    Ok(ApplicationResult::DisplaysOnly { displays_result })
+                }
+                ChangeCommands::SpeakersOnly { speakers, shared } => {
+                    let log_level = map_to_log_level(&shared.log_level);
 
-                configure_logger(&log_level)?;
+                    configure_logger(&log_level)?;
 
-                let speakers_result = self.speakers_settings.change_default_speaker(
-                    &speakers.desktop_speaker_name,
-                    &speakers.couch_speaker_name,
-                )?;
+                    let speakers_result = self.speakers_settings.change_default_speaker(
+                        &speakers.desktop_speaker_name,
+                        &speakers.couch_speaker_name,
+                    )?;
 
-                Ok(ApplicationResult::SpeakersOnly { speakers_result })
-            }
+                    Ok(ApplicationResult::SpeakersOnly { speakers_result })
+                }
+            },
+            crate::commands::Commands::Info { device, shared } => todo!(),
         }
     }
 }
@@ -129,7 +134,9 @@ mod tests {
     use convertible_couch_lib::log::LogLevel;
     use test_case::test_case;
 
-    use crate::{application::map_to_log_level, commands::LogLevelOption};
+    use crate::{
+        application::map_to_log_level, commands::shared::log_level_option::LogLevelOption,
+    };
 
     #[test_case(LogLevelOption::Off => LogLevel::Off)]
     #[test_case(LogLevelOption::Error => LogLevel::Error)]
