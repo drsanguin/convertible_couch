@@ -62,3 +62,38 @@ pub use windows::audio_endpoint_library::dll_based_audio_endpoint_library::DllBa
 
 #[cfg(target_os = "windows")]
 pub use windows::audio_endpoint_library::AudioEndpointLibrary as CurrentSpeakersSettingsApiTrait;
+
+#[cfg(test)]
+mod tests {
+    use crate::speakers_settings::SpeakerInfo;
+
+    #[test]
+    fn it_should_be_displayed_as_expected_when_default() {
+        // Arrange
+        let speaker_info = SpeakerInfo {
+            is_default: true,
+            name: String::from("Corsair Vengeance 1500"),
+        };
+
+        // Act
+        let display = format!("{speaker_info}");
+
+        // Assert
+        assert_eq!(display, "[default] Corsair Vengeance 1500")
+    }
+
+    #[test]
+    fn it_should_be_displayed_as_expected_when_alternative() {
+        // Arrange
+        let speaker_info = SpeakerInfo {
+            is_default: false,
+            name: String::from("Corsair Vengeance 1500"),
+        };
+
+        // Act
+        let display = format!("{speaker_info}");
+
+        // Assert
+        assert_eq!(display, "Corsair Vengeance 1500")
+    }
+}

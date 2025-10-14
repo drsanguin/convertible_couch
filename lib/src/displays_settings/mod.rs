@@ -66,3 +66,38 @@ pub use windows::win_32::Win32 as CurrentDisplaysSettingsApiTrait;
 
 #[cfg(target_os = "windows")]
 pub const INTERNAL_DISPLAY_NAME: &str = "Internal Display";
+
+#[cfg(test)]
+mod tests {
+    use crate::displays_settings::DisplayInfo;
+
+    #[test]
+    fn it_should_be_displayed_as_expected_when_primary() {
+        // Arrange
+        let display_info = DisplayInfo {
+            is_primary: true,
+            name: String::from("LG ULTRAWIDE"),
+        };
+
+        // Act
+        let display = format!("{display_info}");
+
+        // Assert
+        assert_eq!(display, "[primary] LG ULTRAWIDE")
+    }
+
+    #[test]
+    fn it_should_be_displayed_as_expected_when_secondary() {
+        // Arrange
+        let display_info = DisplayInfo {
+            is_primary: false,
+            name: String::from("LG ULTRAWIDE"),
+        };
+
+        // Act
+        let display = format!("{display_info}");
+
+        // Assert
+        assert_eq!(display, "LG ULTRAWIDE")
+    }
+}
