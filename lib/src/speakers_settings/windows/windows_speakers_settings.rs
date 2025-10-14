@@ -6,8 +6,8 @@ use std::{
 };
 
 use crate::{
-    speakers_settings::{SpeakersSettings, SpeakersSettingsResult},
-    ApplicationError, DeviceInfo,
+    speakers_settings::{SpeakerInfo, SpeakersSettings, SpeakersSettingsResult},
+    ApplicationError,
 };
 
 use super::audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
@@ -137,19 +137,20 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         Ok(result)
     }
 
-    fn get_speakers_infos(&self) -> Result<Vec<DeviceInfo>, ApplicationError> {
+    fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
         let audio_endpoints = self.get_all_audio_endpoints()?;
 
-        let mut devices = audio_endpoints
+        let mut speakers_info = audio_endpoints
             .iter()
-            .map(|audio_endpoint| audio_endpoint.name)
-            .map(|name| unsafe { map_c_ushort_to_string(name) })
-            .map(|name| DeviceInfo { name })
+            .map(|audio_endpoint| SpeakerInfo {
+                is_default: audio_endpoint.is_default == 1,
+                name: unsafe { map_c_ushort_to_string(audio_endpoint.name) },
+            })
             .collect::<Vec<_>>();
 
-        devices.sort_by(|a, b| a.name.cmp(&b.name));
+        speakers_info.sort();
 
-        Ok(devices)
+        Ok(speakers_info)
     }
 }
 

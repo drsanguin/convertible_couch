@@ -2,13 +2,13 @@ use std::marker::PhantomData;
 
 use convertible_couch_lib::{
     displays_settings::{
-        CurrentDisplaysSettingsApiTrait, DisplaysSettings, DisplaysSettingsResult,
+        CurrentDisplaysSettingsApiTrait, DisplayInfo, DisplaysSettings, DisplaysSettingsResult,
     },
     log::{configure_logger, LogLevel},
     speakers_settings::{
-        CurrentSpeakersSettingsApiTrait, SpeakersSettings, SpeakersSettingsResult,
+        CurrentSpeakersSettingsApiTrait, SpeakerInfo, SpeakersSettings, SpeakersSettingsResult,
     },
-    ApplicationError, DeviceInfo,
+    ApplicationError,
 };
 
 use crate::commands::{
@@ -39,14 +39,14 @@ pub enum ApplicationChangeResult {
 #[derive(Debug, PartialEq, Eq)]
 pub enum ApplicationInfoResult {
     DisplaysAndSpeakers {
-        displays_result: Vec<DeviceInfo>,
-        speakers_result: Vec<DeviceInfo>,
+        displays_result: Vec<DisplayInfo>,
+        speakers_result: Vec<SpeakerInfo>,
     },
     DisplaysOnly {
-        displays_result: Vec<DeviceInfo>,
+        displays_result: Vec<DisplayInfo>,
     },
     SpeakersOnly {
-        speakers_result: Vec<DeviceInfo>,
+        speakers_result: Vec<SpeakerInfo>,
     },
 }
 

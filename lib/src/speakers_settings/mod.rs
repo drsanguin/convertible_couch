@@ -1,8 +1,42 @@
-use crate::{ApplicationError, DeviceInfo};
+use std::cmp::Ordering;
+use std::fmt::{Display, Formatter};
+
+use crate::ApplicationError;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct SpeakersSettingsResult {
     pub new_default_speaker: String,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct SpeakerInfo {
+    pub is_default: bool,
+    pub name: String,
+}
+
+impl Ord for SpeakerInfo {
+    fn cmp(&self, other: &Self) -> Ordering {
+        other
+            .is_default
+            .cmp(&self.is_default)
+            .then(self.name.cmp(&other.name))
+    }
+}
+
+impl PartialOrd for SpeakerInfo {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Display for SpeakerInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        if self.is_default {
+            write!(f, "[default] {}", self.name)
+        } else {
+            write!(f, "{}", self.name)
+        }
+    }
 }
 
 pub trait SpeakersSettings<TSpeakersSettingsApi> {
@@ -14,7 +48,7 @@ pub trait SpeakersSettings<TSpeakersSettingsApi> {
         couch_speaker_name: &str,
     ) -> Result<SpeakersSettingsResult, ApplicationError>;
 
-    fn get_speakers_infos(&self) -> Result<Vec<DeviceInfo>, ApplicationError>;
+    fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError>;
 }
 
 #[cfg(target_os = "windows")]

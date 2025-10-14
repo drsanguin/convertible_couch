@@ -5,12 +5,11 @@ use convertible_couch::{
 };
 use convertible_couch_lib::{
     displays_settings::{
-        CurrentDisplaysSettings, CurrentDisplaysSettingsApi, DisplaysSettingsResult,
+        CurrentDisplaysSettings, CurrentDisplaysSettingsApi, DisplayInfo, DisplaysSettingsResult,
     },
     speakers_settings::{
-        CurrentSpeakersSettings, CurrentSpeakersSettingsApi, SpeakersSettingsResult,
+        CurrentSpeakersSettings, CurrentSpeakersSettingsApi, SpeakerInfo, SpeakersSettingsResult,
     },
-    DeviceInfo,
 };
 use log::{error, info, warn};
 use std::process::ExitCode;
@@ -90,20 +89,20 @@ fn log_change_displays_settings_result(displays_result: DisplaysSettingsResult) 
     }
 }
 
-fn log_info_displays_settings_result(displays_result: Vec<DeviceInfo>) {
+fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
     let displays_list = displays_result
         .iter()
-        .map(|device| device.name.clone())
+        .map(|device| format!("{device}"))
         .collect::<Vec<_>>()
         .join(", ");
 
     info!("Displays: {displays_list}")
 }
 
-fn log_info_speakers_settings_result(speakers_result: Vec<DeviceInfo>) {
+fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
     let speakers_list = speakers_result
         .iter()
-        .map(|device| device.name.clone())
+        .map(|device| format!("{device}"))
         .collect::<Vec<_>>()
         .join(", ");
 

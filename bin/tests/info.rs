@@ -3,9 +3,10 @@ use convertible_couch::{
     testing::arrangements::{bootstrap_application, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
+    displays_settings::DisplayInfo,
     func,
+    speakers_settings::SpeakerInfo,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
-    DeviceInfo,
 };
 
 #[test]
@@ -13,20 +14,24 @@ fn it_should_get_informations_about_displays_and_speakers() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (primary_display_name, secondary_display_name) = fuzzer.generate_two_display_names();
-    let (default_speaker_name, alternative_speaker_name) = fuzzer.generate_two_speakers_names();
+    let (primary_display_name, secondary_display_name, secondary_display_name_2) =
+        fuzzer.generate_three_display_names();
+    let (default_speaker_name, alternative_speaker_name, alternative_speaker_name_2) =
+        fuzzer.generate_three_speakers_names();
 
     let computer = fuzzer
         .generate_computer()
         .with_displays()
-        .of_which_there_are(2)
+        .of_which_there_are(3)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
+        .with_a_secondary_named(secondary_display_name_2.clone())
         .build_displays()
         .with_speakers()
-        .of_which_there_are(2)
+        .of_which_there_are(3)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .with_an_alternative_one_named(alternative_speaker_name_2.clone())
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -42,19 +47,31 @@ fn it_should_get_informations_about_displays_and_speakers() {
         Ok(ApplicationResult::Info(
             ApplicationInfoResult::DisplaysAndSpeakers {
                 displays_result: vec![
-                    DeviceInfo {
+                    DisplayInfo {
+                        is_primary: true,
                         name: primary_display_name
                     },
-                    DeviceInfo {
+                    DisplayInfo {
+                        is_primary: false,
                         name: secondary_display_name
+                    },
+                    DisplayInfo {
+                        is_primary: false,
+                        name: secondary_display_name_2
                     }
                 ],
                 speakers_result: vec![
-                    DeviceInfo {
+                    SpeakerInfo {
+                        is_default: true,
                         name: default_speaker_name
                     },
-                    DeviceInfo {
+                    SpeakerInfo {
+                        is_default: false,
                         name: alternative_speaker_name
+                    },
+                    SpeakerInfo {
+                        is_default: false,
+                        name: alternative_speaker_name_2
                     }
                 ]
             }
@@ -67,14 +84,15 @@ fn it_should_get_informations_about_displays_only() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (primary_display_name, secondary_display_name) = fuzzer.generate_two_display_names();
-
+    let (primary_display_name, secondary_display_name, secondary_display_name_2) =
+        fuzzer.generate_three_display_names();
     let computer = fuzzer
         .generate_computer()
         .with_displays()
-        .of_which_there_are(2)
+        .of_which_there_are(3)
         .whose_primary_is_named(primary_display_name.clone())
         .with_a_secondary_named(secondary_display_name.clone())
+        .with_a_secondary_named(secondary_display_name_2.clone())
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -90,11 +108,17 @@ fn it_should_get_informations_about_displays_only() {
         Ok(ApplicationResult::Info(
             ApplicationInfoResult::DisplaysOnly {
                 displays_result: vec![
-                    DeviceInfo {
+                    DisplayInfo {
+                        is_primary: true,
                         name: primary_display_name
                     },
-                    DeviceInfo {
+                    DisplayInfo {
+                        is_primary: false,
                         name: secondary_display_name
+                    },
+                    DisplayInfo {
+                        is_primary: false,
+                        name: secondary_display_name_2
                     }
                 ]
             }
@@ -107,14 +131,16 @@ fn it_should_get_informations_about_speakers_only() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (default_speaker_name, alternative_speaker_name) = fuzzer.generate_two_speakers_names();
+    let (default_speaker_name, alternative_speaker_name, alternative_speaker_name_2) =
+        fuzzer.generate_three_speakers_names();
 
     let computer = fuzzer
         .generate_computer()
         .with_speakers()
-        .of_which_there_are(2)
+        .of_which_there_are(3)
         .whose_default_one_is_named(default_speaker_name.clone())
         .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .with_an_alternative_one_named(alternative_speaker_name_2.clone())
         .build_computer();
 
     let mut application = bootstrap_application(computer);
@@ -130,11 +156,17 @@ fn it_should_get_informations_about_speakers_only() {
         Ok(ApplicationResult::Info(
             ApplicationInfoResult::SpeakersOnly {
                 speakers_result: vec![
-                    DeviceInfo {
+                    SpeakerInfo {
+                        is_default: true,
                         name: default_speaker_name
                     },
-                    DeviceInfo {
+                    SpeakerInfo {
+                        is_default: false,
                         name: alternative_speaker_name
+                    },
+                    SpeakerInfo {
+                        is_default: false,
+                        name: alternative_speaker_name_2
                     }
                 ]
             }
