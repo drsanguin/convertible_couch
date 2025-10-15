@@ -111,7 +111,7 @@ impl<
                         },
                     ))
                 }
-                ChangeCommands::DisplaysOnly { displays, shared } => {
+                ChangeCommands::Displays { displays, shared } => {
                     let log_level = map_to_log_level(&shared.log_level);
 
                     configure_logger(&log_level)?;
@@ -125,7 +125,7 @@ impl<
                         ApplicationChangeResult::DisplaysOnly { displays_result },
                     ))
                 }
-                ChangeCommands::SpeakersOnly { speakers, shared } => {
+                ChangeCommands::Speakers { speakers, shared } => {
                     let log_level = map_to_log_level(&shared.log_level);
 
                     configure_logger(&log_level)?;
@@ -157,14 +157,14 @@ impl<
                             },
                         ))
                     }
-                    Device::DisplaysOnly => {
+                    Device::Displays => {
                         let displays_result = self.displays_settings.get_displays_infos()?;
 
                         Ok(ApplicationResult::Info(
                             ApplicationInfoResult::DisplaysOnly { displays_result },
                         ))
                     }
-                    Device::SpeakersOnly => {
+                    Device::Speakers => {
                         let speakers_result = self.speakers_settings.get_speakers_infos()?;
 
                         Ok(ApplicationResult::Info(

@@ -85,7 +85,7 @@ impl<'a> ChangeCommandBuilder<'a> {
         desktop_display_name: &'a str,
         couch_display_name: &'a str,
     ) -> &mut Self {
-        self.argument_command_type = Some(ArgumentCommandType::DisplaysOnly);
+        self.argument_command_type = Some(ArgumentCommandType::Displays);
         self.desktop_display_name = Some(desktop_display_name);
         self.couch_display_name = Some(couch_display_name);
 
@@ -97,7 +97,7 @@ impl<'a> ChangeCommandBuilder<'a> {
         desktop_speaker_name: &'a str,
         couch_speaker_name: &'a str,
     ) -> &mut Self {
-        self.argument_command_type = Some(ArgumentCommandType::SpeakersOnly);
+        self.argument_command_type = Some(ArgumentCommandType::Speakers);
         self.desktop_speaker_name = Some(desktop_speaker_name);
         self.couch_speaker_name = Some(couch_speaker_name);
 
@@ -122,11 +122,11 @@ impl<'a> ChangeCommandBuilder<'a> {
                     }),
                 }
             }
-            ArgumentCommandType::DisplaysOnly => {
+            ArgumentCommandType::Displays => {
                 let displays = self.build_displays_options();
 
                 Arguments {
-                    command: Commands::Change(ChangeCommands::DisplaysOnly {
+                    command: Commands::Change(ChangeCommands::Displays {
                         displays,
                         shared: SharedOptions {
                             log_level: LogLevelOption::Off,
@@ -134,11 +134,11 @@ impl<'a> ChangeCommandBuilder<'a> {
                     }),
                 }
             }
-            ArgumentCommandType::SpeakersOnly => {
+            ArgumentCommandType::Speakers => {
                 let speakers = self.build_speakers_options();
 
                 Arguments {
-                    command: Commands::Change(ChangeCommands::SpeakersOnly {
+                    command: Commands::Change(ChangeCommands::Speakers {
                         speakers,
                         shared: SharedOptions {
                             log_level: LogLevelOption::Off,
@@ -172,8 +172,8 @@ impl<'a> ChangeCommandBuilder<'a> {
 
 enum ArgumentCommandType {
     DisplaysAndSpeakers,
-    DisplaysOnly,
-    SpeakersOnly,
+    Displays,
+    Speakers,
 }
 
 #[derive(Default)]
@@ -189,13 +189,13 @@ impl InfoCommandBuilder {
     }
 
     pub fn displays_only(&mut self) -> &mut Self {
-        self.argument_command_type = Some(ArgumentCommandType::DisplaysOnly);
+        self.argument_command_type = Some(ArgumentCommandType::Displays);
 
         self
     }
 
     pub fn speakers_only(&mut self) -> &mut Self {
-        self.argument_command_type = Some(ArgumentCommandType::SpeakersOnly);
+        self.argument_command_type = Some(ArgumentCommandType::Speakers);
 
         self
     }
@@ -212,17 +212,17 @@ impl InfoCommandBuilder {
                     },
                 },
             },
-            ArgumentCommandType::DisplaysOnly => Arguments {
+            ArgumentCommandType::Displays => Arguments {
                 command: Commands::Info {
-                    device: Device::DisplaysOnly,
+                    device: Device::Displays,
                     shared: SharedOptions {
                         log_level: LogLevelOption::Off,
                     },
                 },
             },
-            ArgumentCommandType::SpeakersOnly => Arguments {
+            ArgumentCommandType::Speakers => Arguments {
                 command: Commands::Info {
-                    device: Device::SpeakersOnly,
+                    device: Device::Speakers,
                     shared: SharedOptions {
                         log_level: LogLevelOption::Off,
                     },

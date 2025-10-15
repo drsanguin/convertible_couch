@@ -34,14 +34,14 @@ pub enum ChangeCommands {
         shared: SharedOptions,
     },
     /// Change only primary display
-    DisplaysOnly {
+    Displays {
         #[command(flatten)]
         displays: DisplaysOptions,
         #[command(flatten)]
         shared: SharedOptions,
     },
     /// Change only default speaker
-    SpeakersOnly {
+    Speakers {
         #[command(flatten)]
         speakers: SpeakersOptions,
         #[command(flatten)]
