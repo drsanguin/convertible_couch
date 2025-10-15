@@ -1,6 +1,8 @@
 use super::win_32::Win32;
 use crate::{
-    displays_settings::{DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
+    displays_settings::{
+        DisplayInfo, DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME,
+    },
     ApplicationError,
 };
 use log::warn;
@@ -99,6 +101,23 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
             reboot_required,
             new_primary_display: new_primary_display_name.to_string(),
         })
+    }
+
+    fn get_displays_infos(&self) -> Result<Vec<DisplayInfo>, ApplicationError> {
+        let names_by_device_ids = self.get_all_displays_names()?;
+        let positions_by_device_ids = self.get_all_displays_positions()?;
+
+        let mut displays_info = positions_by_device_ids
+            .iter()
+            .map(|(device_id, position)| DisplayInfo {
+                is_primary: position.x == 0 && position.y == 0,
+                name: names_by_device_ids.get(device_id).unwrap().to_string(),
+            })
+            .collect::<Vec<_>>();
+
+        displays_info.sort();
+
+        Ok(displays_info)
     }
 }
 

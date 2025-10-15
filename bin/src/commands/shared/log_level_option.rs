@@ -1,11 +1,4 @@
-use clap::{builder::PossibleValue, Args, Parser, Subcommand, ValueEnum};
-
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-pub struct Arguments {
-    #[command(subcommand)]
-    pub command: Commands,
-}
+use clap::{builder::PossibleValue, ValueEnum};
 
 /// An enum representing the available verbosity level filters of the logger.
 #[derive(Clone, Debug, PartialEq)]
@@ -24,60 +17,6 @@ pub enum LogLevelOption {
     Trace,
 }
 
-#[derive(Args, Debug)]
-pub struct SharedOptions {
-    /// Set the program's log level
-    #[arg(short, long, value_enum, default_value_t = LogLevelOption::Warn)]
-    pub log_level: LogLevelOption,
-}
-
-#[derive(Args, Debug)]
-pub struct DisplaysOptions {
-    /// The name of the display to use on your dekstop
-    #[arg(long)]
-    pub desktop_display_name: String,
-    /// The name of the display to use on your couch
-    #[arg(long)]
-    pub couch_display_name: String,
-}
-
-#[derive(Args, Debug)]
-pub struct SpeakersOptions {
-    /// The name of the speaker to use on your desktop
-    #[arg(long)]
-    pub desktop_speaker_name: String,
-    /// The name of the speaker to use on your couch
-    #[arg(long)]
-    pub couch_speaker_name: String,
-}
-
-#[derive(Debug, Subcommand)]
-pub enum Commands {
-    /// Change primary display and default speaker
-    DisplaysAndSpeakers {
-        #[command(flatten)]
-        displays: DisplaysOptions,
-        #[command(flatten)]
-        speakers: SpeakersOptions,
-        #[command(flatten)]
-        shared: SharedOptions,
-    },
-    /// Change only primary display
-    DisplaysOnly {
-        #[command(flatten)]
-        displays: DisplaysOptions,
-        #[command(flatten)]
-        shared: SharedOptions,
-    },
-    /// Change only default speaker
-    SpeakersOnly {
-        #[command(flatten)]
-        speakers: SpeakersOptions,
-        #[command(flatten)]
-        shared: SharedOptions,
-    },
-}
-
 impl ValueEnum for LogLevelOption {
     fn value_variants<'a>() -> &'a [Self] {
         &[
@@ -91,14 +30,16 @@ impl ValueEnum for LogLevelOption {
     }
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
-        Some(match self {
+        let canonical_argument_value = match self {
             Self::Off => PossibleValue::new("off"),
             Self::Error => PossibleValue::new("error"),
             Self::Warn => PossibleValue::new("warn"),
             Self::Info => PossibleValue::new("info"),
             Self::Debug => PossibleValue::new("debug"),
             Self::Trace => PossibleValue::new("trace"),
-        })
+        };
+
+        Some(canonical_argument_value)
     }
 }
 
@@ -107,7 +48,7 @@ mod tests {
     use clap::{builder::PossibleValue, ValueEnum};
     use test_case::test_case;
 
-    use crate::commands::LogLevelOption;
+    use crate::commands::shared::log_level_option::LogLevelOption;
 
     #[test]
     fn it_should_provide_all_possible_argument_values() {

@@ -20,15 +20,7 @@
                 }
             },
             "args": [
-                "displays-and-speakers",
-                "--desktop-display-name",
-                "LG ULTRAWIDE",
-                "--couch-display-name",
-                "M227WD",
-                "--desktop-speaker-name",
-                "Haut-parleurs (Realtek(R) Audio)",
-                "--couch-speaker-name",
-                "Haut-parleurs (Corsair Vengeance 1500)",
+                "info",
                 "--log-level",
                 "trace"
             ],
