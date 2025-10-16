@@ -18,7 +18,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install cargo-edit 🧰
-        run: cargo install cargo-edit -F set-version
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-edit
 
       - name: Bump Version 🏷️
         env:
