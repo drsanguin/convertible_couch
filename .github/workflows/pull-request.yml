@@ -9,7 +9,7 @@ env:
 
 jobs:
   check-pull-request:
-    name: Check Pull Request
+    name: Check Pull Request 📝
     runs-on: windows-latest
 
     steps:
@@ -25,19 +25,19 @@ jobs:
     - name: Check Coding Style 📝
       run: cargo fmt --check --all
 
-    - name: Compile 🏗️
+    - name: Compile Project 🏗️
       run: cargo build --all-targets --verbose
       env:
         RUSTFLAGS: -D warnings
 
-    - name: Linting 📝
-      uses: ./.github/actions/linting
+    - name: Run Linting 📝
+      uses: ./.github/actions/run-linting
 
     - name: Run Tests 🧪
       run: cargo test --verbose -- --nocapture
 
-    - name: Mutation Testing 🧟‍♂️
-      uses: ./.github/actions/mutation-testing
+    - name: Run Mutation Tests 🧟
+      uses: ./.github/actions/run-mutation-testing
 
     - name: Run Smoke Tests 🚬
       run: cargo run info -l trace
@@ -45,7 +45,7 @@ jobs:
     - name: Run Benchmarks ⏱️
       run: cargo test --benches
 
-    - name: Code Coverage 📊
-      uses: ./.github/actions/code-coverage
+    - name: Upload Code Coverage 📊
+      uses: ./.github/actions/upload-code-coverage
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

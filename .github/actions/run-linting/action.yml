@@ -1,4 +1,4 @@
-name: Linting 📝
+name: Run Linting 📝
 description: Catch all common Rust code mistakes
 inputs:
   github-token:

@@ -1,4 +1,4 @@
-name: Mutation Testing 🧟‍♂️
+name: Run Mutation Testing 🧟
 description: Evaluate the quality of existing tests
 runs:
   using: composite
@@ -9,7 +9,7 @@ runs:
         tool: cargo-mutants
 
     - name: Generate git.diff 🧰
-      if: github.event.pull_request.head.ref == 'main'
+      if: github.event.pull_request.base.ref == 'develop'
       shell: pwsh
       run: git diff origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > git.diff
 
@@ -17,10 +17,10 @@ runs:
       id: run-cargo-mutants
       shell: pwsh
       run: |
-        if ('${{ github.event.pull_request.head.ref }}' -eq 'main') {
-          cargo mutants --all-features --no-shuffle --in-place --test-workspace=true
-        } else {
+        if ('${{ github.event.pull_request.base.ref }}' -eq 'develop') {
           cargo mutants --all-features --no-shuffle --in-place --test-workspace=true --in-diff git.diff
+        } else {
+          cargo mutants --all-features --no-shuffle --in-place --test-workspace=true
         }
 
     - name: Archive results ⬆️

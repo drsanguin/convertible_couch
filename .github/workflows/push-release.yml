@@ -1,4 +1,4 @@
-name: Prepare Release
+name: Push Release
 
 on:
   push:
@@ -10,10 +10,12 @@ permissions:
 
 jobs:
   bump-version:
+    name: Bump Version 🏷️
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout Repository ⬇️
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -22,7 +24,7 @@ jobs:
         with:
           tool: cargo-edit
 
-      - name: Semantic Release 🚀
+      - name: Run Semantic Release 🚀
         run: npx semantic-release --dry-run | Tee-Object semantic_release_output.log
 
       - name: Bump Version 🏷️
@@ -33,7 +35,7 @@ jobs:
             Select-Object -Last 1 | `
             ForEach-Object { cargo set-version --workspace $_ }
 
-      - name: Push New Version ⬆️
+      - name: Push Metadata Changes ⬆️
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
