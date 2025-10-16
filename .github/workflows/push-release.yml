@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'release/*'
+      - ci/improve-robustness
 
 permissions:
   contents: write
