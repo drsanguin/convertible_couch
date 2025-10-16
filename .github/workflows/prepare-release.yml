@@ -22,28 +22,27 @@ jobs:
         with:
           tool: cargo-edit
 
+      - name: Semantic Release 🚀
+        run: npx semantic-release --dry-run | Tee-Object semantic_release_output.log
+
       - name: Bump Version 🏷️
+        run: |
+          Select-String -Path .\semantic_release.log -Pattern "The next release version is" | `
+            ForEach-Object { $_.Line } | `
+            ForEach-Object { $_ -split " " } | `
+            Select-Object -Last 1 | `
+            ForEach-Object { cargo set-version --workspace $_ }
+
+      - name: Push New Version ⬆️
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Extract next version without tagging
-          $semanticOutput = npx semantic-release --dry-run
-          Write-Host $semanticOutput
-          $versionLine = $semanticOutput | Select-String "The next release version is"
-          if ($versionLine) {
-            $VERSION = ($versionLine -split " ")[-1]
-            Write-Host "Detected version: $VERSION"
+          $version = cargo metadata --no-deps --format-version 1 `
+            | ConvertFrom-Json `
+            | %{ $_.packages[0].version }
 
-            if ($VERSION) {
-              # Update version for each workspace member
-              cargo set-version --workspace $VERSION
-
-              git config user.name "github-actions[bot]"
-              git config user.email "github-actions[bot]@users.noreply.github.com"
-              git add Cargo.toml **/Cargo.toml Cargo.lock
-              git commit -m "chore(release): bump version to $VERSION"
-              git push origin HEAD
-            }
-          } else {
-            Write-Host "No new version detected, skipping."
-          }
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Cargo.toml **/Cargo.toml Cargo.lock
+          git commit -m "chore(metadata): bump version to $version"
+          git push origin HEAD
