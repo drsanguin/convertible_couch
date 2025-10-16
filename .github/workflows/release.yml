@@ -23,9 +23,6 @@ jobs:
       - name: Setup Dev Environment 🧰
         uses: ./.github/actions/setup-dev-environment
 
-      - name: Setup Semantic Release 🧰
-        uses: ./.github/actions/setup-semantic-release
-
       - name: Compile 🏗️
         run: cargo build --release --bins
 
