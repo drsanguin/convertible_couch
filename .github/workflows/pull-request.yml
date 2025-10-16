@@ -38,7 +38,10 @@ jobs:
 
     - name: Mutation Testing 🧟‍♂️
       uses: ./.github/actions/mutation-testing
-        
+
+    - name: Run Smoke Tests 🚬
+      run: cargo run info -l trace
+
     - name: Run Benchmarks ⏱️
       run: cargo test --benches
 
