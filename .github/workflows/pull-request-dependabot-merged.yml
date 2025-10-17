@@ -1,0 +1,25 @@
+name: Pull Request Dependabot Merged
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+      contents: write
+
+jobs:
+  delete-branch:
+    name: Delete Dependabot branch 🗑️
+    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Delete Dependabot branch 🗑️
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git push origin --delete ${{ github.event.pull_request.head.ref }}
