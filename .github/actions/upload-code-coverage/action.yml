@@ -1,4 +1,4 @@
-name: Code Coverage 📊
+name: Upload Code Coverage 📊
 description: Generate and upload code coverage
 inputs:
   github-token:
