@@ -3,8 +3,7 @@ name: Push Release
 on:
   push:
     branches:
-      - 'release/*'
-      - ci/improve-robustness
+      - release/*
 
 permissions:
   contents: write

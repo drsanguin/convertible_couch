@@ -2,7 +2,7 @@
   "branches": [
     { "name": "main", "prerelease": false },
     { "name": "release/*", "prerelease": false },
-    { "name": "ci/improve-robustness", "prerelease": false }
+    { "name": "ci/improve-robustness", "prerelease": true }
   ],
   "plugins": [
     "@semantic-release/commit-analyzer",
