@@ -10,7 +10,10 @@ use convertible_couch_lib::{
 use crate::{
     application::Application,
     commands::{
-        Arguments, Commands, DisplaysOptions, LogLevelOption, SharedOptions, SpeakersOptions,
+        change::{ChangeCommands, DisplaysOptions, SpeakersOptions},
+        info::Device,
+        shared::{log_level_option::LogLevelOption, SharedOptions},
+        Arguments, Commands,
     },
 };
 
@@ -33,7 +36,26 @@ pub fn bootstrap_application(
     )
 }
 
-pub struct ArgumentsBuilder<'a> {
+pub struct ArgumentsBuilder;
+
+impl Default for ArgumentsBuilder {
+    fn default() -> Self {
+        Self
+    }
+}
+
+impl ArgumentsBuilder {
+    pub fn change<'a>(self) -> ChangeCommandBuilder<'a> {
+        ChangeCommandBuilder::default()
+    }
+
+    pub fn info(self) -> InfoCommandBuilder {
+        InfoCommandBuilder::default()
+    }
+}
+
+#[derive(Default)]
+pub struct ChangeCommandBuilder<'a> {
     argument_command_type: Option<ArgumentCommandType>,
     desktop_display_name: Option<&'a str>,
     couch_display_name: Option<&'a str>,
@@ -41,23 +63,7 @@ pub struct ArgumentsBuilder<'a> {
     couch_speaker_name: Option<&'a str>,
 }
 
-impl<'a> Default for ArgumentsBuilder<'a> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<'a> ArgumentsBuilder<'a> {
-    pub fn new() -> Self {
-        Self {
-            argument_command_type: None,
-            desktop_display_name: None,
-            couch_display_name: None,
-            desktop_speaker_name: None,
-            couch_speaker_name: None,
-        }
-    }
-
+impl<'a> ChangeCommandBuilder<'a> {
     pub fn displays_and_speakers(
         &mut self,
         desktop_display_name: &'a str,
@@ -79,7 +85,7 @@ impl<'a> ArgumentsBuilder<'a> {
         desktop_display_name: &'a str,
         couch_display_name: &'a str,
     ) -> &mut Self {
-        self.argument_command_type = Some(ArgumentCommandType::DisplaysOnly);
+        self.argument_command_type = Some(ArgumentCommandType::Displays);
         self.desktop_display_name = Some(desktop_display_name);
         self.couch_display_name = Some(couch_display_name);
 
@@ -91,7 +97,7 @@ impl<'a> ArgumentsBuilder<'a> {
         desktop_speaker_name: &'a str,
         couch_speaker_name: &'a str,
     ) -> &mut Self {
-        self.argument_command_type = Some(ArgumentCommandType::SpeakersOnly);
+        self.argument_command_type = Some(ArgumentCommandType::Speakers);
         self.desktop_speaker_name = Some(desktop_speaker_name);
         self.couch_speaker_name = Some(couch_speaker_name);
 
@@ -107,37 +113,37 @@ impl<'a> ArgumentsBuilder<'a> {
                 let speakers = self.build_speakers_options();
 
                 Arguments {
-                    command: Commands::DisplaysAndSpeakers {
+                    command: Commands::Change(ChangeCommands::DisplaysAndSpeakers {
                         displays,
                         speakers,
                         shared: SharedOptions {
                             log_level: LogLevelOption::Off,
                         },
-                    },
+                    }),
                 }
             }
-            ArgumentCommandType::DisplaysOnly => {
+            ArgumentCommandType::Displays => {
                 let displays = self.build_displays_options();
 
                 Arguments {
-                    command: Commands::DisplaysOnly {
+                    command: Commands::Change(ChangeCommands::Displays {
                         displays,
                         shared: SharedOptions {
                             log_level: LogLevelOption::Off,
                         },
-                    },
+                    }),
                 }
             }
-            ArgumentCommandType::SpeakersOnly => {
+            ArgumentCommandType::Speakers => {
                 let speakers = self.build_speakers_options();
 
                 Arguments {
-                    command: Commands::SpeakersOnly {
+                    command: Commands::Change(ChangeCommands::Speakers {
                         speakers,
                         shared: SharedOptions {
                             log_level: LogLevelOption::Off,
                         },
-                    },
+                    }),
                 }
             }
         }
@@ -166,6 +172,62 @@ impl<'a> ArgumentsBuilder<'a> {
 
 enum ArgumentCommandType {
     DisplaysAndSpeakers,
-    DisplaysOnly,
-    SpeakersOnly,
+    Displays,
+    Speakers,
+}
+
+#[derive(Default)]
+pub struct InfoCommandBuilder {
+    argument_command_type: Option<ArgumentCommandType>,
+}
+
+impl InfoCommandBuilder {
+    pub fn displays_and_speakers(&mut self) -> &mut Self {
+        self.argument_command_type = Some(ArgumentCommandType::DisplaysAndSpeakers);
+
+        self
+    }
+
+    pub fn displays_only(&mut self) -> &mut Self {
+        self.argument_command_type = Some(ArgumentCommandType::Displays);
+
+        self
+    }
+
+    pub fn speakers_only(&mut self) -> &mut Self {
+        self.argument_command_type = Some(ArgumentCommandType::Speakers);
+
+        self
+    }
+
+    pub fn build(&mut self) -> Arguments {
+        let argument_command_type = self.argument_command_type.as_ref().unwrap();
+
+        match argument_command_type {
+            ArgumentCommandType::DisplaysAndSpeakers => Arguments {
+                command: Commands::Info {
+                    device: Device::DisplaysAndSpeakers,
+                    shared: SharedOptions {
+                        log_level: LogLevelOption::Off,
+                    },
+                },
+            },
+            ArgumentCommandType::Displays => Arguments {
+                command: Commands::Info {
+                    device: Device::Displays,
+                    shared: SharedOptions {
+                        log_level: LogLevelOption::Off,
+                    },
+                },
+            },
+            ArgumentCommandType::Speakers => Arguments {
+                command: Commands::Info {
+                    device: Device::Speakers,
+                    shared: SharedOptions {
+                        log_level: LogLevelOption::Off,
+                    },
+                },
+            },
+        }
+    }
 }

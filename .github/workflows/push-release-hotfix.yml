@@ -1,0 +1,53 @@
+name: Push release/hotfix
+
+on:
+  push:
+    branches:
+      - release/*
+      - hotfix/*
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version:
+    name: Bump Version 🏷️
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository ⬇️
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install cargo-edit 🧰
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-edit
+
+      - name: Run Semantic Release 🚀
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release --dry-run | Tee-Object semantic_release.log
+
+      - name: Bump Version 🏷️
+        run: |
+          Select-String -Path .\semantic_release.log -Pattern "The next release version is" | `
+            ForEach-Object { $_.Line } | `
+            ForEach-Object { $_ -split " " } | `
+            Select-Object -Last 1 | `
+            ForEach-Object { cargo set-version --workspace $_ }
+
+      - name: Push Metadata Changes ⬆️
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = cargo metadata --no-deps --format-version 1 `
+            | ConvertFrom-Json `
+            | %{ $_.packages[0].version }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Cargo.toml **/Cargo.toml Cargo.lock
+          git commit -m "chore(metadata): bump version to $version"
+          git push origin HEAD

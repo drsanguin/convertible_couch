@@ -15,19 +15,50 @@
 | `develop` | [![Github Checks Status](https://img.shields.io/github/checks-status/drsanguin/convertible_couch/develop)](https://github.com/drsanguin/convertible_couch/actions?query=branch%3Adevelop) | [![Coverage Status](https://coveralls.io/repos/github/drsanguin/convertible_couch/badge.svg?branch=develop)](https://coveralls.io/github/drsanguin/convertible_couch?branch=develop) |
 
 ## Man
+
+### Commands
 ```
+Automate Windows display configuration to play from your couch
+
 Usage: convertible_couch.exe <COMMAND>
 
 Commands:
-  displays-and-speakers  Change primary display and default speaker
-  displays-only          Change only primary display
-  speakers-only          Change only default speaker
-  help                   Print this message or the help of the given subcommand(s)
+  change  Change primary display and/or default speaker
+  info    Get informations about displays and/or speakers
+  help    Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help     Print help
   -V, --version  Print version
-``` 
+```
+
+### Change
+```
+Change primary display and/or default speaker
+
+Usage: convertible_couch.exe change <COMMAND>
+
+Commands:
+  displays-and-speakers  Change primary display and default speaker
+  displays               Change only primary display
+  speakers               Change only default speaker
+  help                   Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+```
+
+### Info
+```
+Get informations about displays and/or speakers
+
+Usage: convertible_couch.exe info [OPTIONS]
+
+Options:
+  -d, --device <DEVICE>        Which device(s) to get informations about [default: displays-and-speakers] [possible values: displays-and-speakers, displays, speakers]
+  -l, --log-level <LOG_LEVEL>  Set the program's log level [default: warn] [possible values: off, error, warn, info, debug, trace]
+  -h, --help                   Print help
+```
 
 ## Acknowledgments
 - [Icon Source](https://www.flaticon.com/free-icon/couch_1010398)

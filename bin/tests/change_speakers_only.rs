@@ -1,5 +1,5 @@
 use convertible_couch::{
-    application::ApplicationResult,
+    application::{ApplicationChangeResult, ApplicationResult},
     testing::arrangements::{bootstrap_application, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
@@ -26,7 +26,8 @@ fn it_should_change_the_default_speaker() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder
+        .change()
         .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
@@ -36,11 +37,13 @@ fn it_should_change_the_default_speaker() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::SpeakersOnly {
-            speakers_result: SpeakersSettingsResult {
-                new_default_speaker: alternative_speaker_name
+        Ok(ApplicationResult::Change(
+            ApplicationChangeResult::SpeakersOnly {
+                speakers_result: SpeakersSettingsResult {
+                    new_default_speaker: alternative_speaker_name
+                }
             }
-        })
+        ))
     );
 }
 
@@ -61,7 +64,8 @@ fn it_should_change_the_default_speaker_back_and_forth() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder
+        .change()
         .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
@@ -73,11 +77,13 @@ fn it_should_change_the_default_speaker_back_and_forth() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::SpeakersOnly {
-            speakers_result: SpeakersSettingsResult {
-                new_default_speaker: default_speaker_name
+        Ok(ApplicationResult::Change(
+            ApplicationChangeResult::SpeakersOnly {
+                speakers_result: SpeakersSettingsResult {
+                    new_default_speaker: default_speaker_name
+                }
             }
-        })
+        ))
     );
 }
 
@@ -103,7 +109,8 @@ fn it_should_validate_the_desktop_and_couch_speaker_name() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder
+        .change()
         .speakers_only(&invalid_speaker_name_1, &invalid_speaker_name_2)
         .build();
 
@@ -135,7 +142,8 @@ fn it_should_validate_the_desktop_speaker_name() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder
+        .change()
         .speakers_only(&invalid_speaker_name, &alternative_speaker_name)
         .build();
 
@@ -167,7 +175,8 @@ fn it_should_validate_the_couch_speaker_name() {
 
     let mut application = bootstrap_application(computer);
 
-    let args = ArgumentsBuilder::new()
+    let args = ArgumentsBuilder
+        .change()
         .speakers_only(&default_speaker_name, &invalid_speaker_name)
         .build();
 

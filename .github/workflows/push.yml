@@ -9,7 +9,7 @@ env:
 
 jobs:
   upload-coverage:
-    name: Upload Coverage
+    name: Upload Code Coverage 📊
     runs-on: windows-latest
 
     steps:
@@ -22,6 +22,6 @@ jobs:
       uses: ./.github/actions/setup-dev-environment
 
     - name: Code Coverage 📊
-      uses: ./.github/actions/code-coverage
+      uses: ./.github/actions/upload-code-coverage
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

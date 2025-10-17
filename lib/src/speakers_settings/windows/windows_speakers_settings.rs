@@ -6,7 +6,7 @@ use std::{
 };
 
 use crate::{
-    speakers_settings::{SpeakersSettings, SpeakersSettingsResult},
+    speakers_settings::{SpeakerInfo, SpeakersSettings, SpeakersSettingsResult},
     ApplicationError,
 };
 
@@ -16,20 +16,8 @@ pub struct WindowsSoundSettings<TAudioEndpointLibrary: AudioEndpointLibrary> {
     audio_endpoint_library: TAudioEndpointLibrary,
 }
 
-impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpointLibrary>
-    for WindowsSoundSettings<TAudioEndpointLibrary>
-{
-    fn new(speakers_settings_api: TAudioEndpointLibrary) -> Self {
-        Self {
-            audio_endpoint_library: speakers_settings_api,
-        }
-    }
-
-    fn change_default_speaker(
-        &mut self,
-        desktop_speaker_name: &str,
-        couch_speaker_name: &str,
-    ) -> Result<SpeakersSettingsResult, ApplicationError> {
+impl<TAudioEndpointLibrary: AudioEndpointLibrary> WindowsSoundSettings<TAudioEndpointLibrary> {
+    fn get_all_audio_endpoints(&self) -> Result<Vec<AudioEndpoint>, ApplicationError> {
         let audio_endpoints_count = self.audio_endpoint_library.get_all_audio_endpoints_count();
 
         if audio_endpoints_count == -1 {
@@ -51,6 +39,26 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
                 "Failed to get the speakers",
             )));
         }
+
+        Ok(audio_endpoints)
+    }
+}
+
+impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpointLibrary>
+    for WindowsSoundSettings<TAudioEndpointLibrary>
+{
+    fn new(speakers_settings_api: TAudioEndpointLibrary) -> Self {
+        Self {
+            audio_endpoint_library: speakers_settings_api,
+        }
+    }
+
+    fn change_default_speaker(
+        &mut self,
+        desktop_speaker_name: &str,
+        couch_speaker_name: &str,
+    ) -> Result<SpeakersSettingsResult, ApplicationError> {
+        let audio_endpoints = self.get_all_audio_endpoints()?;
 
         let mut desktop_speaker_id: *mut u16 = null_mut();
         let mut couch_speaker_id: *mut u16 = null_mut();
@@ -127,6 +135,22 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         };
 
         Ok(result)
+    }
+
+    fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
+        let audio_endpoints = self.get_all_audio_endpoints()?;
+
+        let mut speakers_info = audio_endpoints
+            .iter()
+            .map(|audio_endpoint| SpeakerInfo {
+                is_default: audio_endpoint.is_default == 1,
+                name: unsafe { map_c_ushort_to_string(audio_endpoint.name) },
+            })
+            .collect::<Vec<_>>();
+
+        speakers_info.sort();
+
+        Ok(speakers_info)
     }
 }
 
