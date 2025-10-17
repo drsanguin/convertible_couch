@@ -1,9 +1,10 @@
-name: Push Release
+name: Push release/hotfix
 
 on:
   push:
     branches:
       - release/*
+      - hotfix/*
 
 permissions:
   contents: write

@@ -1,4 +1,4 @@
-name: Pull Request
+name: Pull Request main/develop
 
 on:
   pull_request:
