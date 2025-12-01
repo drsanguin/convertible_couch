@@ -18,10 +18,10 @@ log = "0.4.28"
 convertible_couch_lib = { path = "../lib"}
 
 [build-dependencies]
-winresource = "0.1.27"
+winresource = "0.1.28"
 
 [dev-dependencies]
-criterion = { version = "0.7.0", features = ["html_reports"] }
+criterion = { version = "0.8.0", features = ["html_reports"] }
 test-case = "3.3.1"
 
 [target.'cfg(windows)'.dev-dependencies]
