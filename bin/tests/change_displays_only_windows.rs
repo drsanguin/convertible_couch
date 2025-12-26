@@ -2,7 +2,7 @@
 
 use convertible_couch::{
     application::{ApplicationChangeResult, ApplicationResult},
-    testing::arrangements::{bootstrap_application, ArgumentsBuilder},
+    testing::arrangements::{ApplicationBuilder, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
     displays_settings::DisplaysSettingsResult,
@@ -42,7 +42,7 @@ fn it_should_report_committed_displays_settings_changes_errors(
         .for_which_committing_the_display_changes_fails_with(disp_change)
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -76,7 +76,7 @@ fn it_should_report_displays_settings_changes_errors(
         .for_which_changing_the_display_settings_fails_with(disp_change)
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -103,7 +103,7 @@ fn it_should_ask_for_reboot_when_committing_displays_settings_requires_it() {
         .for_which_committing_the_display_changes_fails_with(DISP_CHANGE_RESTART)
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -143,7 +143,7 @@ fn it_should_ask_for_reboot_when_changing_displays_settings_requires_it() {
         .for_which_changing_the_display_settings_fails_with(DISP_CHANGE_RESTART)
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -183,7 +183,7 @@ fn it_should_report_get_display_config_buffer_sizes_errors() {
         .for_which_getting_display_config_buffer_sizes_fails_with(ERROR_INVALID_PARAMETER)
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -218,7 +218,7 @@ fn it_should_report_query_display_config_errors() {
         .for_which_querying_display_config_fails_with(ERROR_INVALID_PARAMETER)
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -256,7 +256,7 @@ fn it_should_handle_the_case_of_a_display_being_not_possible_to_enum_display_set
         )
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()

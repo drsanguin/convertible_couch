@@ -1,6 +1,6 @@
 use convertible_couch::{
     application::{ApplicationInfoResult, ApplicationResult},
-    testing::arrangements::{bootstrap_application, ArgumentsBuilder},
+    testing::arrangements::{ApplicationBuilder, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
     displays_settings::DisplayInfo,
@@ -34,7 +34,7 @@ fn it_should_get_informations_about_displays_and_speakers() {
         .with_an_alternative_one_named(alternative_speaker_name_2.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder.info().displays_and_speakers().build();
 
@@ -95,7 +95,7 @@ fn it_should_get_informations_about_displays_only() {
         .with_a_secondary_named(secondary_display_name_2.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder.info().displays_only().build();
 
@@ -143,7 +143,7 @@ fn it_should_get_informations_about_speakers_only() {
         .with_an_alternative_one_named(alternative_speaker_name_2.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder.info().speakers_only().build();
 

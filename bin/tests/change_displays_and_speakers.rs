@@ -1,6 +1,6 @@
 use convertible_couch::{
     application::{ApplicationChangeResult, ApplicationResult},
-    testing::arrangements::{bootstrap_application, ArgumentsBuilder},
+    testing::arrangements::{ApplicationBuilder, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
     displays_settings::DisplaysSettingsResult,
@@ -30,7 +30,7 @@ fn it_should_change_primary_display_and_default_speaker() {
         .with_an_alternative_one_named(alternative_speaker_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -83,7 +83,7 @@ fn it_should_change_primary_display_and_default_speaker_back_and_forth() {
         .with_an_alternative_one_named(alternative_speaker_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()

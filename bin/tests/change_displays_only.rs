@@ -1,7 +1,7 @@
 use convertible_couch::{
     application::{ApplicationChangeResult, ApplicationResult},
     testing::{
-        arrangements::{bootstrap_application, ArgumentsBuilder},
+        arrangements::{ApplicationBuilder, ArgumentsBuilder},
         assertions::assert_that_result_is_an_error_who_starts_with,
     },
 };
@@ -27,7 +27,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
         .with_a_secondary_named(secondary_display_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -66,7 +66,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
         .with_a_secondary_named(secondary_display_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -108,7 +108,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
         .with_a_secondary_named(secondary_display_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -147,7 +147,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
         .with_a_secondary_named(secondary_display_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -189,7 +189,7 @@ fn it_should_validate_the_desktop_display() {
         .with_a_secondary_named(secondary_display_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -224,7 +224,7 @@ fn it_should_validate_the_couch_display() {
         .with_a_secondary_named(secondary_display_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -263,7 +263,7 @@ fn it_should_validate_both_desktop_and_couch_displays() {
         .with_a_secondary_named(secondary_display_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -298,7 +298,7 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
         .for_which_getting_the_primary_display_fails()
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
