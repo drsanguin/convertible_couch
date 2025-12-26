@@ -13,19 +13,21 @@ runs:
       shell: pwsh
       run: git diff origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > git.diff
 
-    - name: Run cargo-mutants 🧟‍♂️
-      id: run-cargo-mutants
+    - name: Run cargo-mutants on the entire codebase 🧟‍♂️
+      id: run-cargo-mutants-on-the-entire-codebase
+      if: github.event.pull_request.base.ref != 'develop'
       shell: pwsh
-      run: |
-        if ('${{ github.event.pull_request.base.ref }}' -eq 'develop') {
-          cargo mutants --all-features --no-shuffle --in-place --test-workspace=true --in-diff git.diff
-        } else {
-          cargo mutants --all-features --no-shuffle --in-place --test-workspace=true
-        }
+      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true
+
+    - name: Run cargo-mutants only on recently changed code 🧟‍♂️
+      id: run-cargo-mutants-on-recently-changed-code
+      if: github.event.pull_request.base.ref == 'develop'
+      shell: pwsh
+      run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true --in-diff git.diff
 
     - name: Archive results ⬆️
       uses: actions/upload-artifact@v4
-      if: steps.run-cargo-mutants.outcome == 'failure'
+      if: steps.run-cargo-mutants-on-the-entire-codebase.outcome == 'failure' || steps.run-cargo-mutants-on-recently-changed-code == 'failure'
       with:
         name: mutation-testing-report
         path: mutants.out
