@@ -17,23 +17,33 @@ use crate::{
     },
 };
 
-pub fn bootstrap_application(
+pub struct ApplicationBuilder {
     computer: FuzzedComputer,
-) -> Application<
-    CurrentFuzzedDisplaysSettingsApi,
-    CurrentFuzzedSpeakersSettingsApi,
-    CurrentDisplaysSettings<CurrentFuzzedDisplaysSettingsApi>,
-    CurrentSpeakersSettings<CurrentFuzzedSpeakersSettingsApi>,
-> {
-    Application::<
+}
+
+impl ApplicationBuilder {
+    pub fn new(computer: FuzzedComputer) -> Self {
+        Self { computer }
+    }
+
+    pub fn build(
+        self,
+    ) -> Application<
         CurrentFuzzedDisplaysSettingsApi,
         CurrentFuzzedSpeakersSettingsApi,
         CurrentDisplaysSettings<CurrentFuzzedDisplaysSettingsApi>,
         CurrentSpeakersSettings<CurrentFuzzedSpeakersSettingsApi>,
-    >::bootstrap(
-        computer.displays_settings_api,
-        computer.speakers_settings_api,
-    )
+    > {
+        Application::<
+            CurrentFuzzedDisplaysSettingsApi,
+            CurrentFuzzedSpeakersSettingsApi,
+            CurrentDisplaysSettings<CurrentFuzzedDisplaysSettingsApi>,
+            CurrentSpeakersSettings<CurrentFuzzedSpeakersSettingsApi>,
+        >::bootstrap(
+            self.computer.displays_settings_api,
+            self.computer.speakers_settings_api,
+        )
+    }
 }
 
 pub struct ArgumentsBuilder;

@@ -1,4 +1,4 @@
-use convertible_couch::testing::arrangements::{bootstrap_application, ArgumentsBuilder};
+use convertible_couch::testing::arrangements::{ApplicationBuilder, ArgumentsBuilder};
 use convertible_couch_lib::{
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
@@ -62,7 +62,7 @@ fn change_primary_display_and_default_speaker(criterion: &mut Criterion) {
                                 .with_an_alternative_one_named(alternative_speaker_name.clone())
                                 .build_computer();
 
-                            let application = bootstrap_application(computer);
+                            let application = ApplicationBuilder::new(computer).build();
 
                             let args = ArgumentsBuilder
                                 .change()
@@ -110,7 +110,7 @@ fn change_primary_display(criterion: &mut Criterion) {
                             .with_a_secondary_named(secondary_display_name.clone())
                             .build_computer();
 
-                        let application = bootstrap_application(computer);
+                        let application = ApplicationBuilder::new(computer).build();
 
                         let args = ArgumentsBuilder
                             .change()
@@ -152,7 +152,7 @@ fn change_default_speaker(criterion: &mut Criterion) {
                             .with_an_alternative_one_named(alternative_speaker_name.clone())
                             .build_computer();
 
-                        let application = bootstrap_application(computer);
+                        let application = ApplicationBuilder::new(computer).build();
 
                         let args = ArgumentsBuilder
                             .change()
@@ -194,7 +194,7 @@ fn get_infos_about_displays(criterion: &mut Criterion) {
                             .with_a_secondary_named(secondary_display_name.clone())
                             .build_computer();
 
-                        let application = bootstrap_application(computer);
+                        let application = ApplicationBuilder::new(computer).build();
 
                         let args = ArgumentsBuilder.info().displays_only().build();
 
@@ -233,7 +233,7 @@ fn get_infos_about_speakers(criterion: &mut Criterion) {
                             .with_an_alternative_one_named(alternative_speaker_name.clone())
                             .build_computer();
 
-                        let application = bootstrap_application(computer);
+                        let application = ApplicationBuilder::new(computer).build();
 
                         let args = ArgumentsBuilder.info().speakers_only().build();
 
@@ -287,7 +287,7 @@ fn get_infos_about_displays_and_speakers(criterion: &mut Criterion) {
                                 .with_an_alternative_one_named(alternative_speaker_name.clone())
                                 .build_computer();
 
-                            let application = bootstrap_application(computer);
+                            let application = ApplicationBuilder::new(computer).build();
 
                             let args = ArgumentsBuilder.info().displays_and_speakers().build();
 

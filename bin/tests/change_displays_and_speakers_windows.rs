@@ -1,4 +1,4 @@
-use convertible_couch::testing::arrangements::{bootstrap_application, ArgumentsBuilder};
+use convertible_couch::testing::arrangements::{ApplicationBuilder, ArgumentsBuilder};
 use convertible_couch_lib::{
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
@@ -28,7 +28,7 @@ fn it_should_report_a_displays_settings_error() {
         .with_an_alternative_one_named(alternative_speaker_name.clone())
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
@@ -72,7 +72,7 @@ fn it_should_report_a_speakers_settings_error() {
         .for_which_setting_the_default_speaker_fails()
         .build_computer();
 
-    let mut application = bootstrap_application(computer);
+    let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
