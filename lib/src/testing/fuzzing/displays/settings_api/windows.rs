@@ -247,7 +247,7 @@ impl Win32 for FuzzedWin32 {
         self.video_outputs
             .iter()
             .find(|video_output| video_output.device_name == device_name)
-            .and_then(|video_output| video_output.display.clone())
+            .and_then(|video_output| video_output.display.as_ref())
             .and_then(|display| {
                 lpdevmode.map(|graphic_mode| {
                     (
@@ -320,7 +320,7 @@ impl Win32 for FuzzedWin32 {
             self.video_outputs
                 .iter()
                 .find(|video_output| video_output.device_name == device_name)
-                .and_then(|video_output| video_output.display.clone())
+                .and_then(|video_output| video_output.display.as_ref())
                 .map(|display| {
                     let device_id = encode_utf16::<128>(&display.device_id);
 
@@ -347,7 +347,7 @@ impl Win32 for FuzzedWin32 {
         self.video_outputs
             .iter()
             .find(|video_output| video_output.device_name == device_name)
-            .and_then(|video_output| video_output.display.clone())
+            .and_then(|video_output| video_output.display.as_ref())
             .map(|display| {
                 if self
                     .behaviour
