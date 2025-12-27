@@ -176,13 +176,13 @@ impl<'a> DisplaysFuzzer<'a> {
 
         names.extend(self.secondary_display_names.clone());
 
-        if self.primary_display_name.is_some() {
+        if let Some(primary_display_name) = &self.primary_display_name {
             let primary_position_target_index = positioned_resolutions
                 .iter()
                 .position(|x| x.position.is_positioned_at_origin())
                 .unwrap();
 
-            names.push(self.primary_display_name.clone().unwrap());
+            names.push(primary_display_name.to_string());
 
             let primary_position_source_index = names.len() - 1;
 
