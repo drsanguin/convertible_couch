@@ -95,14 +95,15 @@ impl<'a> DisplaysFuzzer<'a> {
         self
     }
 
-    pub fn whose_primary_is_named(&mut self, primary_display_name: String) -> &mut Self {
-        self.primary_display_name = Some(primary_display_name);
+    pub fn whose_primary_is_named(&mut self, primary_display_name: &str) -> &mut Self {
+        self.primary_display_name = Some(primary_display_name.to_string());
 
         self
     }
 
-    pub fn with_a_secondary_named(&mut self, secondary_display_name: String) -> &mut Self {
-        self.secondary_display_names.insert(secondary_display_name);
+    pub fn with_a_secondary_named(&mut self, secondary_display_name: &str) -> &mut Self {
+        self.secondary_display_names
+            .insert(secondary_display_name.to_string());
 
         self
     }
@@ -270,13 +271,13 @@ impl<'a> DisplaysFuzzer<'a> {
 
     pub fn with_a_secondary_for_which_it_is_not_possible_to_enum_display_settings_on(
         &mut self,
-        display_not_possible_to_enum_display_settings_on: String,
+        display_not_possible_to_enum_display_settings_on: &str,
     ) -> &mut Self {
         self.secondary_display_names
-            .insert(display_not_possible_to_enum_display_settings_on.clone());
+            .insert(display_not_possible_to_enum_display_settings_on.to_string());
         self.behaviour
             .display_not_possible_to_enum_display_settings_on =
-            Some(display_not_possible_to_enum_display_settings_on);
+            Some(display_not_possible_to_enum_display_settings_on.to_string());
 
         self
     }

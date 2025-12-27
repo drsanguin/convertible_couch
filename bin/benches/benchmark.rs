@@ -53,13 +53,13 @@ fn change_primary_display_and_default_speaker(criterion: &mut Criterion) {
                                 .generate_computer()
                                 .with_displays()
                                 .of_which_there_are(bench_parameter.displays_count)
-                                .whose_primary_is_named(primary_display_name.clone())
-                                .with_a_secondary_named(secondary_display_name.clone())
+                                .whose_primary_is_named(&primary_display_name)
+                                .with_a_secondary_named(&secondary_display_name)
                                 .build_displays()
                                 .with_speakers()
                                 .of_which_there_are(bench_parameter.speakers_count)
-                                .whose_default_one_is_named(default_speaker_name.clone())
-                                .with_an_alternative_one_named(alternative_speaker_name.clone())
+                                .whose_default_one_is_named(&default_speaker_name)
+                                .with_an_alternative_one_named(&alternative_speaker_name)
                                 .build_computer();
 
                             let application = ApplicationBuilder::new(computer).build();
@@ -106,8 +106,8 @@ fn change_primary_display(criterion: &mut Criterion) {
                             .generate_computer()
                             .with_displays()
                             .of_which_there_are(*display_count)
-                            .whose_primary_is_named(primary_display_name.clone())
-                            .with_a_secondary_named(secondary_display_name.clone())
+                            .whose_primary_is_named(&primary_display_name)
+                            .with_a_secondary_named(&secondary_display_name)
                             .build_computer();
 
                         let application = ApplicationBuilder::new(computer).build();
@@ -148,8 +148,8 @@ fn change_default_speaker(criterion: &mut Criterion) {
                             .generate_computer()
                             .with_speakers()
                             .of_which_there_are(*speakers_count)
-                            .whose_default_one_is_named(default_speaker_name.clone())
-                            .with_an_alternative_one_named(alternative_speaker_name.clone())
+                            .whose_default_one_is_named(&default_speaker_name)
+                            .with_an_alternative_one_named(&alternative_speaker_name)
                             .build_computer();
 
                         let application = ApplicationBuilder::new(computer).build();
@@ -190,8 +190,8 @@ fn get_infos_about_displays(criterion: &mut Criterion) {
                             .generate_computer()
                             .with_displays()
                             .of_which_there_are(*display_count)
-                            .whose_primary_is_named(primary_display_name.clone())
-                            .with_a_secondary_named(secondary_display_name.clone())
+                            .whose_primary_is_named(&primary_display_name)
+                            .with_a_secondary_named(&secondary_display_name)
                             .build_computer();
 
                         let application = ApplicationBuilder::new(computer).build();
@@ -229,8 +229,8 @@ fn get_infos_about_speakers(criterion: &mut Criterion) {
                             .generate_computer()
                             .with_speakers()
                             .of_which_there_are(*speakers_count)
-                            .whose_default_one_is_named(default_speaker_name.clone())
-                            .with_an_alternative_one_named(alternative_speaker_name.clone())
+                            .whose_default_one_is_named(&default_speaker_name)
+                            .with_an_alternative_one_named(&alternative_speaker_name)
                             .build_computer();
 
                         let application = ApplicationBuilder::new(computer).build();
@@ -278,13 +278,13 @@ fn get_infos_about_displays_and_speakers(criterion: &mut Criterion) {
                                 .generate_computer()
                                 .with_displays()
                                 .of_which_there_are(bench_parameter.displays_count)
-                                .whose_primary_is_named(primary_display_name.clone())
-                                .with_a_secondary_named(secondary_display_name.clone())
+                                .whose_primary_is_named(&primary_display_name)
+                                .with_a_secondary_named(&secondary_display_name)
                                 .build_displays()
                                 .with_speakers()
                                 .of_which_there_are(bench_parameter.speakers_count)
-                                .whose_default_one_is_named(default_speaker_name.clone())
-                                .with_an_alternative_one_named(alternative_speaker_name.clone())
+                                .whose_default_one_is_named(&default_speaker_name)
+                                .with_an_alternative_one_named(&alternative_speaker_name)
                                 .build_computer();
 
                             let application = ApplicationBuilder::new(computer).build();

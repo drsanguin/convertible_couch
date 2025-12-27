@@ -20,8 +20,8 @@ fn it_should_change_the_default_speaker() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are_at_least(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -58,8 +58,8 @@ fn it_should_change_the_default_speaker_back_and_forth() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are_at_least(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -103,8 +103,8 @@ fn it_should_validate_the_desktop_and_couch_speaker_name() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -136,8 +136,8 @@ fn it_should_validate_the_desktop_speaker_name() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -169,8 +169,8 @@ fn it_should_validate_the_couch_speaker_name() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();

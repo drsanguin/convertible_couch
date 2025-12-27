@@ -63,14 +63,15 @@ impl<'a> SpeakersFuzzer<'a> {
         self
     }
 
-    pub fn whose_default_one_is_named(&mut self, default_speaker_name: String) -> &mut Self {
-        self.default_speaker_name = Some(default_speaker_name);
+    pub fn whose_default_one_is_named(&mut self, default_speaker_name: &str) -> &mut Self {
+        self.default_speaker_name = Some(default_speaker_name.to_string());
 
         self
     }
 
-    pub fn with_an_alternative_one_named(&mut self, alternative_speaker_name: String) -> &mut Self {
-        self.alternative_names.insert(alternative_speaker_name);
+    pub fn with_an_alternative_one_named(&mut self, alternative_speaker_name: &str) -> &mut Self {
+        self.alternative_names
+            .insert(alternative_speaker_name.to_string());
 
         self
     }
