@@ -63,14 +63,15 @@ impl<'a> SpeakersFuzzer<'a> {
         self
     }
 
-    pub fn whose_default_one_is_named(&mut self, default_speaker_name: String) -> &mut Self {
-        self.default_speaker_name = Some(default_speaker_name);
+    pub fn whose_default_one_is_named(&mut self, default_speaker_name: &str) -> &mut Self {
+        self.default_speaker_name = Some(default_speaker_name.to_string());
 
         self
     }
 
-    pub fn with_an_alternative_one_named(&mut self, alternative_speaker_name: String) -> &mut Self {
-        self.alternative_names.insert(alternative_speaker_name);
+    pub fn with_an_alternative_one_named(&mut self, alternative_speaker_name: &str) -> &mut Self {
+        self.alternative_names
+            .insert(alternative_speaker_name.to_string());
 
         self
     }
@@ -78,9 +79,8 @@ impl<'a> SpeakersFuzzer<'a> {
     pub fn build_speakers(&'a mut self) -> &'a mut ComputerFuzzer<'a> {
         let mut names_already_taken = HashSet::new();
 
-        if self.default_speaker_name.is_some() {
-            let default_speaker_name = self.default_speaker_name.clone().unwrap();
-            names_already_taken.insert(default_speaker_name);
+        if let Some(default_speaker_name) = &self.default_speaker_name {
+            names_already_taken.insert(default_speaker_name.to_string());
         }
 
         names_already_taken.extend(self.alternative_names.clone());
@@ -99,12 +99,10 @@ impl<'a> SpeakersFuzzer<'a> {
 
         let ids = SpeakerIdFuzzer::new(self.computer_fuzzer.rand).generate_several(count);
 
-        let default_speaker_index = if self.default_speaker_name.is_some() {
-            let default_speaker_name = self.default_speaker_name.clone().unwrap();
-
+        let default_speaker_index = if let Some(default_speaker_name) = &self.default_speaker_name {
             names
                 .iter()
-                .position(|name| name == &default_speaker_name)
+                .position(|name| name == default_speaker_name)
                 .unwrap()
         } else {
             self.computer_fuzzer.rand.random_range(0..count)

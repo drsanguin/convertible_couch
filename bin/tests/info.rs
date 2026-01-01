@@ -23,15 +23,15 @@ fn it_should_get_informations_about_displays_and_speakers() {
         .generate_computer()
         .with_displays()
         .of_which_there_are(3)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name_2.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
+        .with_a_secondary_named(&secondary_display_name_2)
         .build_displays()
         .with_speakers()
         .of_which_there_are(3)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name_2.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name_2)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -90,9 +90,9 @@ fn it_should_get_informations_about_displays_only() {
         .generate_computer()
         .with_displays()
         .of_which_there_are(3)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name_2.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
+        .with_a_secondary_named(&secondary_display_name_2)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -138,9 +138,9 @@ fn it_should_get_informations_about_speakers_only() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are(3)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name_2.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name_2)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
