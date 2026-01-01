@@ -23,8 +23,8 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
         .generate_computer()
         .with_displays()
         .of_which_there_are_at_least(2)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -62,8 +62,8 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
         .generate_computer()
         .with_displays()
         .of_which_there_are_at_least(2)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -105,7 +105,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
         .with_displays()
         .of_which_there_are_at_least(2)
         .including_an_internal_display()
-        .with_a_secondary_named(secondary_display_name.clone())
+        .with_a_secondary_named(&secondary_display_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -144,7 +144,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
         .with_displays()
         .of_which_there_are_at_least(2)
         .including_an_internal_display()
-        .with_a_secondary_named(secondary_display_name.clone())
+        .with_a_secondary_named(&secondary_display_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -185,8 +185,8 @@ fn it_should_validate_the_desktop_display() {
         .generate_computer()
         .with_displays()
         .of_which_there_are(2)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -220,8 +220,8 @@ fn it_should_validate_the_couch_display() {
         .generate_computer()
         .with_displays()
         .of_which_there_are(2)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -259,8 +259,8 @@ fn it_should_validate_both_desktop_and_couch_displays() {
         .generate_computer()
         .with_displays()
         .of_which_there_are(2)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -293,8 +293,8 @@ fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
         .generate_computer()
         .with_displays()
         .of_which_there_are_at_least(2)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
         .for_which_getting_the_primary_display_fails()
         .build_computer();
 

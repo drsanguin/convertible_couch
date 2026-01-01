@@ -18,14 +18,14 @@ fn it_should_report_a_displays_settings_error() {
         .generate_computer()
         .with_displays()
         .of_which_there_are_at_least(2)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
         .for_which_changing_the_display_settings_fails_with(DISP_CHANGE_BADPARAM)
         .build_displays()
         .with_speakers()
         .of_which_there_are_at_least(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -62,13 +62,13 @@ fn it_should_report_a_speakers_settings_error() {
         .generate_computer()
         .with_displays()
         .of_which_there_are_at_least(2)
-        .whose_primary_is_named(primary_display_name.clone())
-        .with_a_secondary_named(secondary_display_name.clone())
+        .whose_primary_is_named(&primary_display_name)
+        .with_a_secondary_named(&secondary_display_name)
         .build_displays()
         .with_speakers()
         .of_which_there_are_at_least(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .for_which_setting_the_default_speaker_fails()
         .build_computer();
 

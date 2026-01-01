@@ -18,8 +18,8 @@ fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are_at_least(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .for_which_getting_the_speakers_count_fails()
         .build_computer();
 
@@ -53,8 +53,8 @@ fn it_should_return_an_error_if_getting_the_speakers_fails() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are_at_least(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .for_which_getting_the_speakers_fails()
         .build_computer();
 
@@ -88,8 +88,8 @@ fn it_should_return_an_error_if_getting_the_current_default_speaker_fails() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are_at_least(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .for_which_getting_the_default_speaker_fails()
         .build_computer();
 
@@ -123,8 +123,8 @@ fn it_should_return_an_error_if_setting_the_default_speaker_fails() {
         .generate_computer()
         .with_speakers()
         .of_which_there_are_at_least(2)
-        .whose_default_one_is_named(default_speaker_name.clone())
-        .with_an_alternative_one_named(alternative_speaker_name.clone())
+        .whose_default_one_is_named(&default_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name)
         .for_which_setting_the_default_speaker_fails()
         .build_computer();
 
