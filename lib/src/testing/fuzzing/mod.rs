@@ -1,4 +1,4 @@
-use rand::{rngs::StdRng, RngCore, SeedableRng};
+use rand::{rng, rngs::StdRng, Rng, SeedableRng};
 
 use crate::testing::fuzzing::{
     computer::FuzzedComputer,
@@ -26,7 +26,7 @@ pub struct Fuzzer {
 
 impl Fuzzer {
     pub fn new(test_name: &str, print_seed: bool) -> Self {
-        let seed = StdRng::from_os_rng().next_u64();
+        let seed = rng().next_u64();
 
         if print_seed {
             println!("seed {test_name} ... {seed}");
