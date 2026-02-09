@@ -4,7 +4,7 @@ use rand::{
     distr::{Alphanumeric, SampleString},
     rngs::StdRng,
     seq::IndexedRandom,
-    Rng,
+    RngExt,
 };
 
 pub struct DisplayNameFuzzer<'a> {

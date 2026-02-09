@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use rand::Rng;
+use rand::RngExt;
 
 use crate::testing::fuzzing::{
     computer::{ComputerFuzzer, FuzzedComputer},

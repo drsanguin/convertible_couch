@@ -14,7 +14,7 @@ use crate::testing::fuzzing::{
     ComputerBuilder,
 };
 
-use rand::{seq::IteratorRandom, Rng};
+use rand::{seq::IteratorRandom, RngExt};
 
 use std::collections::HashSet;
 
@@ -133,7 +133,7 @@ impl<'a> DisplaysFuzzer<'a> {
             .iter()
             .enumerate()
             .map(|(index, _video_output)| index)
-            .choose_multiple(&mut self.computer_fuzzer.rand, n_display);
+            .sample(&mut self.computer_fuzzer.rand, n_display);
 
         video_outputs_to_plug_in_indexes.sort();
 
