@@ -13,7 +13,7 @@ LegalCopyright = "Copyright © 2024 convertible_couch"
 OriginalFilename = "convertible_couch.exe"
 
 [dependencies]
-clap = { version = "4.5.56", features = ["derive"] }
+clap = { version = "4.5.57", features = ["derive"] }
 log = "0.4.29"
 convertible_couch_lib = { path = "../lib"}
 
@@ -21,7 +21,7 @@ convertible_couch_lib = { path = "../lib"}
 winresource = "0.1.30"
 
 [dev-dependencies]
-criterion = { version = "0.8.1", features = ["html_reports"] }
+criterion = { version = "0.8.2", features = ["html_reports"] }
 test-case = "3.3.1"
 
 [target.'cfg(windows)'.dev-dependencies]
