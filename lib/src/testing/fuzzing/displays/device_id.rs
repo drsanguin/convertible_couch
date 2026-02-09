@@ -6,7 +6,7 @@ use std::{
 use rand::{
     distr::{Alphanumeric, SampleString},
     rngs::StdRng,
-    Rng,
+    RngExt,
 };
 
 use crate::testing::fuzzing::guid::GuidFuzzer;
