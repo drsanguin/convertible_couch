@@ -3,7 +3,8 @@ name: Push release/hotfix
 on:
   push:
     branches:
-      - ci/refactor-semantic-release-steps
+      - release/*
+      - hotfix/*
 
 permissions:
   contents: write
@@ -18,11 +19,6 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      # - name: Run Semantic Release 🚀
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: npx semantic-release --dry-run | Tee-Object semantic_release.log
 
       - name: Get next release version 🏷️
         id: get-next-release-version
