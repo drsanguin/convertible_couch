@@ -53,7 +53,7 @@ jobs:
               $updated = [regex]::Replace(
                   $content,
                   $regex,
-                  "version = "${{steps.get-next-release-version.outputs.version }}"
+                  "version = \"${{steps.get-next-release-version.outputs.version }}\""
               )
 
               Set-Content $_.FullName $updated -NoNewline
