@@ -19,10 +19,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run Semantic Release 🚀
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release --dry-run | Tee-Object semantic_release.log
+      # - name: Run Semantic Release 🚀
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: npx semantic-release --dry-run | Tee-Object semantic_release.log
 
       - name: Get next release version 🏷️
         id: get-next-release-version
