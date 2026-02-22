@@ -20,34 +20,43 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install cargo-edit 🧰
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-edit
+      - name: Get next release version 🏷️
+        id: get-next-release-version
+        run: |
+          $nextReleaseVersion = Select-String -Path .\semantic_release.log -Pattern "The next release version is" |
+            ForEach-Object { $_.Line } |
+            ForEach-Object { $_ -split " " } |
+            Select-Object -Last 1
 
-      - name: Run Semantic Release 🚀
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release --dry-run | Tee-Object semantic_release.log
+          if ([string]::IsNullOrWhiteSpace($nextReleaseVersion)) {
+            Write-Error "❌ Release version not found in semantic_release.log"
+            exit 1
+          }
+
+          Write-Host "✅ Found version: $nextReleaseVersion"
+
+          # Set step output
+          "version=$nextReleaseVersion" >> $env:GITHUB_OUTPUT
 
       - name: Bump Version 🏷️
         run: |
-          Select-String -Path .\semantic_release.log -Pattern "The next release version is" | `
-            ForEach-Object { $_.Line } | `
-            ForEach-Object { $_ -split " " } | `
-            Select-Object -Last 1 | `
-            ForEach-Object { cargo set-version --workspace $_ }
+          Get-ChildItem -Recurse -Filter "Cargo.toml" | ForEach-Object {
+              Write-Host "Updating $($_.FullName)"
+
+              $original = Get-Content -Path  $_.FullName
+              $updated = $original -replace '^version = "\d+\.\d+\.\d+"', 'version = "${{steps.get-next-release-version.outputs.version }}"'
+
+              Set-Content -Path $_.FullName -Value $updated
+          }
+
+          cargo update --workspace
 
       - name: Push Metadata Changes ⬆️
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $version = cargo metadata --no-deps --format-version 1 `
-            | ConvertFrom-Json `
-            | %{ $_.packages[0].version }
-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Cargo.toml **/Cargo.toml Cargo.lock
-          git commit -m "chore(metadata): bump version to $version"
+          git commit -m "chore(metadata): bump version to ${{steps.get-next-release-version.outputs.version }}"
           git push origin HEAD
