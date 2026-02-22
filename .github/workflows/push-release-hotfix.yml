@@ -32,15 +32,15 @@ jobs:
             ForEach-Object { $_ -split " " } |
             Select-Object -Last 1
 
-          if ([string]::IsNullOrWhiteSpace($result)) {
+          if ([string]::IsNullOrWhiteSpace($nextReleaseVersion)) {
             Write-Error "❌ Release version not found in semantic_release.log"
             exit 1
           }
 
-          Write-Host "✅ Found version: $result"
+          Write-Host "✅ Found version: $nextReleaseVersion"
 
           # Set step output
-          "version=$result" >> $env:GITHUB_OUTPUT
+          "version=$nextReleaseVersion" >> $env:GITHUB_OUTPUT
 
       - name: Bump Version 🏷️
         run: |
