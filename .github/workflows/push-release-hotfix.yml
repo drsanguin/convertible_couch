@@ -3,8 +3,7 @@ name: Push release/hotfix
 on:
   push:
     branches:
-      - release/*
-      - hotfix/*
+      - ci/refactor-semantic-release-steps
 
 permissions:
   contents: write
