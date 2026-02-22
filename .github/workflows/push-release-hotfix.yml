@@ -44,19 +44,13 @@ jobs:
 
       - name: Bump Version 🏷️
         run: |
-          $regex = '^version = "\d+\.\d+\.\d+"'
-
           Get-ChildItem -Recurse -Filter "Cargo.toml" | ForEach-Object {
               Write-Host "Updating $($_.FullName)"
 
-              $content = Get-Content $_.FullName -Raw
-              $updated = [regex]::Replace(
-                  $content,
-                  $regex,
-                  "version = `"${{steps.get-next-release-version.outputs.version }}`""
-              )
+              $content = Get-Content -Path  $_.FullName
+              $updated = $original -replace '^version = "\d+\.\d+\.\d+"', 'version = "${{steps.get-next-release-version.outputs.version }}"'
 
-              Set-Content $_.FullName $updated -NoNewline
+              Set-Content -Path $_.FullName -Value $updated
           }
 
           cargo update --workspace
