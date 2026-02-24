@@ -258,6 +258,7 @@ dependencies = [
  "test-case",
  "thiserror",
  "windows",
+ "windows-core",
 ]
 
 [[package]]
