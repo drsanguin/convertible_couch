@@ -47,6 +47,12 @@ impl From<TryFromIntError> for ApplicationError {
     }
 }
 
+impl From<windows_core::Error> for ApplicationError {
+    fn from(value: windows_core::Error) -> Self {
+        ApplicationError::Custom(value.message())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::ApplicationError;
