@@ -15,29 +15,37 @@ use windows::{
 pub mod windows_api_based_win_32;
 
 pub trait Win32 {
-    /// # Safety
-    /// This function is unsafe because it dereferences a raw pointer:
-    /// - `requestpacket` must be non-null and point to valid, writable memory.
-    /// - The memory referenced by `requestpacket` must remain valid for the duration
-    ///   of the call.
-    /// - The caller must ensure that `requestpacket` is correctly sized and aligned
-    ///   for a [`DISPLAYCONFIG_DEVICE_INFO_HEADER`] structure and any expected
-    ///   subtype it represents.
-    /// - Passing an invalid or incorrectly initialized pointer leads to undefined
-    ///   behavior (e.g., crashes, memory corruption).
+    /// Retrieves information about a display configuration device.
     ///
-    /// The caller is responsible for ensuring all of these conditions are upheld.
+    /// This is a thin wrapper around the underlying Win32 API and performs no
+    /// validation of pointers or memory.
+    ///
+    /// # Safety
+    /// - `requestpacket` must be a **valid, non-null, properly aligned** pointer to a
+    ///   `DISPLAYCONFIG_DEVICE_INFO_HEADER`.
+    /// - The memory pointed to by `requestpacket` must be **fully initialized** and
+    ///   writable for the entire duration of the call.
+    /// - The pointed structure must have its `size` and `type` fields correctly set
+    ///   according to the Win32 API contract.
+    /// - The memory must not be aliased mutably elsewhere while this function executes.
+    /// - The caller must ensure that the pointer remains valid for the duration of the call.
+    /// - Violating any of these requirements results in **undefined behavior**.
     unsafe fn display_config_get_device_info(
         &self,
         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
     ) -> i32;
 
+    /// Retrieves the required buffer sizes for display configuration queries.
+    ///
+    /// This function writes to the provided output pointers.
+    ///
     /// # Safety
-    /// - `numpatharrayelements` and `nummodeinfoarrayelements` must be non-null and
-    ///   point to valid, writable `u32` memory locations.
-    /// - The caller must ensure these pointers remain valid and properly aligned
-    ///   for the duration of the call.
-    /// - Passing null or invalid pointers results in undefined behavior.
+    /// - `numpatharrayelements` must be a **valid, non-null, properly aligned** pointer to a `u32`.
+    /// - `nummodeinfoarrayelements` must be a **valid, non-null, properly aligned** pointer to a `u32`.
+    /// - Both pointers must be **writable** and point to initialized memory.
+    /// - The memory must not be aliased mutably elsewhere during the call.
+    /// - The pointers must remain valid for the full duration of the call.
+    /// - Passing invalid pointers or violating aliasing rules results in **undefined behavior**.
     unsafe fn get_display_config_buffer_sizes(
         &self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
@@ -45,14 +53,23 @@ pub trait Win32 {
         nummodeinfoarrayelements: *mut u32,
     ) -> WIN32_ERROR;
 
+    /// Queries the current display configuration.
+    ///
+    /// Populates user-provided buffers with path and mode information.
+    ///
     /// # Safety
-    /// - All pointer arguments (`numpatharrayelements`, `patharray`,
-    ///   `nummodeinfoarrayelements`, `modeinfoarray`, and optionally
-    ///   `currenttopologyid`) must be valid, properly aligned, and point to
-    ///   sufficiently large writable memory.
-    /// - The caller must correctly initialize the input sizes before the call.
-    /// - Buffers must remain valid for the duration of the call.
-    /// - Passing invalid or undersized buffers leads to undefined behavior.
+    /// - `numpatharrayelements` and `nummodeinfoarrayelements` must be **valid, non-null, aligned**
+    ///   pointers to `u32` values.
+    /// - `patharray` must point to a **valid writable buffer** of at least
+    ///   `*numpatharrayelements` elements of `DISPLAYCONFIG_PATH_INFO`.
+    /// - `modeinfoarray` must point to a **valid writable buffer** of at least
+    ///   `*nummodeinfoarrayelements` elements of `DISPLAYCONFIG_MODE_INFO`.
+    /// - If `currenttopologyid` is `Some(ptr)`, `ptr` must be a **valid, writable, aligned**
+    ///   pointer to a `DISPLAYCONFIG_TOPOLOGY_ID`.
+    /// - All provided memory must be properly aligned, initialized where required,
+    ///   and remain valid for the duration of the call.
+    /// - No provided memory may be mutably aliased elsewhere during the call.
+    /// - Buffer sizes must match the counts provided, otherwise **undefined behavior** may occur.
     unsafe fn query_display_config(
         &self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
@@ -63,12 +80,20 @@ pub trait Win32 {
         currenttopologyid: ::core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR;
 
+    /// Changes display settings for a device.
+    ///
+    /// Directly forwards parameters to the Win32 API.
+    ///
     /// # Safety
-    /// - `lpszdevicename` must be a valid, null-terminated UTF-16 string (if not null).
-    /// - `lpdevmode` must point to a valid, readable [`DEVMODEW`] structure (if provided).
-    /// - `lparam` must point to valid, properly aligned memory if used.
-    /// - All pointers must remain valid for the duration of the call.
-    /// - Passing invalid or incorrectly initialized pointers results in undefined behavior.
+    /// - `lpszdevicename` must be a **valid, properly aligned UTF-16 null-terminated string pointer**
+    ///   or `PCWSTR::null()` if allowed by the API contract.
+    /// - If `lpdevmode` is `Some(ptr)`, `ptr` must be a **valid, aligned pointer** to a `DEVMODEW`
+    ///   structure that remains valid for the duration of the call.
+    /// - If `lparam` is `Some(ptr)`, it must be a **valid pointer** for the expected Win32 usage.
+    /// - All pointers must obey alignment and lifetime requirements.
+    /// - The provided pointers must not be mutably aliased elsewhere.
+    /// - The caller must uphold all Win32 API invariants for `ChangeDisplaySettingsExW`.
+    /// - Violating any of these conditions results in **undefined behavior**.
     unsafe fn change_display_settings_ex_w(
         &mut self,
         lpszdevicename: PCWSTR,
@@ -78,13 +103,18 @@ pub trait Win32 {
         lparam: ::core::option::Option<*const ::core::ffi::c_void>,
     ) -> DISP_CHANGE;
 
+    /// Enumerates display devices.
+    ///
+    /// Writes device information into the provided structure.
+    ///
     /// # Safety
-    /// - `lpdevice`, if non-null, must be a valid, null-terminated UTF-16 string.
-    /// - `lpdisplaydevice` must be non-null, valid, and point to a writable
-    ///   [`DISPLAY_DEVICEW`] structure of sufficient size. The `cb` field of the
-    ///   structure must be set correctly by the caller before the call.
-    /// - All pointers must remain valid and properly aligned during the call.
-    /// - Passing invalid or incorrectly sized memory leads to undefined behavior.
+    /// - `lpdevice` must be a **valid UTF-16 null-terminated string pointer** or null if permitted.
+    /// - `lpdisplaydevice` must be a **valid, non-null, aligned, writable** pointer to a
+    ///   `DISPLAY_DEVICEW` structure.
+    /// - The structure must be properly initialized as required by the Win32 API.
+    /// - The pointer must remain valid for the duration of the call.
+    /// - The memory must not be mutably aliased elsewhere.
+    /// - Any violation of these requirements results in **undefined behavior**.
     unsafe fn enum_display_devices_w(
         &self,
         lpdevice: PCWSTR,
@@ -93,13 +123,17 @@ pub trait Win32 {
         dwflags: u32,
     ) -> BOOL;
 
+    /// Enumerates display settings for a device.
+    ///
+    /// Writes the display mode into the provided `DEVMODEW` structure.
+    ///
     /// # Safety
-    /// - `lpszdevicename`, if non-null, must be a valid, null-terminated UTF-16 string.
-    /// - `lpdevmode` must be non-null, valid, and point to a writable
-    ///   [`DEVMODEW`] structure of sufficient size. The `dmSize` field must be set
-    ///   correctly by the caller before the call.
-    /// - All pointers must remain valid and properly aligned during the call.
-    /// - Passing invalid or incorrectly sized memory leads to undefined behavior.
+    /// - `lpszdevicename` must be a **valid UTF-16 null-terminated string pointer** or null if allowed.
+    /// - `lpdevmode` must be a **valid, non-null, aligned, writable** pointer to a `DEVMODEW`.
+    /// - The `DEVMODEW` structure must be properly initialized as required by the Win32 API.
+    /// - The memory must remain valid for the entire call.
+    /// - No mutable aliasing of the pointed memory is allowed.
+    /// - Failing to uphold these invariants results in **undefined behavior**.
     unsafe fn enum_display_settings_w(
         &self,
         lpszdevicename: PCWSTR,
