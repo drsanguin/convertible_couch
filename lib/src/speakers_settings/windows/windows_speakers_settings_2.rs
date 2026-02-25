@@ -6,7 +6,7 @@ use windows::{
         Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
         Foundation::PROPERTYKEY,
         Media::Audio::{
-            eConsole, eRender, EDataFlow, IMMDeviceEnumerator, MMDeviceEnumerator,
+            eConsole, eRender, EDataFlow, ERole, IMMDeviceEnumerator, MMDeviceEnumerator,
             DEVICE_STATE_ACTIVE, WAVEFORMATEX,
         },
         System::Com::{
@@ -101,10 +101,7 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
             }?;
 
             (unsafe {
-                policy.set_default_endpoint(
-                    PCWSTR(new_default_speaker_id.0 as *const u16),
-                    eConsole.0,
-                )
+                policy.SetDefaultEndpoint(PCWSTR(new_default_speaker_id.0 as *const u16), eConsole)
             })?;
         }
 
@@ -130,10 +127,11 @@ define_interface!(
 interface_hierarchy!(IPolicyConfigVista, windows_core::IUnknown);
 
 impl IPolicyConfigVista {
-    pub unsafe fn set_default_endpoint(
+    #[allow(non_snake_case)]
+    pub unsafe fn SetDefaultEndpoint(
         &self,
         device_id: PCWSTR,
-        role: i32,
+        role: ERole,
     ) -> windows_core::Result<()> {
         unsafe {
             (windows_core::Interface::vtable(self).SetDefaultEndpoint)(
@@ -212,7 +210,7 @@ pub struct IPolicyConfigVista_Vtbl {
     ) -> HRESULT,
 
     pub SetDefaultEndpoint:
-        unsafe extern "system" fn(this: *mut c_void, device_id: PCWSTR, role: i32) -> HRESULT,
+        unsafe extern "system" fn(this: *mut c_void, device_id: PCWSTR, role: ERole) -> HRESULT,
 
     pub SetEndpointVisibility:
         unsafe extern "system" fn(this: *mut c_void, device_id: PCWSTR, visible: i32) -> HRESULT,
