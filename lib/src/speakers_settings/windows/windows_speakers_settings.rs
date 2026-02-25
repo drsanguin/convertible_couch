@@ -203,6 +203,23 @@ interface_hierarchy!(IPolicyConfigVista, IUnknown);
 
 impl IPolicyConfigVista {
     #[allow(non_snake_case)]
+    /// Sets the default audio endpoint device for the specified role.
+    ///
+    /// This function forwards the call to the underlying COM interface method
+    /// and changes the system-wide default audio endpoint.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that:
+    /// - `device_id` is a valid, non-null, properly null-terminated wide string (`PCWSTR`)
+    ///   that points to readable memory for the duration of the call.
+    /// - The `device_id` pointer originates from a trusted source (e.g., a valid Windows API
+    ///   return value) and is not dangling or freed.
+    /// - `self` is a valid, properly initialized COM interface pointer with a correct vtable.
+    /// - The current thread is in a valid COM apartment state required by the underlying API.
+    ///
+    /// Violating any of these conditions may result in undefined behavior, including
+    /// memory corruption or process crashes.
     pub unsafe fn SetDefaultEndpoint(
         &self,
         device_id: PCWSTR,
