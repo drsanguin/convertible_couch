@@ -1,55 +1,38 @@
-use std::{
-    ffi::OsString,
-    os::{raw::c_ushort, windows::ffi::OsStringExt},
-    ptr::null_mut,
-    slice::from_raw_parts_mut,
+use std::ffi::c_void;
+
+use windows::{
+    core::{define_interface, interface_hierarchy},
+    Win32::{
+        Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
+        Foundation::PROPERTYKEY,
+        Media::Audio::{
+            eConsole, eRender, EDataFlow, ERole, IMMDeviceEnumerator, MMDeviceEnumerator,
+            DEVICE_STATE_ACTIVE, WAVEFORMATEX,
+        },
+        System::Com::{
+            StructuredStorage::PROPVARIANT, CLSCTX_ALL, COINIT_MULTITHREADED, STGM_READ,
+        },
+    },
 };
+use windows_core::{IUnknown, IUnknown_Vtbl, Interface, GUID, HRESULT, PCWSTR, PWSTR};
 
 use crate::{
-    speakers_settings::{SpeakerInfo, SpeakersSettings, SpeakersSettingsResult},
+    speakers_settings::{
+        windows::windows_com::WindowsCom, SpeakerInfo, SpeakersSettings, SpeakersSettingsResult,
+    },
     ApplicationError,
 };
 
-use super::audio_endpoint_library::{AudioEndpoint, AudioEndpointLibrary};
-
-pub struct WindowsSoundSettings<TAudioEndpointLibrary: AudioEndpointLibrary> {
-    audio_endpoint_library: TAudioEndpointLibrary,
+pub struct WindowsSoundSettings<TWindowsCom: WindowsCom> {
+    windows_com: TWindowsCom,
 }
 
-impl<TAudioEndpointLibrary: AudioEndpointLibrary> WindowsSoundSettings<TAudioEndpointLibrary> {
-    fn get_all_audio_endpoints(&self) -> Result<Vec<AudioEndpoint>, ApplicationError> {
-        let audio_endpoints_count = self.audio_endpoint_library.get_all_audio_endpoints_count();
+impl<TWindowsCom: WindowsCom> WindowsSoundSettings<TWindowsCom> {}
 
-        if audio_endpoints_count == -1 {
-            return Err(ApplicationError::Custom(String::from(
-                "Failed to get the number of speakers",
-            )));
-        }
-
-        let audio_endpoints_count_as_usize = usize::try_from(audio_endpoints_count)?;
-        let mut audio_endpoints = vec![AudioEndpoint::default(); audio_endpoints_count_as_usize];
-
-        let get_all_audio_endpoints = unsafe {
-            self.audio_endpoint_library
-                .get_all_audio_endpoints(audio_endpoints.as_mut_ptr(), audio_endpoints_count)
-        };
-
-        if get_all_audio_endpoints != 0 {
-            return Err(ApplicationError::Custom(String::from(
-                "Failed to get the speakers",
-            )));
-        }
-
-        Ok(audio_endpoints)
-    }
-}
-
-impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpointLibrary>
-    for WindowsSoundSettings<TAudioEndpointLibrary>
-{
-    fn new(speakers_settings_api: TAudioEndpointLibrary) -> Self {
+impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSettings<TWindowsCom> {
+    fn new(speakers_settings_api: TWindowsCom) -> Self {
         Self {
-            audio_endpoint_library: speakers_settings_api,
+            windows_com: speakers_settings_api,
         }
     }
 
@@ -58,147 +41,274 @@ impl<TAudioEndpointLibrary: AudioEndpointLibrary> SpeakersSettings<TAudioEndpoin
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
     ) -> Result<SpeakersSettingsResult, ApplicationError> {
-        let audio_endpoints = self.get_all_audio_endpoints()?;
+        let co_initialize_ex_result = unsafe {
+            self.windows_com
+                .co_initialize_ex(None, COINIT_MULTITHREADED)
+        };
 
-        let mut desktop_speaker_id: *mut u16 = null_mut();
-        let mut couch_speaker_id: *mut u16 = null_mut();
-        let mut current_speaker_id: *mut u16 = null_mut();
-
-        for audio_endpoint in &audio_endpoints {
-            let name = unsafe { map_c_ushort_to_string(audio_endpoint.name) };
-            let is_default = audio_endpoint.is_default == 1;
-
-            if name == desktop_speaker_name {
-                desktop_speaker_id = audio_endpoint.id;
-            }
-
-            if name == couch_speaker_name {
-                couch_speaker_id = audio_endpoint.id;
-            }
-
-            if is_default {
-                current_speaker_id = audio_endpoint.id;
-            }
-        }
-
-        if current_speaker_id.is_null() {
+        if co_initialize_ex_result.is_err() {
             return Err(ApplicationError::Custom(
-                "Failed to get the current default speaker".to_string(),
+                "co_initialize_ex failed".to_string(),
             ));
         }
 
-        let invalid_params_error_message =
-            match (desktop_speaker_id.is_null(), couch_speaker_id.is_null()) {
-                (true, true) => Some("Desktop and couch speakers are invalid"),
-                (true, _) => Some("Desktop speaker is invalid"),
-                (_, true) => Some("Couch speaker is invalid"),
-                _ => None,
-            };
+        let new_default_speaker_name: String;
 
-        if let Some(invalid_params_error_message_fragment) = invalid_params_error_message {
-            let mut possible_audio_endpoints = audio_endpoints
-                .iter()
-                .map(|audio_endpoint| unsafe { map_c_ushort_to_string(audio_endpoint.name) })
-                .collect::<Vec<String>>();
-            possible_audio_endpoints.sort();
-            let possible_values_fragment = possible_audio_endpoints.join(", ");
+        {
+            let immdevice_enumerator: IMMDeviceEnumerator = unsafe {
+                self.windows_com
+                    .co_create_instance(&MMDeviceEnumerator, None, CLSCTX_ALL)
+            }?;
 
-            let error_message = format!("{invalid_params_error_message_fragment}, possible values are [{possible_values_fragment}]");
-            let error = ApplicationError::Custom(error_message);
+            let default_speaker =
+                unsafe { immdevice_enumerator.GetDefaultAudioEndpoint(eRender, eConsole) }?;
 
-            return Err(error);
-        }
+            let default_speaker_id = unsafe { default_speaker.GetId() }?;
 
-        let is_current_default_speaker_the_desktop_one =
-            are_pointers_equals(current_speaker_id, desktop_speaker_id);
+            let immdevice_collection = unsafe {
+                immdevice_enumerator.EnumAudioEndpoints(EDataFlow::default(), DEVICE_STATE_ACTIVE)
+            }?;
 
-        let (new_default_speaker_id, new_default_speaker_name) =
-            if is_current_default_speaker_the_desktop_one {
-                (couch_speaker_id, couch_speaker_name)
+            let speaker_count = unsafe { immdevice_collection.GetCount() }?;
+
+            let mut desktop_speaker_id: PWSTR = PWSTR::default();
+            let mut couch_speaker_id: PWSTR = PWSTR::default();
+            let mut speaker_names = Vec::with_capacity(speaker_count as usize);
+
+            for speaker_index in 0..speaker_count {
+                let immdevice = unsafe { immdevice_collection.Item(speaker_index) }?;
+                let immdevice_id = unsafe { immdevice.GetId() }?;
+                let property_store = unsafe { immdevice.OpenPropertyStore(STGM_READ) }?;
+                let propvariant = unsafe { property_store.GetValue(&PKEY_Device_FriendlyName) }?;
+                let pwsz_val = unsafe { propvariant.Anonymous.Anonymous.Anonymous.pwszVal };
+                let friendly_name = String::from_utf16(unsafe { pwsz_val.as_wide() })?;
+
+                if friendly_name == desktop_speaker_name {
+                    desktop_speaker_id = immdevice_id;
+                } else if friendly_name == couch_speaker_name {
+                    couch_speaker_id = immdevice_id;
+                }
+
+                speaker_names.push(friendly_name);
+            }
+
+            speaker_names.sort();
+
+            let invalid_params_error_message =
+                match (desktop_speaker_id.is_null(), couch_speaker_id.is_null()) {
+                    (true, true) => Some("Desktop and couch speakers are invalid"),
+                    (true, _) => Some("Desktop speaker is invalid"),
+                    (_, true) => Some("Couch speaker is invalid"),
+                    _ => None,
+                };
+
+            if let Some(invalid_params_error_message_fragment) = invalid_params_error_message {
+                let possible_values_fragment = speaker_names.join(", ");
+                let error_message = format!("{invalid_params_error_message_fragment}, possible values are [{possible_values_fragment}]");
+                let error = ApplicationError::Custom(error_message);
+
+                return Err(error);
+            }
+
+            let new_default_speaker_id: PWSTR;
+
+            if unsafe { pwstr_eq(default_speaker_id, desktop_speaker_id) } {
+                new_default_speaker_id = couch_speaker_id;
+                new_default_speaker_name = couch_speaker_name.to_string();
             } else {
-                (desktop_speaker_id, desktop_speaker_name)
-            };
+                new_default_speaker_id = desktop_speaker_id;
+                new_default_speaker_name = desktop_speaker_name.to_string();
+            }
 
-        let set_speaker_result = unsafe {
-            self.audio_endpoint_library
-                .set_default_audio_endpoint(new_default_speaker_id)
-        };
+            let policy: IPolicyConfigVista = unsafe {
+                self.windows_com.co_create_instance(
+                    &GUID::from_u128(0x294935ce_f637_4e7c_a41b_ab255460b862),
+                    None,
+                    CLSCTX_ALL,
+                )
+            }?;
 
-        if set_speaker_result != 0 {
-            return Err(ApplicationError::Custom(String::from(
-                "Failed to set default speaker",
-            )));
+            (unsafe {
+                policy.SetDefaultEndpoint(PCWSTR(new_default_speaker_id.0 as *const u16), eConsole)
+            })?;
         }
 
-        let result = SpeakersSettingsResult {
-            new_default_speaker: new_default_speaker_name.to_string(),
-        };
+        unsafe { self.windows_com.co_uninitialize() };
 
-        Ok(result)
+        Ok(SpeakersSettingsResult {
+            new_default_speaker: new_default_speaker_name,
+        })
     }
 
     fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
-        let audio_endpoints = self.get_all_audio_endpoints()?;
+        let co_initialize_ex_result = unsafe {
+            self.windows_com
+                .co_initialize_ex(None, COINIT_MULTITHREADED)
+        };
 
-        let mut speakers_info = audio_endpoints
-            .iter()
-            .map(|audio_endpoint| SpeakerInfo {
-                is_default: audio_endpoint.is_default == 1,
-                name: unsafe { map_c_ushort_to_string(audio_endpoint.name) },
-            })
-            .collect::<Vec<_>>();
-
-        speakers_info.sort();
-
-        Ok(speakers_info)
-    }
-}
-
-/// # Safety
-/// This function is unsafe because it dereferences a raw pointer and walks
-/// memory until a null terminator is found:
-/// - `id` must be non-null and point to a valid, readable, properly aligned
-///   UTF-16 string in memory.
-/// - The sequence of `c_ushort` values must be null-terminated; otherwise the
-///   function will read past allocated memory, causing undefined behavior
-///   (segfaults, memory corruption).
-/// - The memory backing `id` must remain valid for the entire duration of the
-///   call.
-/// - The caller must ensure that the pointed-to string is not modified from
-///   another thread while this function is executing, to avoid race conditions.
-///
-/// Failure to uphold these conditions may result in undefined behavior.
-pub unsafe fn map_c_ushort_to_string(id: *mut c_ushort) -> String {
-    let mut len = 0;
-
-    for i in 0..=usize::MAX {
-        if *id.add(i) != 0 {
-            continue;
+        if co_initialize_ex_result.is_err() {
+            panic!("co_initialize_ex failed")
         }
 
-        len = i;
-        break;
+        let mut speakers_infos: Vec<SpeakerInfo>;
+
+        {
+            let immdevice_enumerator: IMMDeviceEnumerator = unsafe {
+                self.windows_com
+                    .co_create_instance(&MMDeviceEnumerator, None, CLSCTX_ALL)
+            }?;
+
+            let default_speaker =
+                unsafe { immdevice_enumerator.GetDefaultAudioEndpoint(eRender, eConsole) }?;
+
+            let default_speaker_id = unsafe { default_speaker.GetId() }?;
+
+            let immdevice_collection = unsafe {
+                immdevice_enumerator.EnumAudioEndpoints(EDataFlow::default(), DEVICE_STATE_ACTIVE)
+            }?;
+
+            let speaker_count = unsafe { immdevice_collection.GetCount() }?;
+
+            speakers_infos = Vec::with_capacity(speaker_count.try_into().unwrap());
+
+            for speaker_index in 0..speaker_count {
+                let immdevice = unsafe { immdevice_collection.Item(speaker_index) }?;
+                let immdevice_id = unsafe { immdevice.GetId() }?;
+                let property_store = unsafe { immdevice.OpenPropertyStore(STGM_READ) }?;
+                let propvariant = unsafe { property_store.GetValue(&PKEY_Device_FriendlyName) }?;
+                let pwsz_val = unsafe { propvariant.Anonymous.Anonymous.Anonymous.pwszVal };
+                let friendly_name = String::from_utf16(unsafe { pwsz_val.as_wide() })?;
+
+                let is_default = unsafe { pwstr_eq(default_speaker_id, immdevice_id) };
+
+                speakers_infos.push(SpeakerInfo {
+                    is_default,
+                    name: friendly_name,
+                });
+            }
+        }
+
+        unsafe { self.windows_com.co_uninitialize() };
+
+        Ok(speakers_infos)
     }
-
-    let slice = from_raw_parts_mut(id, len);
-
-    OsString::from_wide(slice).to_string_lossy().into_owned()
 }
 
-fn are_pointers_equals(mut p1: *mut u16, mut p2: *mut u16) -> bool {
-    loop {
-        let v1 = unsafe { *p1 };
-        let v2 = unsafe { *p2 };
+define_interface!(
+    IPolicyConfigVista,
+    IPolicyConfigVista_Vtbl,
+    0x568b9108_44bf_40b4_9006_86afe5b5a620
+);
+interface_hierarchy!(IPolicyConfigVista, IUnknown);
 
-        if v1 != v2 {
+impl IPolicyConfigVista {
+    #[allow(non_snake_case)]
+    pub unsafe fn SetDefaultEndpoint(
+        &self,
+        device_id: PCWSTR,
+        role: ERole,
+    ) -> windows_core::Result<()> {
+        unsafe {
+            (Interface::vtable(self).SetDefaultEndpoint)(Interface::as_raw(self), device_id, role)
+                .and_then(|| Ok(()))
+        }
+    }
+}
+
+#[repr(C)]
+#[allow(non_snake_case)]
+pub struct IPolicyConfigVista_Vtbl {
+    pub base__: IUnknown_Vtbl,
+
+    pub GetMixFormat: unsafe extern "system" fn(
+        this: *mut c_void,
+        device_id: PCWSTR,
+        format: *mut *mut WAVEFORMATEX,
+    ) -> HRESULT,
+
+    pub GetDeviceFormat: unsafe extern "system" fn(
+        this: *mut c_void,
+        device_id: PCWSTR,
+        mode: i32,
+        format: *mut *mut WAVEFORMATEX,
+    ) -> HRESULT,
+
+    pub SetDeviceFormat: unsafe extern "system" fn(
+        this: *mut c_void,
+        device_id: PCWSTR,
+        format: *mut WAVEFORMATEX,
+        mix: *mut WAVEFORMATEX,
+    ) -> HRESULT,
+
+    pub GetProcessingPeriod: unsafe extern "system" fn(
+        this: *mut c_void,
+        device_id: PCWSTR,
+        mode: i32,
+        def_period: *mut i64,
+        min_period: *mut i64,
+    ) -> HRESULT,
+
+    pub SetProcessingPeriod: unsafe extern "system" fn(
+        this: *mut c_void,
+        device_id: PCWSTR,
+        period: *mut i64,
+    ) -> HRESULT,
+
+    pub GetShareMode: unsafe extern "system" fn(
+        this: *mut c_void,
+        device_id: PCWSTR,
+        mode: *mut c_void,
+    ) -> HRESULT,
+
+    pub SetShareMode: unsafe extern "system" fn(
+        this: *mut c_void,
+        device_id: PCWSTR,
+        mode: *mut c_void,
+    ) -> HRESULT,
+
+    pub GetPropertyValue: unsafe extern "system" fn(
+        this: *mut c_void,
+        device_id: PCWSTR,
+        key: *const PROPERTYKEY,
+        value: *mut PROPVARIANT,
+    ) -> HRESULT,
+
+    pub SetPropertyValue: unsafe extern "system" fn(
+        this: *mut c_void,
+        device_id: PCWSTR,
+        key: *const PROPERTYKEY,
+        value: *const PROPVARIANT,
+    ) -> HRESULT,
+
+    pub SetDefaultEndpoint:
+        unsafe extern "system" fn(this: *mut c_void, device_id: PCWSTR, role: ERole) -> HRESULT,
+
+    pub SetEndpointVisibility:
+        unsafe extern "system" fn(this: *mut c_void, device_id: PCWSTR, visible: i32) -> HRESULT,
+}
+
+unsafe fn pwstr_eq(a: PWSTR, b: PWSTR) -> bool {
+    let mut pa = a.0;
+    let mut pb = b.0;
+
+    if pa.is_null() || pb.is_null() {
+        return pa == pb;
+    }
+
+    loop {
+        let ca = *pa;
+        let cb = *pb;
+
+        if ca != cb {
             return false;
         }
 
-        if v1 == 0 {
-            return v2 == 0;
+        if ca == 0 {
+            // both null-terminated
+            return true;
         }
 
-        p1 = unsafe { p1.add(1) };
-        p2 = unsafe { p2.add(1) };
+        pa = pa.add(1);
+        pb = pb.add(1);
     }
 }

@@ -57,20 +57,20 @@ pub mod windows;
 #[cfg(target_os = "windows")]
 pub use windows::windows_speakers_settings::WindowsSoundSettings as CurrentSpeakersSettings;
 
-#[cfg(target_os = "windows")]
-pub use windows::audio_endpoint_library::dll_based_audio_endpoint_library::DllBasedAudioEndpointLibrary as CurrentSpeakersSettingsApi;
+// #[cfg(target_os = "windows")]
+// pub use windows::audio_endpoint_library::dll_based_audio_endpoint_library::DllBasedAudioEndpointLibrary as CurrentSpeakersSettingsApi;
+
+// #[cfg(target_os = "windows")]
+// pub use windows::audio_endpoint_library::AudioEndpointLibrary as CurrentSpeakersSettingsApiTrait;
+
+// #[cfg(target_os = "windows")]
+// pub use windows::windows_speakers_settings_2::WindowsSoundSettings2 as CurrentSpeakersSettings2;
 
 #[cfg(target_os = "windows")]
-pub use windows::audio_endpoint_library::AudioEndpointLibrary as CurrentSpeakersSettingsApiTrait;
+pub use windows::windows_com::windows_api_based_windows_com::WindowsApiBasedWindowsCom as CurrentSpeakersSettingsApi;
 
 #[cfg(target_os = "windows")]
-pub use windows::windows_speakers_settings_2::WindowsSoundSettings2 as CurrentSpeakersSettings2;
-
-#[cfg(target_os = "windows")]
-pub use windows::windows_com::windows_api_based_windows_com::WindowsApiBasedWindowsCom as CurrentSpeakersSettingsApi2;
-
-#[cfg(target_os = "windows")]
-pub use windows::windows_com::WindowsCom as CurrentSpeakersSettingsApiTrait2;
+pub use windows::windows_com::WindowsCom as CurrentSpeakersSettingsApiTrait;
 
 #[cfg(test)]
 mod tests {
