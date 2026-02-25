@@ -1,6 +1,8 @@
 use clap::Parser;
 use convertible_couch::{
-    application::{Application, ApplicationChangeResult, ApplicationInfoResult, ApplicationResult},
+    application_2::{
+        Application, ApplicationChangeResult, ApplicationInfoResult, ApplicationResult,
+    },
     commands::Arguments,
 };
 use convertible_couch_lib::{
@@ -8,7 +10,7 @@ use convertible_couch_lib::{
         CurrentDisplaysSettings, CurrentDisplaysSettingsApi, DisplayInfo, DisplaysSettingsResult,
     },
     speakers_settings::{
-        CurrentSpeakersSettings, CurrentSpeakersSettingsApi, SpeakerInfo, SpeakersSettingsResult,
+        CurrentSpeakersSettings2, CurrentSpeakersSettingsApi2, SpeakerInfo, SpeakersSettingsResult,
     },
 };
 use log::{error, info, warn};
@@ -18,10 +20,10 @@ fn main() -> ExitCode {
     let args = Arguments::parse();
     let mut application = Application::<
         CurrentDisplaysSettingsApi,
-        CurrentSpeakersSettingsApi,
+        CurrentSpeakersSettingsApi2,
         CurrentDisplaysSettings<CurrentDisplaysSettingsApi>,
-        CurrentSpeakersSettings<CurrentSpeakersSettingsApi>,
-    >::bootstrap(CurrentDisplaysSettingsApi, CurrentSpeakersSettingsApi);
+        CurrentSpeakersSettings2<CurrentSpeakersSettingsApi2>,
+    >::bootstrap(CurrentDisplaysSettingsApi, CurrentSpeakersSettingsApi2);
 
     let application_result = application.execute(&args);
 
