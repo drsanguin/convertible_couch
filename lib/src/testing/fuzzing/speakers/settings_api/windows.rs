@@ -38,7 +38,7 @@ impl WindowsCom for FuzzedWindowsCom {
         pvreserved: Option<*const c_void>,
         dwcoinit: COINIT,
     ) -> HRESULT {
-        if pvreserved != None || dwcoinit != COINIT_MULTITHREADED {
+        if pvreserved.is_some() || dwcoinit != COINIT_MULTITHREADED {
             return HRESULT(-1);
         }
 
