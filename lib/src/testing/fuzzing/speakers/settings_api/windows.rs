@@ -1,3 +1,7 @@
+use std::ffi::c_void;
+use windows::Win32::System::Com::{CLSCTX, COINIT};
+use windows_core::{IUnknown, Interface, Param, GUID, HRESULT};
+
 use crate::{
     speakers_settings::windows::windows_com::WindowsCom,
     testing::fuzzing::speakers::{
@@ -9,6 +13,7 @@ use crate::{
     },
 };
 
+#[allow(dead_code)]
 #[derive(Clone, Default)]
 pub struct FuzzedWindowsCom {
     speakers: Vec<FuzzedSpeaker>,
@@ -27,12 +32,13 @@ impl FuzzedSpeakersSettingsApi for FuzzedWindowsCom {
     }
 }
 
+#[allow(unused_variables)]
 impl WindowsCom for FuzzedWindowsCom {
     unsafe fn co_initialize_ex(
         &self,
-        pvreserved: Option<*const std::ffi::c_void>,
-        dwcoinit: windows::Win32::System::Com::COINIT,
-    ) -> windows_core::HRESULT {
+        pvreserved: Option<*const c_void>,
+        dwcoinit: COINIT,
+    ) -> HRESULT {
         todo!()
     }
 
@@ -42,13 +48,13 @@ impl WindowsCom for FuzzedWindowsCom {
 
     unsafe fn co_create_instance<P1, T>(
         &self,
-        rclsid: *const windows_core::GUID,
+        rclsid: *const GUID,
         punkouter: P1,
-        dwclscontext: windows::Win32::System::Com::CLSCTX,
+        dwclscontext: CLSCTX,
     ) -> windows_core::Result<T>
     where
-        P1: windows_core::Param<windows_core::IUnknown>,
-        T: windows_core::Interface,
+        P1: Param<IUnknown>,
+        T: Interface,
     {
         todo!()
     }
