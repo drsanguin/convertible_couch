@@ -45,6 +45,8 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
             panic!("co_initialize_ex failed")
         }
 
+        let new_default_speaker_name: String;
+
         {
             let immdevice_enumerator: IMMDeviceEnumerator = unsafe {
                 self.windows_com
@@ -64,7 +66,6 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
 
             let mut desktop_speaker_id: PWSTR = PWSTR::default();
             let mut couch_speaker_id: PWSTR = PWSTR::default();
-            let mut current_speaker_id: PWSTR = PWSTR::default();
 
             for speaker_index in 0..speaker_count {
                 let immdevice = unsafe { immdevice_collection.Item(speaker_index) }?;
@@ -81,12 +82,15 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
                 }
             }
 
-            let new_default_speaker_id =
-                if unsafe { pwstr_eq(default_speaker_id, desktop_speaker_id) } {
-                    couch_speaker_id
-                } else {
-                    desktop_speaker_id
-                };
+            let new_default_speaker_id: PWSTR;
+
+            if unsafe { pwstr_eq(default_speaker_id, desktop_speaker_id) } {
+                new_default_speaker_id = couch_speaker_id;
+                new_default_speaker_name = couch_speaker_name.to_string();
+            } else {
+                new_default_speaker_id = desktop_speaker_id;
+                new_default_speaker_name = desktop_speaker_name.to_string();
+            }
 
             let policy: IPolicyConfigVista = unsafe {
                 self.windows_com.co_create_instance(
@@ -97,15 +101,17 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
             }?;
 
             (unsafe {
-                policy
-                    .SetDefaultEndpoint(PCWSTR(new_default_speaker_id.0 as *const u16), eConsole.0)
+                policy.set_default_endpoint(
+                    PCWSTR(new_default_speaker_id.0 as *const u16),
+                    eConsole.0,
+                )
             })?;
         }
 
         unsafe { self.windows_com.co_uninitialize() };
 
         Ok(crate::speakers_settings::SpeakersSettingsResult {
-            new_default_speaker: "".to_string(),
+            new_default_speaker: new_default_speaker_name,
         })
     }
 
@@ -124,7 +130,7 @@ define_interface!(
 interface_hierarchy!(IPolicyConfigVista, windows_core::IUnknown);
 
 impl IPolicyConfigVista {
-    pub unsafe fn SetDefaultEndpoint(
+    pub unsafe fn set_default_endpoint(
         &self,
         device_id: PCWSTR,
         role: i32,
