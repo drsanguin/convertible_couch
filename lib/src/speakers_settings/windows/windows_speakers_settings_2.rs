@@ -47,7 +47,9 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
         };
 
         if co_initialize_ex_result.is_err() {
-            panic!("co_initialize_ex failed")
+            return Err(ApplicationError::Custom(
+                "co_initialize_ex failed".to_string(),
+            ));
         }
 
         let new_default_speaker_name: String;
@@ -71,6 +73,7 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
 
             let mut desktop_speaker_id: PWSTR = PWSTR::default();
             let mut couch_speaker_id: PWSTR = PWSTR::default();
+            let mut speaker_names = Vec::with_capacity(speaker_count as usize);
 
             for speaker_index in 0..speaker_count {
                 let immdevice = unsafe { immdevice_collection.Item(speaker_index) }?;
@@ -85,6 +88,26 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
                 } else if friendly_name == couch_speaker_name {
                     couch_speaker_id = immdevice_id;
                 }
+
+                speaker_names.push(friendly_name);
+            }
+
+            speaker_names.sort();
+
+            let invalid_params_error_message =
+                match (desktop_speaker_id.is_null(), couch_speaker_id.is_null()) {
+                    (true, true) => Some("Desktop and couch speakers are invalid"),
+                    (true, _) => Some("Desktop speaker is invalid"),
+                    (_, true) => Some("Couch speaker is invalid"),
+                    _ => None,
+                };
+
+            if let Some(invalid_params_error_message_fragment) = invalid_params_error_message {
+                let possible_values_fragment = speaker_names.join(", ");
+                let error_message = format!("{invalid_params_error_message_fragment}, possible values are [{possible_values_fragment}]");
+                let error = ApplicationError::Custom(error_message);
+
+                return Err(error);
             }
 
             let new_default_speaker_id: PWSTR;
