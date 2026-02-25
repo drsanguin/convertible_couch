@@ -147,6 +147,7 @@ impl IPolicyConfigVista {
 }
 
 #[repr(C)]
+#[allow(non_snake_case)]
 pub struct IPolicyConfigVista_Vtbl {
     pub base__: IUnknown_Vtbl,
 
@@ -187,7 +188,7 @@ pub struct IPolicyConfigVista_Vtbl {
     pub GetShareMode: unsafe extern "system" fn(
         this: *mut c_void,
         device_id: PCWSTR,
-        mode: *mut c_void, // DeviceShareMode struct (undocumented)
+        mode: *mut c_void,
     ) -> HRESULT,
 
     pub SetShareMode: unsafe extern "system" fn(
@@ -210,11 +211,8 @@ pub struct IPolicyConfigVista_Vtbl {
         value: *const PROPVARIANT,
     ) -> HRESULT,
 
-    pub SetDefaultEndpoint: unsafe extern "system" fn(
-        this: *mut c_void,
-        device_id: PCWSTR,
-        role: i32, // ERole
-    ) -> HRESULT,
+    pub SetDefaultEndpoint:
+        unsafe extern "system" fn(this: *mut c_void, device_id: PCWSTR, role: i32) -> HRESULT,
 
     pub SetEndpointVisibility:
         unsafe extern "system" fn(this: *mut c_void, device_id: PCWSTR, visible: i32) -> HRESULT,
