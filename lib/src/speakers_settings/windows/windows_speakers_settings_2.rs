@@ -118,7 +118,56 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
     }
 
     fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
-        todo!()
+        let co_initialize_ex_result = unsafe {
+            self.windows_com
+                .co_initialize_ex(None, COINIT_MULTITHREADED)
+        };
+
+        if co_initialize_ex_result.is_err() {
+            panic!("co_initialize_ex failed")
+        }
+
+        let mut speakers_infos: Vec<SpeakerInfo>;
+
+        {
+            let immdevice_enumerator: IMMDeviceEnumerator = unsafe {
+                self.windows_com
+                    .co_create_instance(&MMDeviceEnumerator, None, CLSCTX_ALL)
+            }?;
+
+            let default_speaker =
+                unsafe { immdevice_enumerator.GetDefaultAudioEndpoint(eRender, eConsole) }?;
+
+            let default_speaker_id = unsafe { default_speaker.GetId() }?;
+
+            let immdevice_collection = unsafe {
+                immdevice_enumerator.EnumAudioEndpoints(EDataFlow::default(), DEVICE_STATE_ACTIVE)
+            }?;
+
+            let speaker_count = unsafe { immdevice_collection.GetCount() }?;
+
+            speakers_infos = Vec::with_capacity(speaker_count.try_into().unwrap());
+
+            for speaker_index in 0..speaker_count {
+                let immdevice = unsafe { immdevice_collection.Item(speaker_index) }?;
+                let immdevice_id = unsafe { immdevice.GetId() }?;
+                let property_store = unsafe { immdevice.OpenPropertyStore(STGM_READ) }?;
+                let propvariant = unsafe { property_store.GetValue(&PKEY_Device_FriendlyName) }?;
+                let pwsz_val = unsafe { propvariant.Anonymous.Anonymous.Anonymous.pwszVal };
+                let friendly_name = String::from_utf16(unsafe { pwsz_val.as_wide() })?;
+
+                let is_default = unsafe { pwstr_eq(default_speaker_id, immdevice_id) };
+
+                speakers_infos.push(SpeakerInfo {
+                    is_default,
+                    name: friendly_name,
+                });
+            }
+        }
+
+        unsafe { self.windows_com.co_uninitialize() };
+
+        Ok(speakers_infos)
     }
 }
 
