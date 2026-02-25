@@ -14,9 +14,14 @@ use windows::{
         },
     },
 };
-use windows_core::{IUnknown_Vtbl, GUID, HRESULT, PCWSTR, PWSTR};
+use windows_core::{IUnknown, IUnknown_Vtbl, Interface, GUID, HRESULT, PCWSTR, PWSTR};
 
-use crate::speakers_settings::{windows::windows_com::WindowsCom, SpeakersSettings};
+use crate::{
+    speakers_settings::{
+        windows::windows_com::WindowsCom, SpeakerInfo, SpeakersSettings, SpeakersSettingsResult,
+    },
+    ApplicationError,
+};
 
 pub struct WindowsSoundSettings2<TWindowsCom: WindowsCom> {
     windows_com: TWindowsCom,
@@ -35,7 +40,7 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
         &mut self,
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
-    ) -> Result<crate::speakers_settings::SpeakersSettingsResult, crate::ApplicationError> {
+    ) -> Result<SpeakersSettingsResult, ApplicationError> {
         let co_initialize_ex_result = unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
@@ -107,14 +112,12 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
 
         unsafe { self.windows_com.co_uninitialize() };
 
-        Ok(crate::speakers_settings::SpeakersSettingsResult {
+        Ok(SpeakersSettingsResult {
             new_default_speaker: new_default_speaker_name,
         })
     }
 
-    fn get_speakers_infos(
-        &self,
-    ) -> Result<Vec<crate::speakers_settings::SpeakerInfo>, crate::ApplicationError> {
+    fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
         todo!()
     }
 }
@@ -124,7 +127,7 @@ define_interface!(
     IPolicyConfigVista_Vtbl,
     0x568b9108_44bf_40b4_9006_86afe5b5a620
 );
-interface_hierarchy!(IPolicyConfigVista, windows_core::IUnknown);
+interface_hierarchy!(IPolicyConfigVista, IUnknown);
 
 impl IPolicyConfigVista {
     #[allow(non_snake_case)]
@@ -134,12 +137,8 @@ impl IPolicyConfigVista {
         role: ERole,
     ) -> windows_core::Result<()> {
         unsafe {
-            (windows_core::Interface::vtable(self).SetDefaultEndpoint)(
-                windows_core::Interface::as_raw(self),
-                device_id,
-                role,
-            )
-            .and_then(|| Ok(()))
+            (Interface::vtable(self).SetDefaultEndpoint)(Interface::as_raw(self), device_id, role)
+                .and_then(|| Ok(()))
         }
     }
 }
