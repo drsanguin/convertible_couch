@@ -23,6 +23,8 @@ use crate::{
     ApplicationError,
 };
 
+const POLICY_CONFIG_VISTA: GUID = GUID::from_u128(0x294935ce_f637_4e7c_a41b_ab255460b862);
+
 pub struct WindowsSoundSettings<TWindowsCom: WindowsCom> {
     windows_com: TWindowsCom,
 }
@@ -121,11 +123,8 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
             }
 
             let policy: IPolicyConfigVista = unsafe {
-                self.windows_com.co_create_instance(
-                    &GUID::from_u128(0x294935ce_f637_4e7c_a41b_ab255460b862),
-                    None,
-                    CLSCTX_ALL,
-                )
+                self.windows_com
+                    .co_create_instance(&POLICY_CONFIG_VISTA, None, CLSCTX_ALL)
             }?;
 
             (unsafe {
@@ -147,7 +146,9 @@ impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSett
         };
 
         if co_initialize_ex_result.is_err() {
-            panic!("co_initialize_ex failed")
+            return Err(ApplicationError::Custom(
+                "co_initialize_ex failed".to_string(),
+            ));
         }
 
         let mut speakers_infos: Vec<SpeakerInfo>;
