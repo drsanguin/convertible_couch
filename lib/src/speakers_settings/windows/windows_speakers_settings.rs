@@ -103,9 +103,8 @@ impl<
 
             let default_speaker_id = unsafe { default_speaker.get_id() }?;
 
-            let immdevice_collection = unsafe {
-                immdevice_enumerator.enum_audio_endpoints(EDataFlow::default(), DEVICE_STATE_ACTIVE)
-            }?;
+            let immdevice_collection =
+                unsafe { immdevice_enumerator.enum_audio_endpoints(eRender, DEVICE_STATE_ACTIVE) }?;
 
             let speaker_count = unsafe { immdevice_collection.get_count() }?;
 

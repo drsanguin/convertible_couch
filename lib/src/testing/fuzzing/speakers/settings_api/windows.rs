@@ -1,15 +1,16 @@
 use windows::Win32::{
+    Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
     Foundation::{E_FAIL, PROPERTYKEY},
-    Media::Audio::{eConsole, EDataFlow, ERole, DEVICE_STATE},
+    Media::Audio::{eConsole, eRender, EDataFlow, ERole, DEVICE_STATE, DEVICE_STATE_ACTIVE},
     System::{
         Com::{
             StructuredStorage::{PROPVARIANT, PROPVARIANT_0_0},
-            COINIT, COINIT_MULTITHREADED, STGM,
+            COINIT, COINIT_MULTITHREADED, STGM, STGM_READ,
         },
         Variant::VARENUM,
     },
 };
-use windows_core::{Error, Result, HRESULT, HSTRING, PCWSTR, PWSTR};
+use windows_core::{Error, Result, HRESULT, PCWSTR, PWSTR};
 
 use crate::{
     speakers_settings::windows::windows_com::{
@@ -106,7 +107,7 @@ impl IMMDeviceEnumerator<FuzzedIMMDevice, FuzzedIMMDeviceCollection, FuzzedIProp
             ));
         }
 
-        if role != eConsole {
+        if dataflow != eRender || role != eConsole {
             return Err(Error::empty());
         }
 
@@ -120,7 +121,6 @@ impl IMMDeviceEnumerator<FuzzedIMMDevice, FuzzedIMMDeviceCollection, FuzzedIProp
 
         Ok(FuzzedIMMDevice {
             speaker: default_speaker.clone(),
-            behaviour: self.behaviour.clone(),
         })
     }
 
@@ -133,6 +133,10 @@ impl IMMDeviceEnumerator<FuzzedIMMDevice, FuzzedIMMDeviceCollection, FuzzedIProp
             return Err(Error::new(E_FAIL, "Failed to get the speakers"));
         }
 
+        if dataflow != eRender || dwstatemask != DEVICE_STATE_ACTIVE {
+            return Err(Error::empty());
+        }
+
         Ok(FuzzedIMMDeviceCollection {
             speakers: self.speakers.clone(),
             behaviour: self.behaviour.clone(),
@@ -142,7 +146,6 @@ impl IMMDeviceEnumerator<FuzzedIMMDevice, FuzzedIMMDeviceCollection, FuzzedIProp
 
 pub struct FuzzedIMMDevice {
     speaker: FuzzedSpeaker,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
 }
 
 impl IMMDevice<FuzzedIPropertyStore> for FuzzedIMMDevice {
@@ -158,9 +161,12 @@ impl IMMDevice<FuzzedIPropertyStore> for FuzzedIMMDevice {
     }
 
     unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<FuzzedIPropertyStore> {
+        if stgmaccess != STGM_READ {
+            return Err(Error::empty());
+        }
+
         Ok(FuzzedIPropertyStore {
             speaker: self.speaker.clone(),
-            behaviour: self.behaviour.clone(),
         })
     }
 }
@@ -189,18 +195,20 @@ impl IMMDeviceCollection<FuzzedIMMDevice, FuzzedIPropertyStore> for FuzzedIMMDev
 
         Ok(FuzzedIMMDevice {
             speaker: speaker_option.unwrap().clone(),
-            behaviour: self.behaviour.clone(),
         })
     }
 }
 
 pub struct FuzzedIPropertyStore {
     speaker: FuzzedSpeaker,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
 }
 
 impl IPropertyStore for FuzzedIPropertyStore {
     unsafe fn get_value(&self, key: *const PROPERTYKEY) -> Result<PROPVARIANT> {
+        if *key != PKEY_Device_FriendlyName {
+            return Err(Error::empty());
+        }
+
         let mut name_utf16 = self.speaker.name.encode_utf16().collect::<Vec<_>>();
 
         name_utf16.push(0);
@@ -233,6 +241,10 @@ impl IPolicyConfigVista for FuzzedIPolicyConfigVista {
     unsafe fn set_default_endpoint(&mut self, device_id: PCWSTR, role: ERole) -> Result<()> {
         if self.behaviour.setting_the_default_speaker_fails {
             return Err(Error::new(E_FAIL, "Failed to set default speaker"));
+        }
+
+        if role != eConsole {
+            return Err(Error::empty());
         }
 
         let speaker_id = String::from_utf16(device_id.as_wide())?;
