@@ -28,31 +28,31 @@ pub struct ApplicationBuilder {
     computer: FuzzedComputer,
 }
 
-impl ApplicationBuilder {
-    pub fn new(computer: FuzzedComputer) -> Self {
-        Self { computer }
-    }
-
-    pub fn build(
-        self,
-    ) -> Application<
-        CurrentFuzzedDisplaysSettingsApi,
+type WindowsApplication = Application<
+    CurrentFuzzedDisplaysSettingsApi,
+    CurrentFuzzedSpeakersSettingsApi,
+    CurrentDisplaysSettings<CurrentFuzzedDisplaysSettingsApi>,
+    CurrentSpeakersSettings<
         CurrentFuzzedSpeakersSettingsApi,
-        CurrentDisplaysSettings<CurrentFuzzedDisplaysSettingsApi>,
-        CurrentSpeakersSettings<
-            CurrentFuzzedSpeakersSettingsApi,
-            FuzzedIMMDeviceEnumerator,
-            FuzzedIMMDevice,
-            FuzzedIMMDeviceCollection,
-            FuzzedIPropertyStore,
-            FuzzedIPolicyConfigVista,
-        >,
         FuzzedIMMDeviceEnumerator,
         FuzzedIMMDevice,
         FuzzedIMMDeviceCollection,
         FuzzedIPropertyStore,
         FuzzedIPolicyConfigVista,
-    > {
+    >,
+    FuzzedIMMDeviceEnumerator,
+    FuzzedIMMDevice,
+    FuzzedIMMDeviceCollection,
+    FuzzedIPropertyStore,
+    FuzzedIPolicyConfigVista,
+>;
+
+impl ApplicationBuilder {
+    pub fn new(computer: FuzzedComputer) -> Self {
+        Self { computer }
+    }
+
+    pub fn build(self) -> WindowsApplication {
         Application::<
             CurrentFuzzedDisplaysSettingsApi,
             CurrentFuzzedSpeakersSettingsApi,

@@ -68,9 +68,7 @@ impl
         HRESULT(0)
     }
 
-    unsafe fn co_uninitialize(&self) {
-        ()
-    }
+    unsafe fn co_uninitialize(&self) {}
 
     unsafe fn co_create_immdevice_enumerator(&self) -> Result<FuzzedIMMDeviceEnumerator> {
         Ok(FuzzedIMMDeviceEnumerator {
