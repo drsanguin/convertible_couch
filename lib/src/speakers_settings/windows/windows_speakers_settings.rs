@@ -190,10 +190,14 @@ impl<
             let immdevice_enumerator =
                 unsafe { self.windows_com.co_create_immdevice_enumerator() }?;
 
-            let default_speaker =
-                unsafe { immdevice_enumerator.get_default_audio_endpoint(eRender, eConsole) }?;
+            let get_default_audio_endpoint_result =
+                unsafe { immdevice_enumerator.get_default_audio_endpoint(eRender, eConsole) };
 
-            let default_speaker_id = unsafe { default_speaker.get_id() }?;
+            let mut default_speaker_id_option: Option<PWSTR> = None;
+
+            if let Ok(default_speaker) = get_default_audio_endpoint_result {
+                default_speaker_id_option = Some(unsafe { default_speaker.get_id() }?);
+            }
 
             let immdevice_collection = unsafe {
                 immdevice_enumerator.enum_audio_endpoints(EDataFlow::default(), DEVICE_STATE_ACTIVE)
@@ -211,7 +215,11 @@ impl<
                 let pwsz_val = unsafe { propvariant.Anonymous.Anonymous.Anonymous.pwszVal };
                 let friendly_name = String::from_utf16(unsafe { pwsz_val.as_wide() })?;
 
-                let is_default = unsafe { pwstr_eq(default_speaker_id, immdevice_id) };
+                let is_default = if let Some(default_speaker_id) = default_speaker_id_option {
+                    unsafe { pwstr_eq(default_speaker_id, immdevice_id) }
+                } else {
+                    false
+                };
 
                 speakers_infos.push(SpeakerInfo {
                     is_default,
