@@ -1,71 +1,82 @@
 use core::ffi::c_void;
 
-use windows::{
-    core::{GUID, HRESULT},
-    Win32::System::Com::{CLSCTX, COINIT},
+use windows::Win32::{
+    Foundation::PROPERTYKEY,
+    Media::Audio::{EDataFlow, ERole, DEVICE_STATE},
+    System::Com::{StructuredStorage::PROPVARIANT, COINIT, STGM},
 };
-
-use windows_core::{IUnknown, Interface, Param, Result};
+use windows_core::{Result, HRESULT, PCWSTR, PWSTR};
 
 pub mod windows_api_based_windows_com;
 
-pub trait WindowsCom {
-    /// Initializes the COM library for use by the calling thread.
-    ///
-    /// This is a low-level binding to `CoInitializeEx`.
-    ///
-    /// # Safety
-    ///
-    /// The caller must ensure that:
-    /// - `pvreserved` is either `None` or a valid pointer as required by the Windows API
-    ///   contract (it must not point to invalid or unmapped memory).
-    /// - The function is called in accordance with COM initialization rules:
-    ///   - Each thread must call `co_initialize_ex` before using COM.
-    ///   - Each successful call must be balanced with a matching `co_uninitialize` on the same thread.
-    /// - `dwcoinit` specifies a valid COM apartment model.
-    ///
-    /// Calling this function incorrectly may lead to undefined behavior, resource leaks,
-    /// or COM runtime corruption.
+pub trait WindowsCom<
+    TIMMDeviceEnumerator,
+    TIMMDevice,
+    TIMMDeviceCollection,
+    TIPropertyStore,
+    TIPolicyConfigVista,
+> where
+    TIMMDeviceEnumerator: IMMDeviceEnumerator<TIMMDevice, TIMMDeviceCollection, TIPropertyStore>,
+    TIMMDevice: IMMDevice<TIPropertyStore>,
+    TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
+    TIPropertyStore: IPropertyStore,
+    TIPolicyConfigVista: IPolicyConfigVista,
+{
     unsafe fn co_initialize_ex(
         &self,
         pvreserved: Option<*const c_void>,
         dwcoinit: COINIT,
     ) -> HRESULT;
 
-    /// Uninitializes the COM library on the calling thread.
-    ///
-    /// This is a low-level binding to `CoUninitialize`.
-    ///
-    /// # Safety
-    ///
-    /// The caller must ensure that:
-    /// - This function is only called on a thread that previously successfully called
-    ///   `co_initialize_ex`.
-    /// - Calls are properly balanced: each successful `co_initialize_ex` call must have
-    ///   exactly one corresponding `co_uninitialize`.
-    /// - No COM objects are still in use on the thread when this is called.
-    ///
-    /// Violating these rules may result in undefined behavior, including memory corruption,
-    /// resource leaks, or COM runtime instability.
     unsafe fn co_uninitialize(&self);
 
-    /// Creates a COM object instance of the specified CLSID.
-    ///
-    /// This is a low-level binding to `CoCreateInstance`.
-    ///
-    /// # Safety
-    ///
-    /// The caller must ensure that:
-    /// - `rclsid` is a valid, non-null pointer to a properly initialized `GUID`.
-    /// - The memory pointed to by `rclsid` is readable for the duration of the call.
-    /// - `punkouter` is either a valid `IUnknown` pointer for aggregation or represents
-    unsafe fn co_create_instance<P1, T>(
+    unsafe fn co_create_immdevice_enumerator(&self) -> Result<TIMMDeviceEnumerator>;
+
+    unsafe fn co_create_ipolicy_config_vista(&self) -> Result<TIPolicyConfigVista>;
+}
+
+pub trait IMMDeviceEnumerator<TIMMDevice, TIMMDeviceCollection, TIPropertyStore>
+where
+    TIMMDevice: IMMDevice<TIPropertyStore>,
+    TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
+    TIPropertyStore: IPropertyStore,
+{
+    unsafe fn get_default_audio_endpoint(
         &self,
-        rclsid: *const GUID,
-        punkouter: P1,
-        dwclscontext: CLSCTX,
-    ) -> Result<T>
-    where
-        P1: Param<IUnknown>,
-        T: Interface;
+        dataflow: EDataFlow,
+        role: ERole,
+    ) -> Result<TIMMDevice>;
+
+    unsafe fn enum_audio_endpoints(
+        &self,
+        dataflow: EDataFlow,
+        dwstatemask: DEVICE_STATE,
+    ) -> Result<TIMMDeviceCollection>;
+}
+
+pub trait IMMDevice<TIPropertyStore>
+where
+    TIPropertyStore: IPropertyStore,
+{
+    unsafe fn get_id(&self) -> Result<PWSTR>;
+
+    unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<TIPropertyStore>;
+}
+
+pub trait IMMDeviceCollection<TIMMDevice, TIPropertyStore>
+where
+    TIMMDevice: IMMDevice<TIPropertyStore>,
+    TIPropertyStore: IPropertyStore,
+{
+    unsafe fn get_count(&self) -> Result<u32>;
+
+    unsafe fn item(&self, ndevice: u32) -> Result<TIMMDevice>;
+}
+
+pub trait IPropertyStore {
+    unsafe fn get_value(&self, key: *const PROPERTYKEY) -> Result<PROPVARIANT>;
+}
+
+pub trait IPolicyConfigVista {
+    unsafe fn set_default_endpoint(&mut self, device_id: PCWSTR, role: ERole) -> Result<()>;
 }

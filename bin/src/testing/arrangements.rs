@@ -2,8 +2,15 @@ use convertible_couch_lib::{
     displays_settings::CurrentDisplaysSettings,
     speakers_settings::CurrentSpeakersSettings,
     testing::fuzzing::{
-        computer::FuzzedComputer, displays::settings_api::CurrentFuzzedDisplaysSettingsApi,
-        speakers::settings_api::CurrentFuzzedSpeakersSettingsApi,
+        computer::FuzzedComputer,
+        displays::settings_api::CurrentFuzzedDisplaysSettingsApi,
+        speakers::settings_api::{
+            windows::{
+                FuzzedIMMDevice, FuzzedIMMDeviceCollection, FuzzedIMMDeviceEnumerator,
+                FuzzedIPolicyConfigVista, FuzzedIPropertyStore,
+            },
+            CurrentFuzzedSpeakersSettingsApi,
+        },
     },
 };
 
@@ -32,13 +39,37 @@ impl ApplicationBuilder {
         CurrentFuzzedDisplaysSettingsApi,
         CurrentFuzzedSpeakersSettingsApi,
         CurrentDisplaysSettings<CurrentFuzzedDisplaysSettingsApi>,
-        CurrentSpeakersSettings<CurrentFuzzedSpeakersSettingsApi>,
+        CurrentSpeakersSettings<
+            CurrentFuzzedSpeakersSettingsApi,
+            FuzzedIMMDeviceEnumerator,
+            FuzzedIMMDevice,
+            FuzzedIMMDeviceCollection,
+            FuzzedIPropertyStore,
+            FuzzedIPolicyConfigVista,
+        >,
+        FuzzedIMMDeviceEnumerator,
+        FuzzedIMMDevice,
+        FuzzedIMMDeviceCollection,
+        FuzzedIPropertyStore,
+        FuzzedIPolicyConfigVista,
     > {
         Application::<
             CurrentFuzzedDisplaysSettingsApi,
             CurrentFuzzedSpeakersSettingsApi,
             CurrentDisplaysSettings<CurrentFuzzedDisplaysSettingsApi>,
-            CurrentSpeakersSettings<CurrentFuzzedSpeakersSettingsApi>,
+            CurrentSpeakersSettings<
+                CurrentFuzzedSpeakersSettingsApi,
+                FuzzedIMMDeviceEnumerator,
+                FuzzedIMMDevice,
+                FuzzedIMMDeviceCollection,
+                FuzzedIPropertyStore,
+                FuzzedIPolicyConfigVista,
+            >,
+            FuzzedIMMDeviceEnumerator,
+            FuzzedIMMDevice,
+            FuzzedIMMDeviceCollection,
+            FuzzedIPropertyStore,
+            FuzzedIPolicyConfigVista,
         >::bootstrap(
             self.computer.displays_settings_api,
             self.computer.speakers_settings_api,

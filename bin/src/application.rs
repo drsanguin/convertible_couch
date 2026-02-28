@@ -6,6 +6,9 @@ use convertible_couch_lib::{
     },
     log::{configure_logger, LogLevel},
     speakers_settings::{
+        windows::windows_com::{
+            IMMDevice, IMMDeviceCollection, IMMDeviceEnumerator, IPolicyConfigVista, IPropertyStore,
+        },
         CurrentSpeakersSettingsApiTrait, SpeakerInfo, SpeakersSettings, SpeakersSettingsResult,
     },
     ApplicationError,
@@ -52,23 +55,60 @@ pub enum ApplicationInfoResult {
 
 pub struct Application<
     TDisplaysSettingsApi: CurrentDisplaysSettingsApiTrait,
-    TSpeakersSettingsApi: CurrentSpeakersSettingsApiTrait,
+    TSpeakersSettingsApi: CurrentSpeakersSettingsApiTrait<
+        TIMMDeviceEnumerator,
+        TIMMDevice,
+        TIMMDeviceCollection,
+        TIPropertyStore,
+        TIPolicyConfigVista,
+    >,
     TDisplaysSettings: DisplaysSettings<TDisplaysSettingsApi>,
     TSpeakersSettings: SpeakersSettings<TSpeakersSettingsApi>,
+    TIMMDeviceEnumerator: IMMDeviceEnumerator<TIMMDevice, TIMMDeviceCollection, TIPropertyStore>,
+    TIMMDevice: IMMDevice<TIPropertyStore>,
+    TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
+    TIPropertyStore: IPropertyStore,
+    TIPolicyConfigVista: IPolicyConfigVista,
 > {
     displays_settings: TDisplaysSettings,
     speakers_settings: TSpeakersSettings,
     displays_settings_api: PhantomData<TDisplaysSettingsApi>,
     speakers_settings_api: PhantomData<TSpeakersSettingsApi>,
+    immdevice_enumerator: PhantomData<TIMMDeviceEnumerator>,
+    immdevice: PhantomData<TIMMDevice>,
+    immdevice_collection: PhantomData<TIMMDeviceCollection>,
+    iproperty_store: PhantomData<TIPropertyStore>,
+    ipolicy_config_vista: PhantomData<TIPolicyConfigVista>,
 }
 
 impl<
         TDisplaysSettingsApi: CurrentDisplaysSettingsApiTrait,
-        TSpeakersSettingsApi: CurrentSpeakersSettingsApiTrait,
+        TSpeakersSettingsApi: CurrentSpeakersSettingsApiTrait<
+            TIMMDeviceEnumerator,
+            TIMMDevice,
+            TIMMDeviceCollection,
+            TIPropertyStore,
+            TIPolicyConfigVista,
+        >,
         TDisplaysSettings: DisplaysSettings<TDisplaysSettingsApi>,
         TSpeakersSettings: SpeakersSettings<TSpeakersSettingsApi>,
+        TIMMDeviceEnumerator: IMMDeviceEnumerator<TIMMDevice, TIMMDeviceCollection, TIPropertyStore>,
+        TIMMDevice: IMMDevice<TIPropertyStore>,
+        TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
+        TIPropertyStore: IPropertyStore,
+        TIPolicyConfigVista: IPolicyConfigVista,
     >
-    Application<TDisplaysSettingsApi, TSpeakersSettingsApi, TDisplaysSettings, TSpeakersSettings>
+    Application<
+        TDisplaysSettingsApi,
+        TSpeakersSettingsApi,
+        TDisplaysSettings,
+        TSpeakersSettings,
+        TIMMDeviceEnumerator,
+        TIMMDevice,
+        TIMMDeviceCollection,
+        TIPropertyStore,
+        TIPolicyConfigVista,
+    >
 {
     pub fn bootstrap(
         displays_settings_api: TDisplaysSettingsApi,
@@ -79,6 +119,11 @@ impl<
             speakers_settings: TSpeakersSettings::new(speakers_settings_api),
             displays_settings_api: PhantomData,
             speakers_settings_api: PhantomData,
+            immdevice_enumerator: PhantomData,
+            immdevice: PhantomData,
+            immdevice_collection: PhantomData,
+            iproperty_store: PhantomData,
+            ipolicy_config_vista: PhantomData,
         }
     }
 
