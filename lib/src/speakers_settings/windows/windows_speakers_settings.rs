@@ -260,7 +260,7 @@ mod tests {
     use crate::speakers_settings::windows::windows_speakers_settings::pwstr_eq;
 
     #[test]
-    fn it_should_check_equality_of_null_pwstr() {
+    fn it_should_check_equality_of_two_null_pwstr() {
         // Arrange
         let a = PWSTR::from_raw(null_mut());
         let b = PWSTR::from_raw(null_mut());
@@ -270,5 +270,37 @@ mod tests {
 
         // Assert
         assert!(result)
+    }
+
+    #[test]
+    fn it_should_check_equality_of_a_null_pwstr_and_a_string() {
+        // Arrange
+        let a = PWSTR::from_raw(null_mut());
+
+        let b_str = String::from("");
+        let mut b_str_buffer = b_str.encode_utf16().collect::<Vec<_>>();
+        let b = PWSTR::from_raw(b_str_buffer.as_mut_ptr());
+
+        // Act
+        let result = pwstr_eq(a, b);
+
+        // Assert
+        assert!(!result)
+    }
+
+    #[test]
+    fn it_should_check_equality_of_a_string_and_a_null_pwstr() {
+        // Arrange
+        let a_str = String::from("");
+        let mut a_str_buffer = a_str.encode_utf16().collect::<Vec<_>>();
+        let a = PWSTR::from_raw(a_str_buffer.as_mut_ptr());
+
+        let b = PWSTR::from_raw(null_mut());
+
+        // Act
+        let result = pwstr_eq(a, b);
+
+        // Assert
+        assert!(!result)
     }
 }
