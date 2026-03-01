@@ -40,8 +40,6 @@ pub struct WindowsSoundSettings<
     ipolicy_config_vista: PhantomData<TIPolicyConfigVista>,
 }
 
-// impl<TWindowsCom: WindowsCom> WindowsSoundSettings<TWindowsCom> {}
-
 impl<
         TWindowsCom: WindowsCom<
             TIMMDeviceEnumerator,
