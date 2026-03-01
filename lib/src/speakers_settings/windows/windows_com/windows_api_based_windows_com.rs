@@ -42,19 +42,25 @@ impl WindowsComTrait for WindowsApiBasedWindowsCom {
     unsafe fn co_create_immdevice_enumerator(&self) -> Result<Box<dyn IMMDeviceEnumeratorTrait>> {
         let immdevice_enumerator: IMMDeviceEnumerator =
             CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
-
-        Ok(Box::new(WindowsApiBasedIMMDeviceEnumerator {
+        let windows_api_based_immdevice_enumerator = WindowsApiBasedIMMDeviceEnumerator {
             immdevice_enumerator,
-        }))
+        };
+        let boxed_windows_api_based_immdevice_enumerator =
+            Box::new(windows_api_based_immdevice_enumerator);
+
+        Ok(boxed_windows_api_based_immdevice_enumerator)
     }
 
     unsafe fn co_create_ipolicy_config_vista(&self) -> Result<Box<dyn IPolicyConfigVistaTrait>> {
         let ipolicy_config_vista: IPolicyConfigVista =
             CoCreateInstance(&POLICY_CONFIG_VISTA, None, CLSCTX_ALL)?;
-
-        Ok(Box::new(WindowsApiBasedIPolicyConfigVista {
+        let windows_api_based_ipolicy_config_vista = WindowsApiBasedIPolicyConfigVista {
             ipolicy_config_vista,
-        }))
+        };
+        let boxed_windows_api_based_ipolicy_config_vista =
+            Box::new(windows_api_based_ipolicy_config_vista);
+
+        Ok(boxed_windows_api_based_ipolicy_config_vista)
     }
 }
 
@@ -71,8 +77,10 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
         let immdevice = self
             .immdevice_enumerator
             .GetDefaultAudioEndpoint(dataflow, role)?;
+        let windows_api_based_immdevice = WindowsApiBasedIMMDevice { immdevice };
+        let box_windows_api_based_immdevice = Box::new(windows_api_based_immdevice);
 
-        Ok(Box::new(WindowsApiBasedIMMDevice { immdevice }))
+        Ok(box_windows_api_based_immdevice)
     }
 
     unsafe fn enum_audio_endpoints(
@@ -83,10 +91,13 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
         let immdevice_collection = self
             .immdevice_enumerator
             .EnumAudioEndpoints(dataflow, dwstatemask)?;
-
-        Ok(Box::new(WindowsApiBasedIMMDeviceCollection {
+        let windows_api_based_immdevice_collection = WindowsApiBasedIMMDeviceCollection {
             immdevice_collection,
-        }))
+        };
+        let boxed_windows_api_based_immdevice_collection =
+            Box::new(windows_api_based_immdevice_collection);
+
+        Ok(boxed_windows_api_based_immdevice_collection)
     }
 }
 
@@ -101,8 +112,10 @@ impl IMMDeviceCollectionTrait for WindowsApiBasedIMMDeviceCollection {
 
     unsafe fn item(&self, ndevice: u32) -> Result<Box<dyn IMMDeviceTrait>> {
         let immdevice = self.immdevice_collection.Item(ndevice)?;
+        let windows_api_based_immdevice = WindowsApiBasedIMMDevice { immdevice };
+        let box_windows_api_based_immdevice = Box::new(windows_api_based_immdevice);
 
-        Ok(Box::new(WindowsApiBasedIMMDevice { immdevice }))
+        Ok(box_windows_api_based_immdevice)
     }
 }
 
@@ -117,8 +130,10 @@ impl IMMDeviceTrait for WindowsApiBasedIMMDevice {
 
     unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<Box<dyn IPropertyStoreTrait>> {
         let iproperty_store = self.immdevice.OpenPropertyStore(stgmaccess)?;
+        let windows_api_based_iproperty_store = WindowsApiBasedIPropertyStore { iproperty_store };
+        let box_windows_api_based_iproperty_store = Box::new(windows_api_based_iproperty_store);
 
-        Ok(Box::new(WindowsApiBasedIPropertyStore { iproperty_store }))
+        Ok(box_windows_api_based_iproperty_store)
     }
 }
 

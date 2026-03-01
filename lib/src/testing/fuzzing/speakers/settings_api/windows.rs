@@ -63,17 +63,23 @@ impl WindowsCom for FuzzedWindowsCom {
     unsafe fn co_uninitialize(&self) {}
 
     unsafe fn co_create_immdevice_enumerator(&self) -> Result<Box<dyn IMMDeviceEnumerator>> {
-        Ok(Box::new(FuzzedIMMDeviceEnumerator {
+        let fuzzed_immdevice_enumerator = FuzzedIMMDeviceEnumerator {
             speakers: self.speakers.borrow().clone(),
             behaviour: self.behaviour.clone(),
-        }))
+        };
+        let boxed_fuzzed_immdevice_enumerator = Box::new(fuzzed_immdevice_enumerator);
+
+        Ok(boxed_fuzzed_immdevice_enumerator)
     }
 
     unsafe fn co_create_ipolicy_config_vista(&self) -> Result<Box<dyn IPolicyConfigVista>> {
-        Ok(Box::new(FuzzedIPolicyConfigVista {
+        let fuzzed_ipolicy_config_vista = FuzzedIPolicyConfigVista {
             speakers: Rc::clone(&self.speakers),
             behaviour: self.behaviour.clone(),
-        }))
+        };
+        let boxed_fuzzed_ipolicy_config_vista = Box::new(fuzzed_ipolicy_config_vista);
+
+        Ok(boxed_fuzzed_ipolicy_config_vista)
     }
 }
 
@@ -106,10 +112,12 @@ impl IMMDeviceEnumerator for FuzzedIMMDeviceEnumerator {
         }
 
         let default_speaker = default_speaker_option.unwrap();
-
-        Ok(Box::new(FuzzedIMMDevice {
+        let fuzzed_immdevice = FuzzedIMMDevice {
             speaker: default_speaker.clone(),
-        }))
+        };
+        let boxed_fuzzed_immdevice = Box::new(fuzzed_immdevice);
+
+        Ok(boxed_fuzzed_immdevice)
     }
 
     unsafe fn enum_audio_endpoints(
@@ -125,10 +133,13 @@ impl IMMDeviceEnumerator for FuzzedIMMDeviceEnumerator {
             return Err(Error::empty());
         }
 
-        Ok(Box::new(FuzzedIMMDeviceCollection {
+        let fuzzed_immdevice_collection = FuzzedIMMDeviceCollection {
             speakers: self.speakers.clone(),
             behaviour: self.behaviour.clone(),
-        }))
+        };
+        let boxed_fuzzed_immdevice_collection = Box::new(fuzzed_immdevice_collection);
+
+        Ok(boxed_fuzzed_immdevice_collection)
     }
 }
 
@@ -153,9 +164,12 @@ impl IMMDevice for FuzzedIMMDevice {
             return Err(Error::empty());
         }
 
-        Ok(Box::new(FuzzedIPropertyStore {
+        let fuzzed_iproperty_store = FuzzedIPropertyStore {
             speaker: self.speaker.clone(),
-        }))
+        };
+        let boxed_fuzzed_iproperty_store = Box::new(fuzzed_iproperty_store);
+
+        Ok(boxed_fuzzed_iproperty_store)
     }
 }
 
@@ -181,9 +195,12 @@ impl IMMDeviceCollection for FuzzedIMMDeviceCollection {
             return Err(Error::empty());
         }
 
-        Ok(Box::new(FuzzedIMMDevice {
+        let fuzzed_immdevice = FuzzedIMMDevice {
             speaker: speaker_option.unwrap().clone(),
-        }))
+        };
+        let boxed_fuzzed_immdevice = Box::new(fuzzed_immdevice);
+
+        Ok(boxed_fuzzed_immdevice)
     }
 }
 
