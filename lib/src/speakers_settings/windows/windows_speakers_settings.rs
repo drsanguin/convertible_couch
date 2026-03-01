@@ -142,7 +142,7 @@ impl<
 
             let new_default_speaker_id: PWSTR;
 
-            if unsafe { pwstr_eq(default_speaker_id, desktop_speaker_id) } {
+            if pwstr_eq(default_speaker_id, desktop_speaker_id) {
                 new_default_speaker_id = couch_speaker_id;
                 new_default_speaker_name = couch_speaker_name.to_string();
             } else {
@@ -204,7 +204,7 @@ impl<
                 let friendly_name = String::from_utf16(unsafe { pwsz_val.as_wide() })?;
 
                 let is_default = if let Some(default_speaker_id) = default_speaker_id_option {
-                    unsafe { pwstr_eq(default_speaker_id, immdevice_id) }
+                    pwstr_eq(default_speaker_id, immdevice_id)
                 } else {
                     false
                 };
@@ -224,7 +224,7 @@ impl<
     }
 }
 
-unsafe fn pwstr_eq(a: PWSTR, b: PWSTR) -> bool {
+fn pwstr_eq(a: PWSTR, b: PWSTR) -> bool {
     let mut pa = a.0;
     let mut pb = b.0;
 
@@ -233,19 +233,40 @@ unsafe fn pwstr_eq(a: PWSTR, b: PWSTR) -> bool {
     }
 
     loop {
-        let ca = *pa;
-        let cb = *pb;
+        let ca = unsafe { *pa };
+        let cb = unsafe { *pb };
 
         if ca != cb {
             return false;
         }
 
         if ca == 0 {
-            // both null-terminated
             return true;
         }
 
-        pa = pa.add(1);
-        pb = pb.add(1);
+        pa = unsafe { pa.add(1) };
+        pb = unsafe { pb.add(1) };
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::ptr::null_mut;
+
+    use windows_core::PWSTR;
+
+    use crate::speakers_settings::windows::windows_speakers_settings::pwstr_eq;
+
+    #[test]
+    fn it_should_check_equality_of_null_pwstr() {
+        // Arrange
+        let a = PWSTR::from_raw(null_mut());
+        let b = PWSTR::from_raw(null_mut());
+
+        // Act
+        let result = pwstr_eq(a, b);
+
+        // Assert
+        assert!(result)
     }
 }
