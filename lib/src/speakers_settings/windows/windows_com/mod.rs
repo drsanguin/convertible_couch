@@ -10,17 +10,12 @@ use windows_core::{Result, HRESULT, PCWSTR, PWSTR};
 pub mod windows_api_based_windows_com;
 
 pub trait WindowsCom<
-    TIMMDeviceEnumerator,
-    TIMMDevice,
-    TIMMDeviceCollection,
-    TIPropertyStore,
-    TIPolicyConfigVista,
-> where
     TIMMDeviceEnumerator: IMMDeviceEnumerator<TIMMDevice, TIMMDeviceCollection, TIPropertyStore>,
     TIMMDevice: IMMDevice<TIPropertyStore>,
     TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
     TIPropertyStore: IPropertyStore,
     TIPolicyConfigVista: IPolicyConfigVista,
+>
 {
     /// Initializes COM for the current thread.
     ///
@@ -65,11 +60,11 @@ pub trait WindowsCom<
     unsafe fn co_create_ipolicy_config_vista(&self) -> Result<TIPolicyConfigVista>;
 }
 
-pub trait IMMDeviceEnumerator<TIMMDevice, TIMMDeviceCollection, TIPropertyStore>
-where
+pub trait IMMDeviceEnumerator<
     TIMMDevice: IMMDevice<TIPropertyStore>,
     TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
     TIPropertyStore: IPropertyStore,
+>
 {
     /// Gets the default audio endpoint device.
     ///
@@ -100,10 +95,7 @@ where
     ) -> Result<TIMMDeviceCollection>;
 }
 
-pub trait IMMDevice<TIPropertyStore>
-where
-    TIPropertyStore: IPropertyStore,
-{
+pub trait IMMDevice<TIPropertyStore: IPropertyStore> {
     /// Retrieves the device ID string.
     ///
     /// # Safety
@@ -125,10 +117,10 @@ where
     unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<TIPropertyStore>;
 }
 
-pub trait IMMDeviceCollection<TIMMDevice, TIPropertyStore>
-where
+pub trait IMMDeviceCollection<
     TIMMDevice: IMMDevice<TIPropertyStore>,
     TIPropertyStore: IPropertyStore,
+>
 {
     /// Gets the number of devices in the collection.
     ///
