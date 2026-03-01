@@ -26,15 +26,7 @@ const POLICY_CONFIG_VISTA: GUID = GUID::from_u128(0x294935ce_f637_4e7c_a41b_ab25
 
 pub struct WindowsApiBasedWindowsCom;
 
-impl
-    WindowsComTrait<
-        WindowsApiBasedIMMDeviceEnumerator,
-        WindowsApiBasedIMMDevice,
-        WindowsApiBasedIMMDeviceCollection,
-        WindowsApiBasedIPropertyStore,
-        WindowsApiBasedIPolicyConfigVista,
-    > for WindowsApiBasedWindowsCom
-{
+impl WindowsComTrait for WindowsApiBasedWindowsCom {
     unsafe fn co_initialize_ex(
         &self,
         pvreserved: Option<*const c_void>,
@@ -47,22 +39,22 @@ impl
         CoUninitialize()
     }
 
-    unsafe fn co_create_immdevice_enumerator(&self) -> Result<WindowsApiBasedIMMDeviceEnumerator> {
+    unsafe fn co_create_immdevice_enumerator(&self) -> Result<Box<dyn IMMDeviceEnumeratorTrait>> {
         let immdevice_enumerator: IMMDeviceEnumerator =
             CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
 
-        Ok(WindowsApiBasedIMMDeviceEnumerator {
+        Ok(Box::new(WindowsApiBasedIMMDeviceEnumerator {
             immdevice_enumerator,
-        })
+        }))
     }
 
-    unsafe fn co_create_ipolicy_config_vista(&self) -> Result<WindowsApiBasedIPolicyConfigVista> {
+    unsafe fn co_create_ipolicy_config_vista(&self) -> Result<Box<dyn IPolicyConfigVistaTrait>> {
         let ipolicy_config_vista: IPolicyConfigVista =
             CoCreateInstance(&POLICY_CONFIG_VISTA, None, CLSCTX_ALL)?;
 
-        Ok(WindowsApiBasedIPolicyConfigVista {
+        Ok(Box::new(WindowsApiBasedIPolicyConfigVista {
             ipolicy_config_vista,
-        })
+        }))
     }
 }
 
@@ -70,37 +62,31 @@ pub struct WindowsApiBasedIMMDeviceEnumerator {
     immdevice_enumerator: IMMDeviceEnumerator,
 }
 
-impl
-    IMMDeviceEnumeratorTrait<
-        WindowsApiBasedIMMDevice,
-        WindowsApiBasedIMMDeviceCollection,
-        WindowsApiBasedIPropertyStore,
-    > for WindowsApiBasedIMMDeviceEnumerator
-{
+impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
     unsafe fn get_default_audio_endpoint(
         &self,
         dataflow: EDataFlow,
         role: ERole,
-    ) -> Result<WindowsApiBasedIMMDevice> {
+    ) -> Result<Box<dyn IMMDeviceTrait>> {
         let immdevice = self
             .immdevice_enumerator
             .GetDefaultAudioEndpoint(dataflow, role)?;
 
-        Ok(WindowsApiBasedIMMDevice { immdevice })
+        Ok(Box::new(WindowsApiBasedIMMDevice { immdevice }))
     }
 
     unsafe fn enum_audio_endpoints(
         &self,
         dataflow: EDataFlow,
         dwstatemask: DEVICE_STATE,
-    ) -> Result<WindowsApiBasedIMMDeviceCollection> {
+    ) -> Result<Box<dyn IMMDeviceCollectionTrait>> {
         let immdevice_collection = self
             .immdevice_enumerator
             .EnumAudioEndpoints(dataflow, dwstatemask)?;
 
-        Ok(WindowsApiBasedIMMDeviceCollection {
+        Ok(Box::new(WindowsApiBasedIMMDeviceCollection {
             immdevice_collection,
-        })
+        }))
     }
 }
 
@@ -108,17 +94,15 @@ pub struct WindowsApiBasedIMMDeviceCollection {
     immdevice_collection: IMMDeviceCollection,
 }
 
-impl IMMDeviceCollectionTrait<WindowsApiBasedIMMDevice, WindowsApiBasedIPropertyStore>
-    for WindowsApiBasedIMMDeviceCollection
-{
+impl IMMDeviceCollectionTrait for WindowsApiBasedIMMDeviceCollection {
     unsafe fn get_count(&self) -> Result<u32> {
         self.immdevice_collection.GetCount()
     }
 
-    unsafe fn item(&self, ndevice: u32) -> Result<WindowsApiBasedIMMDevice> {
+    unsafe fn item(&self, ndevice: u32) -> Result<Box<dyn IMMDeviceTrait>> {
         let immdevice = self.immdevice_collection.Item(ndevice)?;
 
-        Ok(WindowsApiBasedIMMDevice { immdevice })
+        Ok(Box::new(WindowsApiBasedIMMDevice { immdevice }))
     }
 }
 
@@ -126,18 +110,15 @@ pub struct WindowsApiBasedIMMDevice {
     immdevice: IMMDevice,
 }
 
-impl IMMDeviceTrait<WindowsApiBasedIPropertyStore> for WindowsApiBasedIMMDevice {
+impl IMMDeviceTrait for WindowsApiBasedIMMDevice {
     unsafe fn get_id(&self) -> Result<PWSTR> {
         self.immdevice.GetId()
     }
 
-    unsafe fn open_property_store(
-        &self,
-        stgmaccess: STGM,
-    ) -> Result<WindowsApiBasedIPropertyStore> {
+    unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<Box<dyn IPropertyStoreTrait>> {
         let iproperty_store = self.immdevice.OpenPropertyStore(stgmaccess)?;
 
-        Ok(WindowsApiBasedIPropertyStore { iproperty_store })
+        Ok(Box::new(WindowsApiBasedIPropertyStore { iproperty_store }))
     }
 }
 

@@ -9,14 +9,7 @@ use windows_core::{Result, HRESULT, PCWSTR, PWSTR};
 
 pub mod windows_api_based_windows_com;
 
-pub trait WindowsCom<
-    TIMMDeviceEnumerator: IMMDeviceEnumerator<TIMMDevice, TIMMDeviceCollection, TIPropertyStore>,
-    TIMMDevice: IMMDevice<TIPropertyStore>,
-    TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
-    TIPropertyStore: IPropertyStore,
-    TIPolicyConfigVista: IPolicyConfigVista,
->
-{
+pub trait WindowsCom {
     /// Initializes COM for the current thread.
     ///
     /// # Safety
@@ -48,7 +41,7 @@ pub trait WindowsCom<
     /// - COM must be initialized on the current thread.
     /// - The returned object follows COM lifetime and threading rules.
     /// - The caller must ensure proper reference counting and release semantics.
-    unsafe fn co_create_immdevice_enumerator(&self) -> Result<TIMMDeviceEnumerator>;
+    unsafe fn co_create_immdevice_enumerator(&self) -> Result<Box<dyn IMMDeviceEnumerator>>;
 
     /// Creates a `IPolicyConfigVista` COM object.
     ///
@@ -57,15 +50,10 @@ pub trait WindowsCom<
     /// - COM must be initialized on the current thread.
     /// - The returned interface must be used according to COM threading and lifetime rules.
     /// - The caller must ensure correct ownership and release of the COM object.
-    unsafe fn co_create_ipolicy_config_vista(&self) -> Result<TIPolicyConfigVista>;
+    unsafe fn co_create_ipolicy_config_vista(&self) -> Result<Box<dyn IPolicyConfigVista>>;
 }
 
-pub trait IMMDeviceEnumerator<
-    TIMMDevice: IMMDevice<TIPropertyStore>,
-    TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
-    TIPropertyStore: IPropertyStore,
->
-{
+pub trait IMMDeviceEnumerator {
     /// Gets the default audio endpoint device.
     ///
     /// # Safety
@@ -78,7 +66,7 @@ pub trait IMMDeviceEnumerator<
         &self,
         dataflow: EDataFlow,
         role: ERole,
-    ) -> Result<TIMMDevice>;
+    ) -> Result<Box<dyn IMMDevice>>;
 
     /// Enumerates audio endpoint devices.
     ///
@@ -92,10 +80,10 @@ pub trait IMMDeviceEnumerator<
         &self,
         dataflow: EDataFlow,
         dwstatemask: DEVICE_STATE,
-    ) -> Result<TIMMDeviceCollection>;
+    ) -> Result<Box<dyn IMMDeviceCollection>>;
 }
 
-pub trait IMMDevice<TIPropertyStore: IPropertyStore> {
+pub trait IMMDevice {
     /// Retrieves the device ID string.
     ///
     /// # Safety
@@ -114,14 +102,10 @@ pub trait IMMDevice<TIPropertyStore: IPropertyStore> {
     /// - COM must be initialized on the calling thread.
     /// - `stgmaccess` must be a valid `STGM` access flag.
     /// - The returned property store must follow COM lifetime and threading rules.
-    unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<TIPropertyStore>;
+    unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<Box<dyn IPropertyStore>>;
 }
 
-pub trait IMMDeviceCollection<
-    TIMMDevice: IMMDevice<TIPropertyStore>,
-    TIPropertyStore: IPropertyStore,
->
-{
+pub trait IMMDeviceCollection {
     /// Gets the number of devices in the collection.
     ///
     /// # Safety
@@ -139,7 +123,7 @@ pub trait IMMDeviceCollection<
     /// - COM must be initialized on the calling thread.
     /// - `ndevice` must be less than the value returned by `get_count`.
     /// - The returned device must follow COM lifetime rules.
-    unsafe fn item(&self, ndevice: u32) -> Result<TIMMDevice>;
+    unsafe fn item(&self, ndevice: u32) -> Result<Box<dyn IMMDevice>>;
 }
 
 pub trait IPropertyStore {

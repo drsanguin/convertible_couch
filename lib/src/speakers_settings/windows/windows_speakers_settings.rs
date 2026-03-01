@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use windows::Win32::{
     Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
     Media::Audio::{eConsole, eRender, EDataFlow, DEVICE_STATE_ACTIVE},
@@ -9,68 +7,19 @@ use windows_core::{PCWSTR, PWSTR};
 
 use crate::{
     speakers_settings::{
-        windows::windows_com::{
-            IMMDevice, IMMDeviceCollection, IMMDeviceEnumerator, IPolicyConfigVista,
-            IPropertyStore, WindowsCom,
-        },
-        SpeakerInfo, SpeakersSettings, SpeakersSettingsResult,
+        windows::windows_com::WindowsCom, SpeakerInfo, SpeakersSettings, SpeakersSettingsResult,
     },
     ApplicationError,
 };
 
-pub struct WindowsSoundSettings<
-    TWindowsCom: WindowsCom<
-        TIMMDeviceEnumerator,
-        TIMMDevice,
-        TIMMDeviceCollection,
-        TIPropertyStore,
-        TIPolicyConfigVista,
-    >,
-    TIMMDeviceEnumerator: IMMDeviceEnumerator<TIMMDevice, TIMMDeviceCollection, TIPropertyStore>,
-    TIMMDevice: IMMDevice<TIPropertyStore>,
-    TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
-    TIPropertyStore: IPropertyStore,
-    TIPolicyConfigVista: IPolicyConfigVista,
-> {
+pub struct WindowsSoundSettings<TWindowsCom: WindowsCom> {
     windows_com: TWindowsCom,
-    immdevice_enumerator: PhantomData<TIMMDeviceEnumerator>,
-    immdevice: PhantomData<TIMMDevice>,
-    immdevice_collection: PhantomData<TIMMDeviceCollection>,
-    iproperty_store: PhantomData<TIPropertyStore>,
-    ipolicy_config_vista: PhantomData<TIPolicyConfigVista>,
 }
 
-impl<
-        TWindowsCom: WindowsCom<
-            TIMMDeviceEnumerator,
-            TIMMDevice,
-            TIMMDeviceCollection,
-            TIPropertyStore,
-            TIPolicyConfigVista,
-        >,
-        TIMMDeviceEnumerator: IMMDeviceEnumerator<TIMMDevice, TIMMDeviceCollection, TIPropertyStore>,
-        TIMMDevice: IMMDevice<TIPropertyStore>,
-        TIMMDeviceCollection: IMMDeviceCollection<TIMMDevice, TIPropertyStore>,
-        TIPropertyStore: IPropertyStore,
-        TIPolicyConfigVista: IPolicyConfigVista,
-    > SpeakersSettings<TWindowsCom>
-    for WindowsSoundSettings<
-        TWindowsCom,
-        TIMMDeviceEnumerator,
-        TIMMDevice,
-        TIMMDeviceCollection,
-        TIPropertyStore,
-        TIPolicyConfigVista,
-    >
-{
+impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSettings<TWindowsCom> {
     fn new(speakers_settings_api: TWindowsCom) -> Self {
         Self {
             windows_com: speakers_settings_api,
-            immdevice_enumerator: PhantomData,
-            immdevice: PhantomData,
-            immdevice_collection: PhantomData,
-            iproperty_store: PhantomData,
-            ipolicy_config_vista: PhantomData,
         }
     }
 

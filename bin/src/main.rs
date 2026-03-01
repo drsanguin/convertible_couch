@@ -8,11 +8,6 @@ use convertible_couch_lib::{
         CurrentDisplaysSettings, CurrentDisplaysSettingsApi, DisplayInfo, DisplaysSettingsResult,
     },
     speakers_settings::{
-        windows::windows_com::windows_api_based_windows_com::{
-            WindowsApiBasedIMMDevice, WindowsApiBasedIMMDeviceCollection,
-            WindowsApiBasedIMMDeviceEnumerator, WindowsApiBasedIPolicyConfigVista,
-            WindowsApiBasedIPropertyStore,
-        },
         CurrentSpeakersSettings, CurrentSpeakersSettingsApi, SpeakerInfo, SpeakersSettingsResult,
     },
 };
@@ -25,19 +20,7 @@ fn main() -> ExitCode {
         CurrentDisplaysSettingsApi,
         CurrentSpeakersSettingsApi,
         CurrentDisplaysSettings<CurrentDisplaysSettingsApi>,
-        CurrentSpeakersSettings<
-            CurrentSpeakersSettingsApi,
-            WindowsApiBasedIMMDeviceEnumerator,
-            WindowsApiBasedIMMDevice,
-            WindowsApiBasedIMMDeviceCollection,
-            WindowsApiBasedIPropertyStore,
-            WindowsApiBasedIPolicyConfigVista,
-        >,
-        WindowsApiBasedIMMDeviceEnumerator,
-        WindowsApiBasedIMMDevice,
-        WindowsApiBasedIMMDeviceCollection,
-        WindowsApiBasedIPropertyStore,
-        WindowsApiBasedIPolicyConfigVista,
+        CurrentSpeakersSettings<CurrentSpeakersSettingsApi>,
     >::bootstrap(CurrentDisplaysSettingsApi, CurrentSpeakersSettingsApi);
 
     let application_result = application.execute(&args);

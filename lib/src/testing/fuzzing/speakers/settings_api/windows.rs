@@ -47,15 +47,7 @@ impl FuzzedSpeakersSettingsApi for FuzzedWindowsCom {
     }
 }
 
-impl
-    WindowsCom<
-        FuzzedIMMDeviceEnumerator,
-        FuzzedIMMDevice,
-        FuzzedIMMDeviceCollection,
-        FuzzedIPropertyStore,
-        FuzzedIPolicyConfigVista,
-    > for FuzzedWindowsCom
-{
+impl WindowsCom for FuzzedWindowsCom {
     unsafe fn co_initialize_ex(
         &self,
         pvreserved: Option<*const c_void>,
@@ -70,18 +62,18 @@ impl
 
     unsafe fn co_uninitialize(&self) {}
 
-    unsafe fn co_create_immdevice_enumerator(&self) -> Result<FuzzedIMMDeviceEnumerator> {
-        Ok(FuzzedIMMDeviceEnumerator {
+    unsafe fn co_create_immdevice_enumerator(&self) -> Result<Box<dyn IMMDeviceEnumerator>> {
+        Ok(Box::new(FuzzedIMMDeviceEnumerator {
             speakers: self.speakers.borrow().clone(),
             behaviour: self.behaviour.clone(),
-        })
+        }))
     }
 
-    unsafe fn co_create_ipolicy_config_vista(&self) -> Result<FuzzedIPolicyConfigVista> {
-        Ok(FuzzedIPolicyConfigVista {
+    unsafe fn co_create_ipolicy_config_vista(&self) -> Result<Box<dyn IPolicyConfigVista>> {
+        Ok(Box::new(FuzzedIPolicyConfigVista {
             speakers: Rc::clone(&self.speakers),
             behaviour: self.behaviour.clone(),
-        })
+        }))
     }
 }
 
@@ -90,14 +82,12 @@ pub struct FuzzedIMMDeviceEnumerator {
     behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
 }
 
-impl IMMDeviceEnumerator<FuzzedIMMDevice, FuzzedIMMDeviceCollection, FuzzedIPropertyStore>
-    for FuzzedIMMDeviceEnumerator
-{
+impl IMMDeviceEnumerator for FuzzedIMMDeviceEnumerator {
     unsafe fn get_default_audio_endpoint(
         &self,
         dataflow: EDataFlow,
         role: ERole,
-    ) -> Result<FuzzedIMMDevice> {
+    ) -> Result<Box<dyn IMMDevice>> {
         if self.behaviour.getting_the_default_speaker_fails {
             return Err(Error::new(
                 E_FAIL,
@@ -117,16 +107,16 @@ impl IMMDeviceEnumerator<FuzzedIMMDevice, FuzzedIMMDeviceCollection, FuzzedIProp
 
         let default_speaker = default_speaker_option.unwrap();
 
-        Ok(FuzzedIMMDevice {
+        Ok(Box::new(FuzzedIMMDevice {
             speaker: default_speaker.clone(),
-        })
+        }))
     }
 
     unsafe fn enum_audio_endpoints(
         &self,
         dataflow: EDataFlow,
         dwstatemask: DEVICE_STATE,
-    ) -> Result<FuzzedIMMDeviceCollection> {
+    ) -> Result<Box<dyn IMMDeviceCollection>> {
         if self.behaviour.getting_the_speakers_fails {
             return Err(Error::new(E_FAIL, "Failed to get the speakers"));
         }
@@ -135,10 +125,10 @@ impl IMMDeviceEnumerator<FuzzedIMMDevice, FuzzedIMMDeviceCollection, FuzzedIProp
             return Err(Error::empty());
         }
 
-        Ok(FuzzedIMMDeviceCollection {
+        Ok(Box::new(FuzzedIMMDeviceCollection {
             speakers: self.speakers.clone(),
             behaviour: self.behaviour.clone(),
-        })
+        }))
     }
 }
 
@@ -146,7 +136,7 @@ pub struct FuzzedIMMDevice {
     speaker: FuzzedSpeaker,
 }
 
-impl IMMDevice<FuzzedIPropertyStore> for FuzzedIMMDevice {
+impl IMMDevice for FuzzedIMMDevice {
     unsafe fn get_id(&self) -> Result<PWSTR> {
         let mut id_utf16 = self.speaker.id.encode_utf16().collect::<Vec<_>>();
 
@@ -158,14 +148,14 @@ impl IMMDevice<FuzzedIPropertyStore> for FuzzedIMMDevice {
         Ok(PWSTR(leaked.as_mut_ptr()))
     }
 
-    unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<FuzzedIPropertyStore> {
+    unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<Box<dyn IPropertyStore>> {
         if stgmaccess != STGM_READ {
             return Err(Error::empty());
         }
 
-        Ok(FuzzedIPropertyStore {
+        Ok(Box::new(FuzzedIPropertyStore {
             speaker: self.speaker.clone(),
-        })
+        }))
     }
 }
 
@@ -174,7 +164,7 @@ pub struct FuzzedIMMDeviceCollection {
     behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
 }
 
-impl IMMDeviceCollection<FuzzedIMMDevice, FuzzedIPropertyStore> for FuzzedIMMDeviceCollection {
+impl IMMDeviceCollection for FuzzedIMMDeviceCollection {
     unsafe fn get_count(&self) -> Result<u32> {
         if self.behaviour.getting_the_speakers_count_fails {
             return Err(Error::new(E_FAIL, "Failed to get the number of speakers"));
@@ -183,7 +173,7 @@ impl IMMDeviceCollection<FuzzedIMMDevice, FuzzedIPropertyStore> for FuzzedIMMDev
         Ok(self.speakers.len().try_into().unwrap())
     }
 
-    unsafe fn item(&self, ndevice: u32) -> Result<FuzzedIMMDevice> {
+    unsafe fn item(&self, ndevice: u32) -> Result<Box<dyn IMMDevice>> {
         let index: usize = ndevice.try_into().unwrap();
         let speaker_option = self.speakers.get(index);
 
@@ -191,9 +181,9 @@ impl IMMDeviceCollection<FuzzedIMMDevice, FuzzedIPropertyStore> for FuzzedIMMDev
             return Err(Error::empty());
         }
 
-        Ok(FuzzedIMMDevice {
+        Ok(Box::new(FuzzedIMMDevice {
             speaker: speaker_option.unwrap().clone(),
-        })
+        }))
     }
 }
 
