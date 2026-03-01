@@ -81,16 +81,11 @@ impl<
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
     ) -> Result<SpeakersSettingsResult, ApplicationError> {
-        let co_initialize_ex_result = unsafe {
+        (unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
-        };
-
-        if co_initialize_ex_result.is_err() {
-            return Err(ApplicationError::Custom(
-                "co_initialize_ex failed".to_string(),
-            ));
-        }
+                .ok()
+        })?;
 
         let new_default_speaker_name: String;
 
@@ -173,16 +168,11 @@ impl<
     }
 
     fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
-        let co_initialize_ex_result = unsafe {
+        (unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
-        };
-
-        if co_initialize_ex_result.is_err() {
-            return Err(ApplicationError::Custom(
-                "co_initialize_ex failed".to_string(),
-            ));
-        }
+                .ok()
+        })?;
 
         let mut speakers_infos: Vec<SpeakerInfo>;
 
