@@ -48,7 +48,7 @@ runs:
           --ignore bin/src/main.rs `
           --ignore */build.rs `
           --ignore lib/src/displays_settings/windows/win_32/windows_api_based_win_32.rs `
-          --ignore lib/src/speakers_settings/windows/windows_com/windows_api_based_windows_com.rs `
+          --ignore lib/src/speakers_settings/windows/windows_com/windows_api_based_windows_com/* `
           --excl-line "^\s*#\[cfg\(test\)\]" `
           --excl-start "^(\s*mod tests \{)|(pub fn configure_logger\()|(impl From<ConfigErrors> for ApplicationError \{)|(impl From<SetLoggerError> for ApplicationError \{)" `
           --excl-stop "^\}"
