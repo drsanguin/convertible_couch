@@ -4,7 +4,7 @@ use windows::Win32::{
     Media::Audio::{eConsole, eRender, EDataFlow, ERole, DEVICE_STATE, DEVICE_STATE_ACTIVE},
     System::{
         Com::{
-            StructuredStorage::{PROPVARIANT, PROPVARIANT_0_0},
+            StructuredStorage::{PROPVARIANT, PROPVARIANT_0, PROPVARIANT_0_0, PROPVARIANT_0_0_0},
             COINIT, COINIT_MULTITHREADED, STGM, STGM_READ,
         },
         Variant::VARENUM,
@@ -222,13 +222,13 @@ impl IPropertyStore for FuzzedIPropertyStore {
         let leaked = Box::leak(boxed);
 
         Ok(PROPVARIANT {
-            Anonymous: windows::Win32::System::Com::StructuredStorage::PROPVARIANT_0 {
+            Anonymous: PROPVARIANT_0 {
                 Anonymous: ManuallyDrop::<PROPVARIANT_0_0>::new(PROPVARIANT_0_0 {
                     vt: VARENUM::default(),
                     wReserved1: u16::default(),
                     wReserved2: u16::default(),
                     wReserved3: u16::default(),
-                    Anonymous: windows::Win32::System::Com::StructuredStorage::PROPVARIANT_0_0_0 {
+                    Anonymous: PROPVARIANT_0_0_0 {
                         pwszVal: PWSTR(leaked.as_mut_ptr()),
                     },
                 }),
