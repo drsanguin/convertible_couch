@@ -39,8 +39,8 @@ impl Display for SpeakerInfo {
     }
 }
 
-pub trait SpeakersSettings<TSpeakersSettingsApi> {
-    fn new(speakers_settings_api: TSpeakersSettingsApi) -> Self;
+pub trait SpeakersSettings {
+    fn new(speakers_settings_api: Box<dyn CurrentSpeakersSettingsApiTrait>) -> Self;
 
     fn change_default_speaker(
         &mut self,

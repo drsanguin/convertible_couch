@@ -12,12 +12,12 @@ use crate::{
     ApplicationError,
 };
 
-pub struct WindowsSoundSettings<TWindowsCom: WindowsCom> {
-    windows_com: TWindowsCom,
+pub struct WindowsSoundSettings {
+    windows_com: Box<dyn WindowsCom>,
 }
 
-impl<TWindowsCom: WindowsCom> SpeakersSettings<TWindowsCom> for WindowsSoundSettings<TWindowsCom> {
-    fn new(speakers_settings_api: TWindowsCom) -> Self {
+impl SpeakersSettings for WindowsSoundSettings {
+    fn new(speakers_settings_api: Box<dyn WindowsCom>) -> Self {
         Self {
             windows_com: speakers_settings_api,
         }
