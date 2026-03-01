@@ -184,7 +184,9 @@ impl<
             let mut default_speaker_id_option: Option<PWSTR> = None;
 
             if let Ok(default_speaker) = get_default_audio_endpoint_result {
-                default_speaker_id_option = Some(unsafe { default_speaker.get_id() }?);
+                let default_speaker_id = unsafe { default_speaker.get_id() }?;
+
+                default_speaker_id_option = Some(default_speaker_id);
             }
 
             let immdevice_collection = unsafe {
