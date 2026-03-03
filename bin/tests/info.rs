@@ -200,3 +200,46 @@ fn it_should_get_informations_about_speakers_only() {
         ))
     );
 }
+
+#[test]
+fn it_should_get_informations_about_speakers_only_even_if_there_if_no_default_one() {
+    // Arrange
+    let mut fuzzer = Fuzzer::new(func!(), true);
+
+    let (alternative_speaker_name, alternative_speaker_name_2) =
+        fuzzer.generate_two_speakers_names();
+
+    let computer = fuzzer
+        .generate_computer()
+        .with_speakers()
+        .of_which_there_are(2)
+        .with_an_alternative_one_named(&alternative_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name_2)
+        .build_computer();
+
+    let mut application = ApplicationBuilder::new(computer).build();
+
+    let args = ArgumentsBuilder.info().speakers_only().build();
+
+    // Act
+    let actual_result = application.execute(&args);
+
+    // Assert
+    assert_eq!(
+        actual_result,
+        Ok(ApplicationResult::Info(
+            ApplicationInfoResult::SpeakersOnly {
+                speakers_result: vec![
+                    SpeakerInfo {
+                        is_default: false,
+                        name: alternative_speaker_name
+                    },
+                    SpeakerInfo {
+                        is_default: false,
+                        name: alternative_speaker_name_2
+                    }
+                ]
+            }
+        ))
+    );
+}

@@ -100,19 +100,21 @@ impl<'a> SpeakersFuzzer<'a> {
         let ids = SpeakerIdFuzzer::new(self.computer_fuzzer.rand).generate_several(count);
 
         let default_speaker_index = if let Some(default_speaker_name) = &self.default_speaker_name {
-            names
-                .iter()
-                .position(|name| name == default_speaker_name)
-                .unwrap()
+            Some(
+                names
+                    .iter()
+                    .position(|name| name == default_speaker_name)
+                    .unwrap(),
+            )
         } else {
-            self.computer_fuzzer.rand.random_range(0..count)
+            None
         };
 
         let speakers = (0..count)
             .map(|i| FuzzedSpeaker {
                 name: names[i].clone(),
                 id: ids[i].clone(),
-                is_default: i == default_speaker_index,
+                is_default: default_speaker_index.is_some_and(|x| x == i),
             })
             .collect::<Vec<FuzzedSpeaker>>();
 
