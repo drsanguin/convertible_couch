@@ -206,50 +206,37 @@ mod tests {
 
     use windows_core::PWSTR;
 
+    use test_case::test_case;
+
     use crate::speakers_settings::windows::windows_speakers_settings::pwstr_eq;
 
-    #[test]
-    fn it_should_check_equality_of_two_null_pwstr() {
+    #[test_case(None, None => true; "when both pointers are null")]
+    #[test_case(None, Some("") => false; "when first pointer are null")]
+    #[test_case(Some(""), None => false; "when second pointer are null")]
+    fn it_should_check_equality_of_two_pwstr(
+        a_content: Option<&str>,
+        b_content: Option<&str>,
+    ) -> bool {
         // Arrange
-        let a = PWSTR::from_raw(null_mut());
-        let b = PWSTR::from_raw(null_mut());
+        let mut a_str_buffer = Vec::new();
+        let a = a_content
+            .and_then(|x| {
+                a_str_buffer = x.encode_utf16().collect::<Vec<u16>>();
+
+                Some(PWSTR::from_raw(a_str_buffer.as_mut_ptr()))
+            })
+            .unwrap_or(PWSTR::from_raw(null_mut()));
+
+        let mut b_str_buffer = Vec::new();
+        let b = b_content
+            .and_then(|x| {
+                b_str_buffer = x.encode_utf16().collect::<Vec<u16>>();
+
+                Some(PWSTR::from_raw(b_str_buffer.as_mut_ptr()))
+            })
+            .unwrap_or(PWSTR::from_raw(null_mut()));
 
         // Act
-        let result = pwstr_eq(a, b);
-
-        // Assert
-        assert!(result)
-    }
-
-    #[test]
-    fn it_should_check_equality_of_a_null_pwstr_and_a_string() {
-        // Arrange
-        let a = PWSTR::from_raw(null_mut());
-
-        let b_str = String::from("");
-        let mut b_str_buffer = b_str.encode_utf16().collect::<Vec<_>>();
-        let b = PWSTR::from_raw(b_str_buffer.as_mut_ptr());
-
-        // Act
-        let result = pwstr_eq(a, b);
-
-        // Assert
-        assert!(!result)
-    }
-
-    #[test]
-    fn it_should_check_equality_of_a_string_and_a_null_pwstr() {
-        // Arrange
-        let a_str = String::from("");
-        let mut a_str_buffer = a_str.encode_utf16().collect::<Vec<_>>();
-        let a = PWSTR::from_raw(a_str_buffer.as_mut_ptr());
-
-        let b = PWSTR::from_raw(null_mut());
-
-        // Act
-        let result = pwstr_eq(a, b);
-
-        // Assert
-        assert!(!result)
+        pwstr_eq(a, b)
     }
 }
