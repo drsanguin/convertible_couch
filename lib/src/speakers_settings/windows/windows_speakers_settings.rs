@@ -211,8 +211,8 @@ mod tests {
     use crate::speakers_settings::windows::windows_speakers_settings::pwstr_eq;
 
     #[test_case(None, None => true; "when both pointers are null")]
-    #[test_case(None, Some("") => false; "when first pointer are null")]
-    #[test_case(Some(""), None => false; "when second pointer are null")]
+    #[test_case(None, Some("") => false; "when first pointer is null")]
+    #[test_case(Some(""), None => false; "when second pointer is null")]
     fn it_should_check_equality_of_two_pwstr(
         a_content: Option<&str>,
         b_content: Option<&str>,
