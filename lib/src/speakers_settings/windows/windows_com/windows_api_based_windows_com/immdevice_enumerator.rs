@@ -31,9 +31,9 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
             .immdevice_enumerator
             .GetDefaultAudioEndpoint(dataflow, role)?;
         let windows_api_based_immdevice = WindowsApiBasedIMMDevice::new(immdevice);
-        let box_windows_api_based_immdevice = Box::new(windows_api_based_immdevice);
+        let boxed_windows_api_based_immdevice = Box::new(windows_api_based_immdevice);
 
-        Ok(box_windows_api_based_immdevice)
+        Ok(boxed_windows_api_based_immdevice)
     }
 
     unsafe fn enum_audio_endpoints(
