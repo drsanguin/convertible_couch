@@ -99,16 +99,15 @@ impl<'a> SpeakersFuzzer<'a> {
 
         let ids = SpeakerIdFuzzer::new(self.computer_fuzzer.rand).generate_several(count);
 
-        let default_speaker_index = if let Some(default_speaker_name) = &self.default_speaker_name {
-            Some(
-                names
-                    .iter()
-                    .position(|name| name == default_speaker_name)
-                    .unwrap(),
-            )
-        } else {
-            None
-        };
+        let default_speaker_index =
+            self.default_speaker_name
+                .as_ref()
+                .map(|default_speaker_name| {
+                    names
+                        .iter()
+                        .position(|name| name == default_speaker_name)
+                        .unwrap()
+                });
 
         let speakers = (0..count)
             .map(|i| FuzzedSpeaker {
