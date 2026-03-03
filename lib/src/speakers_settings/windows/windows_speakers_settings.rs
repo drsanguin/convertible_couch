@@ -220,19 +220,19 @@ mod tests {
         // Arrange
         let mut a_str_buffer = Vec::new();
         let a = a_content
-            .and_then(|x| {
+            .map(|x| {
                 a_str_buffer = x.encode_utf16().collect::<Vec<u16>>();
 
-                Some(PWSTR::from_raw(a_str_buffer.as_mut_ptr()))
+                PWSTR::from_raw(a_str_buffer.as_mut_ptr())
             })
             .unwrap_or(PWSTR::from_raw(null_mut()));
 
         let mut b_str_buffer = Vec::new();
         let b = b_content
-            .and_then(|x| {
+            .map(|x| {
                 b_str_buffer = x.encode_utf16().collect::<Vec<u16>>();
 
-                Some(PWSTR::from_raw(b_str_buffer.as_mut_ptr()))
+                PWSTR::from_raw(b_str_buffer.as_mut_ptr())
             })
             .unwrap_or(PWSTR::from_raw(null_mut()));
 
