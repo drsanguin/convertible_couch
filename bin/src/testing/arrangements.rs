@@ -1,11 +1,4 @@
-use convertible_couch_lib::{
-    displays_settings::CurrentDisplaysSettings,
-    speakers_settings::CurrentSpeakersSettings,
-    testing::fuzzing::{
-        computer::FuzzedComputer, displays::settings_api::CurrentFuzzedDisplaysSettingsApi,
-        speakers::settings_api::CurrentFuzzedSpeakersSettingsApi,
-    },
-};
+use convertible_couch_lib::testing::fuzzing::computer::FuzzedComputer;
 
 use crate::{
     application::Application,
@@ -26,23 +19,11 @@ impl ApplicationBuilder {
         Self { computer }
     }
 
-    pub fn build(
-        self,
-    ) -> Application<
-        CurrentFuzzedDisplaysSettingsApi,
-        CurrentFuzzedSpeakersSettingsApi,
-        CurrentDisplaysSettings<CurrentFuzzedDisplaysSettingsApi>,
-        CurrentSpeakersSettings<CurrentFuzzedSpeakersSettingsApi>,
-    > {
-        Application::<
-            CurrentFuzzedDisplaysSettingsApi,
-            CurrentFuzzedSpeakersSettingsApi,
-            CurrentDisplaysSettings<CurrentFuzzedDisplaysSettingsApi>,
-            CurrentSpeakersSettings<CurrentFuzzedSpeakersSettingsApi>,
-        >::bootstrap(
-            self.computer.displays_settings_api,
-            self.computer.speakers_settings_api,
-        )
+    pub fn build(self) -> Application {
+        let displays_settings_api = Box::new(self.computer.displays_settings_api);
+        let speakers_settings_api = Box::new(self.computer.speakers_settings_api);
+
+        Application::bootstrap(displays_settings_api, speakers_settings_api)
     }
 }
 

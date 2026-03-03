@@ -80,6 +80,33 @@ fn it_should_get_informations_about_displays_and_speakers() {
 }
 
 #[test]
+fn it_should_get_informations_about_displays_and_speakers_when_the_computer_has_no_displays_and_no_speakers(
+) {
+    // Arrange
+    let mut fuzzer = Fuzzer::new(func!(), true);
+
+    let computer = fuzzer.generate_computer().build_computer();
+
+    let mut application = ApplicationBuilder::new(computer).build();
+
+    let args = ArgumentsBuilder.info().displays_and_speakers().build();
+
+    // Act
+    let actual_result = application.execute(&args);
+
+    // Assert
+    assert_eq!(
+        actual_result,
+        Ok(ApplicationResult::Info(
+            ApplicationInfoResult::DisplaysAndSpeakers {
+                displays_result: Vec::new(),
+                speakers_result: Vec::new()
+            }
+        ))
+    );
+}
+
+#[test]
 fn it_should_get_informations_about_displays_only() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
@@ -160,6 +187,49 @@ fn it_should_get_informations_about_speakers_only() {
                         is_default: true,
                         name: default_speaker_name
                     },
+                    SpeakerInfo {
+                        is_default: false,
+                        name: alternative_speaker_name
+                    },
+                    SpeakerInfo {
+                        is_default: false,
+                        name: alternative_speaker_name_2
+                    }
+                ]
+            }
+        ))
+    );
+}
+
+#[test]
+fn it_should_get_informations_about_speakers_only_even_if_there_if_no_default_one() {
+    // Arrange
+    let mut fuzzer = Fuzzer::new(func!(), true);
+
+    let (alternative_speaker_name, alternative_speaker_name_2) =
+        fuzzer.generate_two_speakers_names();
+
+    let computer = fuzzer
+        .generate_computer()
+        .with_speakers()
+        .of_which_there_are(2)
+        .with_an_alternative_one_named(&alternative_speaker_name)
+        .with_an_alternative_one_named(&alternative_speaker_name_2)
+        .build_computer();
+
+    let mut application = ApplicationBuilder::new(computer).build();
+
+    let args = ArgumentsBuilder.info().speakers_only().build();
+
+    // Act
+    let actual_result = application.execute(&args);
+
+    // Assert
+    assert_eq!(
+        actual_result,
+        Ok(ApplicationResult::Info(
+            ApplicationInfoResult::SpeakersOnly {
+                speakers_result: vec![
                     SpeakerInfo {
                         is_default: false,
                         name: alternative_speaker_name

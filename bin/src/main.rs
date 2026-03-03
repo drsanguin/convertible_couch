@@ -4,24 +4,18 @@ use convertible_couch::{
     commands::Arguments,
 };
 use convertible_couch_lib::{
-    displays_settings::{
-        CurrentDisplaysSettings, CurrentDisplaysSettingsApi, DisplayInfo, DisplaysSettingsResult,
-    },
-    speakers_settings::{
-        CurrentSpeakersSettings, CurrentSpeakersSettingsApi, SpeakerInfo, SpeakersSettingsResult,
-    },
+    displays_settings::{CurrentDisplaysSettingsApi, DisplayInfo, DisplaysSettingsResult},
+    speakers_settings::{CurrentSpeakersSettingsApi, SpeakerInfo, SpeakersSettingsResult},
 };
 use log::{error, info, warn};
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let args = Arguments::parse();
-    let mut application = Application::<
-        CurrentDisplaysSettingsApi,
-        CurrentSpeakersSettingsApi,
-        CurrentDisplaysSettings<CurrentDisplaysSettingsApi>,
-        CurrentSpeakersSettings<CurrentSpeakersSettingsApi>,
-    >::bootstrap(CurrentDisplaysSettingsApi, CurrentSpeakersSettingsApi);
+
+    let displays_settings_api = Box::new(CurrentDisplaysSettingsApi);
+    let speakers_settings_api = Box::new(CurrentSpeakersSettingsApi);
+    let mut application = Application::bootstrap(displays_settings_api, speakers_settings_api);
 
     let application_result = application.execute(&args);
 

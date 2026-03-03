@@ -40,8 +40,8 @@ impl Display for DisplayInfo {
     }
 }
 
-pub trait DisplaysSettings<TDisplaysSettingsApi> {
-    fn new(displays_settings_api: TDisplaysSettingsApi) -> Self;
+pub trait DisplaysSettings {
+    fn new(displays_settings_api: Box<dyn CurrentDisplaysSettingsApiTrait>) -> Self;
 
     fn change_primary_display(
         &mut self,

@@ -6,6 +6,7 @@ pub struct FuzzedWindowsSpeakersSettingsApiBehaviour {
     pub getting_the_speakers_fails: bool,
     pub getting_the_default_speaker_fails: bool,
     pub setting_the_default_speaker_fails: bool,
+    pub initializing_the_com_library_fails: bool,
 }
 
 impl FuzzedSpeakersSettingsApiBehaviour for FuzzedWindowsSpeakersSettingsApiBehaviour {}

@@ -20,9 +20,12 @@
                 }
             },
             "args": [
-                "info",
-                "--log-level",
-                "trace"
+                "change",
+                "speakers",
+                "--desktop-speaker-name",
+                "Haut-parleurs (Realtek(R) Audio)",
+                "--couch-speaker-name",
+                "Casque (A50 Game)"
             ],
             "cwd": "${workspaceFolder}"
         },
