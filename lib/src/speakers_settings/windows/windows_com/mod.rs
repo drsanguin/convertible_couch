@@ -20,7 +20,7 @@ pub trait WindowsCom {
     /// - `dwcoinit` must be a valid `COINIT` flag combination.
     /// - The caller must ensure COM is not already initialized with incompatible flags.
     unsafe fn co_initialize_ex(
-        &self,
+        &mut self,
         pvreserved: Option<*const c_void>,
         dwcoinit: COINIT,
     ) -> HRESULT;
@@ -32,7 +32,7 @@ pub trait WindowsCom {
     /// - Must only be called if `co_initialize_ex` was previously called on the same thread.
     /// - Must not be called more times than `co_initialize_ex` was called.
     /// - No COM objects created on this thread may be used after this call.
-    unsafe fn co_uninitialize(&self);
+    unsafe fn co_uninitialize(&mut self);
 
     /// Creates an `IMMDeviceEnumerator` COM object.
     ///

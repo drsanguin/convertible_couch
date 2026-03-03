@@ -48,7 +48,7 @@ pub trait SpeakersSettings {
         couch_speaker_name: &str,
     ) -> Result<SpeakersSettingsResult, ApplicationError>;
 
-    fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError>;
+    fn get_speakers_infos(&mut self) -> Result<Vec<SpeakerInfo>, ApplicationError>;
 }
 
 #[cfg(target_os = "windows")]

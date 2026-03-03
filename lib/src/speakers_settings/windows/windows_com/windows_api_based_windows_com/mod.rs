@@ -26,14 +26,14 @@ pub struct WindowsApiBasedWindowsCom;
 
 impl WindowsComTrait for WindowsApiBasedWindowsCom {
     unsafe fn co_initialize_ex(
-        &self,
+        &mut self,
         pvreserved: Option<*const c_void>,
         dwcoinit: windows::Win32::System::Com::COINIT,
     ) -> HRESULT {
         CoInitializeEx(pvreserved, dwcoinit)
     }
 
-    unsafe fn co_uninitialize(&self) {
+    unsafe fn co_uninitialize(&mut self) {
         CoUninitialize()
     }
 

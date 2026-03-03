@@ -114,7 +114,7 @@ impl SpeakersSettings for WindowsSoundSettings {
         })
     }
 
-    fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
+    fn get_speakers_infos(&mut self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
         (unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
