@@ -1,6 +1,6 @@
 use windows::Win32::{
     Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
-    Foundation::{E_FAIL, PROPERTYKEY},
+    Foundation::{E_FAIL, E_UNEXPECTED, PROPERTYKEY},
     Media::Audio::{eConsole, eRender, EDataFlow, ERole, DEVICE_STATE, DEVICE_STATE_ACTIVE},
     System::{
         Com::{
@@ -53,6 +53,10 @@ impl WindowsCom for FuzzedWindowsCom {
         pvreserved: Option<*const c_void>,
         dwcoinit: COINIT,
     ) -> windows_core::HRESULT {
+        if self.behaviour.initializing_the_com_library_fails {
+            return E_UNEXPECTED;
+        }
+
         if pvreserved.is_some() || dwcoinit != COINIT_MULTITHREADED {
             return HRESULT(-1);
         }

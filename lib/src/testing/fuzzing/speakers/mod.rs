@@ -155,4 +155,10 @@ impl<'a> SpeakersFuzzer<'a> {
 
         self
     }
+
+    pub fn for_which_initializing_the_com_library_fails(&mut self) -> &mut Self {
+        self.behaviour.initializing_the_com_library_fails = true;
+
+        self
+    }
 }

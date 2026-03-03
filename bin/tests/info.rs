@@ -80,6 +80,33 @@ fn it_should_get_informations_about_displays_and_speakers() {
 }
 
 #[test]
+fn it_should_get_informations_about_displays_and_speakers_when_the_computer_has_no_displays_and_no_speakers(
+) {
+    // Arrange
+    let mut fuzzer = Fuzzer::new(func!(), true);
+
+    let computer = fuzzer.generate_computer().build_computer();
+
+    let mut application = ApplicationBuilder::new(computer).build();
+
+    let args = ArgumentsBuilder.info().displays_and_speakers().build();
+
+    // Act
+    let actual_result = application.execute(&args);
+
+    // Assert
+    assert_eq!(
+        actual_result,
+        Ok(ApplicationResult::Info(
+            ApplicationInfoResult::DisplaysAndSpeakers {
+                displays_result: Vec::new(),
+                speakers_result: Vec::new()
+            }
+        ))
+    );
+}
+
+#[test]
 fn it_should_get_informations_about_displays_only() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
