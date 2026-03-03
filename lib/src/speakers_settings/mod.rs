@@ -39,8 +39,8 @@ impl Display for SpeakerInfo {
     }
 }
 
-pub trait SpeakersSettings<TSpeakersSettingsApi> {
-    fn new(speakers_settings_api: TSpeakersSettingsApi) -> Self;
+pub trait SpeakersSettings {
+    fn new(speakers_settings_api: Box<dyn CurrentSpeakersSettingsApiTrait>) -> Self;
 
     fn change_default_speaker(
         &mut self,
@@ -48,7 +48,7 @@ pub trait SpeakersSettings<TSpeakersSettingsApi> {
         couch_speaker_name: &str,
     ) -> Result<SpeakersSettingsResult, ApplicationError>;
 
-    fn get_speakers_infos(&self) -> Result<Vec<SpeakerInfo>, ApplicationError>;
+    fn get_speakers_infos(&mut self) -> Result<Vec<SpeakerInfo>, ApplicationError>;
 }
 
 #[cfg(target_os = "windows")]
@@ -58,10 +58,10 @@ pub mod windows;
 pub use windows::windows_speakers_settings::WindowsSoundSettings as CurrentSpeakersSettings;
 
 #[cfg(target_os = "windows")]
-pub use windows::audio_endpoint_library::dll_based_audio_endpoint_library::DllBasedAudioEndpointLibrary as CurrentSpeakersSettingsApi;
+pub use windows::windows_com::windows_api_based_windows_com::WindowsApiBasedWindowsCom as CurrentSpeakersSettingsApi;
 
 #[cfg(target_os = "windows")]
-pub use windows::audio_endpoint_library::AudioEndpointLibrary as CurrentSpeakersSettingsApiTrait;
+pub use windows::windows_com::WindowsCom as CurrentSpeakersSettingsApiTrait;
 
 #[cfg(test)]
 mod tests {

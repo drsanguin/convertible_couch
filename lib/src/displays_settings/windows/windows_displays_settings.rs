@@ -25,12 +25,12 @@ use windows::{
     },
 };
 
-pub struct WindowsDisplaySettings<TWin32: Win32> {
-    win32: TWin32,
+pub struct WindowsDisplaySettings {
+    win32: Box<dyn Win32>,
 }
 
-impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> {
-    fn new(displays_settings_api: TWin32) -> Self {
+impl DisplaysSettings for WindowsDisplaySettings {
+    fn new(displays_settings_api: Box<dyn Win32>) -> Self {
         Self {
             win32: displays_settings_api,
         }
@@ -121,7 +121,7 @@ impl<TWin32: Win32> DisplaysSettings<TWin32> for WindowsDisplaySettings<TWin32> 
     }
 }
 
-impl<TWin32: Win32> WindowsDisplaySettings<TWin32> {
+impl WindowsDisplaySettings {
     fn get_all_displays_names(&self) -> Result<HashMap<String, String>, ApplicationError> {
         let mut path_informations_length = u32::default();
         let mut mode_informations_length = u32::default();
