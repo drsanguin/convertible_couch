@@ -1,12 +1,12 @@
-use std::marker::PhantomData;
-
 use convertible_couch_lib::{
     displays_settings::{
-        CurrentDisplaysSettingsApiTrait, DisplayInfo, DisplaysSettings, DisplaysSettingsResult,
+        CurrentDisplaysSettings, CurrentDisplaysSettingsApiTrait, DisplayInfo, DisplaysSettings,
+        DisplaysSettingsResult,
     },
     log::{configure_logger, LogLevel},
     speakers_settings::{
-        CurrentSpeakersSettingsApiTrait, SpeakerInfo, SpeakersSettings, SpeakersSettingsResult,
+        CurrentSpeakersSettings, CurrentSpeakersSettingsApiTrait, SpeakerInfo, SpeakersSettings,
+        SpeakersSettingsResult,
     },
     ApplicationError,
 };
@@ -50,35 +50,19 @@ pub enum ApplicationInfoResult {
     },
 }
 
-pub struct Application<
-    TDisplaysSettingsApi: CurrentDisplaysSettingsApiTrait,
-    TSpeakersSettingsApi: CurrentSpeakersSettingsApiTrait,
-    TDisplaysSettings: DisplaysSettings<TDisplaysSettingsApi>,
-    TSpeakersSettings: SpeakersSettings<TSpeakersSettingsApi>,
-> {
-    displays_settings: TDisplaysSettings,
-    speakers_settings: TSpeakersSettings,
-    displays_settings_api: PhantomData<TDisplaysSettingsApi>,
-    speakers_settings_api: PhantomData<TSpeakersSettingsApi>,
+pub struct Application {
+    displays_settings: CurrentDisplaysSettings,
+    speakers_settings: CurrentSpeakersSettings,
 }
 
-impl<
-        TDisplaysSettingsApi: CurrentDisplaysSettingsApiTrait,
-        TSpeakersSettingsApi: CurrentSpeakersSettingsApiTrait,
-        TDisplaysSettings: DisplaysSettings<TDisplaysSettingsApi>,
-        TSpeakersSettings: SpeakersSettings<TSpeakersSettingsApi>,
-    >
-    Application<TDisplaysSettingsApi, TSpeakersSettingsApi, TDisplaysSettings, TSpeakersSettings>
-{
+impl Application {
     pub fn bootstrap(
-        displays_settings_api: TDisplaysSettingsApi,
-        speakers_settings_api: TSpeakersSettingsApi,
+        displays_settings_api: Box<dyn CurrentDisplaysSettingsApiTrait>,
+        speakers_settings_api: Box<dyn CurrentSpeakersSettingsApiTrait>,
     ) -> Self {
         Self {
-            displays_settings: TDisplaysSettings::new(displays_settings_api),
-            speakers_settings: TSpeakersSettings::new(speakers_settings_api),
-            displays_settings_api: PhantomData,
-            speakers_settings_api: PhantomData,
+            displays_settings: CurrentDisplaysSettings::new(displays_settings_api),
+            speakers_settings: CurrentSpeakersSettings::new(speakers_settings_api),
         }
     }
 

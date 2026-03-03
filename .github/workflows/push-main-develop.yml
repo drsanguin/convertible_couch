@@ -15,11 +15,6 @@ jobs:
     steps:
     - name: Checkout Repository ⬇️
       uses: actions/checkout@v6
-      with:
-        submodules: true
-
-    - name: Setup Dev Environment 🧰
-      uses: ./.github/actions/setup-dev-environment
 
     - name: Code Coverage 📊
       uses: ./.github/actions/upload-code-coverage

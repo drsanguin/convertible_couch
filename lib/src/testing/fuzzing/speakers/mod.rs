@@ -99,20 +99,21 @@ impl<'a> SpeakersFuzzer<'a> {
 
         let ids = SpeakerIdFuzzer::new(self.computer_fuzzer.rand).generate_several(count);
 
-        let default_speaker_index = if let Some(default_speaker_name) = &self.default_speaker_name {
-            names
-                .iter()
-                .position(|name| name == default_speaker_name)
-                .unwrap()
-        } else {
-            self.computer_fuzzer.rand.random_range(0..count)
-        };
+        let default_speaker_index =
+            self.default_speaker_name
+                .as_ref()
+                .map(|default_speaker_name| {
+                    names
+                        .iter()
+                        .position(|name| name == default_speaker_name)
+                        .unwrap()
+                });
 
         let speakers = (0..count)
             .map(|i| FuzzedSpeaker {
                 name: names[i].clone(),
                 id: ids[i].clone(),
-                is_default: i == default_speaker_index,
+                is_default: default_speaker_index.is_some_and(|x| x == i),
             })
             .collect::<Vec<FuzzedSpeaker>>();
 
@@ -152,6 +153,12 @@ impl<'a> SpeakersFuzzer<'a> {
 
     pub fn for_which_setting_the_default_speaker_fails(&mut self) -> &mut Self {
         self.behaviour.setting_the_default_speaker_fails = true;
+
+        self
+    }
+
+    pub fn for_which_initializing_the_com_library_fails(&mut self) -> &mut Self {
+        self.behaviour.initializing_the_com_library_fails = true;
 
         self
     }

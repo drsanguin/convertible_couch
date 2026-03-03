@@ -20,16 +20,12 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          submodules: true
-
-      - name: Setup Dev Environment 🧰
-        uses: ./.github/actions/setup-dev-environment
 
       - name: Compile Project 🏗️
         run: cargo build --release --bins
 
       - name: Package Artifacts 📦
-        run: Compress-Archive -Path .\target\release\*.exe, .\target\release\*.dll -DestinationPath convertible_couch.zip
+        run: Compress-Archive -Path .\target\release\*.exe -DestinationPath convertible_couch.zip
 
       - name: Run Semantic Release 🚀
         env:

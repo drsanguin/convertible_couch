@@ -15,4 +15,4 @@ pub trait FuzzedSpeakersSettingsApi: Default {
 pub mod windows;
 
 #[cfg(target_os = "windows")]
-pub use windows::FuzzedAudioEndpointLibrary as CurrentFuzzedSpeakersSettingsApi;
+pub use windows::FuzzedWindowsCom as CurrentFuzzedSpeakersSettingsApi;
