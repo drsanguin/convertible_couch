@@ -62,3 +62,4 @@ Options:
 
 ## Acknowledgments
 - [Icon Source](https://www.flaticon.com/free-icon/couch_1010398)
+- [AudioEndPointLibrary](https://github.com/Belphemur/AudioEndPointLibrary)
