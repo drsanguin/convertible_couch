@@ -83,21 +83,47 @@ fn log_change_displays_settings_result(displays_result: DisplaysSettingsResult) 
 }
 
 fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
-    let displays_list = displays_result
+    let max_name_length = displays_result
         .iter()
-        .map(|device| format!("{device}"))
-        .collect::<Vec<_>>()
-        .join(", ");
+        .map(|r| r.name.len())
+        .max()
+        .unwrap_or(0);
 
-    println!("Displays: {displays_list}")
+    println!("Displays");
+    println!("PRIMARY NAME");
+
+    println!("{}", "-".repeat(8 + max_name_length));
+
+    for display_result in displays_result {
+        println!(
+            "{:<7} {:<max_name_length$}",
+            display_result.is_primary,
+            display_result.name,
+            max_name_length = max_name_length
+        )
+    }
+    println!();
 }
 
 fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
-    let speakers_list = speakers_result
+    let max_name_length = speakers_result
         .iter()
-        .map(|device| format!("{device}"))
-        .collect::<Vec<_>>()
-        .join(", ");
+        .map(|r| r.name.len())
+        .max()
+        .unwrap_or(0);
 
-    println!("Speakers: {speakers_list}")
+    println!("Speakers");
+    println!("DEFAULT NAME");
+
+    println!("{}", "-".repeat(8 + max_name_length));
+
+    for display_result in speakers_result {
+        println!(
+            "{:<7} {:<max_name_length$}",
+            display_result.is_default,
+            display_result.name,
+            max_name_length = max_name_length
+        )
+    }
+    println!();
 }
