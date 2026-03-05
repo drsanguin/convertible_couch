@@ -7,7 +7,6 @@ use convertible_couch_lib::{
     displays_settings::{CurrentDisplaysSettingsApi, DisplayInfo, DisplaysSettingsResult},
     speakers_settings::{CurrentSpeakersSettingsApi, SpeakerInfo, SpeakersSettingsResult},
 };
-use log::{error, info, warn};
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
@@ -59,7 +58,7 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Err(error) => {
-            error!("{error}");
+            eprintln!("{error}");
 
             ExitCode::FAILURE
         }
@@ -67,7 +66,7 @@ fn main() -> ExitCode {
 }
 
 fn log_change_speakers_settings_result(speakers_result: SpeakersSettingsResult) {
-    info!(
+    println!(
         "Default speaker set to {0}",
         speakers_result.new_default_speaker
     );
@@ -78,8 +77,8 @@ fn log_change_displays_settings_result(displays_result: DisplaysSettingsResult) 
         displays_result.new_primary_display,
         displays_result.reboot_required,
     ) {
-        (new_primary, true) => warn!("Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."),
-        (new_primary, false) => info!("Primary display set to {new_primary}"),
+        (new_primary, true) => println!("Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."),
+        (new_primary, false) => println!("Primary display set to {new_primary}"),
     }
 }
 
@@ -90,7 +89,7 @@ fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
         .collect::<Vec<_>>()
         .join(", ");
 
-    info!("Displays: {displays_list}")
+    println!("Displays: {displays_list}")
 }
 
 fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
@@ -100,5 +99,5 @@ fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
         .collect::<Vec<_>>()
         .join(", ");
 
-    info!("Speakers: {speakers_list}")
+    println!("Speakers: {speakers_list}")
 }
