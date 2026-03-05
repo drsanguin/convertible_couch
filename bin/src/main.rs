@@ -83,62 +83,56 @@ fn log_change_displays_settings_result(displays_result: DisplaysSettingsResult) 
 }
 
 fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
-    let max_name_length = displays_result
-        .iter()
-        .map(|r| r.name.len())
-        .max()
-        .unwrap_or(4);
-
     let primary_column_name = "PRIMARY";
     let name_column_name = "NAME";
     let column_separator = "   ";
     let primary_column_width = primary_column_name.len();
+    let max_name_width = displays_result
+        .iter()
+        .map(|r| r.name.len())
+        .max()
+        .unwrap_or(4);
+    let table_width = primary_column_width + column_separator.len() + max_name_width;
 
     println!("Displays");
     println!("{primary_column_name}{column_separator}{name_column_name}");
-    println!(
-        "{}",
-        "-".repeat(primary_column_width + column_separator.len() + max_name_length)
-    );
+    println!("{}", "-".repeat(table_width));
 
     for display_result in displays_result {
         println!(
-            "{:<primary_column_width$}{column_separator}{:<max_name_length$}",
+            "{:<primary_column_width$}{column_separator}{:<name_column_width$}",
             display_result.is_primary,
             display_result.name,
             primary_column_width = primary_column_width,
-            max_name_length = max_name_length
+            name_column_width = max_name_width
         )
     }
     println!();
 }
 
 fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
-    let max_name_length = speakers_result
+    let default_column_name = "DEFAULT";
+    let name_column_name = "NAME";
+    let column_separator = "   ";
+    let default_column_width = default_column_name.len();
+    let max_name_width = speakers_result
         .iter()
         .map(|r| r.name.len())
         .max()
         .unwrap_or(4);
-
-    let default_column_name = "DEFAULT";
-    let name_column_name = "NAME";
-    let column_separator = "   ";
-    let primary_column_width = default_column_name.len();
+    let table_width = default_column_width + column_separator.len() + max_name_width;
 
     println!("Speakers");
     println!("{default_column_name}{column_separator}{name_column_name}");
-    println!(
-        "{}",
-        "-".repeat(primary_column_width + column_separator.len() + max_name_length)
-    );
+    println!("{}", "-".repeat(table_width));
 
     for speaker_result in speakers_result {
         println!(
-            "{:<primary_column_width$}{column_separator}{:<max_name_length$}",
+            "{:<default_column_width$}{column_separator}{:<name_column_width$}",
             speaker_result.is_default,
             speaker_result.name,
-            primary_column_width = primary_column_width,
-            max_name_length = max_name_length
+            default_column_width = default_column_width,
+            name_column_width = max_name_width
         )
     }
     println!();
