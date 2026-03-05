@@ -89,16 +89,24 @@ fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
         .max()
         .unwrap_or(4);
 
-    println!("Displays");
-    println!("PRIMARY   NAME");
+    let primary_column_name = "PRIMARY";
+    let name_column_name = "NAME";
+    let column_separator = "   ";
+    let primary_column_width = primary_column_name.len();
 
-    println!("{}", "-".repeat(10 + max_name_length));
+    println!("Displays");
+    println!("{primary_column_name}{column_separator}{name_column_name}");
+    println!(
+        "{}",
+        "-".repeat(primary_column_width + column_separator.len() + max_name_length)
+    );
 
     for display_result in displays_result {
         println!(
-            "{:<7}   {:<max_name_length$}",
+            "{:<primary_column_width$}{column_separator}{:<max_name_length$}",
             display_result.is_primary,
             display_result.name,
+            primary_column_width = primary_column_width,
             max_name_length = max_name_length
         )
     }
@@ -112,16 +120,24 @@ fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
         .max()
         .unwrap_or(4);
 
+    let default_column_name = "DEFAULT";
+    let name_column_name = "NAME";
+    let column_separator = "   ";
+    let primary_column_width = default_column_name.len();
+
     println!("Speakers");
-    println!("DEFAULT   NAME");
+    println!("{default_column_name}{column_separator}{name_column_name}");
+    println!(
+        "{}",
+        "-".repeat(primary_column_width + column_separator.len() + max_name_length)
+    );
 
-    println!("{}", "-".repeat(10 + max_name_length));
-
-    for display_result in speakers_result {
+    for speaker_result in speakers_result {
         println!(
-            "{:<7}   {:<max_name_length$}",
-            display_result.is_default,
-            display_result.name,
+            "{:<primary_column_width$}{column_separator}{:<max_name_length$}",
+            speaker_result.is_default,
+            speaker_result.name,
+            primary_column_width = primary_column_width,
             max_name_length = max_name_length
         )
     }
