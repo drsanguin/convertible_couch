@@ -7,7 +7,6 @@ use convertible_couch_lib::{
     displays_settings::{CurrentDisplaysSettingsApi, DisplayInfo, DisplaysSettingsResult},
     speakers_settings::{CurrentSpeakersSettingsApi, SpeakerInfo, SpeakersSettingsResult},
 };
-use log::{error, info, warn};
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
@@ -59,7 +58,7 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Err(error) => {
-            error!("{error}");
+            eprintln!("{error}");
 
             ExitCode::FAILURE
         }
@@ -67,7 +66,7 @@ fn main() -> ExitCode {
 }
 
 fn log_change_speakers_settings_result(speakers_result: SpeakersSettingsResult) {
-    info!(
+    println!(
         "Default speaker set to {0}",
         speakers_result.new_default_speaker
     );
@@ -78,27 +77,63 @@ fn log_change_displays_settings_result(displays_result: DisplaysSettingsResult) 
         displays_result.new_primary_display,
         displays_result.reboot_required,
     ) {
-        (new_primary, true) => warn!("Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."),
-        (new_primary, false) => info!("Primary display set to {new_primary}"),
+        (new_primary, true) => println!("Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."),
+        (new_primary, false) => println!("Primary display set to {new_primary}"),
     }
 }
 
 fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
-    let displays_list = displays_result
+    let primary_column_name = "PRIMARY";
+    let name_column_name = "NAME";
+    let column_separator = "   ";
+    let primary_column_width = primary_column_name.len();
+    let max_name_width = displays_result
         .iter()
-        .map(|device| format!("{device}"))
-        .collect::<Vec<_>>()
-        .join(", ");
+        .map(|r| r.name.len())
+        .max()
+        .unwrap_or(name_column_name.len());
+    let table_width = primary_column_width + column_separator.len() + max_name_width;
 
-    info!("Displays: {displays_list}")
+    println!("Displays");
+    println!("{primary_column_name}{column_separator}{name_column_name}");
+    println!("{}", "-".repeat(table_width));
+
+    for display_result in displays_result {
+        println!(
+            "{:<primary_column_width$}{column_separator}{:<name_column_width$}",
+            display_result.is_primary,
+            display_result.name,
+            primary_column_width = primary_column_width,
+            name_column_width = max_name_width
+        )
+    }
+    println!();
 }
 
 fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
-    let speakers_list = speakers_result
+    let default_column_name = "DEFAULT";
+    let name_column_name = "NAME";
+    let column_separator = "   ";
+    let default_column_width = default_column_name.len();
+    let max_name_width = speakers_result
         .iter()
-        .map(|device| format!("{device}"))
-        .collect::<Vec<_>>()
-        .join(", ");
+        .map(|r| r.name.len())
+        .max()
+        .unwrap_or(name_column_name.len());
+    let table_width = default_column_width + column_separator.len() + max_name_width;
 
-    info!("Speakers: {speakers_list}")
+    println!("Speakers");
+    println!("{default_column_name}{column_separator}{name_column_name}");
+    println!("{}", "-".repeat(table_width));
+
+    for speaker_result in speakers_result {
+        println!(
+            "{:<default_column_width$}{column_separator}{:<name_column_width$}",
+            speaker_result.is_default,
+            speaker_result.name,
+            default_column_width = default_column_width,
+            name_column_width = max_name_width
+        )
+    }
+    println!();
 }

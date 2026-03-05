@@ -242,7 +242,6 @@ dependencies = [
  "clap",
  "convertible_couch_lib",
  "criterion",
- "log",
  "test-case",
  "windows",
  "winresource",
