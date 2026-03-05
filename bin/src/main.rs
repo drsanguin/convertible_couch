@@ -91,7 +91,7 @@ fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
         .iter()
         .map(|r| r.name.len())
         .max()
-        .unwrap_or(4);
+        .unwrap_or(name_column_name.len());
     let table_width = primary_column_width + column_separator.len() + max_name_width;
 
     println!("Displays");
@@ -119,7 +119,7 @@ fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
         .iter()
         .map(|r| r.name.len())
         .max()
-        .unwrap_or(4);
+        .unwrap_or(name_column_name.len());
     let table_width = default_column_width + column_separator.len() + max_name_width;
 
     println!("Speakers");
