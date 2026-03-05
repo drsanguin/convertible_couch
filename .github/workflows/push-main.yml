@@ -22,10 +22,10 @@ jobs:
           fetch-depth: 0
 
       - name: Compile Project 🏗️
-        run: cargo build --release --bins
+        run: cargo build --release --bins --target x86_64-pc-windows-msvc
 
       - name: Package Artifacts 📦
-        run: Compress-Archive -Path .\target\release\*.exe -DestinationPath convertible_couch.zip
+        run: Compress-Archive -Path .\target\release\x86_64-pc-windows-msvc\release\convertible_couch.exe -DestinationPath convertible_couch-x86_64-pc-windows-msvc.zip
 
       - name: Run Semantic Release 🚀
         env:
