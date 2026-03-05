@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::fmt::{Display, Formatter};
 
 use crate::ApplicationError;
 
@@ -30,16 +29,6 @@ impl PartialOrd for DisplayInfo {
     }
 }
 
-impl Display for DisplayInfo {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        if self.is_primary {
-            write!(f, "[primary] {}", self.name)
-        } else {
-            write!(f, "{}", self.name)
-        }
-    }
-}
-
 pub trait DisplaysSettings {
     fn new(displays_settings_api: Box<dyn CurrentDisplaysSettingsApiTrait>) -> Self;
 
@@ -66,38 +55,3 @@ pub use windows::win_32::Win32 as CurrentDisplaysSettingsApiTrait;
 
 #[cfg(target_os = "windows")]
 pub const INTERNAL_DISPLAY_NAME: &str = "Internal Display";
-
-#[cfg(test)]
-mod tests {
-    use crate::displays_settings::DisplayInfo;
-
-    #[test]
-    fn it_should_be_displayed_as_expected_when_primary() {
-        // Arrange
-        let display_info = DisplayInfo {
-            is_primary: true,
-            name: String::from("LG ULTRAWIDE"),
-        };
-
-        // Act
-        let display = format!("{display_info}");
-
-        // Assert
-        assert_eq!(display, "[primary] LG ULTRAWIDE")
-    }
-
-    #[test]
-    fn it_should_be_displayed_as_expected_when_secondary() {
-        // Arrange
-        let display_info = DisplayInfo {
-            is_primary: false,
-            name: String::from("LG ULTRAWIDE"),
-        };
-
-        // Act
-        let display = format!("{display_info}");
-
-        // Assert
-        assert_eq!(display, "LG ULTRAWIDE")
-    }
-}
