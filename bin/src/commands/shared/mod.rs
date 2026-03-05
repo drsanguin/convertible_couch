@@ -7,6 +7,6 @@ pub mod log_level_option;
 #[derive(Args, Debug)]
 pub struct SharedOptions {
     /// Set the program's log level
-    #[arg(short, long, value_enum, default_value_t = LogLevelOption::Warn)]
+    #[arg(short, long, value_enum, default_value_t = LogLevelOption::Error)]
     pub log_level: LogLevelOption,
 }
