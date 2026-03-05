@@ -90,13 +90,13 @@ fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
         .unwrap_or(4);
 
     println!("Displays");
-    println!("PRIMARY NAME");
+    println!("PRIMARY   NAME");
 
-    println!("{}", "-".repeat(8 + max_name_length));
+    println!("{}", "-".repeat(10 + max_name_length));
 
     for display_result in displays_result {
         println!(
-            "{:<7} {:<max_name_length$}",
+            "{:<7}   {:<max_name_length$}",
             display_result.is_primary,
             display_result.name,
             max_name_length = max_name_length
@@ -113,13 +113,13 @@ fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
         .unwrap_or(4);
 
     println!("Speakers");
-    println!("DEFAULT NAME");
+    println!("DEFAULT   NAME");
 
-    println!("{}", "-".repeat(8 + max_name_length));
+    println!("{}", "-".repeat(10 + max_name_length));
 
     for display_result in speakers_result {
         println!(
-            "{:<7} {:<max_name_length$}",
+            "{:<7}   {:<max_name_length$}",
             display_result.is_default,
             display_result.name,
             max_name_length = max_name_length
