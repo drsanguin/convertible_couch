@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::fmt::{Display, Formatter};
 
 use crate::ApplicationError;
 
@@ -29,16 +28,6 @@ impl PartialOrd for SpeakerInfo {
     }
 }
 
-impl Display for SpeakerInfo {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        if self.is_default {
-            write!(f, "[default] {}", self.name)
-        } else {
-            write!(f, "{}", self.name)
-        }
-    }
-}
-
 pub trait SpeakersSettings {
     fn new(speakers_settings_api: Box<dyn CurrentSpeakersSettingsApiTrait>) -> Self;
 
@@ -62,38 +51,3 @@ pub use windows::windows_com::windows_api_based_windows_com::WindowsApiBasedWind
 
 #[cfg(target_os = "windows")]
 pub use windows::windows_com::WindowsCom as CurrentSpeakersSettingsApiTrait;
-
-#[cfg(test)]
-mod tests {
-    use crate::speakers_settings::SpeakerInfo;
-
-    #[test]
-    fn it_should_be_displayed_as_expected_when_default() {
-        // Arrange
-        let speaker_info = SpeakerInfo {
-            is_default: true,
-            name: String::from("Corsair Vengeance 1500"),
-        };
-
-        // Act
-        let display = format!("{speaker_info}");
-
-        // Assert
-        assert_eq!(display, "[default] Corsair Vengeance 1500")
-    }
-
-    #[test]
-    fn it_should_be_displayed_as_expected_when_alternative() {
-        // Arrange
-        let speaker_info = SpeakerInfo {
-            is_default: false,
-            name: String::from("Corsair Vengeance 1500"),
-        };
-
-        // Act
-        let display = format!("{speaker_info}");
-
-        // Assert
-        assert_eq!(display, "Corsair Vengeance 1500")
-    }
-}
