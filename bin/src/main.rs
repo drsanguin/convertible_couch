@@ -87,7 +87,7 @@ fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
         .iter()
         .map(|r| r.name.len())
         .max()
-        .unwrap_or(0);
+        .unwrap_or(4);
 
     println!("Displays");
     println!("PRIMARY NAME");
@@ -110,7 +110,7 @@ fn log_info_speakers_settings_result(speakers_result: Vec<SpeakerInfo>) {
         .iter()
         .map(|r| r.name.len())
         .max()
-        .unwrap_or(0);
+        .unwrap_or(4);
 
     println!("Speakers");
     println!("DEFAULT NAME");
