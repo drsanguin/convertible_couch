@@ -1,16 +1,14 @@
-use convertible_couch::{
-    application::{ApplicationChangeResult, ApplicationResult},
-    testing::arrangements::{ApplicationBuilder, ArgumentsBuilder},
-};
+#![cfg(target_os = "windows")]
+
+use convertible_couch::testing::arrangements::{ApplicationBuilder, ArgumentsBuilder};
 use convertible_couch_lib::{
     application_error::ApplicationError,
     func,
-    speakers_settings::SpeakersSettingsResult,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
 };
 
 #[test]
-fn it_should_change_the_default_speaker() {
+fn return_an_error_if_getting_the_speakers_count_fails() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -22,6 +20,7 @@ fn it_should_change_the_default_speaker() {
         .of_which_there_are_at_least(2)
         .whose_default_one_is_named(&default_speaker_name)
         .with_an_alternative_one_named(&alternative_speaker_name)
+        .for_which_getting_the_speakers_count_fails()
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -37,18 +36,14 @@ fn it_should_change_the_default_speaker() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
-            ApplicationChangeResult::SpeakersOnly {
-                speakers_result: SpeakersSettingsResult {
-                    new_default_speaker: alternative_speaker_name
-                }
-            }
-        ))
+        Err(ApplicationError::Custom(String::from(
+            "Failed to get the number of speakers"
+        )))
     );
 }
 
 #[test]
-fn it_should_change_the_default_speaker_back_and_forth() {
+fn return_an_error_if_getting_the_speakers_fails() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -60,6 +55,7 @@ fn it_should_change_the_default_speaker_back_and_forth() {
         .of_which_there_are_at_least(2)
         .whose_default_one_is_named(&default_speaker_name)
         .with_an_alternative_one_named(&alternative_speaker_name)
+        .for_which_getting_the_speakers_fails()
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
@@ -70,48 +66,38 @@ fn it_should_change_the_default_speaker_back_and_forth() {
         .build();
 
     // Act
-    let actual_result = application
-        .execute(&args)
-        .and_then(|_| application.execute(&args));
+    let actual_result = application.execute(&args);
 
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
-            ApplicationChangeResult::SpeakersOnly {
-                speakers_result: SpeakersSettingsResult {
-                    new_default_speaker: default_speaker_name
-                }
-            }
-        ))
+        Err(ApplicationError::Custom(String::from(
+            "Failed to get the speakers"
+        )))
     );
 }
 
 #[test]
-fn it_should_validate_the_desktop_and_couch_speaker_name() {
+fn return_an_error_if_getting_the_current_default_speaker_fails() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (
-        invalid_speaker_name_1,
-        invalid_speaker_name_2,
-        default_speaker_name,
-        alternative_speaker_name,
-    ) = fuzzer.generate_four_speakers_names();
+    let (default_speaker_name, alternative_speaker_name) = fuzzer.generate_two_speakers_names();
 
     let computer = fuzzer
         .generate_computer()
         .with_speakers()
-        .of_which_there_are(2)
+        .of_which_there_are_at_least(2)
         .whose_default_one_is_named(&default_speaker_name)
         .with_an_alternative_one_named(&alternative_speaker_name)
+        .for_which_getting_the_default_speaker_fails()
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
-        .speakers_only(&invalid_speaker_name_1, &invalid_speaker_name_2)
+        .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
     // Act
@@ -120,31 +106,33 @@ fn it_should_validate_the_desktop_and_couch_speaker_name() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(ApplicationError::Custom(format!("Desktop and couch speakers are invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]")))
+        Err(ApplicationError::Custom(String::from(
+            "Failed to get the current default speaker"
+        )))
     );
 }
 
 #[test]
-fn it_should_validate_the_desktop_speaker_name() {
+fn return_an_error_if_setting_the_default_speaker_fails() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (invalid_speaker_name, default_speaker_name, alternative_speaker_name) =
-        fuzzer.generate_three_speakers_names();
+    let (default_speaker_name, alternative_speaker_name) = fuzzer.generate_two_speakers_names();
 
     let computer = fuzzer
         .generate_computer()
         .with_speakers()
-        .of_which_there_are(2)
+        .of_which_there_are_at_least(2)
         .whose_default_one_is_named(&default_speaker_name)
         .with_an_alternative_one_named(&alternative_speaker_name)
+        .for_which_setting_the_default_speaker_fails()
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
-        .speakers_only(&invalid_speaker_name, &alternative_speaker_name)
+        .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
     // Act
@@ -153,39 +141,38 @@ fn it_should_validate_the_desktop_speaker_name() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(ApplicationError::Custom(format!("Desktop speaker is invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]")))
+        Err(ApplicationError::Custom(String::from(
+            "Failed to set default speaker"
+        )))
     );
 }
 
 #[test]
-fn it_should_validate_the_couch_speaker_name() {
+fn return_an_error_if_initializing_the_com_library_fails() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
-    let (invalid_speaker_name, default_speaker_name, alternative_speaker_name) =
-        fuzzer.generate_three_speakers_names();
+    let (default_speaker_name, alternative_speaker_name) = fuzzer.generate_two_speakers_names();
 
     let computer = fuzzer
         .generate_computer()
         .with_speakers()
-        .of_which_there_are(2)
+        .of_which_there_are_at_least(2)
         .whose_default_one_is_named(&default_speaker_name)
         .with_an_alternative_one_named(&alternative_speaker_name)
+        .for_which_initializing_the_com_library_fails()
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder
         .change()
-        .speakers_only(&default_speaker_name, &invalid_speaker_name)
+        .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
     // Act
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Err(ApplicationError::Custom(format!("Couch speaker is invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]")))
-    );
+    assert!(actual_result.is_err());
 }
