@@ -45,7 +45,7 @@ pub trait DisplaysSettings {
 pub mod windows;
 
 #[cfg(target_os = "windows")]
-pub use windows::windows_displays_settings::WindowsDisplaySettings as CurrentDisplaysSettings;
+pub use windows::WindowsDisplaySettings as CurrentDisplaysSettings;
 
 #[cfg(target_os = "windows")]
 pub use windows::win_32::windows_api_based_win_32::WindowsApiBasedWin32 as CurrentDisplaysSettingsApi;

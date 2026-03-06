@@ -44,7 +44,7 @@ pub trait SpeakersSettings {
 pub mod windows;
 
 #[cfg(target_os = "windows")]
-pub use windows::windows_speakers_settings::WindowsSoundSettings as CurrentSpeakersSettings;
+pub use windows::WindowsSoundSettings as CurrentSpeakersSettings;
 
 #[cfg(target_os = "windows")]
 pub use windows::windows_com::windows_api_based_windows_com::WindowsApiBasedWindowsCom as CurrentSpeakersSettingsApi;
