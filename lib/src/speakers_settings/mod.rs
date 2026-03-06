@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::ApplicationError;
+use crate::application_error::ApplicationError;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct SpeakersSettingsResult {

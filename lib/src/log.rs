@@ -6,7 +6,7 @@ use log4rs::{
     init_config, Config,
 };
 
-use crate::ApplicationError;
+use crate::application_error::ApplicationError;
 
 #[derive(Debug, PartialEq)]
 pub enum LogLevel {

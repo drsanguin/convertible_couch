@@ -1,4 +1,5 @@
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     displays_settings::{
         CurrentDisplaysSettings, CurrentDisplaysSettingsApiTrait, DisplayInfo, DisplaysSettings,
         DisplaysSettingsResult,
@@ -8,7 +9,6 @@ use convertible_couch_lib::{
         CurrentSpeakersSettings, CurrentSpeakersSettingsApiTrait, SpeakerInfo, SpeakersSettings,
         SpeakersSettingsResult,
     },
-    ApplicationError,
 };
 
 use crate::commands::{

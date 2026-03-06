@@ -5,10 +5,10 @@ use convertible_couch::{
     testing::arrangements::{ApplicationBuilder, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     displays_settings::DisplaysSettingsResult,
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
-    ApplicationError,
 };
 use test_case::test_case;
 use windows::Win32::{

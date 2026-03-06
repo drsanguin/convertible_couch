@@ -6,10 +6,10 @@ use convertible_couch::{
     },
 };
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
-    ApplicationError,
 };
 
 #[test]

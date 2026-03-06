@@ -6,10 +6,10 @@ use windows::Win32::{
 use windows_core::{PCWSTR, PWSTR};
 
 use crate::{
+    application_error::ApplicationError,
     speakers_settings::{
         windows::windows_com::WindowsCom, SpeakerInfo, SpeakersSettings, SpeakersSettingsResult,
     },
-    ApplicationError,
 };
 
 pub struct WindowsSoundSettings {

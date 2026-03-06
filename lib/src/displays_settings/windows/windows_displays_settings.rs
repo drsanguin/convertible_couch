@@ -1,9 +1,9 @@
 use super::win_32::Win32;
 use crate::{
+    application_error::ApplicationError,
     displays_settings::{
         DisplayInfo, DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME,
     },
-    ApplicationError,
 };
 use log::warn;
 use std::{collections::HashMap, fmt::Debug, mem};

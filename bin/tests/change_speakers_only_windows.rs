@@ -2,9 +2,9 @@
 
 use convertible_couch::testing::arrangements::{ApplicationBuilder, ArgumentsBuilder};
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
-    ApplicationError,
 };
 
 #[test]
