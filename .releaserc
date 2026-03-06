@@ -12,9 +12,7 @@
       {
         "assets": [
           {
-            "path": "convertible_couch.zip",
-            "name": "convertible_couch-v${nextRelease.version}.zip",
-            "label": "Compiled Distribution v${nextRelease.version} (zip)"
+            "path": "convertible_couch-x86_64-pc-windows-msvc.zip"
           }
         ]
       }
