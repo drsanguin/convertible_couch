@@ -2,8 +2,7 @@
   "branches": [
     { "name": "main", "prerelease": false },
     { "name": "release/*", "prerelease": false },
-    { "name": "hotfix/*", "prerelease": false },
-    { "name": "ci/46", "prerelease": false }
+    { "name": "hotfix/*", "prerelease": false }
   ],
   "plugins": [
     "@semantic-release/commit-analyzer",
