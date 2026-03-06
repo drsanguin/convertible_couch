@@ -5,10 +5,10 @@ use convertible_couch::{
     testing::arrangements::{ApplicationBuilder, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     displays_settings::DisplaysSettingsResult,
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
-    ApplicationError,
 };
 use test_case::test_case;
 use windows::Win32::{
@@ -25,7 +25,7 @@ use windows::Win32::{
 #[test_case(DISP_CHANGE_BADPARAM => Err(ApplicationError::Custom(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."))); "when the error is DISP_CHANGE_BADPARAM")]
 #[test_case(DISP_CHANGE_FAILED => Err(ApplicationError::Custom(String::from("The display driver failed the specified graphics mode."))); "when the error is DISP_CHANGE_FAILED")]
 #[test_case(DISP_CHANGE_NOTUPDATED => Err(ApplicationError::Custom(String::from("Unable to write settings to the registry."))); "when the error is DISP_CHANGE_NOTUPDATED")]
-fn it_should_report_committed_displays_settings_changes_errors(
+fn report_committed_displays_settings_changes_errors(
     disp_change: DISP_CHANGE,
 ) -> Result<ApplicationResult, ApplicationError> {
     // Arrange
@@ -59,7 +59,7 @@ fn it_should_report_committed_displays_settings_changes_errors(
 #[test_case(DISP_CHANGE_BADPARAM => Err(ApplicationError::Custom(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."))); "when the error is DISP_CHANGE_BADPARAM")]
 #[test_case(DISP_CHANGE_FAILED => Err(ApplicationError::Custom(String::from("The display driver failed the specified graphics mode."))); "when the error is DISP_CHANGE_FAILED")]
 #[test_case(DISP_CHANGE_NOTUPDATED => Err(ApplicationError::Custom(String::from("Unable to write settings to the registry."))); "when the error is DISP_CHANGE_NOTUPDATED")]
-fn it_should_report_displays_settings_changes_errors(
+fn report_displays_settings_changes_errors(
     disp_change: DISP_CHANGE,
 ) -> Result<ApplicationResult, ApplicationError> {
     // Arrange
@@ -88,7 +88,7 @@ fn it_should_report_displays_settings_changes_errors(
 }
 
 #[test]
-fn it_should_ask_for_reboot_when_committing_displays_settings_requires_it() {
+fn ask_for_reboot_when_committing_displays_settings_requires_it() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -128,7 +128,7 @@ fn it_should_ask_for_reboot_when_committing_displays_settings_requires_it() {
 }
 
 #[test]
-fn it_should_ask_for_reboot_when_changing_displays_settings_requires_it() {
+fn ask_for_reboot_when_changing_displays_settings_requires_it() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -168,7 +168,7 @@ fn it_should_ask_for_reboot_when_changing_displays_settings_requires_it() {
 }
 
 #[test]
-fn it_should_report_get_display_config_buffer_sizes_errors() {
+fn report_get_display_config_buffer_sizes_errors() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -203,7 +203,7 @@ fn it_should_report_get_display_config_buffer_sizes_errors() {
 }
 
 #[test]
-fn it_should_report_query_display_config_errors() {
+fn report_query_display_config_errors() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -238,7 +238,7 @@ fn it_should_report_query_display_config_errors() {
 }
 
 #[test]
-fn it_should_handle_the_case_of_a_display_being_not_possible_to_enum_display_settings_on() {
+fn handle_the_case_of_a_display_being_not_possible_to_enum_display_settings_on() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 

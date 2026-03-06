@@ -3,14 +3,14 @@ use convertible_couch::{
     testing::arrangements::{ApplicationBuilder, ArgumentsBuilder},
 };
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     func,
     speakers_settings::SpeakersSettingsResult,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
-    ApplicationError,
 };
 
 #[test]
-fn it_should_change_the_default_speaker() {
+fn change_the_default_speaker() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -48,7 +48,7 @@ fn it_should_change_the_default_speaker() {
 }
 
 #[test]
-fn it_should_change_the_default_speaker_back_and_forth() {
+fn change_the_default_speaker_back_and_forth() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -88,7 +88,7 @@ fn it_should_change_the_default_speaker_back_and_forth() {
 }
 
 #[test]
-fn it_should_validate_the_desktop_and_couch_speaker_name() {
+fn validate_the_desktop_and_couch_speaker_name() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -125,7 +125,7 @@ fn it_should_validate_the_desktop_and_couch_speaker_name() {
 }
 
 #[test]
-fn it_should_validate_the_desktop_speaker_name() {
+fn validate_the_desktop_speaker_name() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -158,7 +158,7 @@ fn it_should_validate_the_desktop_speaker_name() {
 }
 
 #[test]
-fn it_should_validate_the_couch_speaker_name() {
+fn validate_the_couch_speaker_name() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 

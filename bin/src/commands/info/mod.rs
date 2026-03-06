@@ -28,14 +28,14 @@ impl ValueEnum for Device {
 }
 
 #[cfg(test)]
-mod tests {
+mod should {
     use clap::{builder::PossibleValue, ValueEnum};
     use test_case::test_case;
 
     use crate::commands::info::Device;
 
     #[test]
-    fn it_should_provide_all_possible_argument_values() {
+    fn provide_all_possible_argument_values() {
         // Act
         let value_variants = Device::value_variants();
 
@@ -53,7 +53,7 @@ mod tests {
     #[test_case(Device::DisplaysAndSpeakers => Some(PossibleValue::new("displays-and-speakers")); "when device is displays-and-speakers")]
     #[test_case(Device::Displays => Some(PossibleValue::new("displays")); "when device is displays")]
     #[test_case(Device::Speakers => Some(PossibleValue::new("speakers")); "when device is speakers")]
-    fn it_should_provide_the_canonical_argument_value(log_level: Device) -> Option<PossibleValue> {
+    fn provide_the_canonical_argument_value(log_level: Device) -> Option<PossibleValue> {
         // Act
         log_level.to_possible_value()
     }

@@ -10,7 +10,7 @@ use convertible_couch_lib::{
 };
 
 #[test]
-fn it_should_get_informations_about_displays_and_speakers() {
+fn get_informations_about_displays_and_speakers() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -80,8 +80,8 @@ fn it_should_get_informations_about_displays_and_speakers() {
 }
 
 #[test]
-fn it_should_get_informations_about_displays_and_speakers_when_the_computer_has_no_displays_and_no_speakers(
-) {
+fn get_informations_about_displays_and_speakers_when_the_computer_has_no_displays_and_no_speakers()
+{
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -107,7 +107,7 @@ fn it_should_get_informations_about_displays_and_speakers_when_the_computer_has_
 }
 
 #[test]
-fn it_should_get_informations_about_displays_only() {
+fn get_informations_about_displays_only() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -154,7 +154,7 @@ fn it_should_get_informations_about_displays_only() {
 }
 
 #[test]
-fn it_should_get_informations_about_speakers_only() {
+fn get_informations_about_speakers_only() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -202,7 +202,7 @@ fn it_should_get_informations_about_speakers_only() {
 }
 
 #[test]
-fn it_should_get_informations_about_speakers_only_even_if_there_if_no_default_one() {
+fn get_informations_about_speakers_only_even_if_there_if_no_default_one() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 

@@ -1,4 +1,4 @@
-use convertible_couch_lib::ApplicationError;
+use convertible_couch_lib::application_error::ApplicationError;
 
 use crate::application::ApplicationResult;
 

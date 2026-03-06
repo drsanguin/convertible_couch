@@ -6,14 +6,14 @@ use convertible_couch::{
     },
 };
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
-    ApplicationError,
 };
 
 #[test]
-fn it_should_swap_the_desktop_display_with_the_couch_display() {
+fn swap_the_desktop_display_with_the_couch_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -52,7 +52,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display() {
 }
 
 #[test]
-fn it_should_swap_the_couch_display_with_the_desktop_display() {
+fn swap_the_couch_display_with_the_desktop_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -93,8 +93,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display() {
 }
 
 #[test]
-fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_has_an_internal_display(
-) {
+fn swap_the_desktop_display_with_the_couch_display_when_the_computer_has_an_internal_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -133,7 +132,7 @@ fn it_should_swap_the_desktop_display_with_the_couch_display_when_the_computer_h
 }
 
 #[test]
-fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_display() {
+fn swap_the_couch_display_with_the_desktop_display_has_an_internal_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -174,7 +173,7 @@ fn it_should_swap_the_couch_display_with_the_desktop_display_has_an_internal_dis
 }
 
 #[test]
-fn it_should_validate_the_desktop_display() {
+fn validate_the_desktop_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -209,7 +208,7 @@ fn it_should_validate_the_desktop_display() {
 }
 
 #[test]
-fn it_should_validate_the_couch_display() {
+fn validate_the_couch_display() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -244,7 +243,7 @@ fn it_should_validate_the_couch_display() {
 }
 
 #[test]
-fn it_should_validate_both_desktop_and_couch_displays() {
+fn validate_both_desktop_and_couch_displays() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -283,7 +282,7 @@ fn it_should_validate_both_desktop_and_couch_displays() {
 }
 
 #[test]
-fn it_should_handle_the_case_when_it_fails_to_get_the_primary_display_name() {
+fn handle_the_case_when_it_fails_to_get_the_primary_display_name() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 

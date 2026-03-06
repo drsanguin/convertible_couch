@@ -2,13 +2,13 @@
 
 use convertible_couch::testing::arrangements::{ApplicationBuilder, ArgumentsBuilder};
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
-    ApplicationError,
 };
 
 #[test]
-fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
+fn return_an_error_if_getting_the_speakers_count_fails() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -40,7 +40,7 @@ fn it_should_return_an_error_if_getting_the_speakers_count_fails() {
 }
 
 #[test]
-fn it_should_return_an_error_if_getting_the_speakers_fails() {
+fn return_an_error_if_getting_the_speakers_fails() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -72,7 +72,7 @@ fn it_should_return_an_error_if_getting_the_speakers_fails() {
 }
 
 #[test]
-fn it_should_return_an_error_if_initializing_the_com_library_fails() {
+fn return_an_error_if_initializing_the_com_library_fails() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
