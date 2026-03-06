@@ -54,11 +54,11 @@ impl From<windows_core::Error> for ApplicationError {
 }
 
 #[cfg(test)]
-mod tests {
+mod should {
     use crate::ApplicationError;
 
     #[test]
-    fn it_should_be_converted_from_a_string() {
+    fn be_converted_from_a_string() {
         // Arrange
         let initial_error = String::from("Something wrong happened");
 
@@ -70,7 +70,7 @@ mod tests {
     }
 
     #[test]
-    fn it_should_be_converted_from_a_from_utf16_error() {
+    fn be_converted_from_a_from_utf16_error() {
         // Arrange
         let bad_data = vec![0xD800];
         let initial_error = String::from_utf16(&bad_data).unwrap_err();
@@ -88,7 +88,7 @@ mod tests {
     }
 
     #[test]
-    fn it_should_be_converted_from_a_try_from_int_error() {
+    fn be_converted_from_a_try_from_int_error() {
         // Arrange
         let bad_data: i32 = 256;
         let initial_error = u8::try_from(bad_data).unwrap_err();

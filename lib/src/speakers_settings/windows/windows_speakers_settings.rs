@@ -201,7 +201,7 @@ fn pwstr_eq(a: PWSTR, b: PWSTR) -> bool {
 }
 
 #[cfg(test)]
-mod tests {
+mod should {
     use std::ptr::null_mut;
 
     use windows_core::PWSTR;
@@ -213,10 +213,7 @@ mod tests {
     #[test_case(None, None => true; "when both pointers are null")]
     #[test_case(None, Some("") => false; "when first pointer is null")]
     #[test_case(Some(""), None => false; "when second pointer is null")]
-    fn it_should_check_equality_of_two_pwstr(
-        a_content: Option<&str>,
-        b_content: Option<&str>,
-    ) -> bool {
+    fn check_equality_of_two_pwstr(a_content: Option<&str>, b_content: Option<&str>) -> bool {
         // Arrange
         let mut a_str_buffer = Vec::new();
         let a = a_content

@@ -49,7 +49,7 @@ fn map_to_level_filter(log_level: &LogLevel) -> LevelFilter {
 }
 
 #[cfg(test)]
-mod tests {
+mod should {
     use log::LevelFilter;
     use test_case::test_case;
 
@@ -61,7 +61,7 @@ mod tests {
     #[test_case(&LogLevel::Info => LevelFilter::Info; "when log level is info")]
     #[test_case(&LogLevel::Debug => LevelFilter::Debug; "when log level is debug")]
     #[test_case(&LogLevel::Trace => LevelFilter::Trace; "when log level is trace")]
-    fn it_should_map_a_log_level_to_a_log_filter(log_level: &LogLevel) -> LevelFilter {
+    fn map_a_log_level_to_a_log_filter(log_level: &LogLevel) -> LevelFilter {
         // Act
         map_to_level_filter(log_level)
     }
