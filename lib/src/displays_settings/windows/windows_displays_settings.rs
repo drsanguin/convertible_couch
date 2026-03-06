@@ -522,10 +522,10 @@ fn from_utf16_trimed(bytes: &[u16]) -> Result<String, ApplicationError> {
 mod tests {
     use crate::displays_settings::windows::windows_displays_settings::map_disp_change_to_string;
     use test_case::test_case;
-    use windows::Win32::Graphics::Gdi::DISP_CHANGE;
+    use windows::Win32::Graphics::Gdi::{DISP_CHANGE, DISP_CHANGE_RESTART, DISP_CHANGE_SUCCESSFUL};
 
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_RESTART => String::from("The computer must be restarted for the graphics mode to work."); "when the error is DISP_CHANGE_RESTART")]
-    #[test_case(windows::Win32::Graphics::Gdi::DISP_CHANGE_SUCCESSFUL => String::from("The settings change was successful."); "when the error is DISP_CHANGE_SUCCESSFUL")]
+    #[test_case(DISP_CHANGE_RESTART => String::from("The computer must be restarted for the graphics mode to work."); "when the error is DISP_CHANGE_RESTART")]
+    #[test_case(DISP_CHANGE_SUCCESSFUL => String::from("The settings change was successful."); "when the error is DISP_CHANGE_SUCCESSFUL")]
     fn it_should_map_display_change_errors_to_a_human_friendly_message(
         disp_change: DISP_CHANGE,
     ) -> String {
