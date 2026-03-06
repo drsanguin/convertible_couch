@@ -3,6 +3,7 @@ name: Push main/develop
 on:
   push:
     branches: [ "main", "develop" ]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
