@@ -10,7 +10,7 @@ use convertible_couch_lib::{
 };
 
 #[test]
-fn it_should_change_primary_display_and_default_speaker() {
+fn change_primary_display_and_default_speaker() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -63,7 +63,7 @@ fn it_should_change_primary_display_and_default_speaker() {
 }
 
 #[test]
-fn it_should_change_primary_display_and_default_speaker_back_and_forth() {
+fn change_primary_display_and_default_speaker_back_and_forth() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 

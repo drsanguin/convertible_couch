@@ -44,14 +44,14 @@ impl ValueEnum for LogLevelOption {
 }
 
 #[cfg(test)]
-mod tests {
+mod should {
     use clap::{builder::PossibleValue, ValueEnum};
     use test_case::test_case;
 
     use crate::commands::shared::log_level_option::LogLevelOption;
 
     #[test]
-    fn it_should_provide_all_possible_argument_values() {
+    fn provide_all_possible_argument_values() {
         // Act
         let value_variants = LogLevelOption::value_variants();
 
@@ -75,9 +75,7 @@ mod tests {
     #[test_case(LogLevelOption::Info => Some(PossibleValue::new("info")); "when log level is info")]
     #[test_case(LogLevelOption::Debug => Some(PossibleValue::new("debug")); "when log level is debug")]
     #[test_case(LogLevelOption::Trace => Some(PossibleValue::new("trace")); "when log level is trace")]
-    fn it_should_provide_the_canonical_argument_value(
-        log_level: LogLevelOption,
-    ) -> Option<PossibleValue> {
+    fn provide_the_canonical_argument_value(log_level: LogLevelOption) -> Option<PossibleValue> {
         // Act
         log_level.to_possible_value()
     }

@@ -1,4 +1,5 @@
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     displays_settings::{
         CurrentDisplaysSettings, CurrentDisplaysSettingsApiTrait, DisplayInfo, DisplaysSettings,
         DisplaysSettingsResult,
@@ -8,7 +9,6 @@ use convertible_couch_lib::{
         CurrentSpeakersSettings, CurrentSpeakersSettingsApiTrait, SpeakerInfo, SpeakersSettings,
         SpeakersSettingsResult,
     },
-    ApplicationError,
 };
 
 use crate::commands::{
@@ -173,7 +173,7 @@ fn map_to_log_level(log_level_option: &LogLevelOption) -> LogLevel {
 }
 
 #[cfg(test)]
-mod tests {
+mod should {
     use convertible_couch_lib::log::LogLevel;
     use test_case::test_case;
 
@@ -187,7 +187,7 @@ mod tests {
     #[test_case(LogLevelOption::Info => LogLevel::Info)]
     #[test_case(LogLevelOption::Debug => LogLevel::Debug)]
     #[test_case(LogLevelOption::Trace => LogLevel::Trace)]
-    fn it_should_map_a_log_level_option_to_the_expected_log_level(
+    fn map_a_log_level_option_to_the_expected_log_level(
         log_level_option: LogLevelOption,
     ) -> LogLevel {
         map_to_log_level(&log_level_option)

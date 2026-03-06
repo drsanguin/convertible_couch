@@ -1,13 +1,13 @@
 use convertible_couch::testing::arrangements::{ApplicationBuilder, ArgumentsBuilder};
 use convertible_couch_lib::{
+    application_error::ApplicationError,
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
-    ApplicationError,
 };
 use windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM;
 
 #[test]
-fn it_should_report_a_displays_settings_error() {
+fn report_a_displays_settings_error() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
@@ -51,7 +51,7 @@ fn it_should_report_a_displays_settings_error() {
 }
 
 #[test]
-fn it_should_report_a_speakers_settings_error() {
+fn report_a_speakers_settings_error() {
     // Arrange
     let mut fuzzer = Fuzzer::new(func!(), true);
 
