@@ -1,0 +1,54 @@
+name: Code Coverage
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+  push:
+    branches: [ "main", "develop" ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  unit-tests-coverage:
+    name: Unit Tests Coverage
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository ⬇️
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Upload Unit Tests Code Coverage 📊
+        uses: ./.github/actions/upload-code-coverage
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          test-type: unit
+
+  integration-tests-coverage:
+    name: Integration Tests Coverage
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository ⬇️
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Upload Integration Tests Code Coverage 📊
+        uses: ./.github/actions/upload-code-coverage
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          test-type: integration
+
+  coveralls-finish:
+    needs: [unit-tests-coverage, integration-tests-coverage]
+    runs-on: windows-latest
+
+    steps:
+      - name: Finish Coveralls parallel build 📊
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true

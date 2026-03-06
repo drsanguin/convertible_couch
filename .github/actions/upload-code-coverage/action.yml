@@ -4,28 +4,36 @@ inputs:
   github-token:
     description: "GitHub API token"
     required: true
+  test-type:
+    description: "Test type"
+    required: true
+    type: choice
+    options:
+      - unit
+      - integration
+
 runs:
   using: composite
   steps:
-    # - name: Install nightly Toolchain 🧰
-    #   shell: pwsh
-    #   run: rustup update nightly
-
-    # - name: Set nightly Toolchain as default 🧰
-    #   shell: pwsh
-    #   run: rustup default nightly
-
     - name: Install llvm-tools 🧰
       shell: pwsh
       run: rustup component add llvm-tools
 
-    - name: Generate LLVM Coverage 📊
+    - name: Run Unit Tests 🧪
+      if: ${{ inputs.test-type == 'unit' }}
       env:
-        # CARGO_INCREMENTAL: 0
         RUSTFLAGS: -Cinstrument-coverage
         LLVM_PROFILE_FILE: convertible_couch-%p-%m.profraw
       shell: pwsh
-      run: cargo test
+      run: cargo test --lib --bins
+
+    - name: Run Integration Tests 🧪
+      if: ${{ inputs.test-type == 'integration' }}
+      env:
+        RUSTFLAGS: -Cinstrument-coverage
+        LLVM_PROFILE_FILE: convertible_couch-%p-%m.profraw
+      shell: pwsh
+      run: cargo test --test *
 
     - name: Install grcov 🧰
       uses: taiki-e/install-action@v2
@@ -58,3 +66,5 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         file: lcov.info
+        flag-name: ${{ inputs.test-type == 'unit' && 'Unit' || 'Integration' }}
+        parallel: true

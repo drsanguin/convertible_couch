@@ -19,11 +19,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Upload Code Coverage 📊
-      uses: ./.github/actions/upload-code-coverage
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Check Coding Style 📝
       run: cargo fmt --check --all
 
@@ -46,3 +41,8 @@ jobs:
 
     - name: Run Benchmarks ⏱️
       run: cargo test --benches
+
+    - name: Upload Code Coverage 📊
+      uses: ./.github/actions/upload-code-coverage
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
