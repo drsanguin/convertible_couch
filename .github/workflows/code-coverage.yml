@@ -44,11 +44,12 @@ jobs:
           test-type: integration
 
   coveralls-finish:
+    name: Finish Coveralls Parallel Build
     needs: [unit-tests-coverage, integration-tests-coverage]
     runs-on: windows-latest
 
     steps:
-      - name: Finish Coveralls parallel build 📊
+      - name: Finish Coveralls Parallel Build 📊
         uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true

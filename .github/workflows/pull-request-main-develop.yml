@@ -41,8 +41,3 @@ jobs:
 
     - name: Run Benchmarks ⏱️
       run: cargo test --benches
-
-    - name: Upload Code Coverage 📊
-      uses: ./.github/actions/upload-code-coverage
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
