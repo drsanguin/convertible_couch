@@ -7,13 +7,13 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Install nightly Toolchain 🧰
-      shell: pwsh
-      run: rustup update nightly
+    # - name: Install nightly Toolchain 🧰
+    #   shell: pwsh
+    #   run: rustup update nightly
 
-    - name: Set nightly Toolchain as default 🧰
-      shell: pwsh
-      run: rustup default nightly
+    # - name: Set nightly Toolchain as default 🧰
+    #   shell: pwsh
+    #   run: rustup default nightly
 
     - name: Install llvm-tools 🧰
       shell: pwsh
@@ -21,7 +21,7 @@ runs:
 
     - name: Generate LLVM Coverage 📊
       env:
-        CARGO_INCREMENTAL: 0
+        # CARGO_INCREMENTAL: 0
         RUSTFLAGS: -Cinstrument-coverage
         LLVM_PROFILE_FILE: convertible_couch-%p-%m.profraw
       shell: pwsh
