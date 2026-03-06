@@ -5,6 +5,7 @@ on:
     branches:
       - release/*
       - hotfix/*
+  workflow_dispatch:
 
 permissions:
   contents: write
