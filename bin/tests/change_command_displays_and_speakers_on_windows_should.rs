@@ -1,3 +1,5 @@
+#![cfg(target_os = "windows")]
+
 use convertible_couch::testing::arrangements::{ApplicationBuilder, ArgumentsBuilder};
 use convertible_couch_lib::{
     application_error::ApplicationError,
