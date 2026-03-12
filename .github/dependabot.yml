@@ -6,6 +6,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     open-pull-requests-limit: 10
     target-branch: "develop"
     commit-message:
@@ -15,12 +16,14 @@ updates:
       github-actions:
         patterns:
           - "*"
+          
   - package-ecosystem: "cargo"
     allow:
       - dependency-type: "all"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     open-pull-requests-limit: 10
     target-branch: "develop"
     commit-message:
