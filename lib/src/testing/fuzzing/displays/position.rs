@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use rand::{rngs::StdRng, seq::SliceRandom, RngExt};
+use rand::{RngExt, rngs::StdRng, seq::SliceRandom};
 
 use super::resolution::FuzzedResolution;
 

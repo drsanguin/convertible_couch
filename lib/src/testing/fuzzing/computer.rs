@@ -1,9 +1,9 @@
 use rand::rngs::StdRng;
 
 use crate::testing::fuzzing::{
-    displays::{settings_api::CurrentFuzzedDisplaysSettingsApi, DisplaysFuzzer},
-    speakers::{settings_api::CurrentFuzzedSpeakersSettingsApi, SpeakersFuzzer},
     ComputerBuilder,
+    displays::{DisplaysFuzzer, settings_api::CurrentFuzzedDisplaysSettingsApi},
+    speakers::{SpeakersFuzzer, settings_api::CurrentFuzzedSpeakersSettingsApi},
 };
 
 pub struct FuzzedComputer {

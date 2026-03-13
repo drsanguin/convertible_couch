@@ -1,10 +1,10 @@
 use std::collections::{BTreeSet, HashSet};
 
 use rand::{
+    RngExt,
     distr::{Alphanumeric, SampleString},
     rngs::StdRng,
     seq::IndexedRandom,
-    RngExt,
 };
 
 pub struct DisplayNameFuzzer<'a> {

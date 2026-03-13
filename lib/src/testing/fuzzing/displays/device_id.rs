@@ -4,9 +4,9 @@ use std::{
 };
 
 use rand::{
+    RngExt,
     distr::{Alphanumeric, SampleString},
     rngs::StdRng,
-    RngExt,
 };
 
 use crate::testing::fuzzing::guid::GuidFuzzer;

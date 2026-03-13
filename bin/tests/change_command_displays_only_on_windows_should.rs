@@ -198,7 +198,8 @@ fn report_get_display_config_buffer_sizes_errors() {
         actual_result,
         Err(ApplicationError::Custom(format!(
             "Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {}",
-            ERROR_INVALID_PARAMETER.0)))
+            ERROR_INVALID_PARAMETER.0
+        )))
     );
 }
 
@@ -233,7 +234,8 @@ fn report_query_display_config_errors() {
         actual_result,
         Err(ApplicationError::Custom(format!(
             "Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {}",
-            ERROR_INVALID_PARAMETER.0)))
+            ERROR_INVALID_PARAMETER.0
+        )))
     );
 }
 

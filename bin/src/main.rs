@@ -77,7 +77,9 @@ fn log_change_displays_settings_result(displays_result: DisplaysSettingsResult) 
         displays_result.new_primary_display,
         displays_result.reboot_required,
     ) {
-        (new_primary, true) => println!("Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."),
+        (new_primary, true) => println!(
+            "Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."
+        ),
         (new_primary, false) => println!("Primary display set to {new_primary}"),
     }
 }

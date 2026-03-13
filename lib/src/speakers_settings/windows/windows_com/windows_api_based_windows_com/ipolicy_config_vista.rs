@@ -2,14 +2,14 @@ use core::ffi::c_void;
 
 use crate::speakers_settings::windows::windows_com::IPolicyConfigVista as IPolicyConfigVistaTrait;
 use windows::{
-    core::{define_interface, interface_hierarchy},
     Win32::{
         Foundation::PROPERTYKEY,
         Media::Audio::{ERole, WAVEFORMATEX},
         System::Com::StructuredStorage::PROPVARIANT,
     },
+    core::{define_interface, interface_hierarchy},
 };
-use windows_core::{IUnknown, IUnknown_Vtbl, Interface, Result, HRESULT, PCWSTR};
+use windows_core::{HRESULT, IUnknown, IUnknown_Vtbl, Interface, PCWSTR, Result};
 
 pub struct WindowsApiBasedIPolicyConfigVista {
     ipolicy_config_vista: IPolicyConfigVista,
@@ -25,8 +25,10 @@ impl WindowsApiBasedIPolicyConfigVista {
 
 impl IPolicyConfigVistaTrait for WindowsApiBasedIPolicyConfigVista {
     unsafe fn set_default_endpoint(&mut self, device_id: PCWSTR, role: ERole) -> Result<()> {
-        self.ipolicy_config_vista
-            .SetDefaultEndpoint(device_id, role)
+        unsafe {
+            self.ipolicy_config_vista
+                .SetDefaultEndpoint(device_id, role)
+        }
     }
 }
 
