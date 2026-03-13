@@ -17,6 +17,6 @@ impl WindowsApiBasedIPropertyStore {
 
 impl IPropertyStoreTrait for WindowsApiBasedIPropertyStore {
     unsafe fn get_value(&self, key: *const PROPERTYKEY) -> Result<PROPVARIANT> {
-        self.iproperty_store.GetValue(key)
+        unsafe { self.iproperty_store.GetValue(key) }
     }
 }

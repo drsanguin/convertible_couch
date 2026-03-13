@@ -1,4 +1,4 @@
-use rand::{rng, rngs::StdRng, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rng, rngs::StdRng};
 
 use crate::testing::fuzzing::{
     computer::FuzzedComputer,

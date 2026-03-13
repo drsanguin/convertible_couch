@@ -1,17 +1,17 @@
 use windows::{
-    core::{BOOL, PCWSTR},
     Win32::{
         Devices::Display::{
-            DisplayConfigGetDeviceInfo, GetDisplayConfigBufferSizes, QueryDisplayConfig,
             DISPLAYCONFIG_DEVICE_INFO_HEADER, DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_PATH_INFO,
-            DISPLAYCONFIG_TOPOLOGY_ID, QUERY_DISPLAY_CONFIG_FLAGS,
+            DISPLAYCONFIG_TOPOLOGY_ID, DisplayConfigGetDeviceInfo, GetDisplayConfigBufferSizes,
+            QUERY_DISPLAY_CONFIG_FLAGS, QueryDisplayConfig,
         },
         Foundation::{HWND, WIN32_ERROR},
         Graphics::Gdi::{
-            ChangeDisplaySettingsExW, EnumDisplayDevicesW, EnumDisplaySettingsW, CDS_TYPE,
-            DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE, ENUM_DISPLAY_SETTINGS_MODE,
+            CDS_TYPE, ChangeDisplaySettingsExW, DEVMODEW, DISP_CHANGE, DISPLAY_DEVICEW,
+            ENUM_DISPLAY_SETTINGS_MODE, EnumDisplayDevicesW, EnumDisplaySettingsW,
         },
     },
+    core::{BOOL, PCWSTR},
 };
 
 use crate::displays_settings::windows::win_32::Win32;
@@ -23,7 +23,7 @@ impl Win32 for WindowsApiBasedWin32 {
         &self,
         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
     ) -> i32 {
-        DisplayConfigGetDeviceInfo(requestpacket)
+        unsafe { DisplayConfigGetDeviceInfo(requestpacket) }
     }
 
     unsafe fn get_display_config_buffer_sizes(
@@ -32,7 +32,9 @@ impl Win32 for WindowsApiBasedWin32 {
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
     ) -> WIN32_ERROR {
-        GetDisplayConfigBufferSizes(flags, numpatharrayelements, nummodeinfoarrayelements)
+        unsafe {
+            GetDisplayConfigBufferSizes(flags, numpatharrayelements, nummodeinfoarrayelements)
+        }
     }
 
     unsafe fn query_display_config(
@@ -44,14 +46,16 @@ impl Win32 for WindowsApiBasedWin32 {
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR {
-        QueryDisplayConfig(
-            flags,
-            numpatharrayelements,
-            patharray,
-            nummodeinfoarrayelements,
-            modeinfoarray,
-            currenttopologyid,
-        )
+        unsafe {
+            QueryDisplayConfig(
+                flags,
+                numpatharrayelements,
+                patharray,
+                nummodeinfoarrayelements,
+                modeinfoarray,
+                currenttopologyid,
+            )
+        }
     }
 
     unsafe fn change_display_settings_ex_w(
@@ -62,7 +66,7 @@ impl Win32 for WindowsApiBasedWin32 {
         dwflags: CDS_TYPE,
         lparam: core::option::Option<*const core::ffi::c_void>,
     ) -> DISP_CHANGE {
-        ChangeDisplaySettingsExW(lpszdevicename, lpdevmode, hwnd, dwflags, lparam)
+        unsafe { ChangeDisplaySettingsExW(lpszdevicename, lpdevmode, hwnd, dwflags, lparam) }
     }
 
     unsafe fn enum_display_devices_w(
@@ -72,7 +76,7 @@ impl Win32 for WindowsApiBasedWin32 {
         lpdisplaydevice: *mut DISPLAY_DEVICEW,
         dwflags: u32,
     ) -> BOOL {
-        EnumDisplayDevicesW(lpdevice, idevnum, lpdisplaydevice, dwflags)
+        unsafe { EnumDisplayDevicesW(lpdevice, idevnum, lpdisplaydevice, dwflags) }
     }
 
     unsafe fn enum_display_settings_w(
@@ -81,6 +85,6 @@ impl Win32 for WindowsApiBasedWin32 {
         imodenum: ENUM_DISPLAY_SETTINGS_MODE,
         lpdevmode: *mut DEVMODEW,
     ) -> BOOL {
-        EnumDisplaySettingsW(lpszdevicename, imodenum, lpdevmode)
+        unsafe { EnumDisplaySettingsW(lpszdevicename, imodenum, lpdevmode) }
     }
 }

@@ -1,5 +1,5 @@
 use crate::testing::fuzzing::speakers::{
-    settings_api::behaviour::CurrentFuzzedSpeakersSettingsApiBehaviour, FuzzedSpeaker,
+    FuzzedSpeaker, settings_api::behaviour::CurrentFuzzedSpeakersSettingsApiBehaviour,
 };
 
 pub mod behaviour;

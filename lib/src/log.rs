@@ -1,9 +1,10 @@
 use log::LevelFilter;
 use log4rs::{
+    Config,
     append::console::ConsoleAppender,
     config::{Appender, Root},
     encode::pattern::PatternEncoder,
-    init_config, Config,
+    init_config,
 };
 
 use crate::application_error::ApplicationError;
@@ -53,7 +54,7 @@ mod should {
     use log::LevelFilter;
     use test_case::test_case;
 
-    use super::{map_to_level_filter, LogLevel};
+    use super::{LogLevel, map_to_level_filter};
 
     #[test_case(&LogLevel::Off => LevelFilter::Off; "when log level is off")]
     #[test_case(&LogLevel::Error => LevelFilter::Error; "when log level is error")]

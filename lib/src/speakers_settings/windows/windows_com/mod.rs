@@ -2,10 +2,10 @@ use core::ffi::c_void;
 
 use windows::Win32::{
     Foundation::PROPERTYKEY,
-    Media::Audio::{EDataFlow, ERole, DEVICE_STATE},
-    System::Com::{StructuredStorage::PROPVARIANT, COINIT, STGM},
+    Media::Audio::{DEVICE_STATE, EDataFlow, ERole},
+    System::Com::{COINIT, STGM, StructuredStorage::PROPVARIANT},
 };
-use windows_core::{Result, HRESULT, PCWSTR, PWSTR};
+use windows_core::{HRESULT, PCWSTR, PWSTR, Result};
 
 pub mod windows_api_based_windows_com;
 
