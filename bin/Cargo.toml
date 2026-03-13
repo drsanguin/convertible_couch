@@ -3,7 +3,7 @@ name = "convertible_couch"
 version = "2.0.1"
 edition = "2021"
 authors = ["Thomas PEREZ"]
-description = "Automate Windows display configuration to play from your couch"
+description = "A CLI tool to quickly switch your computer’s primary display and default speaker, making it easy to move between your desktop and TV for gaming or watching movies."
 readme = "../README.md"
 repository = "https://github.com/drsanguin/convertible_couch"
 license-file = "../LICENSE"
@@ -16,7 +16,8 @@ OriginalFilename = "convertible_couch.exe"
 clap = { version = "4.5.60", features = ["derive"] }
 convertible_couch_lib = { path = "../lib"}
 
-[build-dependencies]
+[target.'cfg(windows)'.build-dependencies]
+windows = { version = "0.62.2", features = ["Win32_System_SystemServices"] }
 winresource = "0.1.30"
 
 [dev-dependencies]
