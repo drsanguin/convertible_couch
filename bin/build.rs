@@ -1,11 +1,12 @@
 use std::io::Result;
-use winresource::WindowsResource;
 
-const ENGLISH_LANGUAGE_ID: u16 = 0x0009;
-
+#[cfg(target_os = "windows")]
 fn main() -> Result<()> {
+    use windows::Win32::System::SystemServices::LANG_ENGLISH;
+    use winresource::WindowsResource;
+
     WindowsResource::new()
-        .set_language(ENGLISH_LANGUAGE_ID)
+        .set_language(LANG_ENGLISH as u16)
         .set_icon("icon.ico")
         .compile()
 }

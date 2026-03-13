@@ -17,6 +17,7 @@ clap = { version = "4.5.60", features = ["derive"] }
 convertible_couch_lib = { path = "../lib"}
 
 [target.'cfg(windows)'.build-dependencies]
+windows = { version = "0.62.2", features = ["Win32_System_SystemServices"] }
 winresource = "0.1.30"
 
 [dev-dependencies]
