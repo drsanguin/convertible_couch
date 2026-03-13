@@ -8,7 +8,6 @@ use log::warn;
 use std::{collections::HashMap, fmt::Debug, mem};
 use win_32::Win32;
 use windows::{
-    core::PCWSTR,
     Win32::{
         Devices::Display::{
             DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME, DISPLAYCONFIG_DEVICE_INFO_HEADER,
@@ -16,13 +15,14 @@ use windows::{
             DISPLAYCONFIG_TARGET_DEVICE_NAME, QDC_ONLY_ACTIVE_PATHS,
         },
         Graphics::Gdi::{
-            CDS_NORESET, CDS_SET_PRIMARY, CDS_TYPE, CDS_UPDATEREGISTRY, DEVMODEW, DISPLAY_DEVICEW,
-            DISP_CHANGE, DISP_CHANGE_BADDUALVIEW, DISP_CHANGE_BADFLAGS, DISP_CHANGE_BADMODE,
+            CDS_NORESET, CDS_SET_PRIMARY, CDS_TYPE, CDS_UPDATEREGISTRY, DEVMODEW, DISP_CHANGE,
+            DISP_CHANGE_BADDUALVIEW, DISP_CHANGE_BADFLAGS, DISP_CHANGE_BADMODE,
             DISP_CHANGE_BADPARAM, DISP_CHANGE_FAILED, DISP_CHANGE_NOTUPDATED, DISP_CHANGE_RESTART,
-            DISP_CHANGE_SUCCESSFUL, ENUM_CURRENT_SETTINGS,
+            DISP_CHANGE_SUCCESSFUL, DISPLAY_DEVICEW, ENUM_CURRENT_SETTINGS,
         },
         UI::WindowsAndMessaging::EDD_GET_DEVICE_INTERFACE_NAME,
     },
+    core::PCWSTR,
 };
 
 pub mod win_32;
@@ -80,7 +80,9 @@ impl DisplaysSettings for WindowsDisplaySettings {
             possible_values.sort();
             let possible_values_fragment = possible_values.join(", ");
 
-            let error_message = format!("{invalid_params_error_message_fragment}, possible values are [{possible_values_fragment}]");
+            let error_message = format!(
+                "{invalid_params_error_message_fragment}, possible values are [{possible_values_fragment}]"
+            );
             let error = ApplicationError::Custom(error_message);
 
             return Err(error);
@@ -137,7 +139,10 @@ impl WindowsDisplaySettings {
         };
 
         if get_display_config_buffer_sizes_return_code.is_err() {
-            let error_message = format!("Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {}", get_display_config_buffer_sizes_return_code.0);
+            let error_message = format!(
+                "Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {}",
+                get_display_config_buffer_sizes_return_code.0
+            );
             let error = ApplicationError::Custom(error_message);
 
             return Err(error);
@@ -160,7 +165,10 @@ impl WindowsDisplaySettings {
         };
 
         if query_display_config_return_code.is_err() {
-            let error_message = format!("Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {}", query_display_config_return_code.0);
+            let error_message = format!(
+                "Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {}",
+                query_display_config_return_code.0
+            );
             let error = ApplicationError::Custom(error_message);
 
             return Err(error);
@@ -191,7 +199,10 @@ impl WindowsDisplaySettings {
             };
 
             if display_config_get_device_info_result != 0 {
-                let error_message = format!("Failed to retrieve display configuration information about the device {} because of error {}", mode_information.id, display_config_get_device_info_result);
+                let error_message = format!(
+                    "Failed to retrieve display configuration information about the device {} because of error {}",
+                    mode_information.id, display_config_get_device_info_result
+                );
                 let error = ApplicationError::Custom(error_message);
 
                 return Err(error);
@@ -251,7 +262,9 @@ impl WindowsDisplaySettings {
                 let display_adapter_device_name =
                     unsafe { display_adapter_device_name.to_string()? };
 
-                warn!("Failed to retrieve display device informations from the display adapter {display_adapter_device_name}");
+                warn!(
+                    "Failed to retrieve display device informations from the display adapter {display_adapter_device_name}"
+                );
 
                 continue;
             }
@@ -272,7 +285,9 @@ impl WindowsDisplaySettings {
                 let display_adapter_device_name =
                     unsafe { display_adapter_device_name.to_string()? };
 
-                warn!("Failed to enum display settings for display device {display_adapter_device_name}");
+                warn!(
+                    "Failed to enum display settings for display device {display_adapter_device_name}"
+                );
 
                 continue;
             }
@@ -342,7 +357,9 @@ impl WindowsDisplaySettings {
                 let display_adapter_device_name =
                     unsafe { display_adapter_device_name.to_string()? };
 
-                warn!("Failed to retrieve display device informations from the display adapter {display_adapter_device_name}");
+                warn!(
+                    "Failed to retrieve display device informations from the display adapter {display_adapter_device_name}"
+                );
 
                 continue;
             }
@@ -363,7 +380,9 @@ impl WindowsDisplaySettings {
                 let display_adapter_device_name =
                     unsafe { display_adapter_device_name.to_string()? };
 
-                warn!("Failed to enum display settings for display device {display_adapter_device_name}");
+                warn!(
+                    "Failed to enum display settings for display device {display_adapter_device_name}"
+                );
 
                 continue;
             }
@@ -485,15 +504,23 @@ fn get_pcwstr_from_raw(raw: &[u16; 32]) -> PCWSTR {
 
 fn map_disp_change_to_string(disp_change: DISP_CHANGE) -> String {
     match disp_change {
-            DISP_CHANGE_BADDUALVIEW => String::from("The settings change was unsuccessful because the system is DualView capable."),
-            DISP_CHANGE_BADFLAGS => String::from("An invalid set of flags was passed in."),
-            DISP_CHANGE_BADMODE => String::from("The graphics mode is not supported."),
-            DISP_CHANGE_BADPARAM => String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags."),
-            DISP_CHANGE_FAILED => String::from("The display driver failed the specified graphics mode."),
-            DISP_CHANGE_NOTUPDATED => String::from("Unable to write settings to the registry."),
-            DISP_CHANGE_RESTART => String::from("The computer must be restarted for the graphics mode to work."),
-            _ => String::from("The settings change was successful.")
+        DISP_CHANGE_BADDUALVIEW => String::from(
+            "The settings change was unsuccessful because the system is DualView capable.",
+        ),
+        DISP_CHANGE_BADFLAGS => String::from("An invalid set of flags was passed in."),
+        DISP_CHANGE_BADMODE => String::from("The graphics mode is not supported."),
+        DISP_CHANGE_BADPARAM => String::from(
+            "An invalid parameter was passed in. This can include an invalid flag or combination of flags.",
+        ),
+        DISP_CHANGE_FAILED => {
+            String::from("The display driver failed the specified graphics mode.")
         }
+        DISP_CHANGE_NOTUPDATED => String::from("Unable to write settings to the registry."),
+        DISP_CHANGE_RESTART => {
+            String::from("The computer must be restarted for the graphics mode to work.")
+        }
+        _ => String::from("The settings change was successful."),
+    }
 }
 
 fn from_raw_display_name(raw_display_name: &str) -> String {

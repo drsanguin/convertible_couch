@@ -1,4 +1,5 @@
 use crate::testing::fuzzing::{
+    ComputerBuilder,
     computer::{ComputerFuzzer, FuzzedComputer},
     displays::{
         device_id::{DeviceIdFuzzer, FuzzedDeviceId},
@@ -6,15 +7,14 @@ use crate::testing::fuzzing::{
         position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
         resolution::{FuzzedResolution, ResolutionFuzzer},
         settings_api::{
-            behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour, CurrentFuzzedDisplaysSettingsApi,
-            FuzzedDisplaysSettingsApi,
+            CurrentFuzzedDisplaysSettingsApi, FuzzedDisplaysSettingsApi,
+            behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour,
         },
         video_output::VideoOutputFuzzer,
     },
-    ComputerBuilder,
 };
 
-use rand::{seq::IteratorRandom, RngExt};
+use rand::{RngExt, seq::IteratorRandom};
 
 use std::collections::HashSet;
 

@@ -1,5 +1,4 @@
 use windows::{
-    core::{BOOL, PCWSTR},
     Win32::{
         Devices::Display::{
             DISPLAYCONFIG_DEVICE_INFO_HEADER, DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_PATH_INFO,
@@ -7,9 +6,10 @@ use windows::{
         },
         Foundation::{HWND, WIN32_ERROR},
         Graphics::Gdi::{
-            CDS_TYPE, DEVMODEW, DISPLAY_DEVICEW, DISP_CHANGE, ENUM_DISPLAY_SETTINGS_MODE,
+            CDS_TYPE, DEVMODEW, DISP_CHANGE, DISPLAY_DEVICEW, ENUM_DISPLAY_SETTINGS_MODE,
         },
     },
+    core::{BOOL, PCWSTR},
 };
 
 pub mod windows_api_based_win_32;

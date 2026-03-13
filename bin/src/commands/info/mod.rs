@@ -1,4 +1,4 @@
-use clap::{builder::PossibleValue, ValueEnum};
+use clap::{ValueEnum, builder::PossibleValue};
 
 /// Models the choice of which device(s) one wishes to obtain information from
 #[derive(Clone, Debug, PartialEq)]
@@ -29,7 +29,7 @@ impl ValueEnum for Device {
 
 #[cfg(test)]
 mod should {
-    use clap::{builder::PossibleValue, ValueEnum};
+    use clap::{ValueEnum, builder::PossibleValue};
     use test_case::test_case;
 
     use crate::commands::info::Device;

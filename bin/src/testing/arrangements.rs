@@ -3,10 +3,10 @@ use convertible_couch_lib::testing::fuzzing::computer::FuzzedComputer;
 use crate::{
     application::Application,
     commands::{
+        Arguments, Commands,
         change::{ChangeCommands, DisplaysOptions, SpeakersOptions},
         info::Device,
-        shared::{log_level_option::LogLevelOption, SharedOptions},
-        Arguments, Commands,
+        shared::{SharedOptions, log_level_option::LogLevelOption},
     },
 };
 

@@ -3,16 +3,16 @@ use std::collections::HashSet;
 use rand::RngExt;
 
 use crate::testing::fuzzing::{
+    ComputerBuilder,
     computer::{ComputerFuzzer, FuzzedComputer},
     speakers::{
         settings_api::{
-            behaviour::CurrentFuzzedSpeakersSettingsApiBehaviour, CurrentFuzzedSpeakersSettingsApi,
-            FuzzedSpeakersSettingsApi,
+            CurrentFuzzedSpeakersSettingsApi, FuzzedSpeakersSettingsApi,
+            behaviour::CurrentFuzzedSpeakersSettingsApiBehaviour,
         },
         speaker_id::SpeakerIdFuzzer,
         speaker_name::SpeakerNameFuzzer,
     },
-    ComputerBuilder,
 };
 
 pub mod settings_api;

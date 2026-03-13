@@ -4,7 +4,7 @@ use convertible_couch_lib::{
         CurrentDisplaysSettings, CurrentDisplaysSettingsApiTrait, DisplayInfo, DisplaysSettings,
         DisplaysSettingsResult,
     },
-    log::{configure_logger, LogLevel},
+    log::{LogLevel, configure_logger},
     speakers_settings::{
         CurrentSpeakersSettings, CurrentSpeakersSettingsApiTrait, SpeakerInfo, SpeakersSettings,
         SpeakersSettingsResult,
@@ -12,8 +12,8 @@ use convertible_couch_lib::{
 };
 
 use crate::commands::{
-    change::ChangeCommands, info::Device, shared::log_level_option::LogLevelOption, Arguments,
-    Commands,
+    Arguments, Commands, change::ChangeCommands, info::Device,
+    shared::log_level_option::LogLevelOption,
 };
 
 #[derive(Debug, PartialEq, Eq)]

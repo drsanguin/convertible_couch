@@ -1,4 +1,4 @@
-use clap::{builder::PossibleValue, ValueEnum};
+use clap::{ValueEnum, builder::PossibleValue};
 
 /// An enum representing the available verbosity level filters of the logger.
 #[derive(Clone, Debug, PartialEq)]
@@ -45,7 +45,7 @@ impl ValueEnum for LogLevelOption {
 
 #[cfg(test)]
 mod should {
-    use clap::{builder::PossibleValue, ValueEnum};
+    use clap::{ValueEnum, builder::PossibleValue};
     use test_case::test_case;
 
     use crate::commands::shared::log_level_option::LogLevelOption;

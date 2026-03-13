@@ -1,16 +1,16 @@
 use windows::Win32::{
     Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
     Foundation::{E_FAIL, E_INVALIDARG, E_UNEXPECTED, PROPERTYKEY, S_FALSE, S_OK},
-    Media::Audio::{eConsole, eRender, EDataFlow, ERole, DEVICE_STATE, DEVICE_STATE_ACTIVE},
+    Media::Audio::{DEVICE_STATE, DEVICE_STATE_ACTIVE, EDataFlow, ERole, eConsole, eRender},
     System::{
         Com::{
-            StructuredStorage::{PROPVARIANT, PROPVARIANT_0, PROPVARIANT_0_0, PROPVARIANT_0_0_0},
             COINIT, COINIT_MULTITHREADED, STGM, STGM_READ,
+            StructuredStorage::{PROPVARIANT, PROPVARIANT_0, PROPVARIANT_0_0, PROPVARIANT_0_0_0},
         },
         Variant::VARENUM,
     },
 };
-use windows_core::{Error, Result, PCWSTR, PWSTR};
+use windows_core::{Error, PCWSTR, PWSTR, Result};
 
 use crate::{
     speakers_settings::windows::windows_com::{
@@ -18,11 +18,11 @@ use crate::{
         WindowsCom,
     },
     testing::fuzzing::speakers::{
-        settings_api::{
-            behaviour::windows::FuzzedWindowsSpeakersSettingsApiBehaviour,
-            FuzzedSpeakersSettingsApi,
-        },
         FuzzedSpeaker,
+        settings_api::{
+            FuzzedSpeakersSettingsApi,
+            behaviour::windows::FuzzedWindowsSpeakersSettingsApiBehaviour,
+        },
     },
 };
 
@@ -249,32 +249,34 @@ pub struct FuzzedIPropertyStore {
 
 impl IPropertyStore for FuzzedIPropertyStore {
     unsafe fn get_value(&self, key: *const PROPERTYKEY) -> Result<PROPVARIANT> {
-        if *key != PKEY_Device_FriendlyName {
-            let error = Error::new(E_INVALIDARG, "One or more arguments are not valid");
+        unsafe {
+            if *key != PKEY_Device_FriendlyName {
+                let error = Error::new(E_INVALIDARG, "One or more arguments are not valid");
 
-            return Err(error);
+                return Err(error);
+            }
+
+            let mut name_utf16 = self.speaker.name.encode_utf16().collect::<Vec<_>>();
+            name_utf16.push(0);
+
+            let boxed = name_utf16.into_boxed_slice();
+            let leaked = Box::leak(boxed);
+            let propvariant = PROPVARIANT {
+                Anonymous: PROPVARIANT_0 {
+                    Anonymous: ManuallyDrop::<PROPVARIANT_0_0>::new(PROPVARIANT_0_0 {
+                        vt: VARENUM::default(),
+                        wReserved1: u16::default(),
+                        wReserved2: u16::default(),
+                        wReserved3: u16::default(),
+                        Anonymous: PROPVARIANT_0_0_0 {
+                            pwszVal: PWSTR(leaked.as_mut_ptr()),
+                        },
+                    }),
+                },
+            };
+
+            Ok(propvariant)
         }
-
-        let mut name_utf16 = self.speaker.name.encode_utf16().collect::<Vec<_>>();
-        name_utf16.push(0);
-
-        let boxed = name_utf16.into_boxed_slice();
-        let leaked = Box::leak(boxed);
-        let propvariant = PROPVARIANT {
-            Anonymous: PROPVARIANT_0 {
-                Anonymous: ManuallyDrop::<PROPVARIANT_0_0>::new(PROPVARIANT_0_0 {
-                    vt: VARENUM::default(),
-                    wReserved1: u16::default(),
-                    wReserved2: u16::default(),
-                    wReserved3: u16::default(),
-                    Anonymous: PROPVARIANT_0_0_0 {
-                        pwszVal: PWSTR(leaked.as_mut_ptr()),
-                    },
-                }),
-            },
-        };
-
-        Ok(propvariant)
     }
 }
 
@@ -285,26 +287,28 @@ pub struct FuzzedIPolicyConfigVista {
 
 impl IPolicyConfigVista for FuzzedIPolicyConfigVista {
     unsafe fn set_default_endpoint(&mut self, device_id: PCWSTR, role: ERole) -> Result<()> {
-        if self.behaviour.setting_the_default_speaker_fails {
-            return Err(Error::new(E_FAIL, "Failed to set default speaker"));
-        }
-
-        if role != eConsole {
-            return Err(Error::empty());
-        }
-
-        let speaker_id = String::from_utf16(device_id.as_wide())?;
-
-        for speaker in self.speakers.borrow_mut().iter_mut() {
-            if speaker.is_default {
-                speaker.is_default = false;
+        unsafe {
+            if self.behaviour.setting_the_default_speaker_fails {
+                return Err(Error::new(E_FAIL, "Failed to set default speaker"));
             }
 
-            if speaker.id == speaker_id {
-                speaker.is_default = true;
+            if role != eConsole {
+                return Err(Error::empty());
             }
-        }
 
-        Ok(())
+            let speaker_id = String::from_utf16(device_id.as_wide())?;
+
+            for speaker in self.speakers.borrow_mut().iter_mut() {
+                if speaker.is_default {
+                    speaker.is_default = false;
+                }
+
+                if speaker.id == speaker_id {
+                    speaker.is_default = true;
+                }
+            }
+
+            Ok(())
+        }
     }
 }

@@ -48,7 +48,9 @@ fn report_a_displays_settings_error() {
     // Assert
     assert_eq!(
         actual_result,
-        Err(ApplicationError::Custom(String::from("An invalid parameter was passed in. This can include an invalid flag or combination of flags.")))
+        Err(ApplicationError::Custom(String::from(
+            "An invalid parameter was passed in. This can include an invalid flag or combination of flags."
+        )))
     );
 }
 

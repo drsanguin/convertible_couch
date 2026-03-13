@@ -1,6 +1,6 @@
 use windows::Win32::{
     Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
-    Media::Audio::{eConsole, eRender, EDataFlow, DEVICE_STATE_ACTIVE},
+    Media::Audio::{DEVICE_STATE_ACTIVE, EDataFlow, eConsole, eRender},
     System::Com::{COINIT_MULTITHREADED, STGM_READ},
 };
 use windows_core::{PCWSTR, PWSTR};
@@ -8,7 +8,7 @@ use windows_core::{PCWSTR, PWSTR};
 use crate::{
     application_error::ApplicationError,
     speakers_settings::{
-        windows::windows_com::WindowsCom, SpeakerInfo, SpeakersSettings, SpeakersSettingsResult,
+        SpeakerInfo, SpeakersSettings, SpeakersSettingsResult, windows::windows_com::WindowsCom,
     },
 };
 
@@ -85,7 +85,9 @@ impl SpeakersSettings for WindowsSoundSettings {
 
             if let Some(invalid_params_error_message_fragment) = invalid_params_error_message {
                 let possible_values_fragment = speaker_names.join(", ");
-                let error_message = format!("{invalid_params_error_message_fragment}, possible values are [{possible_values_fragment}]");
+                let error_message = format!(
+                    "{invalid_params_error_message_fragment}, possible values are [{possible_values_fragment}]"
+                );
                 let error = ApplicationError::Custom(error_message);
 
                 return Err(error);

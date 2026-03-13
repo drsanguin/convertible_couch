@@ -3,7 +3,7 @@ use convertible_couch_lib::{
     func,
     testing::fuzzing::{ComputerBuilder, Fuzzer},
 };
-use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
+use criterion::{BatchSize, BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
 use std::fmt::{Display, Formatter, Result};
 
 const COUNTS: [usize; 10] = [2, 3, 5, 8, 13, 21, 34, 55, 89, 144];

@@ -1,12 +1,12 @@
 use crate::speakers_settings::windows::windows_com::{
+    IMMDevice as IMMDeviceTrait, IMMDeviceCollection as IMMDeviceCollectionTrait,
+    IMMDeviceEnumerator as IMMDeviceEnumeratorTrait,
     windows_api_based_windows_com::{
         immdevice::WindowsApiBasedIMMDevice,
         immdevice_collection::WindowsApiBasedIMMDeviceCollection,
     },
-    IMMDevice as IMMDeviceTrait, IMMDeviceCollection as IMMDeviceCollectionTrait,
-    IMMDeviceEnumerator as IMMDeviceEnumeratorTrait,
 };
-use windows::Win32::Media::Audio::{EDataFlow, ERole, IMMDeviceEnumerator, DEVICE_STATE};
+use windows::Win32::Media::Audio::{DEVICE_STATE, EDataFlow, ERole, IMMDeviceEnumerator};
 use windows_core::Result;
 
 pub struct WindowsApiBasedIMMDeviceEnumerator {
@@ -27,13 +27,15 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
         dataflow: EDataFlow,
         role: ERole,
     ) -> Result<Box<dyn IMMDeviceTrait>> {
-        let immdevice = self
-            .immdevice_enumerator
-            .GetDefaultAudioEndpoint(dataflow, role)?;
-        let windows_api_based_immdevice = WindowsApiBasedIMMDevice::new(immdevice);
-        let boxed_windows_api_based_immdevice = Box::new(windows_api_based_immdevice);
+        unsafe {
+            let immdevice = self
+                .immdevice_enumerator
+                .GetDefaultAudioEndpoint(dataflow, role)?;
+            let windows_api_based_immdevice = WindowsApiBasedIMMDevice::new(immdevice);
+            let boxed_windows_api_based_immdevice = Box::new(windows_api_based_immdevice);
 
-        Ok(boxed_windows_api_based_immdevice)
+            Ok(boxed_windows_api_based_immdevice)
+        }
     }
 
     unsafe fn enum_audio_endpoints(
@@ -41,14 +43,16 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
         dataflow: EDataFlow,
         dwstatemask: DEVICE_STATE,
     ) -> Result<Box<dyn IMMDeviceCollectionTrait>> {
-        let immdevice_collection = self
-            .immdevice_enumerator
-            .EnumAudioEndpoints(dataflow, dwstatemask)?;
-        let windows_api_based_immdevice_collection =
-            WindowsApiBasedIMMDeviceCollection::new(immdevice_collection);
-        let boxed_windows_api_based_immdevice_collection =
-            Box::new(windows_api_based_immdevice_collection);
+        unsafe {
+            let immdevice_collection = self
+                .immdevice_enumerator
+                .EnumAudioEndpoints(dataflow, dwstatemask)?;
+            let windows_api_based_immdevice_collection =
+                WindowsApiBasedIMMDeviceCollection::new(immdevice_collection);
+            let boxed_windows_api_based_immdevice_collection =
+                Box::new(windows_api_based_immdevice_collection);
 
-        Ok(boxed_windows_api_based_immdevice_collection)
+            Ok(boxed_windows_api_based_immdevice_collection)
+        }
     }
 }
