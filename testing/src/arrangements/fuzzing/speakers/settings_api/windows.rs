@@ -12,18 +12,15 @@ use windows::Win32::{
 };
 use windows_core::{Error, PCWSTR, PWSTR, Result};
 
-use crate::{
-    speakers_settings::windows::windows_com::{
-        IMMDevice, IMMDeviceCollection, IMMDeviceEnumerator, IPolicyConfigVista, IPropertyStore,
-        WindowsCom,
+use crate::arrangements::fuzzing::speakers::{
+    FuzzedSpeaker,
+    settings_api::{
+        FuzzedSpeakersSettingsApi, behaviour::windows::FuzzedWindowsSpeakersSettingsApiBehaviour,
     },
-    testing::fuzzing::speakers::{
-        FuzzedSpeaker,
-        settings_api::{
-            FuzzedSpeakersSettingsApi,
-            behaviour::windows::FuzzedWindowsSpeakersSettingsApiBehaviour,
-        },
-    },
+};
+use convertible_couch_lib::speakers_settings::windows::windows_com::{
+    IMMDevice, IMMDeviceCollection, IMMDeviceEnumerator, IPolicyConfigVista, IPropertyStore,
+    WindowsCom,
 };
 
 use std::{cell::RefCell, ffi::c_void, mem::ManuallyDrop, rc::Rc};

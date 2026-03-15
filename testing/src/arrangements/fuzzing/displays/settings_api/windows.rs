@@ -1,14 +1,11 @@
-use crate::{
-    displays_settings::windows::win_32::Win32,
-    testing::fuzzing::displays::{
-        position::FuzzedDisplayPosition,
-        settings_api::{
-            FuzzedDisplaysSettingsApi,
-            behaviour::windows::FuzzedWindowsDisplaysSettingsApiBehaviour,
-        },
-        video_output::FuzzedVideoOutput,
+use crate::arrangements::fuzzing::displays::{
+    position::FuzzedDisplayPosition,
+    settings_api::{
+        FuzzedDisplaysSettingsApi, behaviour::windows::FuzzedWindowsDisplaysSettingsApiBehaviour,
     },
+    video_output::FuzzedVideoOutput,
 };
+use convertible_couch_lib::displays_settings::windows::win_32::Win32;
 use std::{collections::HashMap, ffi::c_void, mem::size_of};
 use windows::{
     Win32::{

@@ -1,6 +1,6 @@
 use rand::{Rng, SeedableRng, rng, rngs::StdRng};
 
-use crate::testing::fuzzing::{
+use crate::arrangements::fuzzing::{
     computer::FuzzedComputer,
     displays::{
         device_id::{DeviceIdFuzzer, FuzzedDeviceId},

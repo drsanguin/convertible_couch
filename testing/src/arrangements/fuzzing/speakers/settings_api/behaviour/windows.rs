@@ -1,4 +1,4 @@
-use crate::testing::fuzzing::speakers::settings_api::behaviour::FuzzedSpeakersSettingsApiBehaviour;
+use crate::arrangements::fuzzing::speakers::settings_api::behaviour::FuzzedSpeakersSettingsApiBehaviour;
 
 #[derive(Clone, Default)]
 pub struct FuzzedWindowsSpeakersSettingsApiBehaviour {

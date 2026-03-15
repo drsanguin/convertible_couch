@@ -1,15 +1,15 @@
-use convertible_couch::{
-    application::{ApplicationChangeResult, ApplicationResult},
-    testing::{
-        arrangements::{ApplicationBuilder, ArgumentsBuilder},
-        assertions::assert_that_result_is_an_error_who_starts_with,
-    },
-};
+use convertible_couch::application::{ApplicationChangeResult, ApplicationResult};
 use convertible_couch_lib::{
     application_error::ApplicationError,
     displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
+};
+use convertible_couch_testing::{
+    arrangements::{
+        builders::{ApplicationBuilder, ArgumentsBuilder},
+        fuzzing::{ComputerBuilder, Fuzzer},
+    },
+    assertions::assert_that_result_is_an_error_who_starts_with,
     func,
-    testing::fuzzing::{ComputerBuilder, Fuzzer},
 };
 
 #[test]

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use rand::RngExt;
 
-use crate::testing::fuzzing::{
+use crate::arrangements::fuzzing::{
     ComputerBuilder,
     computer::{ComputerFuzzer, FuzzedComputer},
     speakers::{

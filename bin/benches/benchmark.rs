@@ -1,7 +1,9 @@
-use convertible_couch::testing::arrangements::{ApplicationBuilder, ArgumentsBuilder};
-use convertible_couch_lib::{
+use convertible_couch_testing::{
+    arrangements::{
+        builders::{ApplicationBuilder, ArgumentsBuilder},
+        fuzzing::{ComputerBuilder, Fuzzer},
+    },
     func,
-    testing::fuzzing::{ComputerBuilder, Fuzzer},
 };
 use criterion::{BatchSize, BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
 use std::fmt::{Display, Formatter, Result};

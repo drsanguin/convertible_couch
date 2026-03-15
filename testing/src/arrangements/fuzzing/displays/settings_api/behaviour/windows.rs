@@ -1,6 +1,6 @@
 use windows::Win32::{Foundation::WIN32_ERROR, Graphics::Gdi::DISP_CHANGE};
 
-use crate::testing::fuzzing::displays::settings_api::behaviour::FuzzedDisplaysSettingsApiBehaviour;
+use crate::arrangements::fuzzing::displays::settings_api::behaviour::FuzzedDisplaysSettingsApiBehaviour;
 
 #[derive(Clone, Default)]
 pub struct FuzzedWindowsDisplaysSettingsApiBehaviour {

@@ -1,14 +1,15 @@
 #![cfg(target_os = "windows")]
 
-use convertible_couch::{
-    application::{ApplicationChangeResult, ApplicationResult},
-    testing::arrangements::{ApplicationBuilder, ArgumentsBuilder},
-};
+use convertible_couch::application::{ApplicationChangeResult, ApplicationResult};
 use convertible_couch_lib::{
-    application_error::ApplicationError,
-    displays_settings::DisplaysSettingsResult,
+    application_error::ApplicationError, displays_settings::DisplaysSettingsResult,
+};
+use convertible_couch_testing::{
+    arrangements::{
+        builders::{ApplicationBuilder, ArgumentsBuilder},
+        fuzzing::{ComputerBuilder, Fuzzer},
+    },
     func,
-    testing::fuzzing::{ComputerBuilder, Fuzzer},
 };
 use test_case::test_case;
 use windows::Win32::{

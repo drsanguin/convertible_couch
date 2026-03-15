@@ -241,6 +241,7 @@ version = "2.0.1"
 dependencies = [
  "clap",
  "convertible_couch_lib",
+ "convertible_couch_testing",
  "criterion",
  "test-case",
  "windows",
@@ -251,11 +252,22 @@ dependencies = [
 name = "convertible_couch_lib"
 version = "2.0.1"
 dependencies = [
+ "convertible_couch_testing",
  "log",
  "log4rs",
- "rand 0.10.0",
  "test-case",
  "thiserror",
+ "windows",
+ "windows-core",
+]
+
+[[package]]
+name = "convertible_couch_testing"
+version = "2.0.1"
+dependencies = [
+ "convertible_couch",
+ "convertible_couch_lib",
+ "rand 0.10.0",
  "windows",
  "windows-core",
 ]
