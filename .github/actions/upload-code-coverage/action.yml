@@ -51,7 +51,7 @@ runs:
           --output-path lcov.info `
           --ignore-not-existing `
           --ignore C:/*/.cargo/* `
-          --ignore */src/testing/* `
+          --ignore testing/* `
           --ignore */tests/* `
           --ignore bin/src/main.rs `
           --ignore */build.rs `

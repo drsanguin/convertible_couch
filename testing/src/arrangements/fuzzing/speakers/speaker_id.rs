@@ -1,6 +1,6 @@
 use rand::rngs::StdRng;
 
-use crate::testing::fuzzing::guid::GuidFuzzer;
+use crate::arrangements::fuzzing::guid::GuidFuzzer;
 
 pub struct SpeakerIdFuzzer<'a> {
     rand: &'a mut StdRng,

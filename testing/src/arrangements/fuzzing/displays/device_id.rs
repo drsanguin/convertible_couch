@@ -9,7 +9,7 @@ use rand::{
     rngs::StdRng,
 };
 
-use crate::testing::fuzzing::guid::GuidFuzzer;
+use crate::arrangements::fuzzing::guid::GuidFuzzer;
 
 use super::{config_mod_info_id::ConfigModeInfoIdFuzzer, gsm_id::GsmIdFuzzer};
 

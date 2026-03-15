@@ -1,4 +1,4 @@
-use crate::testing::fuzzing::speakers::{
+use crate::arrangements::fuzzing::speakers::{
     FuzzedSpeaker, settings_api::behaviour::CurrentFuzzedSpeakersSettingsApiBehaviour,
 };
 

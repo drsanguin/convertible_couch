@@ -1,4 +1,4 @@
-use crate::testing::fuzzing::displays::{
+use crate::arrangements::fuzzing::displays::{
     settings_api::behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour,
     video_output::FuzzedVideoOutput,
 };

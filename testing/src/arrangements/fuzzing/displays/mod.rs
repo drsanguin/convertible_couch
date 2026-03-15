@@ -1,4 +1,4 @@
-use crate::testing::fuzzing::{
+use crate::arrangements::fuzzing::{
     ComputerBuilder,
     computer::{ComputerFuzzer, FuzzedComputer},
     displays::{
