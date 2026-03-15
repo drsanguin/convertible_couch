@@ -1,6 +1,6 @@
 use rand::rngs::StdRng;
 
-use crate::testing::fuzzing::{
+use crate::arrangements::fuzzing::{
     ComputerBuilder,
     displays::{DisplaysFuzzer, settings_api::CurrentFuzzedDisplaysSettingsApi},
     speakers::{SpeakersFuzzer, settings_api::CurrentFuzzedSpeakersSettingsApi},

@@ -1,6 +1,6 @@
 use convertible_couch_lib::application_error::ApplicationError;
 
-use crate::application::ApplicationResult;
+use convertible_couch::application::ApplicationResult;
 
 pub fn assert_that_result_is_an_error_who_starts_with(
     actual_result: Result<ApplicationResult, ApplicationError>,

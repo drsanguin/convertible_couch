@@ -21,6 +21,7 @@ windows = { version = "0.62.2", features = ["Win32_System_SystemServices"] }
 winresource = "0.1.30"
 
 [dev-dependencies]
+convertible_couch_testing = { path = "../testing" }
 criterion = { version = "0.8.2", features = ["html_reports"] }
 test-case = "3.3.1"
 

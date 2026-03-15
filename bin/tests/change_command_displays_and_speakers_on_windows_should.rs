@@ -1,10 +1,12 @@
 #![cfg(target_os = "windows")]
 
-use convertible_couch::testing::arrangements::{ApplicationBuilder, ArgumentsBuilder};
-use convertible_couch_lib::{
-    application_error::ApplicationError,
+use convertible_couch_lib::application_error::ApplicationError;
+use convertible_couch_testing::{
+    arrangements::{
+        builders::{ApplicationBuilder, ArgumentsBuilder},
+        fuzzing::{ComputerBuilder, Fuzzer},
+    },
     func,
-    testing::fuzzing::{ComputerBuilder, Fuzzer},
 };
 use windows::Win32::Graphics::Gdi::DISP_CHANGE_BADPARAM;
 

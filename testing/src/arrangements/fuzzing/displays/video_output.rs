@@ -1,4 +1,4 @@
-use crate::testing::fuzzing::displays::FuzzedDisplay;
+use crate::arrangements::fuzzing::displays::FuzzedDisplay;
 
 #[derive(Clone)]
 pub struct FuzzedVideoOutput {
