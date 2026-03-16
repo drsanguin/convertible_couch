@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::application_error::ApplicationError;
+use crate::trace_fn;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct DisplaysSettingsResult {
@@ -16,6 +17,7 @@ pub struct DisplayInfo {
 
 impl Ord for DisplayInfo {
     fn cmp(&self, other: &Self) -> Ordering {
+        trace_fn!();
         other
             .is_primary
             .cmp(&self.is_primary)
@@ -25,6 +27,7 @@ impl Ord for DisplayInfo {
 
 impl PartialOrd for DisplayInfo {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        trace_fn!();
         Some(self.cmp(other))
     }
 }

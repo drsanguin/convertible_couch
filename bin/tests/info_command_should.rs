@@ -1,11 +1,8 @@
 use convertible_couch::application::{ApplicationInfoResult, ApplicationResult};
-use convertible_couch_lib::{displays_settings::DisplayInfo, speakers_settings::SpeakerInfo};
-use convertible_couch_testing::{
-    arrangements::{
-        builders::{ApplicationBuilder, ArgumentsBuilder},
-        fuzzing::{ComputerBuilder, Fuzzer},
-    },
-    func,
+use convertible_couch_lib::{displays_settings::DisplayInfo, func, speakers_settings::SpeakerInfo};
+use convertible_couch_testing::arrangements::{
+    builders::{ApplicationBuilder, ArgumentsBuilder},
+    fuzzing::{ComputerBuilder, Fuzzer},
 };
 
 #[test]

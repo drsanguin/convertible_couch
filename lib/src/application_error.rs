@@ -4,6 +4,8 @@ use ::log::SetLoggerError;
 use log4rs::config::runtime::ConfigErrors;
 use thiserror::Error;
 
+use crate::trace_fn;
+
 #[derive(Error, Debug, PartialEq)]
 pub enum ApplicationError {
     #[error("{0}")]
@@ -12,24 +14,28 @@ pub enum ApplicationError {
 
 impl From<String> for ApplicationError {
     fn from(value: String) -> Self {
+        trace_fn!();
         ApplicationError::Custom(value)
     }
 }
 
 impl From<ConfigErrors> for ApplicationError {
     fn from(value: ConfigErrors) -> Self {
+        trace_fn!();
         ApplicationError::Custom(value.to_string())
     }
 }
 
 impl From<SetLoggerError> for ApplicationError {
     fn from(value: SetLoggerError) -> Self {
+        trace_fn!();
         ApplicationError::Custom(value.to_string())
     }
 }
 
 impl From<FromUtf16Error> for ApplicationError {
     fn from(_: FromUtf16Error) -> Self {
+        trace_fn!();
         ApplicationError::Custom(String::from(
             "Failed to convert a String from a UTF-16 byte slice",
         ))
@@ -38,12 +44,14 @@ impl From<FromUtf16Error> for ApplicationError {
 
 impl From<TryFromIntError> for ApplicationError {
     fn from(_: TryFromIntError) -> Self {
+        trace_fn!();
         ApplicationError::Custom(String::from("Failed to convert an int"))
     }
 }
 
 impl From<windows_core::Error> for ApplicationError {
     fn from(value: windows_core::Error) -> Self {
+        trace_fn!();
         ApplicationError::Custom(value.message())
     }
 }

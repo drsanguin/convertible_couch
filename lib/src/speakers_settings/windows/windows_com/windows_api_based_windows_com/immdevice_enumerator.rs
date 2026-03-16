@@ -1,10 +1,13 @@
-use crate::speakers_settings::windows::windows_com::{
-    IMMDevice as IMMDeviceTrait, IMMDeviceCollection as IMMDeviceCollectionTrait,
-    IMMDeviceEnumerator as IMMDeviceEnumeratorTrait,
-    windows_api_based_windows_com::{
-        immdevice::WindowsApiBasedIMMDevice,
-        immdevice_collection::WindowsApiBasedIMMDeviceCollection,
+use crate::{
+    speakers_settings::windows::windows_com::{
+        IMMDevice as IMMDeviceTrait, IMMDeviceCollection as IMMDeviceCollectionTrait,
+        IMMDeviceEnumerator as IMMDeviceEnumeratorTrait,
+        windows_api_based_windows_com::{
+            immdevice::WindowsApiBasedIMMDevice,
+            immdevice_collection::WindowsApiBasedIMMDeviceCollection,
+        },
     },
+    trace_fn,
 };
 use windows::Win32::Media::Audio::{DEVICE_STATE, EDataFlow, ERole, IMMDeviceEnumerator};
 use windows_core::Result;
@@ -15,6 +18,7 @@ pub struct WindowsApiBasedIMMDeviceEnumerator {
 
 impl WindowsApiBasedIMMDeviceEnumerator {
     pub fn new(immdevice_enumerator: IMMDeviceEnumerator) -> Self {
+        trace_fn!();
         Self {
             immdevice_enumerator,
         }
@@ -27,6 +31,7 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
         dataflow: EDataFlow,
         role: ERole,
     ) -> Result<Box<dyn IMMDeviceTrait>> {
+        trace_fn!();
         unsafe {
             let immdevice = self
                 .immdevice_enumerator
@@ -43,6 +48,7 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
         dataflow: EDataFlow,
         dwstatemask: DEVICE_STATE,
     ) -> Result<Box<dyn IMMDeviceCollectionTrait>> {
+        trace_fn!();
         unsafe {
             let immdevice_collection = self
                 .immdevice_enumerator

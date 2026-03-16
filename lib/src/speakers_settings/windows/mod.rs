@@ -10,6 +10,7 @@ use crate::{
     speakers_settings::{
         SpeakerInfo, SpeakersSettings, SpeakersSettingsResult, windows::windows_com::WindowsCom,
     },
+    trace_fn,
 };
 
 pub mod windows_com;
@@ -20,6 +21,7 @@ pub struct WindowsSoundSettings {
 
 impl SpeakersSettings for WindowsSoundSettings {
     fn new(speakers_settings_api: Box<dyn WindowsCom>) -> Self {
+        trace_fn!();
         Self {
             windows_com: speakers_settings_api,
         }
@@ -30,6 +32,7 @@ impl SpeakersSettings for WindowsSoundSettings {
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
     ) -> Result<SpeakersSettingsResult, ApplicationError> {
+        trace_fn!();
         (unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
@@ -119,6 +122,7 @@ impl SpeakersSettings for WindowsSoundSettings {
     }
 
     fn get_speakers_infos(&mut self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
+        trace_fn!();
         (unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
@@ -180,6 +184,7 @@ impl SpeakersSettings for WindowsSoundSettings {
 }
 
 fn pwstr_eq(a: PWSTR, b: PWSTR) -> bool {
+    trace_fn!();
     let mut pa = a.0;
     let mut pb = b.0;
 

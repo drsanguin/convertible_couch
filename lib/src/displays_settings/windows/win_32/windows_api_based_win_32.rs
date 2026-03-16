@@ -14,7 +14,7 @@ use windows::{
     core::{BOOL, PCWSTR},
 };
 
-use crate::displays_settings::windows::win_32::Win32;
+use crate::{displays_settings::windows::win_32::Win32, trace_fn};
 
 pub struct WindowsApiBasedWin32;
 
@@ -23,6 +23,7 @@ impl Win32 for WindowsApiBasedWin32 {
         &self,
         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
     ) -> i32 {
+        trace_fn!();
         unsafe { DisplayConfigGetDeviceInfo(requestpacket) }
     }
 
@@ -32,6 +33,7 @@ impl Win32 for WindowsApiBasedWin32 {
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
     ) -> WIN32_ERROR {
+        trace_fn!();
         unsafe {
             GetDisplayConfigBufferSizes(flags, numpatharrayelements, nummodeinfoarrayelements)
         }
@@ -46,6 +48,7 @@ impl Win32 for WindowsApiBasedWin32 {
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR {
+        trace_fn!();
         unsafe {
             QueryDisplayConfig(
                 flags,
@@ -66,6 +69,7 @@ impl Win32 for WindowsApiBasedWin32 {
         dwflags: CDS_TYPE,
         lparam: core::option::Option<*const core::ffi::c_void>,
     ) -> DISP_CHANGE {
+        trace_fn!();
         unsafe { ChangeDisplaySettingsExW(lpszdevicename, lpdevmode, hwnd, dwflags, lparam) }
     }
 
@@ -76,6 +80,7 @@ impl Win32 for WindowsApiBasedWin32 {
         lpdisplaydevice: *mut DISPLAY_DEVICEW,
         dwflags: u32,
     ) -> BOOL {
+        trace_fn!();
         unsafe { EnumDisplayDevicesW(lpdevice, idevnum, lpdisplaydevice, dwflags) }
     }
 
@@ -85,6 +90,7 @@ impl Win32 for WindowsApiBasedWin32 {
         imodenum: ENUM_DISPLAY_SETTINGS_MODE,
         lpdevmode: *mut DEVMODEW,
     ) -> BOOL {
+        trace_fn!();
         unsafe { EnumDisplaySettingsW(lpszdevicename, imodenum, lpdevmode) }
     }
 }

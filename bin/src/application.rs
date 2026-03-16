@@ -9,6 +9,7 @@ use convertible_couch_lib::{
         CurrentSpeakersSettings, CurrentSpeakersSettingsApiTrait, SpeakerInfo, SpeakersSettings,
         SpeakersSettingsResult,
     },
+    trace_fn,
 };
 
 use crate::commands::{
@@ -60,6 +61,7 @@ impl Application {
         displays_settings_api: Box<dyn CurrentDisplaysSettingsApiTrait>,
         speakers_settings_api: Box<dyn CurrentSpeakersSettingsApiTrait>,
     ) -> Self {
+        trace_fn!();
         Self {
             displays_settings: CurrentDisplaysSettings::new(displays_settings_api),
             speakers_settings: CurrentSpeakersSettings::new(speakers_settings_api),
@@ -67,6 +69,7 @@ impl Application {
     }
 
     pub fn execute(&mut self, args: &Arguments) -> Result<ApplicationResult, ApplicationError> {
+        trace_fn!();
         match &args.command {
             Commands::Change(change_commands) => match change_commands {
                 ChangeCommands::DisplaysAndSpeakers {
@@ -162,6 +165,7 @@ impl Application {
 }
 
 fn map_to_log_level(log_level_option: &LogLevelOption) -> LogLevel {
+    trace_fn!();
     match log_level_option {
         LogLevelOption::Off => LogLevel::Off,
         LogLevelOption::Error => LogLevel::Error,

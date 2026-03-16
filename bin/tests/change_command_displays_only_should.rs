@@ -2,6 +2,7 @@ use convertible_couch::application::{ApplicationChangeResult, ApplicationResult}
 use convertible_couch_lib::{
     application_error::ApplicationError,
     displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
+    func,
 };
 use convertible_couch_testing::{
     arrangements::{
@@ -9,7 +10,6 @@ use convertible_couch_testing::{
         fuzzing::{ComputerBuilder, Fuzzer},
     },
     assertions::assert_that_result_is_an_error_who_starts_with,
-    func,
 };
 
 #[test]
