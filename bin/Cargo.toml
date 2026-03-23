@@ -18,7 +18,7 @@ convertible_couch_lib = { path = "../lib"}
 
 [target.'cfg(windows)'.build-dependencies]
 windows = { version = "0.62.2", features = ["Win32_System_SystemServices"] }
-winresource = "0.1.30"
+winresource = "0.1.31"
 
 [dev-dependencies]
 convertible_couch_testing = { path = "../testing" }
