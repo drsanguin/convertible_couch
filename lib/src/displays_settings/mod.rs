@@ -26,6 +26,7 @@ impl Ord for DisplayInfo {
     }
 }
 
+#[allow(clippy::non_canonical_partial_ord_impl)]
 impl PartialOrd for DisplayInfo {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         trace_fn!();

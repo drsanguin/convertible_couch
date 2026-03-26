@@ -25,6 +25,7 @@ impl Ord for SpeakerInfo {
     }
 }
 
+#[allow(clippy::non_canonical_partial_ord_impl)]
 impl PartialOrd for SpeakerInfo {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         trace_fn!();
