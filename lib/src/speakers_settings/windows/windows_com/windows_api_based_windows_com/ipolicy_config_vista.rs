@@ -21,6 +21,7 @@ pub struct WindowsApiBasedIPolicyConfigVista {
 impl WindowsApiBasedIPolicyConfigVista {
     pub fn new(ipolicy_config_vista: IPolicyConfigVista) -> Self {
         trace_fn!();
+
         Self {
             ipolicy_config_vista,
         }
@@ -30,6 +31,7 @@ impl WindowsApiBasedIPolicyConfigVista {
 impl IPolicyConfigVistaTrait for WindowsApiBasedIPolicyConfigVista {
     unsafe fn set_default_endpoint(&mut self, device_id: PCWSTR, role: ERole) -> Result<()> {
         trace_fn!();
+
         unsafe {
             self.ipolicy_config_vista
                 .SetDefaultEndpoint(device_id, role)
@@ -65,6 +67,7 @@ impl IPolicyConfigVista {
     /// memory corruption or process crashes.
     pub unsafe fn SetDefaultEndpoint(&self, device_id: PCWSTR, role: ERole) -> Result<()> {
         trace_fn!();
+        
         unsafe {
             (Interface::vtable(self).SetDefaultEndpoint)(Interface::as_raw(self), device_id, role)
                 .and_then(|| Ok(()))

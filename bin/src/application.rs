@@ -62,6 +62,7 @@ impl Application {
         speakers_settings_api: Box<dyn CurrentSpeakersSettingsApiTrait>,
     ) -> Self {
         trace_fn!();
+
         Self {
             displays_settings: CurrentDisplaysSettings::new(displays_settings_api),
             speakers_settings: CurrentSpeakersSettings::new(speakers_settings_api),
@@ -175,7 +176,6 @@ impl Application {
 }
 
 fn map_to_log_level(log_level_option: &LogLevelOption) -> LogLevel {
-    trace_fn!();
     match log_level_option {
         LogLevelOption::Off => LogLevel::Off,
         LogLevelOption::Error => LogLevel::Error,

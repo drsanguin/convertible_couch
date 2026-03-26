@@ -14,6 +14,7 @@ pub struct WindowsApiBasedIPropertyStore {
 impl WindowsApiBasedIPropertyStore {
     pub fn new(iproperty_store: IPropertyStore) -> Self {
         trace_fn!();
+
         Self { iproperty_store }
     }
 }
@@ -21,6 +22,7 @@ impl WindowsApiBasedIPropertyStore {
 impl IPropertyStoreTrait for WindowsApiBasedIPropertyStore {
     unsafe fn get_value(&self, key: *const PROPERTYKEY) -> Result<PROPVARIANT> {
         trace_fn!();
+
         unsafe { self.iproperty_store.GetValue(key) }
     }
 }

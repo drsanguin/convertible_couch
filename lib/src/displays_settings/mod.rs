@@ -18,6 +18,7 @@ pub struct DisplayInfo {
 impl Ord for DisplayInfo {
     fn cmp(&self, other: &Self) -> Ordering {
         trace_fn!();
+
         other
             .is_primary
             .cmp(&self.is_primary)
@@ -28,6 +29,7 @@ impl Ord for DisplayInfo {
 impl PartialOrd for DisplayInfo {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         trace_fn!();
+
         Some(self.cmp(other))
     }
 }

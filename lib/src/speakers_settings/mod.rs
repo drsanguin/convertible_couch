@@ -17,6 +17,7 @@ pub struct SpeakerInfo {
 impl Ord for SpeakerInfo {
     fn cmp(&self, other: &Self) -> Ordering {
         trace_fn!();
+
         other
             .is_default
             .cmp(&self.is_default)
@@ -27,6 +28,7 @@ impl Ord for SpeakerInfo {
 impl PartialOrd for SpeakerInfo {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         trace_fn!();
+        
         Some(self.cmp(other))
     }
 }

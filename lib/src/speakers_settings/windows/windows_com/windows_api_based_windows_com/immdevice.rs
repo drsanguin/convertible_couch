@@ -15,6 +15,7 @@ pub struct WindowsApiBasedIMMDevice {
 impl WindowsApiBasedIMMDevice {
     pub fn new(immdevice: IMMDevice) -> Self {
         trace_fn!();
+
         Self { immdevice }
     }
 }
@@ -22,11 +23,13 @@ impl WindowsApiBasedIMMDevice {
 impl IMMDeviceTrait for WindowsApiBasedIMMDevice {
     unsafe fn get_id(&self) -> Result<PWSTR> {
         trace_fn!();
+
         unsafe { self.immdevice.GetId() }
     }
 
     unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<Box<dyn IPropertyStoreTrait>> {
         trace_fn!();
+        
         unsafe {
             let iproperty_store = self.immdevice.OpenPropertyStore(stgmaccess)?;
             let windows_api_based_iproperty_store =

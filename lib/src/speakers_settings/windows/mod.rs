@@ -1,3 +1,4 @@
+use log::info;
 use windows::Win32::{
     Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
     Media::Audio::{DEVICE_STATE_ACTIVE, EDataFlow, eConsole, eRender},
@@ -22,6 +23,7 @@ pub struct WindowsSoundSettings {
 impl SpeakersSettings for WindowsSoundSettings {
     fn new(speakers_settings_api: Box<dyn WindowsCom>) -> Self {
         trace_fn!();
+
         Self {
             windows_com: speakers_settings_api,
         }
@@ -33,6 +35,8 @@ impl SpeakersSettings for WindowsSoundSettings {
         couch_speaker_name: &str,
     ) -> Result<SpeakersSettingsResult, ApplicationError> {
         trace_fn!();
+        info!("Changing default speaker");
+
         (unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
@@ -123,6 +127,8 @@ impl SpeakersSettings for WindowsSoundSettings {
 
     fn get_speakers_infos(&mut self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
         trace_fn!();
+        info!("Getting speakers informations");
+
         (unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
@@ -185,6 +191,7 @@ impl SpeakersSettings for WindowsSoundSettings {
 
 fn pwstr_eq(a: PWSTR, b: PWSTR) -> bool {
     trace_fn!();
+    
     let mut pa = a.0;
     let mut pb = b.0;
 

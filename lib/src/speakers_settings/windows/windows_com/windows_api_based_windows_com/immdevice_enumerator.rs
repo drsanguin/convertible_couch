@@ -19,6 +19,7 @@ pub struct WindowsApiBasedIMMDeviceEnumerator {
 impl WindowsApiBasedIMMDeviceEnumerator {
     pub fn new(immdevice_enumerator: IMMDeviceEnumerator) -> Self {
         trace_fn!();
+
         Self {
             immdevice_enumerator,
         }
@@ -32,6 +33,7 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
         role: ERole,
     ) -> Result<Box<dyn IMMDeviceTrait>> {
         trace_fn!();
+
         unsafe {
             let immdevice = self
                 .immdevice_enumerator
@@ -49,6 +51,7 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
         dwstatemask: DEVICE_STATE,
     ) -> Result<Box<dyn IMMDeviceCollectionTrait>> {
         trace_fn!();
+        
         unsafe {
             let immdevice_collection = self
                 .immdevice_enumerator
