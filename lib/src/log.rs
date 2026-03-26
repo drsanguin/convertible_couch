@@ -56,7 +56,6 @@ pub enum LogLevel {
 }
 
 pub fn configure_logger(log_level: &LogLevel) -> Result<(), ApplicationError> {
-    trace_fn!();
     if log_level == &LogLevel::Off {
         return Ok(());
     }
@@ -76,7 +75,6 @@ pub fn configure_logger(log_level: &LogLevel) -> Result<(), ApplicationError> {
 }
 
 fn map_to_level_filter(log_level: &LogLevel) -> LevelFilter {
-    trace_fn!();
     match log_level {
         LogLevel::Off => LevelFilter::Off,
         LogLevel::Error => LevelFilter::Error,
