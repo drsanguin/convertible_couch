@@ -24,7 +24,7 @@ pub struct Tracer {
 
 impl Tracer {
     pub fn new(fn_name: String) -> Self {
-        trace!("→ ENTERING: {fn_name}");
+        trace!("Entering {fn_name}");
 
         Self { fn_name }
     }
@@ -32,7 +32,7 @@ impl Tracer {
 
 impl Drop for Tracer {
     fn drop(&mut self) {
-        trace!("← EXITING: {}", self.fn_name);
+        trace!("Exiting  {}", self.fn_name);
     }
 }
 
