@@ -29,7 +29,7 @@ impl IMMDeviceTrait for WindowsApiBasedIMMDevice {
 
     unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<Box<dyn IPropertyStoreTrait>> {
         trace_fn!();
-        
+
         unsafe {
             let iproperty_store = self.immdevice.OpenPropertyStore(stgmaccess)?;
             let windows_api_based_iproperty_store =

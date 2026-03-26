@@ -96,7 +96,7 @@ impl Win32 for WindowsApiBasedWin32 {
         lpdevmode: *mut DEVMODEW,
     ) -> BOOL {
         trace_fn!();
-        
+
         unsafe { EnumDisplaySettingsW(lpszdevicename, imodenum, lpdevmode) }
     }
 }

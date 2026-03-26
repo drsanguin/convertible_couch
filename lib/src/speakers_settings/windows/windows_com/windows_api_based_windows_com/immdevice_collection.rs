@@ -31,7 +31,7 @@ impl IMMDeviceCollectionTrait for WindowsApiBasedIMMDeviceCollection {
 
     unsafe fn item(&self, ndevice: u32) -> Result<Box<dyn IMMDeviceTrait>> {
         trace_fn!();
-        
+
         unsafe {
             let immdevice = self.immdevice_collection.Item(ndevice)?;
             let windows_api_based_immdevice = WindowsApiBasedIMMDevice::new(immdevice);

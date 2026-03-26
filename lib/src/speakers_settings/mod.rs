@@ -28,7 +28,7 @@ impl Ord for SpeakerInfo {
 impl PartialOrd for SpeakerInfo {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         trace_fn!();
-        
+
         Some(self.cmp(other))
     }
 }

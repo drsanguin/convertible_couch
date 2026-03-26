@@ -51,7 +51,7 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
         dwstatemask: DEVICE_STATE,
     ) -> Result<Box<dyn IMMDeviceCollectionTrait>> {
         trace_fn!();
-        
+
         unsafe {
             let immdevice_collection = self
                 .immdevice_enumerator

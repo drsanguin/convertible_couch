@@ -67,7 +67,7 @@ impl IPolicyConfigVista {
     /// memory corruption or process crashes.
     pub unsafe fn SetDefaultEndpoint(&self, device_id: PCWSTR, role: ERole) -> Result<()> {
         trace_fn!();
-        
+
         unsafe {
             (Interface::vtable(self).SetDefaultEndpoint)(Interface::as_raw(self), device_id, role)
                 .and_then(|| Ok(()))
