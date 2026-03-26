@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug, info};
 use windows::Win32::{
     Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
     Media::Audio::{DEVICE_STATE_ACTIVE, EDataFlow, eConsole, eRender},
@@ -35,6 +35,9 @@ impl SpeakersSettings for WindowsSoundSettings {
         couch_speaker_name: &str,
     ) -> Result<SpeakersSettingsResult, ApplicationError> {
         trace_fn!();
+        debug!(
+            "desktop_speaker_name = \"{desktop_speaker_name}\", couch_speaker_name = \"{couch_speaker_name}\""
+        );
         info!("Changing default speaker");
 
         (unsafe {
@@ -191,7 +194,7 @@ impl SpeakersSettings for WindowsSoundSettings {
 
 fn pwstr_eq(a: PWSTR, b: PWSTR) -> bool {
     trace_fn!();
-    
+
     let mut pa = a.0;
     let mut pb = b.0;
 

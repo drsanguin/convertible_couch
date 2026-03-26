@@ -5,7 +5,7 @@ use crate::{
     },
     trace_fn,
 };
-use log::{info, warn};
+use log::{debug, info, warn};
 use std::{collections::HashMap, fmt::Debug, mem};
 use win_32::Win32;
 use windows::{
@@ -47,6 +47,9 @@ impl DisplaysSettings for WindowsDisplaySettings {
         couch_display_name: &str,
     ) -> Result<DisplaysSettingsResult, ApplicationError> {
         trace_fn!();
+        debug!(
+            "desktop_display_name = \"{desktop_display_name}\", couch_display_name = \"{couch_display_name}\""
+        );
         info!("Changing primary display");
 
         let names_by_device_ids = self.get_all_displays_names()?;
@@ -333,6 +336,8 @@ impl WindowsDisplaySettings {
         position: &DisplayPosition,
     ) -> Result<bool, ApplicationError> {
         trace_fn!();
+        info!("Changing displays positions");
+        debug!("position = {:?}", position);
 
         let mut reboot_required = false;
 
@@ -499,7 +504,7 @@ fn is_positioned_at_origin(display_adapter_graphics_mode: DEVMODEW) -> bool {
 
 fn get_default_display_devicew() -> DISPLAY_DEVICEW {
     trace_fn!();
-    
+
     let cb = size_of::<DISPLAY_DEVICEW, u32>();
 
     DISPLAY_DEVICEW {
