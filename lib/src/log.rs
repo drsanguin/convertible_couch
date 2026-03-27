@@ -1,4 +1,4 @@
-use log::LevelFilter;
+use log::{LevelFilter, trace};
 use log4rs::{
     Config,
     append::console::ConsoleAppender,
@@ -8,6 +8,42 @@ use log4rs::{
 };
 
 use crate::application_error::ApplicationError;
+
+#[macro_export]
+macro_rules! func {
+    () => {{
+        fn f() {}
+        let name = std::any::type_name_of_val(&f);
+        name.rsplit("::").nth(1).unwrap_or(name)
+    }};
+}
+
+pub struct Tracer {
+    fn_name: String,
+}
+
+impl Tracer {
+    pub fn new(fn_name: String) -> Self {
+        trace!("Entering {fn_name}");
+
+        Self { fn_name }
+    }
+}
+
+impl Drop for Tracer {
+    fn drop(&mut self) {
+        trace!("Exiting  {}", self.fn_name);
+    }
+}
+
+#[macro_export]
+macro_rules! trace_fn {
+    () => {
+        #[allow(unused_variables)]
+        let tracer =
+            $crate::log::Tracer::new(format!("{}::{}", std::module_path!(), $crate::func!()));
+    };
+}
 
 #[derive(Debug, PartialEq)]
 pub enum LogLevel {

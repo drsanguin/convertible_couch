@@ -9,6 +9,7 @@ use convertible_couch_lib::{
         CurrentSpeakersSettings, CurrentSpeakersSettingsApiTrait, SpeakerInfo, SpeakersSettings,
         SpeakersSettingsResult,
     },
+    trace_fn,
 };
 
 use crate::commands::{
@@ -60,6 +61,8 @@ impl Application {
         displays_settings_api: Box<dyn CurrentDisplaysSettingsApiTrait>,
         speakers_settings_api: Box<dyn CurrentSpeakersSettingsApiTrait>,
     ) -> Self {
+        trace_fn!();
+
         Self {
             displays_settings: CurrentDisplaysSettings::new(displays_settings_api),
             speakers_settings: CurrentSpeakersSettings::new(speakers_settings_api),
@@ -67,17 +70,36 @@ impl Application {
     }
 
     pub fn execute(&mut self, args: &Arguments) -> Result<ApplicationResult, ApplicationError> {
+        let log_level = match &args.command {
+            Commands::Change(change_commands) => match change_commands {
+                ChangeCommands::DisplaysAndSpeakers {
+                    displays: _,
+                    speakers: _,
+                    shared,
+                } => map_to_log_level(&shared.log_level),
+                ChangeCommands::Displays {
+                    displays: _,
+                    shared,
+                } => map_to_log_level(&shared.log_level),
+                ChangeCommands::Speakers {
+                    speakers: _,
+                    shared,
+                } => map_to_log_level(&shared.log_level),
+            },
+            Commands::Info { device: _, shared } => map_to_log_level(&shared.log_level),
+        };
+
+        configure_logger(&log_level)?;
+
+        trace_fn!();
+
         match &args.command {
             Commands::Change(change_commands) => match change_commands {
                 ChangeCommands::DisplaysAndSpeakers {
                     displays,
                     speakers,
-                    shared,
+                    shared: _,
                 } => {
-                    let log_level = map_to_log_level(&shared.log_level);
-
-                    configure_logger(&log_level)?;
-
                     let displays_result = self.displays_settings.change_primary_display(
                         &displays.desktop_display_name,
                         &displays.couch_display_name,
@@ -95,11 +117,10 @@ impl Application {
                         },
                     ))
                 }
-                ChangeCommands::Displays { displays, shared } => {
-                    let log_level = map_to_log_level(&shared.log_level);
-
-                    configure_logger(&log_level)?;
-
+                ChangeCommands::Displays {
+                    displays,
+                    shared: _,
+                } => {
                     let displays_result = self.displays_settings.change_primary_display(
                         &displays.desktop_display_name,
                         &displays.couch_display_name,
@@ -109,11 +130,10 @@ impl Application {
                         ApplicationChangeResult::DisplaysOnly { displays_result },
                     ))
                 }
-                ChangeCommands::Speakers { speakers, shared } => {
-                    let log_level = map_to_log_level(&shared.log_level);
-
-                    configure_logger(&log_level)?;
-
+                ChangeCommands::Speakers {
+                    speakers,
+                    shared: _,
+                } => {
                     let speakers_result = self.speakers_settings.change_default_speaker(
                         &speakers.desktop_speaker_name,
                         &speakers.couch_speaker_name,
@@ -124,39 +144,33 @@ impl Application {
                     ))
                 }
             },
-            Commands::Info { device, shared } => {
-                let log_level = map_to_log_level(&shared.log_level);
+            Commands::Info { device, shared: _ } => match device {
+                Device::DisplaysAndSpeakers => {
+                    let displays_result = self.displays_settings.get_displays_infos()?;
+                    let speakers_result = self.speakers_settings.get_speakers_infos()?;
 
-                configure_logger(&log_level)?;
-
-                match device {
-                    Device::DisplaysAndSpeakers => {
-                        let displays_result = self.displays_settings.get_displays_infos()?;
-                        let speakers_result = self.speakers_settings.get_speakers_infos()?;
-
-                        Ok(ApplicationResult::Info(
-                            ApplicationInfoResult::DisplaysAndSpeakers {
-                                displays_result,
-                                speakers_result,
-                            },
-                        ))
-                    }
-                    Device::Displays => {
-                        let displays_result = self.displays_settings.get_displays_infos()?;
-
-                        Ok(ApplicationResult::Info(
-                            ApplicationInfoResult::DisplaysOnly { displays_result },
-                        ))
-                    }
-                    Device::Speakers => {
-                        let speakers_result = self.speakers_settings.get_speakers_infos()?;
-
-                        Ok(ApplicationResult::Info(
-                            ApplicationInfoResult::SpeakersOnly { speakers_result },
-                        ))
-                    }
+                    Ok(ApplicationResult::Info(
+                        ApplicationInfoResult::DisplaysAndSpeakers {
+                            displays_result,
+                            speakers_result,
+                        },
+                    ))
                 }
-            }
+                Device::Displays => {
+                    let displays_result = self.displays_settings.get_displays_infos()?;
+
+                    Ok(ApplicationResult::Info(
+                        ApplicationInfoResult::DisplaysOnly { displays_result },
+                    ))
+                }
+                Device::Speakers => {
+                    let speakers_result = self.speakers_settings.get_speakers_infos()?;
+
+                    Ok(ApplicationResult::Info(
+                        ApplicationInfoResult::SpeakersOnly { speakers_result },
+                    ))
+                }
+            },
         }
     }
 }
