@@ -55,6 +55,9 @@ impl DisplaysSettings for WindowsDisplaySettings {
         let names_by_device_ids = self.get_all_displays_names()?;
         let positions_by_device_ids = self.get_all_displays_positions()?;
 
+        debug!("names_by_device_ids = {:?}", names_by_device_ids);
+        debug!("positions_by_device_ids = {:?}", positions_by_device_ids);
+
         let mut desktop_display_device_id: Option<&String> = None;
         let mut couch_display_device_id: Option<&String> = None;
         let mut is_current_primary_display_the_desktop_one = false;
@@ -122,6 +125,9 @@ impl DisplaysSettings for WindowsDisplaySettings {
 
         let names_by_device_ids = self.get_all_displays_names()?;
         let positions_by_device_ids = self.get_all_displays_positions()?;
+
+        debug!("names_by_device_ids = {:?}", names_by_device_ids);
+        debug!("positions_by_device_ids = {:?}", positions_by_device_ids);
 
         let mut displays_info = positions_by_device_ids
             .iter()
