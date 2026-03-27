@@ -3,8 +3,9 @@ use crate::{
     displays_settings::{
         DisplayInfo, DisplaysSettings, DisplaysSettingsResult, INTERNAL_DISPLAY_NAME,
     },
+    trace_fn,
 };
-use log::warn;
+use log::{debug, info, warn};
 use std::{collections::HashMap, fmt::Debug, mem};
 use win_32::Win32;
 use windows::{
@@ -33,6 +34,8 @@ pub struct WindowsDisplaySettings {
 
 impl DisplaysSettings for WindowsDisplaySettings {
     fn new(displays_settings_api: Box<dyn Win32>) -> Self {
+        trace_fn!();
+
         Self {
             win32: displays_settings_api,
         }
@@ -43,8 +46,17 @@ impl DisplaysSettings for WindowsDisplaySettings {
         desktop_display_name: &str,
         couch_display_name: &str,
     ) -> Result<DisplaysSettingsResult, ApplicationError> {
+        trace_fn!();
+        debug!(
+            "desktop_display_name = \"{desktop_display_name}\", couch_display_name = \"{couch_display_name}\""
+        );
+        info!("Changing primary display");
+
         let names_by_device_ids = self.get_all_displays_names()?;
         let positions_by_device_ids = self.get_all_displays_positions()?;
+
+        debug!("names_by_device_ids = {:?}", names_by_device_ids);
+        debug!("positions_by_device_ids = {:?}", positions_by_device_ids);
 
         let mut desktop_display_device_id: Option<&String> = None;
         let mut couch_display_device_id: Option<&String> = None;
@@ -108,8 +120,14 @@ impl DisplaysSettings for WindowsDisplaySettings {
     }
 
     fn get_displays_infos(&self) -> Result<Vec<DisplayInfo>, ApplicationError> {
+        trace_fn!();
+        info!("Getting displays informations");
+
         let names_by_device_ids = self.get_all_displays_names()?;
         let positions_by_device_ids = self.get_all_displays_positions()?;
+
+        debug!("names_by_device_ids = {:?}", names_by_device_ids);
+        debug!("positions_by_device_ids = {:?}", positions_by_device_ids);
 
         let mut displays_info = positions_by_device_ids
             .iter()
@@ -127,6 +145,8 @@ impl DisplaysSettings for WindowsDisplaySettings {
 
 impl WindowsDisplaySettings {
     fn get_all_displays_names(&self) -> Result<HashMap<String, String>, ApplicationError> {
+        trace_fn!();
+
         let mut path_informations_length = u32::default();
         let mut mode_informations_length = u32::default();
 
@@ -224,6 +244,8 @@ impl WindowsDisplaySettings {
     fn get_all_displays_positions(
         &self,
     ) -> Result<HashMap<String, DisplayPosition>, ApplicationError> {
+        trace_fn!();
+
         let mut positions = HashMap::new();
 
         for idevnum in 0..=u32::MAX {
@@ -319,6 +341,10 @@ impl WindowsDisplaySettings {
         &mut self,
         position: &DisplayPosition,
     ) -> Result<bool, ApplicationError> {
+        trace_fn!();
+        info!("Changing displays positions");
+        debug!("position = {:?}", position);
+
         let mut reboot_required = false;
 
         for idevnum in 0..=u32::MAX {
@@ -464,6 +490,8 @@ struct DisplayPosition {
 }
 
 fn is_positioned_at_origin(display_adapter_graphics_mode: DEVMODEW) -> bool {
+    trace_fn!();
+
     unsafe {
         display_adapter_graphics_mode
             .Anonymous1
@@ -481,6 +509,8 @@ fn is_positioned_at_origin(display_adapter_graphics_mode: DEVMODEW) -> bool {
 }
 
 fn get_default_display_devicew() -> DISPLAY_DEVICEW {
+    trace_fn!();
+
     let cb = size_of::<DISPLAY_DEVICEW, u32>();
 
     DISPLAY_DEVICEW {
@@ -490,6 +520,8 @@ fn get_default_display_devicew() -> DISPLAY_DEVICEW {
 }
 
 fn get_default_devmodew() -> DEVMODEW {
+    trace_fn!();
+
     let dm_size = size_of::<DEVMODEW, u16>();
 
     DEVMODEW {
@@ -499,10 +531,14 @@ fn get_default_devmodew() -> DEVMODEW {
 }
 
 fn get_pcwstr_from_raw(raw: &[u16; 32]) -> PCWSTR {
+    trace_fn!();
+
     PCWSTR::from_raw(raw.as_ptr())
 }
 
 fn map_disp_change_to_string(disp_change: DISP_CHANGE) -> String {
+    trace_fn!();
+
     match disp_change {
         DISP_CHANGE_BADDUALVIEW => String::from(
             "The settings change was unsuccessful because the system is DualView capable.",
@@ -524,6 +560,8 @@ fn map_disp_change_to_string(disp_change: DISP_CHANGE) -> String {
 }
 
 fn from_raw_display_name(raw_display_name: &str) -> String {
+    trace_fn!();
+
     let display_name = if raw_display_name.is_empty() {
         INTERNAL_DISPLAY_NAME
     } else {
@@ -537,11 +575,15 @@ fn size_of<T1, T2: TryFrom<usize>>() -> T2
 where
     <T2 as TryFrom<usize>>::Error: Debug,
 {
+    trace_fn!();
+
     let size = mem::size_of::<T1>();
     T2::try_from(size).unwrap()
 }
 
 fn from_utf16_trimed(bytes: &[u16]) -> Result<String, ApplicationError> {
+    trace_fn!();
+
     let str = String::from_utf16(bytes)?;
 
     Ok(str.trim_end_matches('\0').to_string())

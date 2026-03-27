@@ -1,12 +1,15 @@
 use core::ffi::c_void;
 
-use crate::speakers_settings::windows::windows_com::{
-    IMMDeviceEnumerator as IMMDeviceEnumeratorTrait, IPolicyConfigVista as IPolicyConfigVistaTrait,
-    WindowsCom as WindowsComTrait,
-    windows_api_based_windows_com::{
-        immdevice_enumerator::WindowsApiBasedIMMDeviceEnumerator,
-        ipolicy_config_vista::{IPolicyConfigVista, WindowsApiBasedIPolicyConfigVista},
+use crate::{
+    speakers_settings::windows::windows_com::{
+        IMMDeviceEnumerator as IMMDeviceEnumeratorTrait,
+        IPolicyConfigVista as IPolicyConfigVistaTrait, WindowsCom as WindowsComTrait,
+        windows_api_based_windows_com::{
+            immdevice_enumerator::WindowsApiBasedIMMDeviceEnumerator,
+            ipolicy_config_vista::{IPolicyConfigVista, WindowsApiBasedIPolicyConfigVista},
+        },
     },
+    trace_fn,
 };
 use windows::Win32::{
     Media::Audio::{IMMDeviceEnumerator, MMDeviceEnumerator},
@@ -30,14 +33,20 @@ impl WindowsComTrait for WindowsApiBasedWindowsCom {
         pvreserved: Option<*const c_void>,
         dwcoinit: windows::Win32::System::Com::COINIT,
     ) -> HRESULT {
+        trace_fn!();
+
         unsafe { CoInitializeEx(pvreserved, dwcoinit) }
     }
 
     unsafe fn co_uninitialize(&mut self) {
+        trace_fn!();
+
         unsafe { CoUninitialize() }
     }
 
     unsafe fn co_create_immdevice_enumerator(&self) -> Result<Box<dyn IMMDeviceEnumeratorTrait>> {
+        trace_fn!();
+
         unsafe {
             let immdevice_enumerator: IMMDeviceEnumerator =
                 CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
@@ -51,6 +60,8 @@ impl WindowsComTrait for WindowsApiBasedWindowsCom {
     }
 
     unsafe fn co_create_ipolicy_config_vista(&self) -> Result<Box<dyn IPolicyConfigVistaTrait>> {
+        trace_fn!();
+
         unsafe {
             let ipolicy_config_vista: IPolicyConfigVista =
                 CoCreateInstance(&POLICY_CONFIG_VISTA, None, CLSCTX_ALL)?;
