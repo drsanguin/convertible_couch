@@ -1,6 +1,6 @@
 [package]
 name = "convertible_couch"
-version = "2.0.1"
+version = "2.1.0"
 edition = "2024"
 authors = ["Thomas PEREZ"]
 description = "A CLI tool to quickly switch your computer’s primary display and default speaker, making it easy to move between your desktop and TV for gaming or watching movies."

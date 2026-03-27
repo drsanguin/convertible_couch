@@ -1,6 +1,6 @@
 [package]
 name = "convertible_couch_lib"
-version = "2.0.1"
+version = "2.1.0"
 edition = "2024"
 authors = ["Thomas PEREZ"]
 description = "A Rust library for programmatically switching the system's primary display and default speaker, enabling seamless transitions between desktop and TV setups."
