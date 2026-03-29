@@ -58,7 +58,7 @@ impl From<windows_core::Error> for ApplicationError {
     fn from(value: windows_core::Error) -> Self {
         trace_fn!();
 
-        ApplicationError::Custom(value.message())
+        ApplicationError::Custom(value.to_string())
     }
 }
 
