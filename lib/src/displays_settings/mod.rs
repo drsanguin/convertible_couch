@@ -44,7 +44,7 @@ pub trait DisplaysSettings {
         couch_display_name: &str,
     ) -> Result<DisplaysSettingsResult, ApplicationError>;
 
-    fn get_displays_infos(&self) -> Result<Vec<DisplayInfo>, ApplicationError>;
+    fn get_displays_infos(&mut self) -> Result<Vec<DisplayInfo>, ApplicationError>;
 }
 
 #[cfg(target_os = "windows")]

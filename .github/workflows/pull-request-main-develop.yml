@@ -31,7 +31,7 @@ jobs:
       uses: ./.github/actions/run-linting
 
     - name: Run Tests 🧪
-      run: cargo test --verbose -- --nocapture
+      run: cargo test --verbose --no-fail-fast -- --nocapture
 
     - name: Run Mutation Tests 🧟
       uses: ./.github/actions/run-mutation-testing
