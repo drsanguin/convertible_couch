@@ -402,12 +402,12 @@ impl WindowsDisplaySettings {
                     .as_bool()
             };
 
-            if !has_enum_display_settings_succeded {
-                let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string()? };
+            let display_adapter_device_name_as_string =
+                unsafe { display_adapter_device_name.to_string()? };
 
+            if !has_enum_display_settings_succeded {
                 warn!(
-                    "Failed to enum display settings for display device {display_adapter_device_name}"
+                    "Failed to enum display settings for display device {display_adapter_device_name_as_string}"
                 );
 
                 continue;
@@ -429,7 +429,27 @@ impl WindowsDisplaySettings {
             let mut dwflags = CDS_UPDATEREGISTRY | CDS_NORESET;
 
             if is_positioned_at_origin(display_adapter_graphics_mode) {
+                info!(
+                    "Setting display device {display_adapter_device_name_as_string} as primary display"
+                );
+
                 dwflags |= CDS_SET_PRIMARY;
+            }
+
+            unsafe {
+                info!(
+                    "Setting display device {display_adapter_device_name_as_string} to position ({}, {})",
+                    display_adapter_graphics_mode
+                        .Anonymous1
+                        .Anonymous2
+                        .dmPosition
+                        .x,
+                    display_adapter_graphics_mode
+                        .Anonymous1
+                        .Anonymous2
+                        .dmPosition
+                        .y,
+                );
             }
 
             let change_display_settings_ex_result = unsafe {
@@ -456,6 +476,8 @@ impl WindowsDisplaySettings {
                 }
             }
         }
+
+        info!("Commiting display settings changes");
 
         let change_display_settings_ex_result = unsafe {
             self.win32.change_display_settings_ex_w(
