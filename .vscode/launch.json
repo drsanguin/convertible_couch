@@ -20,9 +20,14 @@
                 }
             },
             "args": [
-                "info",
-                "--device",
-                "displays-and-speakers"
+                "change",
+                "displays",
+                "--desktop-display-name",
+                "LG ULTRAWIDE",
+                "--couch-display-name",
+                "M227WD",
+                "-l",
+                "trace"
             ],
             "cwd": "${workspaceFolder}"
         },
