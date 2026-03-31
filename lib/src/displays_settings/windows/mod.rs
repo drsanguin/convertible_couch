@@ -15,6 +15,7 @@ use windows::{
             DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_TYPE_TARGET, DISPLAYCONFIG_PATH_INFO,
             DISPLAYCONFIG_TARGET_DEVICE_NAME, QDC_ONLY_ACTIVE_PATHS,
         },
+        Foundation::{ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, WIN32_ERROR},
         Graphics::Gdi::{
             CDS_NORESET, CDS_SET_PRIMARY, CDS_TYPE, CDS_UPDATEREGISTRY, DEVMODEW, DISP_CHANGE,
             DISP_CHANGE_BADDUALVIEW, DISP_CHANGE_BADFLAGS, DISP_CHANGE_BADMODE,
@@ -42,6 +43,140 @@ impl DisplaysSettings for WindowsDisplaySettings {
     }
 
     fn change_primary_display(
+        &mut self,
+        desktop_display_name: &str,
+        couch_display_name: &str,
+    ) -> Result<DisplaysSettingsResult, ApplicationError> {
+        let mut patharray = Vec::new();
+        let mut modeinfoarray = Vec::new();
+        let mut query_display_config_result;
+
+        loop {
+            let mut numpatharrayelements = u32::default();
+            let mut nummodeinfoarrayelements = u32::default();
+
+            (unsafe {
+                self.win32
+                    .get_display_config_buffer_sizes(
+                        QDC_ONLY_ACTIVE_PATHS,
+                        &mut numpatharrayelements,
+                        &mut nummodeinfoarrayelements,
+                    )
+                    .ok()
+            })?;
+
+            patharray.resize(
+                numpatharrayelements.try_into()?,
+                DISPLAYCONFIG_PATH_INFO::default(),
+            );
+            modeinfoarray.resize(
+                nummodeinfoarrayelements.try_into()?,
+                DISPLAYCONFIG_MODE_INFO::default(),
+            );
+
+            query_display_config_result = unsafe {
+                self.win32.query_display_config(
+                    QDC_ONLY_ACTIVE_PATHS,
+                    &mut numpatharrayelements,
+                    patharray.as_mut_ptr(),
+                    &mut nummodeinfoarrayelements,
+                    modeinfoarray.as_mut_ptr(),
+                    None,
+                )
+            };
+
+            patharray.resize(
+                numpatharrayelements.try_into()?,
+                DISPLAYCONFIG_PATH_INFO::default(),
+            );
+            modeinfoarray.resize(
+                nummodeinfoarrayelements.try_into()?,
+                DISPLAYCONFIG_MODE_INFO::default(),
+            );
+
+            if query_display_config_result != ERROR_INSUFFICIENT_BUFFER {
+                break;
+            }
+        }
+
+        query_display_config_result.ok()?;
+
+        let size_of_displayconfig_target_device_name =
+            size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
+
+        for (monitor_index, path) in patharray.iter().enumerate() {
+            let mut target_name = DISPLAYCONFIG_TARGET_DEVICE_NAME {
+                header: DISPLAYCONFIG_DEVICE_INFO_HEADER {
+                    r#type: DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME,
+                    size: size_of_displayconfig_target_device_name,
+                    adapterId: path.targetInfo.adapterId,
+                    id: path.targetInfo.id,
+                },
+                ..Default::default()
+            };
+
+            let display_config_get_device_info_result = unsafe {
+                self.win32
+                    .display_config_get_device_info(&mut target_name.header)
+            };
+
+            if display_config_get_device_info_result != ERROR_SUCCESS.0 as i32 {
+                let error_message = format!(
+                    "Failed to retrieve display configuration information about the device {} because of error {}",
+                    path.targetInfo.id, display_config_get_device_info_result
+                );
+                let error = ApplicationError::Custom(error_message);
+
+                return Err(error);
+            }
+
+            let source_mode_info_idx = unsafe { path.sourceInfo.Anonymous.modeInfoIdx };
+            let source_mode = &modeinfoarray[source_mode_info_idx as usize];
+            let position = unsafe { source_mode.Anonymous.sourceMode.position };
+
+            let raw_display_friendly_device_name =
+                from_utf16_trimed(&target_name.monitorFriendlyDeviceName)?;
+            let display_friendly_device_name =
+                from_raw_display_name(&raw_display_friendly_device_name);
+
+            debug!(
+                "index = {}, display_friendly_device_name = \"{}\", position = ({}, {})",
+                monitor_index + 1,
+                display_friendly_device_name,
+                position.x,
+                position.y
+            );
+        }
+
+        todo!()
+    }
+
+    fn get_displays_infos(&self) -> Result<Vec<DisplayInfo>, ApplicationError> {
+        trace_fn!();
+        info!("Getting displays informations");
+
+        let names_by_device_ids = self.get_all_displays_names()?;
+        let positions_by_device_ids = self.get_all_displays_positions()?;
+
+        debug!("names_by_device_ids = {:?}", names_by_device_ids);
+        debug!("positions_by_device_ids = {:?}", positions_by_device_ids);
+
+        let mut displays_info = positions_by_device_ids
+            .iter()
+            .map(|(device_id, position)| DisplayInfo {
+                is_primary: position.x == 0 && position.y == 0,
+                name: names_by_device_ids.get(device_id).unwrap().to_string(),
+            })
+            .collect::<Vec<_>>();
+
+        displays_info.sort();
+
+        Ok(displays_info)
+    }
+}
+
+impl WindowsDisplaySettings {
+    fn change_primary_display_legacy(
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
@@ -119,31 +254,6 @@ impl DisplaysSettings for WindowsDisplaySettings {
         })
     }
 
-    fn get_displays_infos(&self) -> Result<Vec<DisplayInfo>, ApplicationError> {
-        trace_fn!();
-        info!("Getting displays informations");
-
-        let names_by_device_ids = self.get_all_displays_names()?;
-        let positions_by_device_ids = self.get_all_displays_positions()?;
-
-        debug!("names_by_device_ids = {:?}", names_by_device_ids);
-        debug!("positions_by_device_ids = {:?}", positions_by_device_ids);
-
-        let mut displays_info = positions_by_device_ids
-            .iter()
-            .map(|(device_id, position)| DisplayInfo {
-                is_primary: position.x == 0 && position.y == 0,
-                name: names_by_device_ids.get(device_id).unwrap().to_string(),
-            })
-            .collect::<Vec<_>>();
-
-        displays_info.sort();
-
-        Ok(displays_info)
-    }
-}
-
-impl WindowsDisplaySettings {
     fn get_all_displays_names(&self) -> Result<HashMap<String, String>, ApplicationError> {
         trace_fn!();
 
