@@ -5,22 +5,17 @@ use crate::{
     },
     trace_fn,
 };
-use log::{debug, info, warn};
-use std::{collections::HashMap, fmt::Debug, mem};
+use log::{debug, info};
+use std::{fmt::Debug, mem};
 use win_32::Win32;
-use windows::{
-    Win32::{
-        Devices::Display::{
-            DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME, DISPLAYCONFIG_DEVICE_INFO_HEADER,
-            DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_TYPE_TARGET, DISPLAYCONFIG_PATH_INFO,
-            DISPLAYCONFIG_TARGET_DEVICE_NAME, QDC_ONLY_ACTIVE_PATHS, SDC_ALLOW_CHANGES, SDC_APPLY,
-            SDC_SAVE_TO_DATABASE, SDC_USE_SUPPLIED_DISPLAY_CONFIG,
-        },
-        Foundation::{ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, POINTL},
-        Graphics::Gdi::{DEVMODEW, DISPLAY_DEVICEW, ENUM_CURRENT_SETTINGS},
-        UI::WindowsAndMessaging::EDD_GET_DEVICE_INTERFACE_NAME,
+use windows::Win32::{
+    Devices::Display::{
+        DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME, DISPLAYCONFIG_DEVICE_INFO_HEADER,
+        DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_PATH_INFO, DISPLAYCONFIG_TARGET_DEVICE_NAME,
+        QDC_ONLY_ACTIVE_PATHS, SDC_ALLOW_CHANGES, SDC_APPLY, SDC_SAVE_TO_DATABASE,
+        SDC_USE_SUPPLIED_DISPLAY_CONFIG,
     },
-    core::PCWSTR,
+    Foundation::{ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, POINTL},
 };
 
 pub mod win_32;
@@ -157,11 +152,11 @@ impl DisplaysSettings for WindowsDisplaySettings {
                 continue;
             }
 
-            if (display_friendly_device_name == desktop_display_name) {
+            if display_friendly_device_name == desktop_display_name {
                 desktop_display_name_is_valid = true;
             }
 
-            if (display_friendly_device_name == couch_display_name) {
+            if display_friendly_device_name == couch_display_name {
                 couch_display_name_is_valid = true;
             }
 
@@ -220,253 +215,116 @@ impl DisplaysSettings for WindowsDisplaySettings {
         trace_fn!();
         info!("Getting displays informations");
 
-        let names_by_device_ids = self.get_all_displays_names()?;
-        let positions_by_device_ids = self.get_all_displays_positions()?;
+        let mut displays_info = Vec::new();
 
-        debug!("names_by_device_ids = {:?}", names_by_device_ids);
-        debug!("positions_by_device_ids = {:?}", positions_by_device_ids);
+        let mut patharray = Vec::new();
+        let mut modeinfoarray = Vec::new();
+        let mut query_display_config_result;
 
-        let mut displays_info = positions_by_device_ids
-            .iter()
-            .map(|(device_id, position)| DisplayInfo {
-                is_primary: position.x == 0 && position.y == 0,
-                name: names_by_device_ids.get(device_id).unwrap().to_string(),
-            })
-            .collect::<Vec<_>>();
+        loop {
+            let mut numpatharrayelements = u32::default();
+            let mut nummodeinfoarrayelements = u32::default();
 
-        displays_info.sort();
+            (unsafe {
+                self.win32
+                    .get_display_config_buffer_sizes(
+                        QDC_ONLY_ACTIVE_PATHS,
+                        &mut numpatharrayelements,
+                        &mut nummodeinfoarrayelements,
+                    )
+                    .ok()
+            })?;
 
-        Ok(displays_info)
-    }
-}
-
-impl WindowsDisplaySettings {
-    fn get_all_displays_names(&self) -> Result<HashMap<String, String>, ApplicationError> {
-        trace_fn!();
-
-        let mut path_informations_length = u32::default();
-        let mut mode_informations_length = u32::default();
-
-        let get_display_config_buffer_sizes_return_code = unsafe {
-            self.win32.get_display_config_buffer_sizes(
-                QDC_ONLY_ACTIVE_PATHS,
-                &mut path_informations_length,
-                &mut mode_informations_length,
-            )
-        };
-
-        if get_display_config_buffer_sizes_return_code.is_err() {
-            let error_message = format!(
-                "Failed to retrieve the size of the buffers that are required to call the QueryDisplayConfig function: {}",
-                get_display_config_buffer_sizes_return_code.0
+            patharray.resize(
+                numpatharrayelements.try_into()?,
+                DISPLAYCONFIG_PATH_INFO::default(),
             );
-            let error = ApplicationError::Custom(error_message);
+            modeinfoarray.resize(
+                nummodeinfoarrayelements.try_into()?,
+                DISPLAYCONFIG_MODE_INFO::default(),
+            );
 
-            return Err(error);
+            query_display_config_result = unsafe {
+                self.win32.query_display_config(
+                    QDC_ONLY_ACTIVE_PATHS,
+                    &mut numpatharrayelements,
+                    patharray.as_mut_ptr(),
+                    &mut nummodeinfoarrayelements,
+                    modeinfoarray.as_mut_ptr(),
+                    None,
+                )
+            };
+
+            patharray.resize(
+                numpatharrayelements.try_into()?,
+                DISPLAYCONFIG_PATH_INFO::default(),
+            );
+            modeinfoarray.resize(
+                nummodeinfoarrayelements.try_into()?,
+                DISPLAYCONFIG_MODE_INFO::default(),
+            );
+
+            if query_display_config_result != ERROR_INSUFFICIENT_BUFFER {
+                break;
+            }
         }
 
-        let mut path_informations =
-            vec![DISPLAYCONFIG_PATH_INFO::default(); path_informations_length.try_into()?];
-        let mut mode_informations =
-            vec![DISPLAYCONFIG_MODE_INFO::default(); mode_informations_length.try_into()?];
+        query_display_config_result.ok()?;
 
-        let query_display_config_return_code = unsafe {
-            self.win32.query_display_config(
-                QDC_ONLY_ACTIVE_PATHS,
-                &mut path_informations_length,
-                path_informations.as_mut_ptr(),
-                &mut mode_informations_length,
-                mode_informations.as_mut_ptr(),
-                None,
-            )
-        };
-
-        if query_display_config_return_code.is_err() {
-            let error_message = format!(
-                "Failed to retrieve information about all possible display paths for all display devices, or views, in the current setting: {}",
-                query_display_config_return_code.0
-            );
-            let error = ApplicationError::Custom(error_message);
-
-            return Err(error);
-        }
-
-        let mut names_by_device_ids = HashMap::new();
         let size_of_displayconfig_target_device_name =
             size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
 
-        for mode_information in mode_informations {
-            if mode_information.infoType != DISPLAYCONFIG_MODE_INFO_TYPE_TARGET {
-                continue;
-            }
-
-            let mut displayconfig_target_device_name = DISPLAYCONFIG_TARGET_DEVICE_NAME {
+        for (monitor_index, path) in patharray.iter().enumerate() {
+            let mut target_name = DISPLAYCONFIG_TARGET_DEVICE_NAME {
                 header: DISPLAYCONFIG_DEVICE_INFO_HEADER {
                     r#type: DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME,
                     size: size_of_displayconfig_target_device_name,
-                    adapterId: mode_information.adapterId,
-                    id: mode_information.id,
+                    adapterId: path.targetInfo.adapterId,
+                    id: path.targetInfo.id,
                 },
                 ..Default::default()
             };
 
             let display_config_get_device_info_result = unsafe {
                 self.win32
-                    .display_config_get_device_info(&mut displayconfig_target_device_name.header)
+                    .display_config_get_device_info(&mut target_name.header)
             };
 
-            if display_config_get_device_info_result != 0 {
+            if display_config_get_device_info_result != ERROR_SUCCESS.0 as i32 {
                 let error_message = format!(
                     "Failed to retrieve display configuration information about the device {} because of error {}",
-                    mode_information.id, display_config_get_device_info_result
+                    path.targetInfo.id, display_config_get_device_info_result
                 );
                 let error = ApplicationError::Custom(error_message);
 
                 return Err(error);
             }
 
-            let current_display_device_path =
-                from_utf16_trimed(&displayconfig_target_device_name.monitorDevicePath)?;
+            let source_mode_info_idx = unsafe { path.sourceInfo.Anonymous.modeInfoIdx };
+            let source_mode = &modeinfoarray[source_mode_info_idx as usize];
+            let position = unsafe { source_mode.Anonymous.sourceMode.position };
+
             let raw_display_friendly_device_name =
-                from_utf16_trimed(&displayconfig_target_device_name.monitorFriendlyDeviceName)?;
+                from_utf16_trimed(&target_name.monitorFriendlyDeviceName)?;
             let display_friendly_device_name =
                 from_raw_display_name(&raw_display_friendly_device_name);
 
-            names_by_device_ids.insert(current_display_device_path, display_friendly_device_name);
+            debug!(
+                "index = {}, display_friendly_device_name = \"{}\", position = ({}, {})",
+                monitor_index + 1,
+                display_friendly_device_name,
+                position.x,
+                position.y
+            );
+
+            displays_info.push(DisplayInfo {
+                name: display_friendly_device_name.clone(),
+                is_primary: position.x == 0 && position.y == 0,
+            });
         }
 
-        Ok(names_by_device_ids)
+        Ok(displays_info)
     }
-
-    fn get_all_displays_positions(
-        &self,
-    ) -> Result<HashMap<String, DisplayPosition>, ApplicationError> {
-        trace_fn!();
-
-        let mut positions = HashMap::new();
-
-        for idevnum in 0..=u32::MAX {
-            let mut display_adapter = get_default_display_devicew();
-
-            let is_success_display_adapter = unsafe {
-                self.win32
-                    .enum_display_devices_w(
-                        PCWSTR::null(),
-                        idevnum,
-                        &mut display_adapter,
-                        EDD_GET_DEVICE_INTERFACE_NAME,
-                    )
-                    .as_bool()
-            };
-
-            if !is_success_display_adapter {
-                break;
-            }
-
-            let display_adapter_device_name = get_pcwstr_from_raw(&display_adapter.DeviceName);
-            let mut display_device = get_default_display_devicew();
-
-            let is_success_display_device = unsafe {
-                self.win32
-                    .enum_display_devices_w(
-                        display_adapter_device_name,
-                        0,
-                        &mut display_device,
-                        EDD_GET_DEVICE_INTERFACE_NAME,
-                    )
-                    .as_bool()
-            };
-
-            if !is_success_display_device {
-                let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string()? };
-
-                warn!(
-                    "Failed to retrieve display device informations from the display adapter {display_adapter_device_name}"
-                );
-
-                continue;
-            }
-
-            let mut display_adapter_graphics_mode = get_default_devmodew();
-
-            let has_enum_display_settings_succeded = unsafe {
-                self.win32
-                    .enum_display_settings_w(
-                        display_adapter_device_name,
-                        ENUM_CURRENT_SETTINGS,
-                        &mut display_adapter_graphics_mode,
-                    )
-                    .as_bool()
-            };
-
-            if !has_enum_display_settings_succeded {
-                let display_adapter_device_name =
-                    unsafe { display_adapter_device_name.to_string()? };
-
-                warn!(
-                    "Failed to enum display settings for display device {display_adapter_device_name}"
-                );
-
-                continue;
-            }
-
-            let display_device_device_id = from_utf16_trimed(&display_device.DeviceID)?;
-
-            let display_position = unsafe {
-                DisplayPosition {
-                    x: display_adapter_graphics_mode
-                        .Anonymous1
-                        .Anonymous2
-                        .dmPosition
-                        .x,
-                    y: display_adapter_graphics_mode
-                        .Anonymous1
-                        .Anonymous2
-                        .dmPosition
-                        .y,
-                }
-            };
-
-            positions.insert(display_device_device_id, display_position);
-        }
-
-        Ok(positions)
-    }
-}
-
-#[derive(Debug, PartialEq)]
-struct DisplayPosition {
-    x: i32,
-    y: i32,
-}
-
-fn get_default_display_devicew() -> DISPLAY_DEVICEW {
-    trace_fn!();
-
-    let cb = size_of::<DISPLAY_DEVICEW, u32>();
-
-    DISPLAY_DEVICEW {
-        cb,
-        ..DISPLAY_DEVICEW::default()
-    }
-}
-
-fn get_default_devmodew() -> DEVMODEW {
-    trace_fn!();
-
-    let dm_size = size_of::<DEVMODEW, u16>();
-
-    DEVMODEW {
-        dmSize: dm_size,
-        ..DEVMODEW::default()
-    }
-}
-
-fn get_pcwstr_from_raw(raw: &[u16; 32]) -> PCWSTR {
-    trace_fn!();
-
-    PCWSTR::from_raw(raw.as_ptr())
 }
 
 fn from_raw_display_name(raw_display_name: &str) -> String {
