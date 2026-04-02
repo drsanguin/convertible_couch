@@ -2,7 +2,7 @@ use windows::{
     Win32::{
         Devices::Display::{
             DISPLAYCONFIG_DEVICE_INFO_HEADER, DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_PATH_INFO,
-            DISPLAYCONFIG_TOPOLOGY_ID, QUERY_DISPLAY_CONFIG_FLAGS,
+            DISPLAYCONFIG_TOPOLOGY_ID, QUERY_DISPLAY_CONFIG_FLAGS, SET_DISPLAY_CONFIG_FLAGS,
         },
         Foundation::{HWND, WIN32_ERROR},
         Graphics::Gdi::{
@@ -140,4 +140,33 @@ pub trait Win32 {
         imodenum: ENUM_DISPLAY_SETTINGS_MODE,
         lpdevmode: *mut DEVMODEW,
     ) -> BOOL;
+
+    /// Sets the display configuration for the system.
+    ///
+    /// This is a thin wrapper around the Win32 `SetDisplayConfig` API and directly
+    /// forwards the provided parameters without additional validation.
+    ///
+    /// The function applies a new display topology, source/target paths, and mode
+    /// information depending on the provided flags and buffers.
+    ///
+    /// # Safety
+    /// - If `patharray` is `Some(slice)`, the slice must reference a **valid, properly aligned**
+    ///   contiguous array of `DISPLAYCONFIG_PATH_INFO` elements.
+    /// - If `modeinfoarray` is `Some(slice)`, the slice must reference a **valid, properly aligned**
+    ///   contiguous array of `DISPLAYCONFIG_MODE_INFO` elements.
+    /// - The memory backing both slices must remain **valid and immutable** for the duration of the call.
+    /// - The lengths of the provided slices must match the expectations implied by `flags`,
+    ///   as required by the underlying Win32 API.
+    /// - If either slice is `None`, the caller must ensure that this is valid according to the
+    ///   `SetDisplayConfig` contract and the provided `flags`.
+    /// - The caller must uphold all invariants required by the Win32 `SetDisplayConfig` function,
+    ///   including correct relationships between path and mode entries.
+    /// - No mutable aliasing of the underlying memory may occur during the call.
+    /// - Violating any of these requirements results in **undefined behavior**.
+    unsafe fn set_display_config(
+        &mut self,
+        patharray: Option<&[DISPLAYCONFIG_PATH_INFO]>,
+        modeinfoarray: Option<&[DISPLAYCONFIG_MODE_INFO]>,
+        flags: SET_DISPLAY_CONFIG_FLAGS,
+    ) -> i32;
 }

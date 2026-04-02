@@ -3,7 +3,8 @@ use windows::{
         Devices::Display::{
             DISPLAYCONFIG_DEVICE_INFO_HEADER, DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_PATH_INFO,
             DISPLAYCONFIG_TOPOLOGY_ID, DisplayConfigGetDeviceInfo, GetDisplayConfigBufferSizes,
-            QUERY_DISPLAY_CONFIG_FLAGS, QueryDisplayConfig,
+            QUERY_DISPLAY_CONFIG_FLAGS, QueryDisplayConfig, SET_DISPLAY_CONFIG_FLAGS,
+            SetDisplayConfig,
         },
         Foundation::{HWND, WIN32_ERROR},
         Graphics::Gdi::{
@@ -98,5 +99,14 @@ impl Win32 for WindowsApiBasedWin32 {
         trace_fn!();
 
         unsafe { EnumDisplaySettingsW(lpszdevicename, imodenum, lpdevmode) }
+    }
+
+    unsafe fn set_display_config(
+        &mut self,
+        patharray: Option<&[DISPLAYCONFIG_PATH_INFO]>,
+        modeinfoarray: Option<&[DISPLAYCONFIG_MODE_INFO]>,
+        flags: SET_DISPLAY_CONFIG_FLAGS,
+    ) -> i32 {
+        unsafe { SetDisplayConfig(patharray, modeinfoarray, flags) }
     }
 }

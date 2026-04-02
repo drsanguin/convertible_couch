@@ -14,9 +14,9 @@ use windows::{
             DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME, DISPLAYCONFIG_DEVICE_INFO_HEADER,
             DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_TYPE_TARGET, DISPLAYCONFIG_PATH_INFO,
             DISPLAYCONFIG_TARGET_DEVICE_NAME, QDC_ONLY_ACTIVE_PATHS, SDC_ALLOW_CHANGES, SDC_APPLY,
-            SDC_SAVE_TO_DATABASE, SDC_USE_SUPPLIED_DISPLAY_CONFIG, SetDisplayConfig,
+            SDC_SAVE_TO_DATABASE, SDC_USE_SUPPLIED_DISPLAY_CONFIG,
         },
-        Foundation::{ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, WIN32_ERROR},
+        Foundation::{ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS},
         Graphics::Gdi::{
             CDS_NORESET, CDS_SET_PRIMARY, CDS_TYPE, CDS_UPDATEREGISTRY, DEVMODEW, DISP_CHANGE,
             DISP_CHANGE_BADDUALVIEW, DISP_CHANGE_BADFLAGS, DISP_CHANGE_BADMODE,
@@ -162,21 +162,15 @@ impl DisplaysSettings for WindowsDisplaySettings {
         let new_position = new_position_option.unwrap();
 
         for path in &patharray {
-            let source_mode_info_idx = unsafe { path.sourceInfo.Anonymous.modeInfoIdx };
-            let source_mode = &mut modeinfoarray[source_mode_info_idx as usize];
-            // let position = unsafe { source_mode.Anonymous.sourceMode.position };
+            let mode_info_idx = unsafe { path.sourceInfo.Anonymous.modeInfoIdx };
+            let mode_info = &mut modeinfoarray[mode_info_idx as usize];
 
-            // source_mode.Anonymous.sourceMode.position = POINTL {
-            //     x: position.x - new_position.x,
-            //     y: position.y - new_position.y,
-            // }
-
-            unsafe { source_mode.Anonymous.sourceMode.position.x -= new_position.x };
-            unsafe { source_mode.Anonymous.sourceMode.position.y -= new_position.y };
+            unsafe { mode_info.Anonymous.sourceMode.position.x -= new_position.x };
+            unsafe { mode_info.Anonymous.sourceMode.position.y -= new_position.y };
         }
 
         unsafe {
-            SetDisplayConfig(
+            self.win32.set_display_config(
                 Some(&patharray),
                 Some(&modeinfoarray),
                 SDC_APPLY

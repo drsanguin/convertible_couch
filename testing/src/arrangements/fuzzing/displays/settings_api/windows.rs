@@ -13,7 +13,7 @@ use windows::{
             DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME, DISPLAYCONFIG_DEVICE_INFO_HEADER,
             DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_TYPE_TARGET, DISPLAYCONFIG_PATH_INFO,
             DISPLAYCONFIG_TARGET_DEVICE_NAME, DISPLAYCONFIG_TOPOLOGY_ID, QDC_ONLY_ACTIVE_PATHS,
-            QUERY_DISPLAY_CONFIG_FLAGS,
+            QUERY_DISPLAY_CONFIG_FLAGS, SET_DISPLAY_CONFIG_FLAGS,
         },
         Foundation::{ERROR_INVALID_PARAMETER, ERROR_SUCCESS, HWND, WIN32_ERROR},
         Graphics::Gdi::{
@@ -376,6 +376,15 @@ impl Win32 for FuzzedWin32 {
                 })
                 .unwrap_or(BOOL(0))
         }
+    }
+
+    unsafe fn set_display_config(
+        &mut self,
+        patharray: Option<&[DISPLAYCONFIG_PATH_INFO]>,
+        modeinfoarray: Option<&[DISPLAYCONFIG_MODE_INFO]>,
+        flags: SET_DISPLAY_CONFIG_FLAGS,
+    ) -> i32 {
+        todo!()
     }
 }
 
