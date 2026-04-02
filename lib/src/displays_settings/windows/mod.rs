@@ -13,7 +13,8 @@ use windows::{
         Devices::Display::{
             DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME, DISPLAYCONFIG_DEVICE_INFO_HEADER,
             DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_TYPE_TARGET, DISPLAYCONFIG_PATH_INFO,
-            DISPLAYCONFIG_TARGET_DEVICE_NAME, QDC_ONLY_ACTIVE_PATHS,
+            DISPLAYCONFIG_TARGET_DEVICE_NAME, QDC_ONLY_ACTIVE_PATHS, SDC_ALLOW_CHANGES, SDC_APPLY,
+            SDC_SAVE_TO_DATABASE, SDC_USE_SUPPLIED_DISPLAY_CONFIG, SetDisplayConfig,
         },
         Foundation::{ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, WIN32_ERROR},
         Graphics::Gdi::{
@@ -101,6 +102,8 @@ impl DisplaysSettings for WindowsDisplaySettings {
 
         query_display_config_result.ok()?;
 
+        let mut new_position_option = None;
+
         let size_of_displayconfig_target_device_name =
             size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
 
@@ -146,9 +149,47 @@ impl DisplaysSettings for WindowsDisplaySettings {
                 position.x,
                 position.y
             );
+
+            if (display_friendly_device_name == desktop_display_name
+                || display_friendly_device_name == couch_display_name)
+                && (position.x != 0 || position.y != 0)
+            {
+                new_position_option = Some(position);
+                break;
+            }
         }
 
-        todo!()
+        let new_position = new_position_option.unwrap();
+
+        for path in &patharray {
+            let source_mode_info_idx = unsafe { path.sourceInfo.Anonymous.modeInfoIdx };
+            let source_mode = &mut modeinfoarray[source_mode_info_idx as usize];
+            // let position = unsafe { source_mode.Anonymous.sourceMode.position };
+
+            // source_mode.Anonymous.sourceMode.position = POINTL {
+            //     x: position.x - new_position.x,
+            //     y: position.y - new_position.y,
+            // }
+
+            unsafe { source_mode.Anonymous.sourceMode.position.x -= new_position.x };
+            unsafe { source_mode.Anonymous.sourceMode.position.y -= new_position.y };
+        }
+
+        unsafe {
+            SetDisplayConfig(
+                Some(&patharray),
+                Some(&modeinfoarray),
+                SDC_APPLY
+                    | SDC_USE_SUPPLIED_DISPLAY_CONFIG
+                    | SDC_ALLOW_CHANGES
+                    | SDC_SAVE_TO_DATABASE,
+            );
+        };
+
+        Ok(DisplaysSettingsResult {
+            reboot_required: false,
+            new_primary_display: String::default(),
+        })
     }
 
     fn get_displays_infos(&self) -> Result<Vec<DisplayInfo>, ApplicationError> {

@@ -27,7 +27,7 @@
                 "--couch-display-name",
                 "M227WD",
                 "-l",
-                "trace"
+                "debug"
             ],
             "cwd": "${workspaceFolder}"
         },
