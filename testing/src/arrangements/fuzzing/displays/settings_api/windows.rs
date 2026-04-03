@@ -1,4 +1,5 @@
 use crate::arrangements::fuzzing::displays::{
+    display_name,
     position::FuzzedDisplayPosition,
     settings_api::{
         FuzzedDisplaysSettingsApi, behaviour::windows::FuzzedWindowsDisplaysSettingsApiBehaviour,
@@ -10,12 +11,143 @@ use std::{collections::HashMap, mem::size_of};
 use windows::Win32::{
     Devices::Display::{
         DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME, DISPLAYCONFIG_DEVICE_INFO_HEADER,
-        DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_TYPE_TARGET, DISPLAYCONFIG_PATH_INFO,
-        DISPLAYCONFIG_TARGET_DEVICE_NAME, DISPLAYCONFIG_TOPOLOGY_ID, QDC_ONLY_ACTIVE_PATHS,
-        QUERY_DISPLAY_CONFIG_FLAGS, SET_DISPLAY_CONFIG_FLAGS,
+        DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_0, DISPLAYCONFIG_MODE_INFO_TYPE,
+        DISPLAYCONFIG_MODE_INFO_TYPE_SOURCE, DISPLAYCONFIG_MODE_INFO_TYPE_TARGET,
+        DISPLAYCONFIG_PATH_INFO, DISPLAYCONFIG_PATH_SOURCE_INFO, DISPLAYCONFIG_PATH_SOURCE_INFO_0,
+        DISPLAYCONFIG_PATH_TARGET_INFO, DISPLAYCONFIG_PATH_TARGET_INFO_0,
+        DISPLAYCONFIG_SOURCE_MODE, DISPLAYCONFIG_TARGET_DEVICE_NAME, DISPLAYCONFIG_TOPOLOGY_ID,
+        QDC_ONLY_ACTIVE_PATHS, QUERY_DISPLAY_CONFIG_FLAGS, SET_DISPLAY_CONFIG_FLAGS,
     },
-    Foundation::{ERROR_INVALID_PARAMETER, ERROR_SUCCESS, WIN32_ERROR},
+    Foundation::{ERROR_INVALID_PARAMETER, ERROR_SUCCESS, LUID, POINTL, WIN32_ERROR},
 };
+
+#[derive(Clone, Default)]
+pub struct FuzzedWin32_2 {
+    patharray: Vec<DISPLAYCONFIG_PATH_INFO>,
+    modeinfoarray: Vec<DISPLAYCONFIG_MODE_INFO>,
+    display_names: HashMap<u32, String>,
+    behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
+}
+
+impl FuzzedDisplaysSettingsApi for FuzzedWin32_2 {
+    fn new(
+        video_outputs: Vec<FuzzedVideoOutput>,
+        behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
+    ) -> Self {
+        let mut patharray: Vec<DISPLAYCONFIG_PATH_INFO> = Vec::new();
+        let mut modeinfoarray: Vec<DISPLAYCONFIG_MODE_INFO> = Vec::new();
+        let mut display_names = HashMap::new();
+
+        let adapter_id = LUID {
+            LowPart: 62504,
+            HighPart: 0,
+        };
+
+        let displays = video_outputs
+            .iter()
+            .filter_map(|video_output| match &video_output.display {
+                Some(display) => Some(display),
+                None => None,
+            })
+            .collect::<Vec<_>>();
+
+        for (i, display) in displays.iter().enumerate() {
+            patharray.push(DISPLAYCONFIG_PATH_INFO {
+                sourceInfo: DISPLAYCONFIG_PATH_SOURCE_INFO {
+                    adapterId: adapter_id,
+                    id: i as u32,
+                    Anonymous: DISPLAYCONFIG_PATH_SOURCE_INFO_0 {
+                        modeInfoIdx: (modeinfoarray.len() + 1) as u32,
+                    },
+                    ..Default::default()
+                },
+                targetInfo: DISPLAYCONFIG_PATH_TARGET_INFO {
+                    adapterId: adapter_id,
+                    id: display.config_mode_info_id,
+                    Anonymous: DISPLAYCONFIG_PATH_TARGET_INFO_0 {
+                        modeInfoIdx: modeinfoarray.len() as u32,
+                    },
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
+
+            modeinfoarray.push(DISPLAYCONFIG_MODE_INFO {
+                infoType: DISPLAYCONFIG_MODE_INFO_TYPE_TARGET,
+                id: display.config_mode_info_id,
+                adapterId: adapter_id,
+                ..Default::default()
+            });
+
+            modeinfoarray.push(
+                DISPLAYCONFIG_MODE_INFO {
+                    infoType: DISPLAYCONFIG_MODE_INFO_TYPE_SOURCE,
+                    id: 0,
+                    adapterId: adapter_id,
+                    Anonymous: DISPLAYCONFIG_MODE_INFO_0 {
+                        sourceMode: DISPLAYCONFIG_SOURCE_MODE {
+                            width: display.resolution.width,
+                            height: display.resolution.height,
+                            position: POINTL {
+                                x: display.position.x,
+                                y: display.position.y,
+                            },
+                            ..Default::default()
+                        },
+                    },
+                }, // ..Default::default()
+            );
+
+            display_names.insert(display.config_mode_info_id, display.name.clone());
+        }
+
+        Self {
+            patharray,
+            modeinfoarray,
+            display_names,
+            behaviour,
+        }
+    }
+}
+
+impl Win32 for FuzzedWin32_2 {
+    unsafe fn get_display_config_buffer_sizes(
+        &self,
+        flags: QUERY_DISPLAY_CONFIG_FLAGS,
+        numpatharrayelements: *mut u32,
+        nummodeinfoarrayelements: *mut u32,
+    ) -> WIN32_ERROR {
+        todo!()
+    }
+
+    unsafe fn query_display_config(
+        &self,
+        flags: QUERY_DISPLAY_CONFIG_FLAGS,
+        numpatharrayelements: *mut u32,
+        patharray: *mut DISPLAYCONFIG_PATH_INFO,
+        nummodeinfoarrayelements: *mut u32,
+        modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
+        currenttopologyid: ::core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
+    ) -> WIN32_ERROR {
+        todo!()
+    }
+
+    unsafe fn display_config_get_device_info(
+        &self,
+        requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
+    ) -> i32 {
+        todo!()
+    }
+
+    unsafe fn set_display_config(
+        &mut self,
+        patharray: Option<&[DISPLAYCONFIG_PATH_INFO]>,
+        modeinfoarray: Option<&[DISPLAYCONFIG_MODE_INFO]>,
+        flags: SET_DISPLAY_CONFIG_FLAGS,
+    ) -> i32 {
+        todo!()
+    }
+}
 
 #[derive(Clone, Default)]
 pub struct FuzzedWin32 {
