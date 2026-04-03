@@ -25,7 +25,7 @@ use windows::Win32::{
 pub struct FuzzedWin32_2 {
     patharray: Vec<DISPLAYCONFIG_PATH_INFO>,
     modeinfoarray: Vec<DISPLAYCONFIG_MODE_INFO>,
-    display_names: HashMap<u32, String>,
+    displays_names: HashMap<(i32, u32, u32), String>,
     behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
 }
 
@@ -36,7 +36,7 @@ impl FuzzedDisplaysSettingsApi for FuzzedWin32_2 {
     ) -> Self {
         let mut patharray: Vec<DISPLAYCONFIG_PATH_INFO> = Vec::new();
         let mut modeinfoarray: Vec<DISPLAYCONFIG_MODE_INFO> = Vec::new();
-        let mut display_names = HashMap::new();
+        let mut displays_names = HashMap::new();
 
         let adapter_id = LUID {
             LowPart: 62504,
@@ -98,13 +98,20 @@ impl FuzzedDisplaysSettingsApi for FuzzedWin32_2 {
                 }, // ..Default::default()
             );
 
-            display_names.insert(display.config_mode_info_id, display.name.clone());
+            displays_names.insert(
+                (
+                    adapter_id.HighPart,
+                    adapter_id.LowPart,
+                    display.config_mode_info_id,
+                ),
+                display.name.clone(),
+            );
         }
 
         Self {
             patharray,
             modeinfoarray,
-            display_names,
+            displays_names,
             behaviour,
         }
     }
@@ -117,7 +124,12 @@ impl Win32 for FuzzedWin32_2 {
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
     ) -> WIN32_ERROR {
-        todo!()
+        unsafe {
+            *numpatharrayelements = self.patharray.len() as u32;
+            *nummodeinfoarrayelements = self.modeinfoarray.len() as u32;
+        }
+
+        ERROR_SUCCESS
     }
 
     unsafe fn query_display_config(
@@ -129,14 +141,39 @@ impl Win32 for FuzzedWin32_2 {
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: ::core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR {
-        todo!()
+        for i in 0..unsafe { *numpatharrayelements } {
+            unsafe {
+                *patharray.add(i as usize) = self.patharray[i as usize].clone();
+            }
+        }
+
+        for i in 0..unsafe { *nummodeinfoarrayelements } {
+            unsafe {
+                *modeinfoarray.add(i as usize) = self.modeinfoarray[i as usize].clone();
+            }
+        }
+
+        ERROR_SUCCESS
     }
 
     unsafe fn display_config_get_device_info(
         &self,
         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
     ) -> i32 {
-        todo!()
+        let request_packet = requestpacket.cast::<DISPLAYCONFIG_TARGET_DEVICE_NAME>();
+
+        let name = self
+            .displays_names
+            .get(&(
+                unsafe { (*request_packet).header.adapterId.HighPart },
+                unsafe { (*request_packet).header.adapterId.LowPart },
+                unsafe { (*request_packet).header.id },
+            ))
+            .unwrap();
+
+        (unsafe { *request_packet }).monitorFriendlyDeviceName = encode_utf16::<64>(&name);
+
+        0
     }
 
     unsafe fn set_display_config(
