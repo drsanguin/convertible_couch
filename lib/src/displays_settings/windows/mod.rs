@@ -323,6 +323,8 @@ impl DisplaysSettings for WindowsDisplaySettings {
             });
         }
 
+        displays_info.sort();
+
         Ok(displays_info)
     }
 }

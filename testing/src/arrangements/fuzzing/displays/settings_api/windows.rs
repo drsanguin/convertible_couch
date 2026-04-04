@@ -171,7 +171,9 @@ impl Win32 for FuzzedWin32 {
             ))
             .unwrap();
 
-        (unsafe { *request_packet }).monitorFriendlyDeviceName = encode_utf16::<64>(&name);
+        let monitor_friendly_device_name = encode_utf16::<64>(&name);
+
+        unsafe { (*request_packet).monitorFriendlyDeviceName = monitor_friendly_device_name };
 
         0
     }
