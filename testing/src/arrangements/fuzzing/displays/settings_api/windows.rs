@@ -168,20 +168,21 @@ impl Win32 for FuzzedWin32 {
     ) -> i32 {
         let request_packet = requestpacket.cast::<DISPLAYCONFIG_TARGET_DEVICE_NAME>();
 
-        let name = self
-            .displays_names
-            .get(&(
-                unsafe { (*request_packet).header.adapterId.HighPart },
-                unsafe { (*request_packet).header.adapterId.LowPart },
-                unsafe { (*request_packet).header.id },
-            ))
-            .unwrap();
+        let display_name_option = self.displays_names.get(&(
+            unsafe { (*request_packet).header.adapterId.HighPart },
+            unsafe { (*request_packet).header.adapterId.LowPart },
+            unsafe { (*request_packet).header.id },
+        ));
 
-        let monitor_friendly_device_name = encode_utf16::<64>(&name);
+        if let Some(display_name) = display_name_option {
+            let monitor_friendly_device_name = encode_utf16::<64>(&display_name);
 
-        unsafe { (*request_packet).monitorFriendlyDeviceName = monitor_friendly_device_name };
+            unsafe { (*request_packet).monitorFriendlyDeviceName = monitor_friendly_device_name };
 
-        ERROR_SUCCESS.0 as i32
+            return ERROR_SUCCESS.0 as i32;
+        }
+
+        ERROR_INVALID_PARAMETER.0 as i32
     }
 
     unsafe fn set_display_config(
