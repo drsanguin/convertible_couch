@@ -1,22 +1,20 @@
 use crate::arrangements::fuzzing::displays::{
-    display_name,
-    position::FuzzedDisplayPosition,
     settings_api::{
         FuzzedDisplaysSettingsApi, behaviour::windows::FuzzedWindowsDisplaysSettingsApiBehaviour,
     },
     video_output::FuzzedVideoOutput,
 };
 use convertible_couch_lib::displays_settings::windows::win_32::Win32;
-use std::{collections::HashMap, mem::size_of};
+use std::collections::HashMap;
 use windows::Win32::{
     Devices::Display::{
-        DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME, DISPLAYCONFIG_DEVICE_INFO_HEADER,
-        DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_0, DISPLAYCONFIG_MODE_INFO_TYPE,
+        DISPLAYCONFIG_DEVICE_INFO_HEADER, DISPLAYCONFIG_MODE_INFO, DISPLAYCONFIG_MODE_INFO_0,
         DISPLAYCONFIG_MODE_INFO_TYPE_SOURCE, DISPLAYCONFIG_MODE_INFO_TYPE_TARGET,
         DISPLAYCONFIG_PATH_INFO, DISPLAYCONFIG_PATH_SOURCE_INFO, DISPLAYCONFIG_PATH_SOURCE_INFO_0,
         DISPLAYCONFIG_PATH_TARGET_INFO, DISPLAYCONFIG_PATH_TARGET_INFO_0,
         DISPLAYCONFIG_SOURCE_MODE, DISPLAYCONFIG_TARGET_DEVICE_NAME, DISPLAYCONFIG_TOPOLOGY_ID,
-        QDC_ONLY_ACTIVE_PATHS, QUERY_DISPLAY_CONFIG_FLAGS, SET_DISPLAY_CONFIG_FLAGS,
+        QDC_ONLY_ACTIVE_PATHS, QUERY_DISPLAY_CONFIG_FLAGS, SDC_ALLOW_CHANGES, SDC_APPLY,
+        SDC_SAVE_TO_DATABASE, SDC_USE_SUPPLIED_DISPLAY_CONFIG, SET_DISPLAY_CONFIG_FLAGS,
     },
     Foundation::{ERROR_INVALID_PARAMETER, ERROR_SUCCESS, LUID, POINTL, WIN32_ERROR},
 };
@@ -124,6 +122,10 @@ impl Win32 for FuzzedWin32 {
         numpatharrayelements: *mut u32,
         nummodeinfoarrayelements: *mut u32,
     ) -> WIN32_ERROR {
+        if !flags.contains(QDC_ONLY_ACTIVE_PATHS) {
+            return ERROR_INVALID_PARAMETER;
+        }
+
         unsafe {
             *numpatharrayelements = self.patharray.len() as u32;
             *nummodeinfoarrayelements = self.modeinfoarray.len() as u32;
@@ -141,6 +143,10 @@ impl Win32 for FuzzedWin32 {
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: ::core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR {
+        if !flags.contains(QDC_ONLY_ACTIVE_PATHS) || currenttopologyid.is_some() {
+            return ERROR_INVALID_PARAMETER;
+        }
+
         for i in 0..unsafe { *numpatharrayelements } {
             unsafe {
                 *patharray.add(i as usize) = self.patharray[i as usize].clone();
@@ -175,7 +181,7 @@ impl Win32 for FuzzedWin32 {
 
         unsafe { (*request_packet).monitorFriendlyDeviceName = monitor_friendly_device_name };
 
-        0
+        ERROR_SUCCESS.0 as i32
     }
 
     unsafe fn set_display_config(
@@ -184,178 +190,26 @@ impl Win32 for FuzzedWin32 {
         modeinfoarray: Option<&[DISPLAYCONFIG_MODE_INFO]>,
         flags: SET_DISPLAY_CONFIG_FLAGS,
     ) -> i32 {
-        self.patharray = patharray.unwrap_or(&[]).to_vec();
-        self.modeinfoarray = modeinfoarray.unwrap_or(&[]).to_vec();
+        if !flags.contains(SDC_APPLY)
+            || !flags.contains(SDC_USE_SUPPLIED_DISPLAY_CONFIG)
+            || !flags.contains(SDC_ALLOW_CHANGES)
+            || !flags.contains(SDC_SAVE_TO_DATABASE)
+        {
+            return ERROR_INVALID_PARAMETER.0 as i32;
+        }
 
-        0
+        if let Some(paths) = patharray
+            && let Some(modes) = modeinfoarray
+        {
+            self.patharray = paths.to_vec();
+            self.modeinfoarray = modes.to_vec();
+
+            return ERROR_SUCCESS.0 as i32;
+        }
+
+        ERROR_INVALID_PARAMETER.0 as i32
     }
 }
-
-// #[derive(Clone, Default)]
-// pub struct FuzzedWin32 {
-//     video_outputs: Vec<FuzzedVideoOutput>,
-//     display_changes_to_commit: HashMap<String, FuzzedDisplayPosition>,
-//     behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
-// }
-
-// impl FuzzedDisplaysSettingsApi for FuzzedWin32 {
-//     fn new(
-//         video_outputs: Vec<FuzzedVideoOutput>,
-//         behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
-//     ) -> Self {
-//         let n_display = video_outputs
-//             .iter()
-//             .filter(|video_output| video_output.display.is_some())
-//             .count();
-
-//         Self {
-//             video_outputs,
-//             display_changes_to_commit: HashMap::with_capacity(n_display),
-//             behaviour,
-//         }
-//     }
-// }
-
-// impl Win32 for FuzzedWin32 {
-//     unsafe fn get_display_config_buffer_sizes(
-//         &self,
-//         flags: QUERY_DISPLAY_CONFIG_FLAGS,
-//         numpatharrayelements: *mut u32,
-//         nummodeinfoarrayelements: *mut u32,
-//     ) -> WIN32_ERROR {
-//         unsafe {
-//             if let Some(get_display_config_buffer_sizes_error) =
-//                 self.behaviour.get_display_config_buffer_sizes_error
-//             {
-//                 return get_display_config_buffer_sizes_error;
-//             }
-
-//             if flags != QDC_ONLY_ACTIVE_PATHS {
-//                 return ERROR_INVALID_PARAMETER;
-//             }
-
-//             let n_displays = self
-//                 .video_outputs
-//                 .iter()
-//                 .filter(|video_output| video_output.display.is_some())
-//                 .count();
-
-//             let n_displays_as_u32 = u32::try_from(n_displays).unwrap();
-
-//             *numpatharrayelements = n_displays_as_u32;
-//             *nummodeinfoarrayelements = n_displays_as_u32 * 2;
-
-//             ERROR_SUCCESS
-//         }
-//     }
-
-//     unsafe fn query_display_config(
-//         &self,
-//         flags: QUERY_DISPLAY_CONFIG_FLAGS,
-//         _numpatharrayelements: *mut u32,
-//         _patharray: *mut DISPLAYCONFIG_PATH_INFO,
-//         nummodeinfoarrayelements: *mut u32,
-//         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
-//         currenttopologyid: Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
-//     ) -> WIN32_ERROR {
-//         unsafe {
-//             if let Some(query_display_config_error) = self.behaviour.query_display_config_error {
-//                 return query_display_config_error;
-//             }
-
-//             if flags != QDC_ONLY_ACTIVE_PATHS || currenttopologyid.is_some() {
-//                 return ERROR_INVALID_PARAMETER;
-//             }
-
-//             let mode_informations_size = usize::try_from(*nummodeinfoarrayelements).unwrap();
-
-//             for i in 0..mode_informations_size {
-//                 let mode_information = modeinfoarray.add(i);
-
-//                 if i % 2 != 0 {
-//                     continue;
-//                 }
-
-//                 match self
-//                     .video_outputs
-//                     .iter()
-//                     .filter_map(|video_output| match &video_output.display {
-//                         Some(display) => Some(display),
-//                         None => None,
-//                     })
-//                     .nth(i / 2)
-//                 {
-//                     Some(display) => {
-//                         (*mode_information).infoType = DISPLAYCONFIG_MODE_INFO_TYPE_TARGET;
-//                         (*mode_information).id = display.config_mode_info_id;
-//                     }
-//                     None => return ERROR_INVALID_PARAMETER,
-//                 }
-//             }
-
-//             ERROR_SUCCESS
-//         }
-//     }
-
-//     unsafe fn display_config_get_device_info(
-//         &self,
-//         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
-//     ) -> i32 {
-//         unsafe {
-//             let request_packet = requestpacket.cast::<DISPLAYCONFIG_TARGET_DEVICE_NAME>();
-
-//             let size_of_displayconfig_target_device_name_as_usize =
-//                 size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME>();
-//             let size_of_displayconfig_target_device_name =
-//                 u32::try_from(size_of_displayconfig_target_device_name_as_usize).unwrap();
-
-//             if (*request_packet).header.r#type != DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME
-//                 || (*request_packet).header.size != size_of_displayconfig_target_device_name
-//             {
-//                 return 1;
-//             }
-
-//             let config_mode_info_id = (*request_packet).header.id;
-
-//             self.video_outputs
-//                 .iter()
-//                 .find(|video_output| {
-//                     if video_output.display.is_none() {
-//                         return false;
-//                     }
-
-//                     match &video_output.display {
-//                         Some(display) => display.config_mode_info_id == config_mode_info_id,
-//                         None => false,
-//                     }
-//                 })
-//                 .map(|video_output| {
-//                     let display = video_output.display.as_ref().unwrap();
-
-//                     if self.behaviour.getting_primary_display_name_fails
-//                         && display.position.is_positioned_at_origin()
-//                     {
-//                         return 1;
-//                     }
-
-//                     (*request_packet).monitorDevicePath = encode_utf16::<128>(&display.device_id);
-//                     (*request_packet).monitorFriendlyDeviceName = encode_utf16::<64>(&display.name);
-
-//                     0
-//                 })
-//                 .unwrap_or(1)
-//         }
-//     }
-
-//     unsafe fn set_display_config(
-//         &mut self,
-//         patharray: Option<&[DISPLAYCONFIG_PATH_INFO]>,
-//         modeinfoarray: Option<&[DISPLAYCONFIG_MODE_INFO]>,
-//         flags: SET_DISPLAY_CONFIG_FLAGS,
-//     ) -> i32 {
-//         todo!()
-//     }
-// }
 
 fn encode_utf16<const T: usize>(string: &str) -> [u16; T] {
     let mut bytes = [0; T];
