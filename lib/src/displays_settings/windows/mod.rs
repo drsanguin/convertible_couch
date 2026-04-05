@@ -38,59 +38,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
         desktop_display_name: &str,
         couch_display_name: &str,
     ) -> Result<DisplaysSettingsResult, ApplicationError> {
-        let mut patharray = Vec::new();
-        let mut modeinfoarray = Vec::new();
-        let mut query_display_config_result;
-
-        loop {
-            let mut numpatharrayelements = u32::default();
-            let mut nummodeinfoarrayelements = u32::default();
-
-            (unsafe {
-                self.win32
-                    .get_display_config_buffer_sizes(
-                        QDC_ONLY_ACTIVE_PATHS,
-                        &mut numpatharrayelements,
-                        &mut nummodeinfoarrayelements,
-                    )
-                    .ok()
-            })?;
-
-            patharray.resize(
-                numpatharrayelements.try_into()?,
-                DISPLAYCONFIG_PATH_INFO::default(),
-            );
-            modeinfoarray.resize(
-                nummodeinfoarrayelements.try_into()?,
-                DISPLAYCONFIG_MODE_INFO::default(),
-            );
-
-            query_display_config_result = unsafe {
-                self.win32.query_display_config(
-                    QDC_ONLY_ACTIVE_PATHS,
-                    &mut numpatharrayelements,
-                    patharray.as_mut_ptr(),
-                    &mut nummodeinfoarrayelements,
-                    modeinfoarray.as_mut_ptr(),
-                    None,
-                )
-            };
-
-            patharray.resize(
-                numpatharrayelements.try_into()?,
-                DISPLAYCONFIG_PATH_INFO::default(),
-            );
-            modeinfoarray.resize(
-                nummodeinfoarrayelements.try_into()?,
-                DISPLAYCONFIG_MODE_INFO::default(),
-            );
-
-            if query_display_config_result != ERROR_INSUFFICIENT_BUFFER {
-                break;
-            }
-        }
-
-        query_display_config_result.ok()?;
+        let (patharray, mut modeinfoarray) = self.query_display_config()?;
 
         let mut new_position = POINTL { x: 0, y: 0 };
         let mut new_primary_monitor_name = String::default();
@@ -215,62 +163,8 @@ impl DisplaysSettings for WindowsDisplaySettings {
         trace_fn!();
         info!("Getting displays informations");
 
+        let (patharray, modeinfoarray) = self.query_display_config()?;
         let mut displays_info = Vec::new();
-
-        let mut patharray = Vec::new();
-        let mut modeinfoarray = Vec::new();
-        let mut query_display_config_result;
-
-        loop {
-            let mut numpatharrayelements = u32::default();
-            let mut nummodeinfoarrayelements = u32::default();
-
-            (unsafe {
-                self.win32
-                    .get_display_config_buffer_sizes(
-                        QDC_ONLY_ACTIVE_PATHS,
-                        &mut numpatharrayelements,
-                        &mut nummodeinfoarrayelements,
-                    )
-                    .ok()
-            })?;
-
-            patharray.resize(
-                numpatharrayelements.try_into()?,
-                DISPLAYCONFIG_PATH_INFO::default(),
-            );
-            modeinfoarray.resize(
-                nummodeinfoarrayelements.try_into()?,
-                DISPLAYCONFIG_MODE_INFO::default(),
-            );
-
-            query_display_config_result = unsafe {
-                self.win32.query_display_config(
-                    QDC_ONLY_ACTIVE_PATHS,
-                    &mut numpatharrayelements,
-                    patharray.as_mut_ptr(),
-                    &mut nummodeinfoarrayelements,
-                    modeinfoarray.as_mut_ptr(),
-                    None,
-                )
-            };
-
-            patharray.resize(
-                numpatharrayelements.try_into()?,
-                DISPLAYCONFIG_PATH_INFO::default(),
-            );
-            modeinfoarray.resize(
-                nummodeinfoarrayelements.try_into()?,
-                DISPLAYCONFIG_MODE_INFO::default(),
-            );
-
-            if query_display_config_result != ERROR_INSUFFICIENT_BUFFER {
-                break;
-            }
-        }
-
-        query_display_config_result.ok()?;
-
         let size_of_displayconfig_target_device_name =
             size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
 
@@ -326,6 +220,71 @@ impl DisplaysSettings for WindowsDisplaySettings {
         displays_info.sort();
 
         Ok(displays_info)
+    }
+}
+
+impl WindowsDisplaySettings {
+    fn query_display_config(
+        &self,
+    ) -> Result<(Vec<DISPLAYCONFIG_PATH_INFO>, Vec<DISPLAYCONFIG_MODE_INFO>), ApplicationError>
+    {
+        trace_fn!();
+
+        let mut patharray = Vec::new();
+        let mut modeinfoarray = Vec::new();
+        let mut query_display_config_result;
+
+        loop {
+            let mut numpatharrayelements = u32::default();
+            let mut nummodeinfoarrayelements = u32::default();
+
+            (unsafe {
+                self.win32
+                    .get_display_config_buffer_sizes(
+                        QDC_ONLY_ACTIVE_PATHS,
+                        &mut numpatharrayelements,
+                        &mut nummodeinfoarrayelements,
+                    )
+                    .ok()
+            })?;
+
+            patharray.resize(
+                numpatharrayelements.try_into()?,
+                DISPLAYCONFIG_PATH_INFO::default(),
+            );
+            modeinfoarray.resize(
+                nummodeinfoarrayelements.try_into()?,
+                DISPLAYCONFIG_MODE_INFO::default(),
+            );
+
+            query_display_config_result = unsafe {
+                self.win32.query_display_config(
+                    QDC_ONLY_ACTIVE_PATHS,
+                    &mut numpatharrayelements,
+                    patharray.as_mut_ptr(),
+                    &mut nummodeinfoarrayelements,
+                    modeinfoarray.as_mut_ptr(),
+                    None,
+                )
+            };
+
+            patharray.resize(
+                numpatharrayelements.try_into()?,
+                DISPLAYCONFIG_PATH_INFO::default(),
+            );
+            modeinfoarray.resize(
+                nummodeinfoarrayelements.try_into()?,
+                DISPLAYCONFIG_MODE_INFO::default(),
+            );
+
+            if query_display_config_result != ERROR_INSUFFICIENT_BUFFER {
+                break;
+            }
+        }
+
+        query_display_config_result.ok()?;
+
+        Ok((patharray, modeinfoarray))
     }
 }
 
