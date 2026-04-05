@@ -5,7 +5,7 @@ use crate::{
     },
     trace_fn,
 };
-use log::{debug, info};
+use log::info;
 use std::{fmt::Debug, mem};
 use win_32::Win32;
 use windows::Win32::{
@@ -49,7 +49,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
         let size_of_displayconfig_target_device_name =
             size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
 
-        for (monitor_index, path) in patharray.iter().enumerate() {
+        for path in &patharray {
             let mut target_name = DISPLAYCONFIG_TARGET_DEVICE_NAME {
                 header: DISPLAYCONFIG_DEVICE_INFO_HEADER {
                     r#type: DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME,
@@ -77,12 +77,6 @@ impl DisplaysSettings for WindowsDisplaySettings {
                 from_utf16_trimed(&target_name.monitorFriendlyDeviceName)?;
             let display_friendly_device_name =
                 from_raw_display_name(&raw_display_friendly_device_name);
-            let monitor_number = monitor_index + 1;
-
-            debug!(
-                "index = {}, display_friendly_device_name = \"{}\", position = ({}, {})",
-                monitor_number, display_friendly_device_name, position.x, position.y
-            );
 
             possible_names.push(display_friendly_device_name.clone());
 
@@ -163,7 +157,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
         let size_of_displayconfig_target_device_name =
             size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
 
-        for (monitor_index, path) in patharray.iter().enumerate() {
+        for path in patharray {
             let mut target_name = DISPLAYCONFIG_TARGET_DEVICE_NAME {
                 header: DISPLAYCONFIG_DEVICE_INFO_HEADER {
                     r#type: DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME,
@@ -191,12 +185,6 @@ impl DisplaysSettings for WindowsDisplaySettings {
                 from_utf16_trimed(&target_name.monitorFriendlyDeviceName)?;
             let display_friendly_device_name =
                 from_raw_display_name(&raw_display_friendly_device_name);
-            let monitor_number = monitor_index + 1;
-
-            debug!(
-                "index = {}, display_friendly_device_name = \"{}\", position = ({}, {})",
-                monitor_number, display_friendly_device_name, position.x, position.y
-            );
 
             displays_info.push(DisplayInfo {
                 name: display_friendly_device_name.clone(),
