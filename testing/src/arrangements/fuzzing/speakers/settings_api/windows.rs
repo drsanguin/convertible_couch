@@ -18,22 +18,22 @@ use crate::arrangements::fuzzing::speakers::{
         FuzzedSpeakersSettingsApi, behaviour::windows::FuzzedWindowsSpeakersSettingsApiBehaviour,
     },
 };
-use convertible_couch_lib::speakers_settings::windows::windows_com::{
+use convertible_couch_lib::speakers_settings::windows::windows_api::{
     IMMDevice, IMMDeviceCollection, IMMDeviceEnumerator, IPolicyConfigVista, IPropertyStore,
-    WindowsCom,
+    WindowsApi,
 };
 
 use std::{cell::RefCell, ffi::c_void, mem::ManuallyDrop, rc::Rc};
 
 #[allow(dead_code)]
 #[derive(Clone, Default)]
-pub struct FuzzedWindowsCom {
+pub struct FuzzedWindowsApi {
     speakers: Rc<RefCell<Vec<FuzzedSpeaker>>>,
     behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
     com_library_initialized: bool,
 }
 
-impl FuzzedSpeakersSettingsApi for FuzzedWindowsCom {
+impl FuzzedSpeakersSettingsApi for FuzzedWindowsApi {
     fn new(
         speakers: Vec<FuzzedSpeaker>,
         behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
@@ -46,7 +46,7 @@ impl FuzzedSpeakersSettingsApi for FuzzedWindowsCom {
     }
 }
 
-impl WindowsCom for FuzzedWindowsCom {
+impl WindowsApi for FuzzedWindowsApi {
     unsafe fn co_initialize_ex(
         &mut self,
         pvreserved: Option<*const c_void>,

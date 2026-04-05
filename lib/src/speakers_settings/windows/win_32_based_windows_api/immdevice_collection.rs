@@ -1,18 +1,20 @@
 use crate::{
-    speakers_settings::windows::windows_com::{
-        IMMDevice as IMMDeviceTrait, IMMDeviceCollection as IMMDeviceCollectionTrait,
-        windows_api_based_windows_com::immdevice::WindowsApiBasedIMMDevice,
+    speakers_settings::windows::{
+        win_32_based_windows_api::immdevice::Win32ApiBasedIMMDevice,
+        windows_api::{
+            IMMDevice as IMMDeviceTrait, IMMDeviceCollection as IMMDeviceCollectionTrait,
+        },
     },
     trace_fn,
 };
 use windows::Win32::Media::Audio::IMMDeviceCollection;
 use windows_core::Result;
 
-pub struct WindowsApiBasedIMMDeviceCollection {
+pub struct Win32ApiBasedIMMDeviceCollection {
     immdevice_collection: IMMDeviceCollection,
 }
 
-impl WindowsApiBasedIMMDeviceCollection {
+impl Win32ApiBasedIMMDeviceCollection {
     pub fn new(immdevice_collection: IMMDeviceCollection) -> Self {
         trace_fn!();
 
@@ -22,7 +24,7 @@ impl WindowsApiBasedIMMDeviceCollection {
     }
 }
 
-impl IMMDeviceCollectionTrait for WindowsApiBasedIMMDeviceCollection {
+impl IMMDeviceCollectionTrait for Win32ApiBasedIMMDeviceCollection {
     unsafe fn get_count(&self) -> Result<u32> {
         trace_fn!();
 
@@ -34,7 +36,7 @@ impl IMMDeviceCollectionTrait for WindowsApiBasedIMMDeviceCollection {
 
         unsafe {
             let immdevice = self.immdevice_collection.Item(ndevice)?;
-            let windows_api_based_immdevice = WindowsApiBasedIMMDevice::new(immdevice);
+            let windows_api_based_immdevice = Win32ApiBasedIMMDevice::new(immdevice);
             let boxed_windows_api_based_immdevice = Box::new(windows_api_based_immdevice);
 
             Ok(boxed_windows_api_based_immdevice)

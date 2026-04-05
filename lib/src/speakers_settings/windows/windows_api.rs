@@ -7,9 +7,7 @@ use windows::Win32::{
 };
 use windows_core::{HRESULT, PCWSTR, PWSTR, Result};
 
-pub mod windows_api_based_windows_com;
-
-pub trait WindowsCom {
+pub trait WindowsApi {
     /// Initializes COM for the current thread.
     ///
     /// # Safety
