@@ -252,7 +252,7 @@ impl WindowsDisplaySettings {
                 DISPLAYCONFIG_MODE_INFO::default(),
             );
 
-            if query_display_config_result != ERROR_INSUFFICIENT_BUFFER {
+            if self.is_not_an_insufficient_buffer_error(&query_display_config_result) {
                 break;
             }
         }
@@ -260,6 +260,12 @@ impl WindowsDisplaySettings {
         query_display_config_result.ok()?;
 
         Ok((patharray, modeinfoarray))
+    }
+
+    fn is_not_an_insufficient_buffer_error(&self, error: &WIN32_ERROR) -> bool {
+        trace_fn!();
+
+        *error != ERROR_INSUFFICIENT_BUFFER
     }
 }
 
