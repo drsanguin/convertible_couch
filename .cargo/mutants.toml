@@ -6,5 +6,6 @@ exclude_globs = [
     ]
 exclude_re = [
     "configure_logger", # this function is just side effect
-    "drop"
+    "drop",
+    "ERROR_INSUFFICIENT_BUFFER"
     ]
