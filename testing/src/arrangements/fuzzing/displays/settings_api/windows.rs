@@ -147,7 +147,7 @@ impl Win32 for FuzzedWin32 {
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: ::core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR {
-        if self.behaviour.query_display_config_errors.len() > 0 {
+        if !self.behaviour.query_display_config_errors.is_empty() {
             return self.behaviour.query_display_config_errors.remove(0);
         }
 
