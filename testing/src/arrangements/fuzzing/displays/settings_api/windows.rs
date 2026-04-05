@@ -157,13 +157,13 @@ impl Win32 for FuzzedWin32 {
 
         for i in 0..unsafe { *numpatharrayelements } {
             unsafe {
-                *patharray.add(i as usize) = self.patharray[i as usize].clone();
+                *patharray.add(i as usize) = self.patharray[i as usize];
             }
         }
 
         for i in 0..unsafe { *nummodeinfoarrayelements } {
             unsafe {
-                *modeinfoarray.add(i as usize) = self.modeinfoarray[i as usize].clone();
+                *modeinfoarray.add(i as usize) = self.modeinfoarray[i as usize];
             }
         }
 
@@ -187,7 +187,7 @@ impl Win32 for FuzzedWin32 {
         ));
 
         if let Some(display_name) = display_name_option {
-            let monitor_friendly_device_name = encode_utf16::<64>(&display_name);
+            let monitor_friendly_device_name = encode_utf16::<64>(display_name);
 
             unsafe { (*request_packet).monitorFriendlyDeviceName = monitor_friendly_device_name };
 
