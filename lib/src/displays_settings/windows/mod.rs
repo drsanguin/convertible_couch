@@ -15,7 +15,7 @@ use windows::Win32::{
         QDC_ONLY_ACTIVE_PATHS, SDC_ALLOW_CHANGES, SDC_APPLY, SDC_SAVE_TO_DATABASE,
         SDC_USE_SUPPLIED_DISPLAY_CONFIG,
     },
-    Foundation::{ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, POINTL},
+    Foundation::{ERROR_INSUFFICIENT_BUFFER, POINTL, WIN32_ERROR},
 };
 
 pub mod win_32;
@@ -60,20 +60,14 @@ impl DisplaysSettings for WindowsDisplaySettings {
                 ..Default::default()
             };
 
-            let display_config_get_device_info_result = unsafe {
+            let display_config_get_device_info_result_code = unsafe {
                 self.win32
                     .display_config_get_device_info(&mut target_name.header)
             };
+            let display_config_get_device_info_result =
+                WIN32_ERROR(display_config_get_device_info_result_code.try_into()?);
 
-            if display_config_get_device_info_result != ERROR_SUCCESS.0 as i32 {
-                let error_message = format!(
-                    "Failed to retrieve display configuration information about the device {} because of error {}",
-                    path.targetInfo.id, display_config_get_device_info_result
-                );
-                let error = ApplicationError::Custom(error_message);
-
-                return Err(error);
-            }
+            display_config_get_device_info_result.ok()?;
 
             let source_mode_info_idx = unsafe { path.sourceInfo.Anonymous.modeInfoIdx };
             let source_mode = &modeinfoarray[source_mode_info_idx as usize];
@@ -142,7 +136,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
             unsafe { mode_info.Anonymous.sourceMode.position.y -= new_position.y };
         }
 
-        unsafe {
+        let set_display_config_result_code = unsafe {
             self.win32.set_display_config(
                 Some(&patharray),
                 Some(&modeinfoarray),
@@ -150,8 +144,11 @@ impl DisplaysSettings for WindowsDisplaySettings {
                     | SDC_USE_SUPPLIED_DISPLAY_CONFIG
                     | SDC_ALLOW_CHANGES
                     | SDC_SAVE_TO_DATABASE,
-            );
+            )
         };
+        let set_display_config_result = WIN32_ERROR(set_display_config_result_code.try_into()?);
+
+        set_display_config_result.ok()?;
 
         Ok(DisplaysSettingsResult {
             reboot_required: false,
@@ -179,20 +176,14 @@ impl DisplaysSettings for WindowsDisplaySettings {
                 ..Default::default()
             };
 
-            let display_config_get_device_info_result = unsafe {
+            let display_config_get_device_info_result_code = unsafe {
                 self.win32
                     .display_config_get_device_info(&mut target_name.header)
             };
+            let display_config_get_device_info_result =
+                WIN32_ERROR(display_config_get_device_info_result_code.try_into()?);
 
-            if display_config_get_device_info_result != ERROR_SUCCESS.0 as i32 {
-                let error_message = format!(
-                    "Failed to retrieve display configuration information about the device {} because of error {}",
-                    path.targetInfo.id, display_config_get_device_info_result
-                );
-                let error = ApplicationError::Custom(error_message);
-
-                return Err(error);
-            }
+            display_config_get_device_info_result.ok()?;
 
             let source_mode_info_idx = unsafe { path.sourceInfo.Anonymous.modeInfoIdx };
             let source_mode = &modeinfoarray[source_mode_info_idx as usize];
