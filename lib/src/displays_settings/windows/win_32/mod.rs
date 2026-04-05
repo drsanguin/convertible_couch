@@ -45,7 +45,7 @@ pub trait Win32 {
     /// - No provided memory may be mutably aliased elsewhere during the call.
     /// - Buffer sizes must match the counts provided, otherwise **undefined behavior** may occur.
     unsafe fn query_display_config(
-        &self,
+        &mut self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         numpatharrayelements: *mut u32,
         patharray: *mut DISPLAYCONFIG_PATH_INFO,

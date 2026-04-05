@@ -50,7 +50,7 @@ fn report_query_display_config_errors() {
         .of_which_there_are_at_least(2)
         .whose_primary_is_named(&primary_display_name)
         .with_a_secondary_named(&secondary_display_name)
-        .for_which_query_display_config_fails_with(ERROR_INVALID_PARAMETER)
+        .for_which_query_display_config_fails_with(vec![ERROR_INVALID_PARAMETER])
         .build_computer();
 
     let mut application = ApplicationBuilder::new(computer).build();

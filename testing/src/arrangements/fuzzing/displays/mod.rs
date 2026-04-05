@@ -239,9 +239,9 @@ impl<'a> DisplaysFuzzer<'a> {
 
     pub fn for_which_query_display_config_fails_with(
         &mut self,
-        query_display_config_error: WIN32_ERROR,
+        query_display_config_errors: Vec<WIN32_ERROR>,
     ) -> &mut Self {
-        self.behaviour.query_display_config_error = Some(query_display_config_error);
+        self.behaviour.query_display_config_errors = query_display_config_errors;
 
         self
     }

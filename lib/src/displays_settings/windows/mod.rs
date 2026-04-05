@@ -154,7 +154,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
         })
     }
 
-    fn get_displays_infos(&self) -> Result<Vec<DisplayInfo>, ApplicationError> {
+    fn get_displays_infos(&mut self) -> Result<Vec<DisplayInfo>, ApplicationError> {
         trace_fn!();
         info!("Getting displays informations");
 
@@ -212,7 +212,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
 
 impl WindowsDisplaySettings {
     fn query_display_config(
-        &self,
+        &mut self,
     ) -> Result<(Vec<DISPLAYCONFIG_PATH_INFO>, Vec<DISPLAYCONFIG_MODE_INFO>), ApplicationError>
     {
         trace_fn!();

@@ -26,7 +26,7 @@ impl Win32 for WindowsApiBasedWin32 {
     }
 
     unsafe fn query_display_config(
-        &self,
+        &mut self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         numpatharrayelements: *mut u32,
         patharray: *mut DISPLAYCONFIG_PATH_INFO,

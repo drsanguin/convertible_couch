@@ -139,7 +139,7 @@ impl Win32 for FuzzedWin32 {
     }
 
     unsafe fn query_display_config(
-        &self,
+        &mut self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
         numpatharrayelements: *mut u32,
         patharray: *mut DISPLAYCONFIG_PATH_INFO,
@@ -147,8 +147,8 @@ impl Win32 for FuzzedWin32 {
         modeinfoarray: *mut DISPLAYCONFIG_MODE_INFO,
         currenttopologyid: ::core::option::Option<*mut DISPLAYCONFIG_TOPOLOGY_ID>,
     ) -> WIN32_ERROR {
-        if let Some(error) = self.behaviour.query_display_config_error {
-            return error;
+        if self.behaviour.query_display_config_errors.len() > 0 {
+            return self.behaviour.query_display_config_errors.remove(0);
         }
 
         if !flags.contains(QDC_ONLY_ACTIVE_PATHS) || currenttopologyid.is_some() {
