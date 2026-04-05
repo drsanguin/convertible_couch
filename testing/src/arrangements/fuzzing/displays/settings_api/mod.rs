@@ -16,4 +16,4 @@ pub trait FuzzedDisplaysSettingsApi: Default {
 pub mod windows;
 
 #[cfg(target_os = "windows")]
-pub use windows::FuzzedWin32 as CurrentFuzzedDisplaysSettingsApi;
+pub use windows::FuzzedWindowsApi as CurrentFuzzedDisplaysSettingsApi;

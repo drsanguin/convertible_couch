@@ -6,9 +6,7 @@ use windows::Win32::{
     Foundation::WIN32_ERROR,
 };
 
-pub mod windows_api_based_win_32;
-
-pub trait Win32 {
+pub trait WindowsApi {
     /// Retrieves the required buffer sizes for display configuration queries.
     ///
     /// This function writes to the provided output pointers.

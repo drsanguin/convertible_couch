@@ -7,11 +7,11 @@ use windows::Win32::{
     Foundation::WIN32_ERROR,
 };
 
-use crate::{displays_settings::windows::win_32::Win32, trace_fn};
+use crate::{displays_settings::windows::windows_api::WindowsApi, trace_fn};
 
-pub struct WindowsApiBasedWin32;
+pub struct Win32BasedWindowsApi;
 
-impl Win32 for WindowsApiBasedWin32 {
+impl WindowsApi for Win32BasedWindowsApi {
     unsafe fn get_display_config_buffer_sizes(
         &self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,

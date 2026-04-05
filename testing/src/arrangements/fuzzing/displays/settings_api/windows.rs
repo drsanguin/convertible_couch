@@ -4,7 +4,7 @@ use crate::arrangements::fuzzing::displays::{
     },
     video_output::FuzzedVideoOutput,
 };
-use convertible_couch_lib::displays_settings::windows::win_32::Win32;
+use convertible_couch_lib::displays_settings::windows::windows_api::WindowsApi;
 use std::collections::HashMap;
 use windows::Win32::{
     Devices::Display::{
@@ -20,14 +20,14 @@ use windows::Win32::{
 };
 
 #[derive(Clone, Default)]
-pub struct FuzzedWin32 {
+pub struct FuzzedWindowsApi {
     patharray: Vec<DISPLAYCONFIG_PATH_INFO>,
     modeinfoarray: Vec<DISPLAYCONFIG_MODE_INFO>,
     displays_names: HashMap<(i32, u32, u32), String>,
     behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
 }
 
-impl FuzzedDisplaysSettingsApi for FuzzedWin32 {
+impl FuzzedDisplaysSettingsApi for FuzzedWindowsApi {
     fn new(
         video_outputs: Vec<FuzzedVideoOutput>,
         behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
@@ -115,7 +115,7 @@ impl FuzzedDisplaysSettingsApi for FuzzedWin32 {
     }
 }
 
-impl Win32 for FuzzedWin32 {
+impl WindowsApi for FuzzedWindowsApi {
     unsafe fn get_display_config_buffer_sizes(
         &self,
         flags: QUERY_DISPLAY_CONFIG_FLAGS,
