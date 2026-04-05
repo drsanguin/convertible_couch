@@ -77,13 +77,11 @@ impl DisplaysSettings for WindowsDisplaySettings {
                 from_utf16_trimed(&target_name.monitorFriendlyDeviceName)?;
             let display_friendly_device_name =
                 from_raw_display_name(&raw_display_friendly_device_name);
+            let monitor_number = monitor_index + 1;
 
             debug!(
                 "index = {}, display_friendly_device_name = \"{}\", position = ({}, {})",
-                monitor_index + 1,
-                display_friendly_device_name,
-                position.x,
-                position.y
+                monitor_number, display_friendly_device_name, position.x, position.y
             );
 
             possible_names.push(display_friendly_device_name.clone());
@@ -193,13 +191,11 @@ impl DisplaysSettings for WindowsDisplaySettings {
                 from_utf16_trimed(&target_name.monitorFriendlyDeviceName)?;
             let display_friendly_device_name =
                 from_raw_display_name(&raw_display_friendly_device_name);
+            let monitor_number = monitor_index + 1;
 
             debug!(
                 "index = {}, display_friendly_device_name = \"{}\", position = ({}, {})",
-                monitor_index + 1,
-                display_friendly_device_name,
-                position.x,
-                position.y
+                monitor_number, display_friendly_device_name, position.x, position.y
             );
 
             displays_info.push(DisplayInfo {
