@@ -1,7 +1,7 @@
 use core::ffi::c_void;
 
 use crate::{
-    speakers_settings::windows::windows_com::IPolicyConfigVista as IPolicyConfigVistaTrait,
+    speakers_settings::windows::windows_api::IPolicyConfigVista as IPolicyConfigVistaTrait,
     trace_fn,
 };
 use windows::{
@@ -14,11 +14,11 @@ use windows::{
 };
 use windows_core::{HRESULT, IUnknown, IUnknown_Vtbl, Interface, PCWSTR, Result};
 
-pub struct WindowsApiBasedIPolicyConfigVista {
+pub struct Win32BasedIPolicyConfigVista {
     ipolicy_config_vista: IPolicyConfigVista,
 }
 
-impl WindowsApiBasedIPolicyConfigVista {
+impl Win32BasedIPolicyConfigVista {
     pub fn new(ipolicy_config_vista: IPolicyConfigVista) -> Self {
         trace_fn!();
 
@@ -28,7 +28,7 @@ impl WindowsApiBasedIPolicyConfigVista {
     }
 }
 
-impl IPolicyConfigVistaTrait for WindowsApiBasedIPolicyConfigVista {
+impl IPolicyConfigVistaTrait for Win32BasedIPolicyConfigVista {
     unsafe fn set_default_endpoint(&mut self, device_id: PCWSTR, role: ERole) -> Result<()> {
         trace_fn!();
 

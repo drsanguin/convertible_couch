@@ -1,18 +1,18 @@
 use crate::{
-    speakers_settings::windows::windows_com::{
-        IMMDevice as IMMDeviceTrait, IPropertyStore as IPropertyStoreTrait,
-        windows_api_based_windows_com::iproperty_store::WindowsApiBasedIPropertyStore,
+    speakers_settings::windows::{
+        win_32_based_windows_api::iproperty_store::Win32BasedIPropertyStore,
+        windows_api::{IMMDevice as IMMDeviceTrait, IPropertyStore as IPropertyStoreTrait},
     },
     trace_fn,
 };
 use windows::Win32::{Media::Audio::IMMDevice, System::Com::STGM};
 use windows_core::{PWSTR, Result};
 
-pub struct WindowsApiBasedIMMDevice {
+pub struct Win32ApiBasedIMMDevice {
     immdevice: IMMDevice,
 }
 
-impl WindowsApiBasedIMMDevice {
+impl Win32ApiBasedIMMDevice {
     pub fn new(immdevice: IMMDevice) -> Self {
         trace_fn!();
 
@@ -20,7 +20,7 @@ impl WindowsApiBasedIMMDevice {
     }
 }
 
-impl IMMDeviceTrait for WindowsApiBasedIMMDevice {
+impl IMMDeviceTrait for Win32ApiBasedIMMDevice {
     unsafe fn get_id(&self) -> Result<PWSTR> {
         trace_fn!();
 
@@ -32,8 +32,7 @@ impl IMMDeviceTrait for WindowsApiBasedIMMDevice {
 
         unsafe {
             let iproperty_store = self.immdevice.OpenPropertyStore(stgmaccess)?;
-            let windows_api_based_iproperty_store =
-                WindowsApiBasedIPropertyStore::new(iproperty_store);
+            let windows_api_based_iproperty_store = Win32BasedIPropertyStore::new(iproperty_store);
             let boxed_windows_api_based_iproperty_store =
                 Box::new(windows_api_based_iproperty_store);
 

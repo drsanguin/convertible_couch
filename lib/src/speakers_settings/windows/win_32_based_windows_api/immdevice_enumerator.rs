@@ -1,10 +1,12 @@
 use crate::{
-    speakers_settings::windows::windows_com::{
-        IMMDevice as IMMDeviceTrait, IMMDeviceCollection as IMMDeviceCollectionTrait,
-        IMMDeviceEnumerator as IMMDeviceEnumeratorTrait,
-        windows_api_based_windows_com::{
-            immdevice::WindowsApiBasedIMMDevice,
-            immdevice_collection::WindowsApiBasedIMMDeviceCollection,
+    speakers_settings::windows::{
+        win_32_based_windows_api::{
+            immdevice::Win32ApiBasedIMMDevice,
+            immdevice_collection::Win32ApiBasedIMMDeviceCollection,
+        },
+        windows_api::{
+            IMMDevice as IMMDeviceTrait, IMMDeviceCollection as IMMDeviceCollectionTrait,
+            IMMDeviceEnumerator as IMMDeviceEnumeratorTrait,
         },
     },
     trace_fn,
@@ -12,11 +14,11 @@ use crate::{
 use windows::Win32::Media::Audio::{DEVICE_STATE, EDataFlow, ERole, IMMDeviceEnumerator};
 use windows_core::Result;
 
-pub struct WindowsApiBasedIMMDeviceEnumerator {
+pub struct Win32ApiBasedIMMDeviceEnumerator {
     immdevice_enumerator: IMMDeviceEnumerator,
 }
 
-impl WindowsApiBasedIMMDeviceEnumerator {
+impl Win32ApiBasedIMMDeviceEnumerator {
     pub fn new(immdevice_enumerator: IMMDeviceEnumerator) -> Self {
         trace_fn!();
 
@@ -26,7 +28,7 @@ impl WindowsApiBasedIMMDeviceEnumerator {
     }
 }
 
-impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
+impl IMMDeviceEnumeratorTrait for Win32ApiBasedIMMDeviceEnumerator {
     unsafe fn get_default_audio_endpoint(
         &self,
         dataflow: EDataFlow,
@@ -38,7 +40,7 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
             let immdevice = self
                 .immdevice_enumerator
                 .GetDefaultAudioEndpoint(dataflow, role)?;
-            let windows_api_based_immdevice = WindowsApiBasedIMMDevice::new(immdevice);
+            let windows_api_based_immdevice = Win32ApiBasedIMMDevice::new(immdevice);
             let boxed_windows_api_based_immdevice = Box::new(windows_api_based_immdevice);
 
             Ok(boxed_windows_api_based_immdevice)
@@ -57,7 +59,7 @@ impl IMMDeviceEnumeratorTrait for WindowsApiBasedIMMDeviceEnumerator {
                 .immdevice_enumerator
                 .EnumAudioEndpoints(dataflow, dwstatemask)?;
             let windows_api_based_immdevice_collection =
-                WindowsApiBasedIMMDeviceCollection::new(immdevice_collection);
+                Win32ApiBasedIMMDeviceCollection::new(immdevice_collection);
             let boxed_windows_api_based_immdevice_collection =
                 Box::new(windows_api_based_immdevice_collection);
 

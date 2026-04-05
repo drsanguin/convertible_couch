@@ -51,13 +51,13 @@ pub trait DisplaysSettings {
 pub mod windows;
 
 #[cfg(target_os = "windows")]
-pub use windows::WindowsDisplaySettings as CurrentDisplaysSettings;
+pub use windows::windows_display_settings::WindowsDisplaySettings as CurrentDisplaysSettings;
 
 #[cfg(target_os = "windows")]
-pub use windows::win_32::windows_api_based_win_32::WindowsApiBasedWin32 as CurrentDisplaysSettingsApi;
+pub use windows::win_32_based_windows_api::Win32BasedWindowsApi as CurrentDisplaysSettingsApi;
 
 #[cfg(target_os = "windows")]
-pub use windows::win_32::Win32 as CurrentDisplaysSettingsApiTrait;
+pub use windows::windows_api::WindowsApi as CurrentDisplaysSettingsApiTrait;
 
 #[cfg(target_os = "windows")]
 pub const INTERNAL_DISPLAY_NAME: &str = "Internal Display";
