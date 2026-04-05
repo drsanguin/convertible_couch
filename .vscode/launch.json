@@ -21,11 +21,15 @@
             },
             "args": [
                 "change",
-                "displays",
+                "displays-and-speakers",
                 "--desktop-display-name",
                 "LG ULTRAWIDE",
                 "--couch-display-name",
                 "M227WD",
+                "--desktop-speaker-name",
+                "Casque (A50 Game)",
+                "--couch-speaker-name",
+                "Haut-parleurs (Realtek(R) Audio)",
                 "-l",
                 "debug"
             ],
