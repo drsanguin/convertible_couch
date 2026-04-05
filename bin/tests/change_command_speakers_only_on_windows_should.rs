@@ -36,7 +36,7 @@ fn return_an_error_if_getting_the_speakers_count_fails() {
     assert_eq!(
         actual_result,
         Err(ApplicationError::Custom(String::from(
-            "Failed to get the number of speakers"
+            "Failed to get the number of speakers (0x80004005)"
         )))
     );
 }
@@ -71,7 +71,7 @@ fn return_an_error_if_getting_the_speakers_fails() {
     assert_eq!(
         actual_result,
         Err(ApplicationError::Custom(String::from(
-            "Failed to get the speakers"
+            "Failed to get the speakers (0x80004005)"
         )))
     );
 }
@@ -106,7 +106,7 @@ fn return_an_error_if_getting_the_current_default_speaker_fails() {
     assert_eq!(
         actual_result,
         Err(ApplicationError::Custom(String::from(
-            "Failed to get the current default speaker"
+            "Failed to get the current default speaker (0x80004005)"
         )))
     );
 }
@@ -141,7 +141,7 @@ fn return_an_error_if_setting_the_default_speaker_fails() {
     assert_eq!(
         actual_result,
         Err(ApplicationError::Custom(String::from(
-            "Failed to set default speaker"
+            "Failed to set default speaker (0x80004005)"
         )))
     );
 }

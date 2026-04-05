@@ -15,6 +15,8 @@ use crate::arrangements::fuzzing::{
 };
 
 use rand::{RngExt, seq::IteratorRandom};
+#[cfg(target_os = "windows")]
+use windows::Win32::Foundation::WIN32_ERROR;
 
 use std::collections::HashSet;
 
@@ -225,34 +227,9 @@ impl<'a> ComputerBuilder<'a> for DisplaysFuzzer<'a> {
 
 #[cfg(target_os = "windows")]
 impl<'a> DisplaysFuzzer<'a> {
-    pub fn for_which_committing_the_display_changes_fails_with(
+    pub fn for_which_get_display_config_buffer_fails_with(
         &mut self,
-        commit_display_settings_changes_error: windows::Win32::Graphics::Gdi::DISP_CHANGE,
-    ) -> &mut Self {
-        self.behaviour.commit_display_settings_changes_error =
-            Some(commit_display_settings_changes_error);
-
-        self
-    }
-
-    pub fn for_which_changing_the_display_settings_fails_with(
-        &mut self,
-        change_display_settings_error: windows::Win32::Graphics::Gdi::DISP_CHANGE,
-    ) -> &mut Self {
-        self.behaviour.change_display_settings_error = Some(change_display_settings_error);
-
-        self
-    }
-
-    pub fn for_which_getting_the_primary_display_fails(&mut self) -> &mut Self {
-        self.behaviour.getting_primary_display_name_fails = true;
-
-        self
-    }
-
-    pub fn for_which_getting_display_config_buffer_sizes_fails_with(
-        &mut self,
-        get_display_config_buffer_sizes_error: windows::Win32::Foundation::WIN32_ERROR,
+        get_display_config_buffer_sizes_error: WIN32_ERROR,
     ) -> &mut Self {
         self.behaviour.get_display_config_buffer_sizes_error =
             Some(get_display_config_buffer_sizes_error);
@@ -260,24 +237,30 @@ impl<'a> DisplaysFuzzer<'a> {
         self
     }
 
-    pub fn for_which_querying_display_config_fails_with(
+    pub fn for_which_query_display_config_fails_with(
         &mut self,
-        query_display_config_error: windows::Win32::Foundation::WIN32_ERROR,
+        query_display_config_error: WIN32_ERROR,
     ) -> &mut Self {
         self.behaviour.query_display_config_error = Some(query_display_config_error);
 
         self
     }
 
-    pub fn with_a_secondary_for_which_it_is_not_possible_to_enum_display_settings_on(
+    pub fn for_which_display_config_get_device_info_fails_with(
         &mut self,
-        display_not_possible_to_enum_display_settings_on: &str,
+        display_config_get_device_info_error: WIN32_ERROR,
     ) -> &mut Self {
-        self.secondary_display_names
-            .insert(display_not_possible_to_enum_display_settings_on.to_string());
-        self.behaviour
-            .display_not_possible_to_enum_display_settings_on =
-            Some(display_not_possible_to_enum_display_settings_on.to_string());
+        self.behaviour.display_config_get_device_info_error =
+            Some(display_config_get_device_info_error);
+
+        self
+    }
+
+    pub fn for_which_set_display_config_fails_with(
+        &mut self,
+        set_display_config_error: WIN32_ERROR,
+    ) -> &mut Self {
+        self.behaviour.set_display_config_error = Some(set_display_config_error);
 
         self
     }

@@ -174,6 +174,10 @@ impl Win32 for FuzzedWin32 {
         &self,
         requestpacket: *mut DISPLAYCONFIG_DEVICE_INFO_HEADER,
     ) -> i32 {
+        if let Some(error) = self.behaviour.display_config_get_device_info_error {
+            return error.0 as i32;
+        }
+
         let request_packet = requestpacket.cast::<DISPLAYCONFIG_TARGET_DEVICE_NAME>();
 
         let display_name_option = self.displays_names.get(&(
@@ -199,6 +203,10 @@ impl Win32 for FuzzedWin32 {
         modeinfoarray: Option<&[DISPLAYCONFIG_MODE_INFO]>,
         flags: SET_DISPLAY_CONFIG_FLAGS,
     ) -> i32 {
+        if let Some(error) = self.behaviour.set_display_config_error {
+            return error.0 as i32;
+        }
+
         if !flags.contains(SDC_APPLY)
             || !flags.contains(SDC_USE_SUPPLIED_DISPLAY_CONFIG)
             || !flags.contains(SDC_ALLOW_CHANGES)

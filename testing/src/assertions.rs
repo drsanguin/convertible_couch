@@ -1,6 +1,7 @@
 use convertible_couch_lib::application_error::ApplicationError;
 
 use convertible_couch::application::ApplicationResult;
+use windows::Win32::Foundation::WIN32_ERROR;
 
 pub fn assert_that_result_is_an_error_who_starts_with(
     actual_result: Result<ApplicationResult, ApplicationError>,
@@ -12,5 +13,21 @@ pub fn assert_that_result_is_an_error_who_starts_with(
         }),
         "  left: {:?}",
         actual_result
+    );
+}
+
+pub fn assert_that_result_is_a_win32_error(
+    actual_result: Result<ApplicationResult, ApplicationError>,
+    expected_win32_error: WIN32_ERROR,
+) {
+    let expected = expected_win32_error.to_hresult().to_string();
+
+    assert!(
+        actual_result.as_ref().is_err_and(|error| match error {
+            ApplicationError::Custom(message) => message.contains(&expected),
+        }),
+        " expected {:?} to be an error message containing {:?}",
+        actual_result,
+        expected
     );
 }
