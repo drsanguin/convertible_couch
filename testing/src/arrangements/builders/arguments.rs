@@ -41,7 +41,7 @@ impl ArgumentsBuilder {
     }
 
     pub fn displays_command(
-        displays_command: DisplaysCommand,
+        displays_command: &DisplaysCommand,
         desktop_display_name: &str,
         couch_display_name: &str,
         desktop_speaker_name: &str,
@@ -89,7 +89,7 @@ impl ArgumentsBuilder {
     }
 
     pub fn speakers_command(
-        speakers_command: SpeakersCommand,
+        speakers_command: &SpeakersCommand,
         desktop_display_name: &str,
         couch_display_name: &str,
         desktop_speaker_name: &str,

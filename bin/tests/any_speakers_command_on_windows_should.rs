@@ -55,7 +55,7 @@ fn report_any_speakers_error(speakers_command: SpeakersCommand, function: Functi
     let mut application = ApplicationBuilder::new(computer).build();
 
     let args = ArgumentsBuilder::speakers_command(
-        speakers_command,
+        &speakers_command,
         &primary_display_name,
         &secondary_display_name,
         &default_speaker_name,
