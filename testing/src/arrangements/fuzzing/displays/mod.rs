@@ -226,7 +226,34 @@ impl<'a> ComputerBuilder<'a> for DisplaysFuzzer<'a> {
 }
 
 #[cfg(target_os = "windows")]
+pub enum Function {
+    GetDisplayConfigBufferSizes,
+    QueryDisplayConfig,
+    DisplayConfigGetDeviceInfo,
+    SetDisplayConfig,
+}
+
+#[cfg(target_os = "windows")]
 impl<'a> DisplaysFuzzer<'a> {
+    pub fn for_which_function_fails_with(
+        &mut self,
+        function: Function,
+        error: WIN32_ERROR,
+    ) -> &mut Self {
+        match function {
+            Function::GetDisplayConfigBufferSizes => {
+                self.for_which_get_display_config_buffer_fails_with(error)
+            }
+            Function::QueryDisplayConfig => {
+                self.for_which_query_display_config_fails_with(vec![error])
+            }
+            Function::DisplayConfigGetDeviceInfo => {
+                self.for_which_display_config_get_device_info_fails_with(error)
+            }
+            Function::SetDisplayConfig => self.for_which_set_display_config_fails_with(error),
+        }
+    }
+
     pub fn for_which_get_display_config_buffer_fails_with(
         &mut self,
         get_display_config_buffer_sizes_error: WIN32_ERROR,

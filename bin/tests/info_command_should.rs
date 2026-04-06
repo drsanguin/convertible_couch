@@ -128,24 +128,22 @@ fn get_informations_about_displays_only() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(CommandResult::Info(
-            ApplicationInfoResult::DisplaysOnly {
-                displays_result: vec![
-                    DisplayInfo {
-                        is_primary: true,
-                        name: primary_display_name
-                    },
-                    DisplayInfo {
-                        is_primary: false,
-                        name: secondary_display_name
-                    },
-                    DisplayInfo {
-                        is_primary: false,
-                        name: secondary_display_name_2
-                    }
-                ]
-            }
-        ))
+        Ok(CommandResult::Info(ApplicationInfoResult::DisplaysOnly {
+            displays_result: vec![
+                DisplayInfo {
+                    is_primary: true,
+                    name: primary_display_name
+                },
+                DisplayInfo {
+                    is_primary: false,
+                    name: secondary_display_name
+                },
+                DisplayInfo {
+                    is_primary: false,
+                    name: secondary_display_name_2
+                }
+            ]
+        }))
     );
 }
 
@@ -176,24 +174,22 @@ fn get_informations_about_speakers_only() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(CommandResult::Info(
-            ApplicationInfoResult::SpeakersOnly {
-                speakers_result: vec![
-                    SpeakerInfo {
-                        is_default: true,
-                        name: default_speaker_name
-                    },
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name
-                    },
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name_2
-                    }
-                ]
-            }
-        ))
+        Ok(CommandResult::Info(ApplicationInfoResult::SpeakersOnly {
+            speakers_result: vec![
+                SpeakerInfo {
+                    is_default: true,
+                    name: default_speaker_name
+                },
+                SpeakerInfo {
+                    is_default: false,
+                    name: alternative_speaker_name
+                },
+                SpeakerInfo {
+                    is_default: false,
+                    name: alternative_speaker_name_2
+                }
+            ]
+        }))
     );
 }
 
@@ -223,19 +219,17 @@ fn get_informations_about_speakers_only_even_if_there_if_no_default_one() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(CommandResult::Info(
-            ApplicationInfoResult::SpeakersOnly {
-                speakers_result: vec![
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name
-                    },
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name_2
-                    }
-                ]
-            }
-        ))
+        Ok(CommandResult::Info(ApplicationInfoResult::SpeakersOnly {
+            speakers_result: vec![
+                SpeakerInfo {
+                    is_default: false,
+                    name: alternative_speaker_name
+                },
+                SpeakerInfo {
+                    is_default: false,
+                    name: alternative_speaker_name_2
+                }
+            ]
+        }))
     );
 }

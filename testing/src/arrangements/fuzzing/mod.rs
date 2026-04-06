@@ -1,4 +1,5 @@
 use rand::{Rng, SeedableRng, rng, rngs::StdRng};
+use windows::Win32::Foundation::WIN32_ERROR;
 
 use crate::arrangements::fuzzing::{
     computer::FuzzedComputer,
@@ -7,6 +8,7 @@ use crate::arrangements::fuzzing::{
         display_name::DisplayNameFuzzer,
     },
     speakers::speaker_name::SpeakerNameFuzzer,
+    win_32_error::Win32ErrorFuzzer,
 };
 
 use self::computer::ComputerFuzzer;
@@ -15,6 +17,7 @@ pub mod computer;
 pub mod displays;
 pub mod guid;
 pub mod speakers;
+pub mod win_32_error;
 
 pub trait ComputerBuilder<'a> {
     fn build_computer(&'a mut self) -> FuzzedComputer;
@@ -71,5 +74,9 @@ impl Fuzzer {
 
     pub fn generate_four_speakers_names(&mut self) -> (String, String, String, String) {
         SpeakerNameFuzzer::new(&mut self.rand).generate_four()
+    }
+
+    pub fn generate_win_32_error(&mut self, forbidden_errors: &[WIN32_ERROR]) -> WIN32_ERROR {
+        Win32ErrorFuzzer::new(&mut self.rand).generate_one(forbidden_errors)
     }
 }
