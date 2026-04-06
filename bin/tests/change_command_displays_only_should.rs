@@ -1,11 +1,9 @@
-use convertible_couch::application::{ApplicationChangeResult, CommandResult};
-use convertible_couch_lib::{
-    application_error::ApplicationError,
-    displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
-    func,
-};
+use convertible_couch_lib::{displays_settings::INTERNAL_DISPLAY_NAME, func};
 use convertible_couch_testing::arrangements::{
-    builders::{application::ApplicationBuilder, arguments::ArgumentsBuilder},
+    builders::{
+        application::ApplicationBuilder, arguments::ArgumentsBuilder,
+        command_result::CommandResultBuilder,
+    },
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 
@@ -34,17 +32,9 @@ fn swap_the_desktop_display_with_the_couch_display() {
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::DisplaysOnly {
-                displays_result: DisplaysSettingsResult {
-                    new_primary_display: secondary_display_name,
-                    reboot_required: false
-                }
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::change_displays_only(&secondary_display_name);
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -74,17 +64,9 @@ fn swap_the_couch_display_with_the_desktop_display() {
         .and_then(|_| application.execute(&args));
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::DisplaysOnly {
-                displays_result: DisplaysSettingsResult {
-                    new_primary_display: primary_display_name,
-                    reboot_required: false
-                }
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::change_displays_only(&primary_display_name);
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -112,17 +94,9 @@ fn swap_the_desktop_display_with_the_couch_display_when_the_computer_has_an_inte
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::DisplaysOnly {
-                displays_result: DisplaysSettingsResult {
-                    new_primary_display: secondary_display_name,
-                    reboot_required: false,
-                }
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::change_displays_only(&secondary_display_name);
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -152,17 +126,10 @@ fn swap_the_couch_display_with_the_desktop_display_has_an_internal_display() {
         .and_then(|_| application.execute(&args));
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::DisplaysOnly {
-                displays_result: DisplaysSettingsResult {
-                    new_primary_display: String::from(INTERNAL_DISPLAY_NAME),
-                    reboot_required: false,
-                }
-            }
-        ))
-    );
+    let expected_result =
+        CommandResultBuilder::change_displays_only(&String::from(INTERNAL_DISPLAY_NAME));
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -191,12 +158,11 @@ fn validate_the_desktop_display() {
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Err(ApplicationError::Custom(format!(
-            "Desktop display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
-        )))
-    );
+    let expected_result = CommandResultBuilder::custom_error(format!(
+        "Desktop display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
+    ));
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -225,12 +191,11 @@ fn validate_the_couch_display() {
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Err(ApplicationError::Custom(format!(
-            "Couch display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
-        )))
-    );
+    let expected_result = CommandResultBuilder::custom_error(format!(
+        "Couch display is invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
+    ));
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -263,10 +228,9 @@ fn validate_both_desktop_and_couch_displays() {
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Err(ApplicationError::Custom(format!(
-            "Desktop and couch displays are invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
-        )))
-    );
+    let expected_result = CommandResultBuilder::custom_error(format!(
+        "Desktop and couch displays are invalid, possible values are [{primary_display_name}, {secondary_display_name}]"
+    ));
+
+    assert_eq!(actual_result, expected_result);
 }

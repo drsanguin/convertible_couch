@@ -1,9 +1,9 @@
-use convertible_couch::application::{ApplicationChangeResult, CommandResult};
-use convertible_couch_lib::{
-    application_error::ApplicationError, func, speakers_settings::SpeakersSettingsResult,
-};
+use convertible_couch_lib::func;
 use convertible_couch_testing::arrangements::{
-    builders::{application::ApplicationBuilder, arguments::ArgumentsBuilder},
+    builders::{
+        application::ApplicationBuilder, arguments::ArgumentsBuilder,
+        command_result::CommandResultBuilder,
+    },
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 
@@ -32,16 +32,9 @@ fn change_the_default_speaker() {
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::SpeakersOnly {
-                speakers_result: SpeakersSettingsResult {
-                    new_default_speaker: alternative_speaker_name
-                }
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::change_speakers_only(&alternative_speaker_name);
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -71,16 +64,9 @@ fn change_the_default_speaker_back_and_forth() {
         .and_then(|_| application.execute(&args));
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::SpeakersOnly {
-                speakers_result: SpeakersSettingsResult {
-                    new_default_speaker: default_speaker_name
-                }
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::change_speakers_only(&default_speaker_name);
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -113,12 +99,11 @@ fn validate_the_desktop_and_couch_speaker_name() {
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Err(ApplicationError::Custom(format!(
-            "Desktop and couch speakers are invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]"
-        )))
-    );
+    let expected_result = CommandResultBuilder::custom_error(format!(
+        "Desktop and couch speakers are invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]"
+    ));
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -147,12 +132,11 @@ fn validate_the_desktop_speaker_name() {
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Err(ApplicationError::Custom(format!(
-            "Desktop speaker is invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]"
-        )))
-    );
+    let expected_result = CommandResultBuilder::custom_error(format!(
+        "Desktop speaker is invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]"
+    ));
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -181,10 +165,9 @@ fn validate_the_couch_speaker_name() {
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Err(ApplicationError::Custom(format!(
-            "Couch speaker is invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]"
-        )))
-    );
+    let expected_result = CommandResultBuilder::custom_error(format!(
+        "Couch speaker is invalid, possible values are [{default_speaker_name}, {alternative_speaker_name}]"
+    ));
+
+    assert_eq!(actual_result, expected_result);
 }

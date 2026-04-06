@@ -1,9 +1,9 @@
-use convertible_couch::application::{ApplicationChangeResult, CommandResult};
-use convertible_couch_lib::{
-    displays_settings::DisplaysSettingsResult, func, speakers_settings::SpeakersSettingsResult,
-};
+use convertible_couch_lib::func;
 use convertible_couch_testing::arrangements::{
-    builders::{application::ApplicationBuilder, arguments::ArgumentsBuilder},
+    builders::{
+        application::ApplicationBuilder, arguments::ArgumentsBuilder,
+        command_result::CommandResultBuilder,
+    },
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 
@@ -43,20 +43,12 @@ fn change_primary_display_and_default_speaker() {
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::DisplaysAndSpeakers {
-                displays_result: DisplaysSettingsResult {
-                    new_primary_display: secondary_display_name,
-                    reboot_required: false
-                },
-                speakers_result: SpeakersSettingsResult {
-                    new_default_speaker: alternative_speaker_name
-                }
-            }
-        ))
+    let expected_result = CommandResultBuilder::change_displays_and_speakers(
+        &secondary_display_name,
+        &alternative_speaker_name,
     );
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -97,18 +89,10 @@ fn change_primary_display_and_default_speaker_back_and_forth() {
         .and_then(|_| application.execute(&args));
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::DisplaysAndSpeakers {
-                displays_result: DisplaysSettingsResult {
-                    new_primary_display: primary_display_name,
-                    reboot_required: false
-                },
-                speakers_result: SpeakersSettingsResult {
-                    new_default_speaker: default_speaker_name
-                }
-            }
-        ))
+    let expected_result = CommandResultBuilder::change_displays_and_speakers(
+        &primary_display_name,
+        &default_speaker_name,
     );
+
+    assert_eq!(actual_result, expected_result);
 }
