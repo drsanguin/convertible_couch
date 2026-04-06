@@ -211,15 +211,14 @@ impl WindowsDisplaySettings {
             let mut numpatharrayelements = u32::default();
             let mut nummodeinfoarrayelements = u32::default();
 
-            (unsafe {
-                self.windows_api
-                    .get_display_config_buffer_sizes(
-                        QDC_ONLY_ACTIVE_PATHS,
-                        &mut numpatharrayelements,
-                        &mut nummodeinfoarrayelements,
-                    )
-                    .ok()
-            })?;
+            unsafe {
+                self.windows_api.get_display_config_buffer_sizes(
+                    QDC_ONLY_ACTIVE_PATHS,
+                    &mut numpatharrayelements,
+                    &mut nummodeinfoarrayelements,
+                )
+            }
+            .ok()?;
 
             patharray.resize(
                 numpatharrayelements.try_into()?,

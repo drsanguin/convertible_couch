@@ -39,11 +39,11 @@ impl SpeakersSettings for WindowsSoundSettings {
         );
         info!("Changing default speaker");
 
-        (unsafe {
+        unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
-                .ok()
-        })?;
+        }
+        .ok()?;
 
         let new_default_speaker_name: String;
 
@@ -114,10 +114,10 @@ impl SpeakersSettings for WindowsSoundSettings {
 
             let mut policy = unsafe { self.windows_com.co_create_ipolicy_config_vista() }?;
 
-            (unsafe {
+            unsafe {
                 policy
                     .set_default_endpoint(PCWSTR(new_default_speaker_id.0 as *const u16), eConsole)
-            })?;
+            }?;
         }
 
         unsafe { self.windows_com.co_uninitialize() };
@@ -131,11 +131,11 @@ impl SpeakersSettings for WindowsSoundSettings {
         trace_fn!();
         info!("Getting speakers informations");
 
-        (unsafe {
+        unsafe {
             self.windows_com
                 .co_initialize_ex(None, COINIT_MULTITHREADED)
-                .ok()
-        })?;
+        }
+        .ok()?;
 
         let mut speakers_infos: Vec<SpeakerInfo>;
 
