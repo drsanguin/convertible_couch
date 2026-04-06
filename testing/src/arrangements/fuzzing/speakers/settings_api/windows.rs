@@ -2,12 +2,9 @@ use windows::Win32::{
     Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
     Foundation::{E_FAIL, E_INVALIDARG, E_UNEXPECTED, PROPERTYKEY, S_FALSE, S_OK},
     Media::Audio::{DEVICE_STATE, DEVICE_STATE_ACTIVE, EDataFlow, ERole, eConsole, eRender},
-    System::{
-        Com::{
-            COINIT, COINIT_MULTITHREADED, STGM, STGM_READ,
-            StructuredStorage::{PROPVARIANT, PROPVARIANT_0, PROPVARIANT_0_0, PROPVARIANT_0_0_0},
-        },
-        Variant::VARENUM,
+    System::Com::{
+        COINIT, COINIT_MULTITHREADED, STGM, STGM_READ,
+        StructuredStorage::{PROPVARIANT, PROPVARIANT_0, PROPVARIANT_0_0, PROPVARIANT_0_0_0},
     },
 };
 use windows_core::{Error, PCWSTR, PWSTR, Result};
@@ -261,13 +258,10 @@ impl IPropertyStore for FuzzedIPropertyStore {
             let propvariant = PROPVARIANT {
                 Anonymous: PROPVARIANT_0 {
                     Anonymous: ManuallyDrop::<PROPVARIANT_0_0>::new(PROPVARIANT_0_0 {
-                        vt: VARENUM::default(),
-                        wReserved1: u16::default(),
-                        wReserved2: u16::default(),
-                        wReserved3: u16::default(),
                         Anonymous: PROPVARIANT_0_0_0 {
                             pwszVal: PWSTR(leaked.as_mut_ptr()),
                         },
+                        ..Default::default()
                     }),
                 },
             };
