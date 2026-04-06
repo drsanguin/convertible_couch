@@ -8,6 +8,7 @@ use windows_core::{PCWSTR, PWSTR};
 
 use crate::{
     application_error::ApplicationError,
+    application_result::ApplicationResult,
     speakers_settings::{
         SpeakerInfo, SpeakersSettings, SpeakersSettingsResult, windows::windows_api::WindowsApi,
     },
@@ -31,7 +32,7 @@ impl SpeakersSettings for WindowsSoundSettings {
         &mut self,
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
-    ) -> Result<SpeakersSettingsResult, ApplicationError> {
+    ) -> ApplicationResult<SpeakersSettingsResult> {
         trace_fn!();
         debug!(
             "desktop_speaker_name = \"{desktop_speaker_name}\", couch_speaker_name = \"{couch_speaker_name}\""
@@ -126,7 +127,7 @@ impl SpeakersSettings for WindowsSoundSettings {
         })
     }
 
-    fn get_speakers_infos(&mut self) -> Result<Vec<SpeakerInfo>, ApplicationError> {
+    fn get_speakers_infos(&mut self) -> ApplicationResult<Vec<SpeakerInfo>> {
         trace_fn!();
         info!("Getting speakers informations");
 

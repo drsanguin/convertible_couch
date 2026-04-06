@@ -1,6 +1,6 @@
 #![cfg(target_os = "windows")]
 
-use convertible_couch::application::{ApplicationChangeResult, ApplicationResult};
+use convertible_couch::application::{ApplicationChangeResult, CommandResult};
 use convertible_couch_lib::{
     application_error::ApplicationError, displays_settings::DisplaysSettingsResult, func,
     speakers_settings::SpeakersSettingsResult,
@@ -264,7 +264,7 @@ fn overcome_query_display_config_returning_an_insufficient_buffer_error() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
+        Ok(CommandResult::Change(
             ApplicationChangeResult::DisplaysAndSpeakers {
                 displays_result: DisplaysSettingsResult {
                     new_primary_display: secondary_display_name,

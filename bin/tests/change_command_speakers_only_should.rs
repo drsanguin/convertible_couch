@@ -1,4 +1,4 @@
-use convertible_couch::application::{ApplicationChangeResult, ApplicationResult};
+use convertible_couch::application::{ApplicationChangeResult, CommandResult};
 use convertible_couch_lib::{
     application_error::ApplicationError, func, speakers_settings::SpeakersSettingsResult,
 };
@@ -35,7 +35,7 @@ fn change_the_default_speaker() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
+        Ok(CommandResult::Change(
             ApplicationChangeResult::SpeakersOnly {
                 speakers_result: SpeakersSettingsResult {
                     new_default_speaker: alternative_speaker_name
@@ -75,7 +75,7 @@ fn change_the_default_speaker_back_and_forth() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
+        Ok(CommandResult::Change(
             ApplicationChangeResult::SpeakersOnly {
                 speakers_result: SpeakersSettingsResult {
                     new_default_speaker: default_speaker_name

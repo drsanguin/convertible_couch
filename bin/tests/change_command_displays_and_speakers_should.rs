@@ -1,4 +1,4 @@
-use convertible_couch::application::{ApplicationChangeResult, ApplicationResult};
+use convertible_couch::application::{ApplicationChangeResult, CommandResult};
 use convertible_couch_lib::{
     displays_settings::DisplaysSettingsResult, func, speakers_settings::SpeakersSettingsResult,
 };
@@ -46,7 +46,7 @@ fn change_primary_display_and_default_speaker() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
+        Ok(CommandResult::Change(
             ApplicationChangeResult::DisplaysAndSpeakers {
                 displays_result: DisplaysSettingsResult {
                     new_primary_display: secondary_display_name,
@@ -101,7 +101,7 @@ fn change_primary_display_and_default_speaker_back_and_forth() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
+        Ok(CommandResult::Change(
             ApplicationChangeResult::DisplaysAndSpeakers {
                 displays_result: DisplaysSettingsResult {
                     new_primary_display: primary_display_name,

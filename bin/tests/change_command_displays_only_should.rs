@@ -1,4 +1,4 @@
-use convertible_couch::application::{ApplicationChangeResult, ApplicationResult};
+use convertible_couch::application::{ApplicationChangeResult, CommandResult};
 use convertible_couch_lib::{
     application_error::ApplicationError,
     displays_settings::{DisplaysSettingsResult, INTERNAL_DISPLAY_NAME},
@@ -37,7 +37,7 @@ fn swap_the_desktop_display_with_the_couch_display() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
+        Ok(CommandResult::Change(
             ApplicationChangeResult::DisplaysOnly {
                 displays_result: DisplaysSettingsResult {
                     new_primary_display: secondary_display_name,
@@ -78,7 +78,7 @@ fn swap_the_couch_display_with_the_desktop_display() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
+        Ok(CommandResult::Change(
             ApplicationChangeResult::DisplaysOnly {
                 displays_result: DisplaysSettingsResult {
                     new_primary_display: primary_display_name,
@@ -117,7 +117,7 @@ fn swap_the_desktop_display_with_the_couch_display_when_the_computer_has_an_inte
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
+        Ok(CommandResult::Change(
             ApplicationChangeResult::DisplaysOnly {
                 displays_result: DisplaysSettingsResult {
                     new_primary_display: secondary_display_name,
@@ -158,7 +158,7 @@ fn swap_the_couch_display_with_the_desktop_display_has_an_internal_display() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Change(
+        Ok(CommandResult::Change(
             ApplicationChangeResult::DisplaysOnly {
                 displays_result: DisplaysSettingsResult {
                     new_primary_display: String::from(INTERNAL_DISPLAY_NAME),

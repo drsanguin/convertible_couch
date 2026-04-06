@@ -1,4 +1,4 @@
-use convertible_couch::application::{ApplicationInfoResult, ApplicationResult};
+use convertible_couch::application::{ApplicationInfoResult, CommandResult};
 use convertible_couch_lib::{displays_settings::DisplayInfo, func, speakers_settings::SpeakerInfo};
 use convertible_couch_testing::arrangements::{
     builders::{ApplicationBuilder, ArgumentsBuilder},
@@ -40,7 +40,7 @@ fn get_informations_about_displays_and_speakers() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Info(
+        Ok(CommandResult::Info(
             ApplicationInfoResult::DisplaysAndSpeakers {
                 displays_result: vec![
                     DisplayInfo {
@@ -93,7 +93,7 @@ fn get_informations_about_displays_and_speakers_when_the_computer_has_no_display
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Info(
+        Ok(CommandResult::Info(
             ApplicationInfoResult::DisplaysAndSpeakers {
                 displays_result: Vec::new(),
                 speakers_result: Vec::new()
@@ -128,7 +128,7 @@ fn get_informations_about_displays_only() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Info(
+        Ok(CommandResult::Info(
             ApplicationInfoResult::DisplaysOnly {
                 displays_result: vec![
                     DisplayInfo {
@@ -176,7 +176,7 @@ fn get_informations_about_speakers_only() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Info(
+        Ok(CommandResult::Info(
             ApplicationInfoResult::SpeakersOnly {
                 speakers_result: vec![
                     SpeakerInfo {
@@ -223,7 +223,7 @@ fn get_informations_about_speakers_only_even_if_there_if_no_default_one() {
     // Assert
     assert_eq!(
         actual_result,
-        Ok(ApplicationResult::Info(
+        Ok(CommandResult::Info(
             ApplicationInfoResult::SpeakersOnly {
                 speakers_result: vec![
                     SpeakerInfo {

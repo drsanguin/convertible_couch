@@ -1,6 +1,6 @@
 use clap::Parser;
 use convertible_couch::{
-    application::{Application, ApplicationChangeResult, ApplicationInfoResult, ApplicationResult},
+    application::{Application, ApplicationChangeResult, ApplicationInfoResult, CommandResult},
     commands::Arguments,
 };
 use convertible_couch_lib::{
@@ -21,24 +21,23 @@ fn main() -> ExitCode {
     match application_result {
         Ok(result) => {
             match result {
-                ApplicationResult::Change(application_change_result) => {
-                    match application_change_result {
-                        ApplicationChangeResult::DisplaysAndSpeakers {
-                            displays_result,
-                            speakers_result,
-                        } => {
-                            log_change_displays_settings_result(displays_result);
-                            log_change_speakers_settings_result(speakers_result);
-                        }
-                        ApplicationChangeResult::DisplaysOnly { displays_result } => {
-                            log_change_displays_settings_result(displays_result)
-                        }
-                        ApplicationChangeResult::SpeakersOnly { speakers_result } => {
-                            log_change_speakers_settings_result(speakers_result)
-                        }
+                CommandResult::Change(application_change_result) => match application_change_result
+                {
+                    ApplicationChangeResult::DisplaysAndSpeakers {
+                        displays_result,
+                        speakers_result,
+                    } => {
+                        log_change_displays_settings_result(displays_result);
+                        log_change_speakers_settings_result(speakers_result);
                     }
-                }
-                ApplicationResult::Info(application_info_result) => match application_info_result {
+                    ApplicationChangeResult::DisplaysOnly { displays_result } => {
+                        log_change_displays_settings_result(displays_result)
+                    }
+                    ApplicationChangeResult::SpeakersOnly { speakers_result } => {
+                        log_change_speakers_settings_result(speakers_result)
+                    }
+                },
+                CommandResult::Info(application_info_result) => match application_info_result {
                     ApplicationInfoResult::DisplaysAndSpeakers {
                         displays_result,
                         speakers_result,

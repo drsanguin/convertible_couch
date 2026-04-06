@@ -1,3 +1,4 @@
+use crate::application_result::ApplicationResult;
 use crate::displays_settings::windows::windows_api::WindowsApi;
 use crate::{
     application_error::ApplicationError,
@@ -35,7 +36,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
-    ) -> Result<DisplaysSettingsResult, ApplicationError> {
+    ) -> ApplicationResult<DisplaysSettingsResult> {
         let (patharray, mut modeinfoarray) = self.query_display_config()?;
 
         let mut new_position = POINTL { x: 0, y: 0 };
@@ -146,7 +147,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
         })
     }
 
-    fn get_displays_infos(&mut self) -> Result<Vec<DisplayInfo>, ApplicationError> {
+    fn get_displays_infos(&mut self) -> ApplicationResult<Vec<DisplayInfo>> {
         trace_fn!();
         info!("Getting displays informations");
 
@@ -199,8 +200,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
 impl WindowsDisplaySettings {
     fn query_display_config(
         &mut self,
-    ) -> Result<(Vec<DISPLAYCONFIG_PATH_INFO>, Vec<DISPLAYCONFIG_MODE_INFO>), ApplicationError>
-    {
+    ) -> ApplicationResult<(Vec<DISPLAYCONFIG_PATH_INFO>, Vec<DISPLAYCONFIG_MODE_INFO>)> {
         trace_fn!();
 
         let mut patharray = Vec::new();
@@ -289,7 +289,7 @@ where
     T2::try_from(size).unwrap()
 }
 
-fn from_utf16_trimed(bytes: &[u16]) -> Result<String, ApplicationError> {
+fn from_utf16_trimed(bytes: &[u16]) -> ApplicationResult<String> {
     trace_fn!();
 
     let str = String::from_utf16(bytes)?;
