@@ -29,7 +29,7 @@ use std::{cell::RefCell, ffi::c_void, mem::ManuallyDrop, rc::Rc};
 #[derive(Clone, Default)]
 pub struct FuzzedWindowsApi {
     speakers: Rc<RefCell<Vec<FuzzedSpeaker>>>,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
     com_library_initialized: bool,
 }
 
@@ -40,7 +40,7 @@ impl FuzzedSpeakersSettingsApi for FuzzedWindowsApi {
     ) -> Self {
         Self {
             speakers: Rc::new(RefCell::new(speakers)),
-            behaviour,
+            behaviour: Rc::new(behaviour),
             com_library_initialized: false,
         }
     }
@@ -97,7 +97,7 @@ impl WindowsApi for FuzzedWindowsApi {
         }
 
         let fuzzed_ipolicy_config_vista = FuzzedIPolicyConfigVista {
-            speakers: Rc::clone(&self.speakers),
+            speakers: self.speakers.clone(),
             behaviour: self.behaviour.clone(),
         };
         let boxed_fuzzed_ipolicy_config_vista = Box::new(fuzzed_ipolicy_config_vista);
@@ -108,7 +108,7 @@ impl WindowsApi for FuzzedWindowsApi {
 
 pub struct FuzzedIMMDeviceEnumerator {
     speakers: Vec<FuzzedSpeaker>,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
 }
 
 impl IMMDeviceEnumerator for FuzzedIMMDeviceEnumerator {
@@ -207,7 +207,7 @@ impl IMMDevice for FuzzedIMMDevice {
 
 pub struct FuzzedIMMDeviceCollection {
     speakers: Vec<FuzzedSpeaker>,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
 }
 
 impl IMMDeviceCollection for FuzzedIMMDeviceCollection {
@@ -279,7 +279,7 @@ impl IPropertyStore for FuzzedIPropertyStore {
 
 pub struct FuzzedIPolicyConfigVista {
     speakers: Rc<RefCell<Vec<FuzzedSpeaker>>>,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
 }
 
 impl IPolicyConfigVista for FuzzedIPolicyConfigVista {
