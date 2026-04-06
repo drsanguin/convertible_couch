@@ -1,7 +1,7 @@
 use convertible_couch::application::{ApplicationInfoResult, CommandResult};
 use convertible_couch_lib::{displays_settings::DisplayInfo, func, speakers_settings::SpeakerInfo};
 use convertible_couch_testing::arrangements::{
-    builders::{ApplicationBuilder, ArgumentsBuilder},
+    builders::{application::ApplicationBuilder, arguments::ArgumentsBuilder},
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 

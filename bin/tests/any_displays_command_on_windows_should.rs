@@ -3,7 +3,10 @@
 use convertible_couch_lib::func;
 use convertible_couch_testing::{
     arrangements::{
-        builders::{ApplicationBuilder, ArgumentsBuilder, DisplaysCommand},
+        builders::{
+            application::ApplicationBuilder,
+            arguments::{ArgumentsBuilder, DisplaysCommand},
+        },
         fuzzing::{ComputerBuilder, Fuzzer, displays::Function},
     },
     assertions::assert_that_result_is_a_win32_error,

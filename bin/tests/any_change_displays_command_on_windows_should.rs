@@ -2,7 +2,11 @@
 
 use convertible_couch_lib::func;
 use convertible_couch_testing::arrangements::{
-    builders::{ApplicationBuilder, ArgumentsBuilder, ChangeDisplaysCommand, CommandResultBuilder},
+    builders::{
+        application::ApplicationBuilder,
+        arguments::{ArgumentsBuilder, ChangeDisplaysCommand},
+        command_result::CommandResultBuilder,
+    },
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 use test_case::test_matrix;

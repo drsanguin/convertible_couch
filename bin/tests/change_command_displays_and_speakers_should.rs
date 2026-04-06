@@ -3,7 +3,7 @@ use convertible_couch_lib::{
     displays_settings::DisplaysSettingsResult, func, speakers_settings::SpeakersSettingsResult,
 };
 use convertible_couch_testing::arrangements::{
-    builders::{ApplicationBuilder, ArgumentsBuilder},
+    builders::{application::ApplicationBuilder, arguments::ArgumentsBuilder},
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 

@@ -2,7 +2,7 @@
 
 use convertible_couch_lib::{application_error::ApplicationError, func};
 use convertible_couch_testing::arrangements::{
-    builders::{ApplicationBuilder, ArgumentsBuilder},
+    builders::{application::ApplicationBuilder, arguments::ArgumentsBuilder},
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 

@@ -1,6 +1,6 @@
 use convertible_couch_lib::func;
 use convertible_couch_testing::arrangements::{
-    builders::{ApplicationBuilder, ArgumentsBuilder},
+    builders::{application::ApplicationBuilder, arguments::ArgumentsBuilder},
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 use criterion::{BatchSize, BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};

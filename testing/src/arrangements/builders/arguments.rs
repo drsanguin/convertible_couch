@@ -1,35 +1,9 @@
-use crate::arrangements::fuzzing::computer::FuzzedComputer;
-
-use convertible_couch::{
-    application::{Application, ApplicationChangeResult, CommandResult},
-    commands::{
-        Arguments, Commands,
-        change::{ChangeCommands, DisplaysOptions, SpeakersOptions},
-        info::Device,
-        shared::{SharedOptions, log_level_option::LogLevelOption},
-    },
+use convertible_couch::commands::{
+    Arguments, Commands,
+    change::{ChangeCommands, DisplaysOptions, SpeakersOptions},
+    info::Device,
+    shared::{SharedOptions, log_level_option::LogLevelOption},
 };
-use convertible_couch_lib::{
-    application_result::ApplicationResult, displays_settings::DisplaysSettingsResult,
-    speakers_settings::SpeakersSettingsResult,
-};
-
-pub struct ApplicationBuilder {
-    computer: FuzzedComputer,
-}
-
-impl ApplicationBuilder {
-    pub fn new(computer: FuzzedComputer) -> Self {
-        Self { computer }
-    }
-
-    pub fn build(self) -> Application {
-        let displays_settings_api = Box::new(self.computer.displays_settings_api);
-        let speakers_settings_api = Box::new(self.computer.speakers_settings_api);
-
-        Application::bootstrap(displays_settings_api, speakers_settings_api)
-    }
-}
 
 pub enum DisplaysCommand {
     ChangeDisplaysAndSpeakers,
@@ -227,39 +201,5 @@ impl InfoCommandBuilder {
 
     pub fn build(&mut self) -> Arguments {
         self.arguments.take().unwrap()
-    }
-}
-
-pub struct CommandResultBuilder;
-
-impl CommandResultBuilder {
-    pub fn change_displays(
-        change_displays_command: &ChangeDisplaysCommand,
-        new_primary_display: &str,
-        new_default_speaker: &str,
-    ) -> ApplicationResult<CommandResult> {
-        let commmand = match change_displays_command {
-            ChangeDisplaysCommand::ChangeDisplaysAndSpeakers => {
-                CommandResult::Change(ApplicationChangeResult::DisplaysAndSpeakers {
-                    displays_result: DisplaysSettingsResult {
-                        new_primary_display: new_primary_display.to_string(),
-                        reboot_required: false,
-                    },
-                    speakers_result: SpeakersSettingsResult {
-                        new_default_speaker: new_default_speaker.to_string(),
-                    },
-                })
-            }
-            ChangeDisplaysCommand::ChangeDisplays => {
-                CommandResult::Change(ApplicationChangeResult::DisplaysOnly {
-                    displays_result: DisplaysSettingsResult {
-                        new_primary_display: new_primary_display.to_string(),
-                        reboot_required: false,
-                    },
-                })
-            }
-        };
-
-        Ok(commmand)
     }
 }
