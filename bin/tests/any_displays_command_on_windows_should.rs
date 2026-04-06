@@ -51,7 +51,7 @@ fn report_any_display_error(displays_command: DisplaysCommand, function: Functio
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.display_command(
+    let args = ArgumentsBuilder::display_command(
         displays_command,
         &primary_display_name,
         &secondary_display_name,

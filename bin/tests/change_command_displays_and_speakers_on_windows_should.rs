@@ -30,8 +30,7 @@ fn report_a_speakers_settings_error() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_and_speakers(
             &primary_display_name,
             &secondary_display_name,

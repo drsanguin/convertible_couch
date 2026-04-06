@@ -24,8 +24,7 @@ fn change_the_default_speaker() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
@@ -62,8 +61,7 @@ fn change_the_default_speaker_back_and_forth() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .speakers_only(&default_speaker_name, &alternative_speaker_name)
         .build();
 
@@ -107,8 +105,7 @@ fn validate_the_desktop_and_couch_speaker_name() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .speakers_only(&invalid_speaker_name_1, &invalid_speaker_name_2)
         .build();
 
@@ -142,8 +139,7 @@ fn validate_the_desktop_speaker_name() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .speakers_only(&invalid_speaker_name, &alternative_speaker_name)
         .build();
 
@@ -177,8 +173,7 @@ fn validate_the_couch_speaker_name() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .speakers_only(&default_speaker_name, &invalid_speaker_name)
         .build();
 

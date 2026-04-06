@@ -45,23 +45,16 @@ pub enum ChangeDisplaysCommand {
 
 pub struct ArgumentsBuilder;
 
-impl Default for ArgumentsBuilder {
-    fn default() -> Self {
-        Self
-    }
-}
-
 impl ArgumentsBuilder {
-    pub fn change(self) -> ChangeCommandBuilder {
+    pub fn change() -> ChangeCommandBuilder {
         ChangeCommandBuilder::default()
     }
 
-    pub fn info(self) -> InfoCommandBuilder {
+    pub fn info() -> InfoCommandBuilder {
         InfoCommandBuilder::default()
     }
 
     pub fn display_command(
-        self,
         displays_command: DisplaysCommand,
         desktop_display_name: &str,
         couch_display_name: &str,
@@ -69,8 +62,7 @@ impl ArgumentsBuilder {
         couch_speaker_name: &str,
     ) -> Arguments {
         match displays_command {
-            DisplaysCommand::ChangeDisplaysAndSpeakers => ArgumentsBuilder
-                .change()
+            DisplaysCommand::ChangeDisplaysAndSpeakers => ArgumentsBuilder::change()
                 .displays_and_speakers(
                     desktop_display_name,
                     couch_display_name,
@@ -78,19 +70,17 @@ impl ArgumentsBuilder {
                     couch_speaker_name,
                 )
                 .build(),
-            DisplaysCommand::ChangeDisplays => ArgumentsBuilder
-                .change()
+            DisplaysCommand::ChangeDisplays => ArgumentsBuilder::change()
                 .displays_only(desktop_display_name, couch_display_name)
                 .build(),
             DisplaysCommand::InfoDisplaysAndSpeakers => {
-                ArgumentsBuilder.info().displays_and_speakers().build()
+                ArgumentsBuilder::info().displays_and_speakers().build()
             }
-            DisplaysCommand::InfoDisplays => ArgumentsBuilder.info().displays_only().build(),
+            DisplaysCommand::InfoDisplays => ArgumentsBuilder::info().displays_only().build(),
         }
     }
 
     pub fn change_display_command(
-        self,
         displays_command: &ChangeDisplaysCommand,
         desktop_display_name: &str,
         couch_display_name: &str,
@@ -98,8 +88,7 @@ impl ArgumentsBuilder {
         couch_speaker_name: &str,
     ) -> Arguments {
         match displays_command {
-            ChangeDisplaysCommand::ChangeDisplaysAndSpeakers => ArgumentsBuilder
-                .change()
+            ChangeDisplaysCommand::ChangeDisplaysAndSpeakers => ArgumentsBuilder::change()
                 .displays_and_speakers(
                     desktop_display_name,
                     couch_display_name,
@@ -107,8 +96,7 @@ impl ArgumentsBuilder {
                     couch_speaker_name,
                 )
                 .build(),
-            ChangeDisplaysCommand::ChangeDisplays => ArgumentsBuilder
-                .change()
+            ChangeDisplaysCommand::ChangeDisplays => ArgumentsBuilder::change()
                 .displays_only(desktop_display_name, couch_display_name)
                 .build(),
         }

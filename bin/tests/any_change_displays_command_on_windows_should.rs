@@ -39,7 +39,7 @@ fn overcome_query_display_config_returning_an_insufficient_buffer_error(
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.change_display_command(
+    let args = ArgumentsBuilder::change_display_command(
         &change_displays_command,
         &primary_display_name,
         &secondary_display_name,

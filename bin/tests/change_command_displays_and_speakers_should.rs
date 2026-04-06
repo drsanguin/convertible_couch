@@ -30,8 +30,7 @@ fn change_primary_display_and_default_speaker() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_and_speakers(
             &primary_display_name,
             &secondary_display_name,
@@ -83,8 +82,7 @@ fn change_primary_display_and_default_speaker_back_and_forth() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_and_speakers(
             &primary_display_name,
             &secondary_display_name,

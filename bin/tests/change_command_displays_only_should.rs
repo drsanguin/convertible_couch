@@ -26,8 +26,7 @@ fn swap_the_desktop_display_with_the_couch_display() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
 
@@ -65,8 +64,7 @@ fn swap_the_couch_display_with_the_desktop_display() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_only(&primary_display_name, &secondary_display_name)
         .build();
 
@@ -106,8 +104,7 @@ fn swap_the_desktop_display_with_the_couch_display_when_the_computer_has_an_inte
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_only(INTERNAL_DISPLAY_NAME, &secondary_display_name)
         .build();
 
@@ -145,8 +142,7 @@ fn swap_the_couch_display_with_the_desktop_display_has_an_internal_display() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_only(INTERNAL_DISPLAY_NAME, &secondary_display_name)
         .build();
 
@@ -187,8 +183,7 @@ fn validate_the_desktop_display() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_only(&invalid_display_name, &secondary_display_name)
         .build();
 
@@ -222,8 +217,7 @@ fn validate_the_couch_display() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_only(&primary_display_name, &invalid_display_name)
         .build();
 
@@ -261,8 +255,7 @@ fn validate_both_desktop_and_couch_displays() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder
-        .change()
+    let args = ArgumentsBuilder::change()
         .displays_only(&invalid_desktop_display_name, &invalid_couch_display_name)
         .build();
 

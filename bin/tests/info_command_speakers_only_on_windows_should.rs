@@ -24,7 +24,7 @@ fn return_an_error_if_getting_the_speakers_count_fails() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().speakers_only().build();
+    let args = ArgumentsBuilder::info().speakers_only().build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -56,7 +56,7 @@ fn return_an_error_if_getting_the_speakers_fails() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().speakers_only().build();
+    let args = ArgumentsBuilder::info().speakers_only().build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -88,7 +88,7 @@ fn return_an_error_if_initializing_the_com_library_fails() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().speakers_only().build();
+    let args = ArgumentsBuilder::info().speakers_only().build();
 
     // Act
     let actual_result = application.execute(&args);

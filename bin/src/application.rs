@@ -1,5 +1,5 @@
 use convertible_couch_lib::{
-    application_error::ApplicationError,
+    application_result::ApplicationResult,
     displays_settings::{
         CurrentDisplaysSettings, CurrentDisplaysSettingsApiTrait, DisplayInfo, DisplaysSettings,
         DisplaysSettingsResult,
@@ -69,7 +69,7 @@ impl Application {
         }
     }
 
-    pub fn execute(&mut self, args: &Arguments) -> Result<CommandResult, ApplicationError> {
+    pub fn execute(&mut self, args: &Arguments) -> ApplicationResult<CommandResult> {
         let log_level = match &args.command {
             Commands::Change(change_commands) => match change_commands {
                 ChangeCommands::DisplaysAndSpeakers {

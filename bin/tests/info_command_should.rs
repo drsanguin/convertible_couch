@@ -32,7 +32,7 @@ fn get_informations_about_displays_and_speakers() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().displays_and_speakers().build();
+    let args = ArgumentsBuilder::info().displays_and_speakers().build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -85,7 +85,7 @@ fn get_informations_about_displays_and_speakers_when_the_computer_has_no_display
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().displays_and_speakers().build();
+    let args = ArgumentsBuilder::info().displays_and_speakers().build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -120,7 +120,7 @@ fn get_informations_about_displays_only() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().displays_only().build();
+    let args = ArgumentsBuilder::info().displays_only().build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -166,7 +166,7 @@ fn get_informations_about_speakers_only() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().speakers_only().build();
+    let args = ArgumentsBuilder::info().speakers_only().build();
 
     // Act
     let actual_result = application.execute(&args);
@@ -211,7 +211,7 @@ fn get_informations_about_speakers_only_even_if_there_if_no_default_one() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().speakers_only().build();
+    let args = ArgumentsBuilder::info().speakers_only().build();
 
     // Act
     let actual_result = application.execute(&args);
