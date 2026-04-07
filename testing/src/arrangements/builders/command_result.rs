@@ -21,7 +21,6 @@ impl CommandResultBuilder {
             ApplicationChangeResult::DisplaysAndSpeakers {
                 displays_result: DisplaysSettingsResult {
                     new_primary_display: new_primary_display.to_string(),
-                    reboot_required: false,
                 },
                 speakers_result: SpeakersSettingsResult {
                     new_default_speaker: new_default_speaker.to_string(),
@@ -35,7 +34,6 @@ impl CommandResultBuilder {
             ApplicationChangeResult::DisplaysOnly {
                 displays_result: DisplaysSettingsResult {
                     new_primary_display: new_primary_display.to_string(),
-                    reboot_required: false,
                 },
             },
         ))

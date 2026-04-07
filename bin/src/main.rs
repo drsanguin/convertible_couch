@@ -72,15 +72,10 @@ fn log_change_speakers_settings_result(speakers_result: SpeakersSettingsResult) 
 }
 
 fn log_change_displays_settings_result(displays_result: DisplaysSettingsResult) {
-    match (
-        displays_result.new_primary_display,
-        displays_result.reboot_required,
-    ) {
-        (new_primary, true) => println!(
-            "Primary display set to {new_primary} but the computer must be restarted for the graphics mode to work."
-        ),
-        (new_primary, false) => println!("Primary display set to {new_primary}"),
-    }
+    println!(
+        "Primary display set to {}",
+        displays_result.new_primary_display
+    );
 }
 
 fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {

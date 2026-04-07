@@ -142,7 +142,6 @@ impl DisplaysSettings for WindowsDisplaySettings {
         set_display_config_result.ok()?;
 
         Ok(DisplaysSettingsResult {
-            reboot_required: false,
             new_primary_display: new_primary_monitor_name,
         })
     }

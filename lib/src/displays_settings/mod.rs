@@ -5,7 +5,6 @@ use crate::trace_fn;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct DisplaysSettingsResult {
-    pub reboot_required: bool,
     pub new_primary_display: String,
 }
 
