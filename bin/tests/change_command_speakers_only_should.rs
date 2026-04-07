@@ -32,7 +32,7 @@ fn change_the_default_speaker() {
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_result = CommandResultBuilder::change_speakers_only(&alternative_speaker_name);
+    let expected_result = CommandResultBuilder::change().speakers_only(&alternative_speaker_name);
 
     assert_eq!(actual_result, expected_result);
 }
@@ -64,7 +64,7 @@ fn change_the_default_speaker_back_and_forth() {
         .and_then(|_| application.execute(&args));
 
     // Assert
-    let expected_result = CommandResultBuilder::change_speakers_only(&default_speaker_name);
+    let expected_result = CommandResultBuilder::change().speakers_only(&default_speaker_name);
 
     assert_eq!(actual_result, expected_result);
 }

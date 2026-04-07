@@ -43,10 +43,8 @@ fn change_primary_display_and_default_speaker() {
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_result = CommandResultBuilder::change_displays_and_speakers(
-        &secondary_display_name,
-        &alternative_speaker_name,
-    );
+    let expected_result = CommandResultBuilder::change()
+        .displays_and_speakers(&secondary_display_name, &alternative_speaker_name);
 
     assert_eq!(actual_result, expected_result);
 }
@@ -89,10 +87,8 @@ fn change_primary_display_and_default_speaker_back_and_forth() {
         .and_then(|_| application.execute(&args));
 
     // Assert
-    let expected_result = CommandResultBuilder::change_displays_and_speakers(
-        &primary_display_name,
-        &default_speaker_name,
-    );
+    let expected_result = CommandResultBuilder::change()
+        .displays_and_speakers(&primary_display_name, &default_speaker_name);
 
     assert_eq!(actual_result, expected_result);
 }

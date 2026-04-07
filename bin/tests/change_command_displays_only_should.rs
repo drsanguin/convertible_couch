@@ -32,7 +32,7 @@ fn swap_the_desktop_display_with_the_couch_display() {
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_result = CommandResultBuilder::change_displays_only(&secondary_display_name);
+    let expected_result = CommandResultBuilder::change().displays_only(&secondary_display_name);
 
     assert_eq!(actual_result, expected_result);
 }
@@ -64,7 +64,7 @@ fn swap_the_couch_display_with_the_desktop_display() {
         .and_then(|_| application.execute(&args));
 
     // Assert
-    let expected_result = CommandResultBuilder::change_displays_only(&primary_display_name);
+    let expected_result = CommandResultBuilder::change().displays_only(&primary_display_name);
 
     assert_eq!(actual_result, expected_result);
 }
@@ -94,7 +94,7 @@ fn swap_the_desktop_display_with_the_couch_display_when_the_computer_has_an_inte
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_result = CommandResultBuilder::change_displays_only(&secondary_display_name);
+    let expected_result = CommandResultBuilder::change().displays_only(&secondary_display_name);
 
     assert_eq!(actual_result, expected_result);
 }
@@ -127,7 +127,7 @@ fn swap_the_couch_display_with_the_desktop_display_has_an_internal_display() {
 
     // Assert
     let expected_result =
-        CommandResultBuilder::change_displays_only(&String::from(INTERNAL_DISPLAY_NAME));
+        CommandResultBuilder::change().displays_only(&String::from(INTERNAL_DISPLAY_NAME));
 
     assert_eq!(actual_result, expected_result);
 }

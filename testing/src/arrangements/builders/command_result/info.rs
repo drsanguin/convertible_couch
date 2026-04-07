@@ -1,98 +1,30 @@
-use convertible_couch::application::{
-    ApplicationChangeResult, ApplicationInfoResult, CommandResult,
-};
+use convertible_couch::application::{ApplicationInfoResult, CommandResult};
 use convertible_couch_lib::{
-    application_error::ApplicationError,
-    application_result::ApplicationResult,
-    displays_settings::{DisplayInfo, DisplaysSettingsResult},
-    speakers_settings::{SpeakerInfo, SpeakersSettingsResult},
+    application_result::ApplicationResult, displays_settings::DisplayInfo,
+    speakers_settings::SpeakerInfo,
 };
 
-use crate::arrangements::builders::arguments::ChangeDisplaysCommand;
+#[derive(Default)]
+pub struct InfoResultBuilder;
 
-pub struct CommandResultBuilder;
-
-impl CommandResultBuilder {
-    pub fn change_displays_and_speakers(
-        new_primary_display: &str,
-        new_default_speaker: &str,
-    ) -> ApplicationResult<CommandResult> {
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::DisplaysAndSpeakers {
-                displays_result: DisplaysSettingsResult {
-                    new_primary_display: new_primary_display.to_string(),
-                },
-                speakers_result: SpeakersSettingsResult {
-                    new_default_speaker: new_default_speaker.to_string(),
-                },
-            },
-        ))
-    }
-
-    pub fn change_displays_only(new_primary_display: &str) -> ApplicationResult<CommandResult> {
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::DisplaysOnly {
-                displays_result: DisplaysSettingsResult {
-                    new_primary_display: new_primary_display.to_string(),
-                },
-            },
-        ))
-    }
-
-    pub fn change_speakers_only(new_default_speaker: &str) -> ApplicationResult<CommandResult> {
-        Ok(CommandResult::Change(
-            ApplicationChangeResult::SpeakersOnly {
-                speakers_result: SpeakersSettingsResult {
-                    new_default_speaker: new_default_speaker.to_string(),
-                },
-            },
-        ))
-    }
-
-    pub fn change_displays(
-        change_displays_command: &ChangeDisplaysCommand,
-        new_primary_display: &str,
-        new_default_speaker: &str,
-    ) -> ApplicationResult<CommandResult> {
-        match change_displays_command {
-            ChangeDisplaysCommand::ChangeDisplaysAndSpeakers => {
-                Self::change_displays_and_speakers(new_primary_display, new_default_speaker)
-            }
-            ChangeDisplaysCommand::ChangeDisplays => {
-                Self::change_displays_only(new_primary_display)
-            }
-        }
-    }
-
-    pub fn info_displays_and_speakers() -> InfoDisplaysAndSpeakersResultBuilder {
+impl InfoResultBuilder {
+    pub fn displays_and_speakers(self) -> InfoDisplaysAndSpeakersResultBuilder {
         InfoDisplaysAndSpeakersResultBuilder::default()
     }
 
-    pub fn info_displays_only() -> InfoDisplaysOnlyResultBuilder {
+    pub fn displays_only(self) -> InfoDisplaysOnlyResultBuilder {
         InfoDisplaysOnlyResultBuilder::default()
     }
 
-    pub fn info_speakers_only() -> InfoSpeakersOnlyResultBuilder {
+    pub fn speakers_only(self) -> InfoSpeakersOnlyResultBuilder {
         InfoSpeakersOnlyResultBuilder::default()
-    }
-
-    pub fn custom_error(expected_message: String) -> ApplicationResult<CommandResult> {
-        Err(ApplicationError::Custom(expected_message))
     }
 }
 
+#[derive(Default)]
 pub struct InfoDisplaysAndSpeakersResultBuilder {
     displays_result: Vec<DisplayInfo>,
     speakers_result: Vec<SpeakerInfo>,
-}
-
-impl Default for InfoDisplaysAndSpeakersResultBuilder {
-    fn default() -> Self {
-        Self {
-            displays_result: vec![],
-            speakers_result: vec![],
-        }
-    }
 }
 
 impl InfoDisplaysAndSpeakersResultBuilder {
@@ -143,16 +75,9 @@ impl InfoDisplaysAndSpeakersResultBuilder {
     }
 }
 
+#[derive(Default)]
 pub struct InfoDisplaysOnlyResultBuilder {
     displays_result: Vec<DisplayInfo>,
-}
-
-impl Default for InfoDisplaysOnlyResultBuilder {
-    fn default() -> Self {
-        Self {
-            displays_result: vec![],
-        }
-    }
 }
 
 impl InfoDisplaysOnlyResultBuilder {
@@ -182,16 +107,9 @@ impl InfoDisplaysOnlyResultBuilder {
     }
 }
 
+#[derive(Default)]
 pub struct InfoSpeakersOnlyResultBuilder {
     speakers_result: Vec<SpeakerInfo>,
-}
-
-impl Default for InfoSpeakersOnlyResultBuilder {
-    fn default() -> Self {
-        Self {
-            speakers_result: vec![],
-        }
-    }
 }
 
 impl InfoSpeakersOnlyResultBuilder {

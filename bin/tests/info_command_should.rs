@@ -40,7 +40,8 @@ fn get_informations_about_displays_and_speakers() {
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_result = CommandResultBuilder::info_displays_and_speakers()
+    let expected_result = CommandResultBuilder::info()
+        .displays_and_speakers()
         .with_primary_display(&primary_display_name)
         .with_secondary_display(&secondary_display_name)
         .with_secondary_display(&secondary_display_name_2)
@@ -68,7 +69,7 @@ fn get_informations_about_displays_and_speakers_when_the_computer_has_no_display
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_result = CommandResultBuilder::info_displays_and_speakers().build();
+    let expected_result = CommandResultBuilder::info().displays_and_speakers().build();
 
     assert_eq!(actual_result, expected_result);
 }
@@ -97,7 +98,8 @@ fn get_informations_about_displays_only() {
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_result = CommandResultBuilder::info_displays_only()
+    let expected_result = CommandResultBuilder::info()
+        .displays_only()
         .with_primary_display(&primary_display_name)
         .with_secondary_display(&secondary_display_name)
         .with_secondary_display(&secondary_display_name_2)
@@ -131,7 +133,8 @@ fn get_informations_about_speakers_only() {
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_result = CommandResultBuilder::info_speakers_only()
+    let expected_result = CommandResultBuilder::info()
+        .speakers_only()
         .with_default_speaker(&default_speaker_name)
         .with_alternative_speaker(&alternative_speaker_name)
         .with_alternative_speaker(&alternative_speaker_name_2)
@@ -164,7 +167,8 @@ fn get_informations_about_speakers_only_even_if_there_if_no_default_one() {
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_result = CommandResultBuilder::info_speakers_only()
+    let expected_result = CommandResultBuilder::info()
+        .speakers_only()
         .with_alternative_speaker(&alternative_speaker_name)
         .with_alternative_speaker(&alternative_speaker_name_2)
         .build();
