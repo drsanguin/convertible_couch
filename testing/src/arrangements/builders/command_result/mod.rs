@@ -14,11 +14,11 @@ pub struct CommandResultBuilder;
 
 impl CommandResultBuilder {
     pub fn change() -> ChangeResultBuilder {
-        ChangeResultBuilder::default()
+        ChangeResultBuilder
     }
 
     pub fn info() -> InfoResultBuilder {
-        InfoResultBuilder::default()
+        InfoResultBuilder
     }
 
     pub fn custom_error(expected_message: String) -> ApplicationResult<CommandResult> {
