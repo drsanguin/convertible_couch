@@ -22,6 +22,8 @@ impl CommandResultBuilder {
     }
 
     pub fn custom_error(expected_message: String) -> ApplicationResult<CommandResult> {
-        Err(ApplicationError::Custom(expected_message))
+        let application_error = ApplicationError::Custom(expected_message);
+
+        Err(application_error)
     }
 }

@@ -65,13 +65,13 @@ impl InfoDisplaysAndSpeakersResultBuilder {
     }
 
     pub fn build(self) -> ApplicationResult<CommandResult> {
-        // CommandResultBuilder::info_displays_and_speakers(self.displays_result, self.speakers_result)
-        Ok(CommandResult::Info(
-            ApplicationInfoResult::DisplaysAndSpeakers {
-                displays_result: self.displays_result,
-                speakers_result: self.speakers_result,
-            },
-        ))
+        let application_info_result = ApplicationInfoResult::DisplaysAndSpeakers {
+            displays_result: self.displays_result,
+            speakers_result: self.speakers_result,
+        };
+        let command_result = CommandResult::Info(application_info_result);
+
+        Ok(command_result)
     }
 }
 
@@ -100,10 +100,12 @@ impl InfoDisplaysOnlyResultBuilder {
     }
 
     pub fn build(self) -> ApplicationResult<CommandResult> {
-        // CommandResultBuilder::info_displays_and_speakers(self.displays_result, self.speakers_result)
-        Ok(CommandResult::Info(ApplicationInfoResult::DisplaysOnly {
+        let application_info_result = ApplicationInfoResult::DisplaysOnly {
             displays_result: self.displays_result,
-        }))
+        };
+        let command_result = CommandResult::Info(application_info_result);
+
+        Ok(command_result)
     }
 }
 
@@ -132,9 +134,11 @@ impl InfoSpeakersOnlyResultBuilder {
     }
 
     pub fn build(self) -> ApplicationResult<CommandResult> {
-        // CommandResultBuilder::info_displays_and_speakers(self.displays_result, self.speakers_result)
-        Ok(CommandResult::Info(ApplicationInfoResult::SpeakersOnly {
+        let application_info_result = ApplicationInfoResult::SpeakersOnly {
             speakers_result: self.speakers_result,
-        }))
+        };
+        let command_result = CommandResult::Info(application_info_result);
+
+        Ok(command_result)
     }
 }
