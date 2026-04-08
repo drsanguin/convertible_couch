@@ -37,6 +37,9 @@ impl DisplaysSettings for WindowsDisplaySettings {
         desktop_display_name: &str,
         couch_display_name: &str,
     ) -> ApplicationResult<DisplaysSettingsResult> {
+        trace_fn!();
+        info!("Changing primary display");
+
         let (patharray, mut modeinfoarray) = self.query_display_config()?;
 
         let mut new_position = POINTL { x: 0, y: 0 };

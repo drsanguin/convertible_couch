@@ -63,6 +63,8 @@ impl WindowsApi for Win32BasedWindowsApi {
         modeinfoarray: Option<&[DISPLAYCONFIG_MODE_INFO]>,
         flags: SET_DISPLAY_CONFIG_FLAGS,
     ) -> i32 {
+        trace_fn!();
+
         unsafe { SetDisplayConfig(patharray, modeinfoarray, flags) }
     }
 }
