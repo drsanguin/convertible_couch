@@ -5,7 +5,7 @@ use convertible_couch_testing::{
     arrangements::{
         builders::{
             application::ApplicationBuilder,
-            arguments::{ArgumentsBuilder, DisplaysCommand},
+            arguments::{ArgumentsBuilder, displays::DisplaysCommand},
             command_result::CommandResultBuilder,
         },
         fuzzing::{ComputerBuilder, Fuzzer, displays::Function},
@@ -55,7 +55,7 @@ fn report_any_display_error(displays_command: DisplaysCommand, function: Functio
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder::displays_command(
+    let args = ArgumentsBuilder::displays().any(
         &displays_command,
         &primary_display_name,
         &secondary_display_name,
@@ -103,7 +103,7 @@ fn overcome_query_display_config_returning_an_insufficient_buffer_error(
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder::displays_command(
+    let args = ArgumentsBuilder::displays().any(
         &displays_command,
         &primary_display_name,
         &secondary_display_name,

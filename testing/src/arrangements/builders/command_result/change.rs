@@ -4,7 +4,7 @@ use convertible_couch_lib::{
     speakers_settings::SpeakersSettingsResult,
 };
 
-use crate::arrangements::builders::arguments::ChangeDisplaysCommand;
+use crate::arrangements::builders::arguments::displays::ChangeDisplaysCommand;
 
 #[derive(Default)]
 pub struct ChangeResultBuilder;

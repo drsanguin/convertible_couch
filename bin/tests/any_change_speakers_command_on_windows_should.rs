@@ -5,7 +5,7 @@ use convertible_couch_testing::{
     arrangements::{
         builders::{
             application::ApplicationBuilder,
-            arguments::{ArgumentsBuilder, ChangeSpeakersCommand},
+            arguments::{ArgumentsBuilder, speakers::ChangeSpeakersCommand},
         },
         fuzzing::{ComputerBuilder, Fuzzer, speakers::Function},
     },
@@ -55,7 +55,7 @@ fn report_any_speakers_error(change_speakers_command: ChangeSpeakersCommand, fun
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder::change_speakers_command(
+    let args = ArgumentsBuilder::speakers().change(
         &change_speakers_command,
         &primary_display_name,
         &secondary_display_name,
