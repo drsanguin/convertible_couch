@@ -1,5 +1,5 @@
 use convertible_couch_lib::{
-    application_error::ApplicationError,
+    application_result::ApplicationResult,
     displays_settings::{
         CurrentDisplaysSettings, CurrentDisplaysSettingsApiTrait, DisplayInfo, DisplaysSettings,
         DisplaysSettingsResult,
@@ -18,7 +18,7 @@ use crate::commands::{
 };
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum ApplicationResult {
+pub enum CommandResult {
     Change(ApplicationChangeResult),
     Info(ApplicationInfoResult),
 }
@@ -69,7 +69,7 @@ impl Application {
         }
     }
 
-    pub fn execute(&mut self, args: &Arguments) -> Result<ApplicationResult, ApplicationError> {
+    pub fn execute(&mut self, args: &Arguments) -> ApplicationResult<CommandResult> {
         let log_level = match &args.command {
             Commands::Change(change_commands) => match change_commands {
                 ChangeCommands::DisplaysAndSpeakers {
@@ -110,7 +110,7 @@ impl Application {
                         &speakers.couch_speaker_name,
                     )?;
 
-                    Ok(ApplicationResult::Change(
+                    Ok(CommandResult::Change(
                         ApplicationChangeResult::DisplaysAndSpeakers {
                             displays_result,
                             speakers_result,
@@ -126,7 +126,7 @@ impl Application {
                         &displays.couch_display_name,
                     )?;
 
-                    Ok(ApplicationResult::Change(
+                    Ok(CommandResult::Change(
                         ApplicationChangeResult::DisplaysOnly { displays_result },
                     ))
                 }
@@ -139,7 +139,7 @@ impl Application {
                         &speakers.couch_speaker_name,
                     )?;
 
-                    Ok(ApplicationResult::Change(
+                    Ok(CommandResult::Change(
                         ApplicationChangeResult::SpeakersOnly { speakers_result },
                     ))
                 }
@@ -149,7 +149,7 @@ impl Application {
                     let displays_result = self.displays_settings.get_displays_infos()?;
                     let speakers_result = self.speakers_settings.get_speakers_infos()?;
 
-                    Ok(ApplicationResult::Info(
+                    Ok(CommandResult::Info(
                         ApplicationInfoResult::DisplaysAndSpeakers {
                             displays_result,
                             speakers_result,
@@ -159,16 +159,16 @@ impl Application {
                 Device::Displays => {
                     let displays_result = self.displays_settings.get_displays_infos()?;
 
-                    Ok(ApplicationResult::Info(
-                        ApplicationInfoResult::DisplaysOnly { displays_result },
-                    ))
+                    Ok(CommandResult::Info(ApplicationInfoResult::DisplaysOnly {
+                        displays_result,
+                    }))
                 }
                 Device::Speakers => {
                     let speakers_result = self.speakers_settings.get_speakers_infos()?;
 
-                    Ok(ApplicationResult::Info(
-                        ApplicationInfoResult::SpeakersOnly { speakers_result },
-                    ))
+                    Ok(CommandResult::Info(ApplicationInfoResult::SpeakersOnly {
+                        speakers_result,
+                    }))
                 }
             },
         }

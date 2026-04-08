@@ -1,16 +1,13 @@
 use windows::Win32::{
     Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
-    Foundation::{E_FAIL, E_INVALIDARG, E_UNEXPECTED, PROPERTYKEY, S_FALSE, S_OK},
+    Foundation::{E_INVALIDARG, PROPERTYKEY, S_FALSE, S_OK},
     Media::Audio::{DEVICE_STATE, DEVICE_STATE_ACTIVE, EDataFlow, ERole, eConsole, eRender},
-    System::{
-        Com::{
-            COINIT, COINIT_MULTITHREADED, STGM, STGM_READ,
-            StructuredStorage::{PROPVARIANT, PROPVARIANT_0, PROPVARIANT_0_0, PROPVARIANT_0_0_0},
-        },
-        Variant::VARENUM,
+    System::Com::{
+        COINIT, COINIT_MULTITHREADED, STGM, STGM_READ,
+        StructuredStorage::{PROPVARIANT, PROPVARIANT_0, PROPVARIANT_0_0, PROPVARIANT_0_0_0},
     },
 };
-use windows_core::{Error, PCWSTR, PWSTR, Result};
+use windows_core::{Error, HRESULT, PCWSTR, PWSTR, Result};
 
 use crate::arrangements::fuzzing::speakers::{
     FuzzedSpeaker,
@@ -29,7 +26,7 @@ use std::{cell::RefCell, ffi::c_void, mem::ManuallyDrop, rc::Rc};
 #[derive(Clone, Default)]
 pub struct FuzzedWindowsApi {
     speakers: Rc<RefCell<Vec<FuzzedSpeaker>>>,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
     com_library_initialized: bool,
 }
 
@@ -40,7 +37,7 @@ impl FuzzedSpeakersSettingsApi for FuzzedWindowsApi {
     ) -> Self {
         Self {
             speakers: Rc::new(RefCell::new(speakers)),
-            behaviour,
+            behaviour: Rc::new(behaviour),
             com_library_initialized: false,
         }
     }
@@ -51,9 +48,9 @@ impl WindowsApi for FuzzedWindowsApi {
         &mut self,
         pvreserved: Option<*const c_void>,
         dwcoinit: COINIT,
-    ) -> windows_core::HRESULT {
-        if self.behaviour.initializing_the_com_library_fails {
-            return E_UNEXPECTED;
+    ) -> HRESULT {
+        if let Some(error) = self.behaviour.co_initialize_ex_error {
+            return error.into();
         }
 
         if pvreserved.is_some() || dwcoinit != COINIT_MULTITHREADED {
@@ -74,6 +71,10 @@ impl WindowsApi for FuzzedWindowsApi {
     }
 
     unsafe fn co_create_immdevice_enumerator(&self) -> Result<Box<dyn IMMDeviceEnumerator>> {
+        if let Some(error) = self.behaviour.co_create_immdevice_enumerator_error {
+            return Err(error.into());
+        }
+
         if !self.com_library_initialized {
             let error = Error::new(E_INVALIDARG, "One or more arguments are not valid");
 
@@ -90,6 +91,10 @@ impl WindowsApi for FuzzedWindowsApi {
     }
 
     unsafe fn co_create_ipolicy_config_vista(&self) -> Result<Box<dyn IPolicyConfigVista>> {
+        if let Some(error) = self.behaviour.co_create_ipolicy_config_vista_error {
+            return Err(error.into());
+        }
+
         if !self.com_library_initialized {
             let error = Error::new(E_INVALIDARG, "One or more arguments are not valid");
 
@@ -97,7 +102,7 @@ impl WindowsApi for FuzzedWindowsApi {
         }
 
         let fuzzed_ipolicy_config_vista = FuzzedIPolicyConfigVista {
-            speakers: Rc::clone(&self.speakers),
+            speakers: self.speakers.clone(),
             behaviour: self.behaviour.clone(),
         };
         let boxed_fuzzed_ipolicy_config_vista = Box::new(fuzzed_ipolicy_config_vista);
@@ -108,7 +113,7 @@ impl WindowsApi for FuzzedWindowsApi {
 
 pub struct FuzzedIMMDeviceEnumerator {
     speakers: Vec<FuzzedSpeaker>,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
 }
 
 impl IMMDeviceEnumerator for FuzzedIMMDeviceEnumerator {
@@ -117,10 +122,11 @@ impl IMMDeviceEnumerator for FuzzedIMMDeviceEnumerator {
         dataflow: EDataFlow,
         role: ERole,
     ) -> Result<Box<dyn IMMDevice>> {
-        if self.behaviour.getting_the_default_speaker_fails {
-            let error = Error::new(E_FAIL, "Failed to get the current default speaker");
-
-            return Err(error);
+        if let Some(error) = self
+            .behaviour
+            .immdevice_enumerator_get_default_audio_endpoint_error
+        {
+            return Err(error.into());
         }
 
         if dataflow != eRender || role != eConsole {
@@ -140,6 +146,7 @@ impl IMMDeviceEnumerator for FuzzedIMMDeviceEnumerator {
         let default_speaker = default_speaker_option.unwrap();
         let fuzzed_immdevice = FuzzedIMMDevice {
             speaker: default_speaker.clone(),
+            behaviour: self.behaviour.clone(),
         };
         let boxed_fuzzed_immdevice = Box::new(fuzzed_immdevice);
 
@@ -151,10 +158,11 @@ impl IMMDeviceEnumerator for FuzzedIMMDeviceEnumerator {
         dataflow: EDataFlow,
         dwstatemask: DEVICE_STATE,
     ) -> Result<Box<dyn IMMDeviceCollection>> {
-        if self.behaviour.getting_the_speakers_fails {
-            let error = Error::new(E_FAIL, "Failed to get the speakers");
-
-            return Err(error);
+        if let Some(error) = self
+            .behaviour
+            .immdevice_enumerator_enum_audio_endpoints_error
+        {
+            return Err(error.into());
         }
 
         if dataflow != eRender || dwstatemask != DEVICE_STATE_ACTIVE {
@@ -175,10 +183,15 @@ impl IMMDeviceEnumerator for FuzzedIMMDeviceEnumerator {
 
 pub struct FuzzedIMMDevice {
     speaker: FuzzedSpeaker,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
 }
 
 impl IMMDevice for FuzzedIMMDevice {
     unsafe fn get_id(&self) -> Result<PWSTR> {
+        if let Some(error) = self.behaviour.immdevice_get_id_error {
+            return Err(error.into());
+        }
+
         let mut id_utf16 = self.speaker.id.encode_utf16().collect::<Vec<_>>();
 
         id_utf16.push(0);
@@ -190,6 +203,10 @@ impl IMMDevice for FuzzedIMMDevice {
     }
 
     unsafe fn open_property_store(&self, stgmaccess: STGM) -> Result<Box<dyn IPropertyStore>> {
+        if let Some(error) = self.behaviour.immdevice_open_property_store_error {
+            return Err(error.into());
+        }
+
         if stgmaccess != STGM_READ {
             let error = Error::new(E_INVALIDARG, "One or more arguments are not valid");
 
@@ -198,6 +215,7 @@ impl IMMDevice for FuzzedIMMDevice {
 
         let fuzzed_iproperty_store = FuzzedIPropertyStore {
             speaker: self.speaker.clone(),
+            behaviour: self.behaviour.clone(),
         };
         let boxed_fuzzed_iproperty_store = Box::new(fuzzed_iproperty_store);
 
@@ -207,21 +225,23 @@ impl IMMDevice for FuzzedIMMDevice {
 
 pub struct FuzzedIMMDeviceCollection {
     speakers: Vec<FuzzedSpeaker>,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
 }
 
 impl IMMDeviceCollection for FuzzedIMMDeviceCollection {
     unsafe fn get_count(&self) -> Result<u32> {
-        if self.behaviour.getting_the_speakers_count_fails {
-            let error = Error::new(E_FAIL, "Failed to get the number of speakers");
-
-            return Err(error);
+        if let Some(error) = self.behaviour.immdevice_collection_get_count_error {
+            return Err(error.into());
         }
 
         Ok(self.speakers.len().try_into().unwrap())
     }
 
     unsafe fn item(&self, ndevice: u32) -> Result<Box<dyn IMMDevice>> {
+        if let Some(error) = self.behaviour.immdevice_collection_item_error {
+            return Err(error.into());
+        }
+
         let index: usize = ndevice.try_into().unwrap();
         let speaker_option = self.speakers.get(index);
 
@@ -233,6 +253,7 @@ impl IMMDeviceCollection for FuzzedIMMDeviceCollection {
 
         let fuzzed_immdevice = FuzzedIMMDevice {
             speaker: speaker_option.unwrap().clone(),
+            behaviour: self.behaviour.clone(),
         };
         let boxed_fuzzed_immdevice = Box::new(fuzzed_immdevice);
 
@@ -242,10 +263,15 @@ impl IMMDeviceCollection for FuzzedIMMDeviceCollection {
 
 pub struct FuzzedIPropertyStore {
     speaker: FuzzedSpeaker,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
 }
 
 impl IPropertyStore for FuzzedIPropertyStore {
     unsafe fn get_value(&self, key: *const PROPERTYKEY) -> Result<PROPVARIANT> {
+        if let Some(error) = self.behaviour.property_store_get_value_error {
+            return Err(error.into());
+        }
+
         unsafe {
             if *key != PKEY_Device_FriendlyName {
                 let error = Error::new(E_INVALIDARG, "One or more arguments are not valid");
@@ -261,13 +287,10 @@ impl IPropertyStore for FuzzedIPropertyStore {
             let propvariant = PROPVARIANT {
                 Anonymous: PROPVARIANT_0 {
                     Anonymous: ManuallyDrop::<PROPVARIANT_0_0>::new(PROPVARIANT_0_0 {
-                        vt: VARENUM::default(),
-                        wReserved1: u16::default(),
-                        wReserved2: u16::default(),
-                        wReserved3: u16::default(),
                         Anonymous: PROPVARIANT_0_0_0 {
                             pwszVal: PWSTR(leaked.as_mut_ptr()),
                         },
+                        ..Default::default()
                     }),
                 },
             };
@@ -279,16 +302,19 @@ impl IPropertyStore for FuzzedIPropertyStore {
 
 pub struct FuzzedIPolicyConfigVista {
     speakers: Rc<RefCell<Vec<FuzzedSpeaker>>>,
-    behaviour: FuzzedWindowsSpeakersSettingsApiBehaviour,
+    behaviour: Rc<FuzzedWindowsSpeakersSettingsApiBehaviour>,
 }
 
 impl IPolicyConfigVista for FuzzedIPolicyConfigVista {
     unsafe fn set_default_endpoint(&mut self, device_id: PCWSTR, role: ERole) -> Result<()> {
-        unsafe {
-            if self.behaviour.setting_the_default_speaker_fails {
-                return Err(Error::new(E_FAIL, "Failed to set default speaker"));
-            }
+        if let Some(error) = self
+            .behaviour
+            .ipolicy_config_vista_set_default_endpoint_error
+        {
+            return Err(error.into());
+        }
 
+        unsafe {
             if role != eConsole {
                 return Err(Error::empty());
             }

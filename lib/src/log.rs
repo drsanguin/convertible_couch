@@ -7,7 +7,7 @@ use log4rs::{
     init_config,
 };
 
-use crate::application_error::ApplicationError;
+use crate::application_result::ApplicationResult;
 
 #[macro_export]
 macro_rules! func {
@@ -55,7 +55,7 @@ pub enum LogLevel {
     Trace,
 }
 
-pub fn configure_logger(log_level: &LogLevel) -> Result<(), ApplicationError> {
+pub fn configure_logger(log_level: &LogLevel) -> ApplicationResult<()> {
     if log_level == &LogLevel::Off {
         return Ok(());
     }

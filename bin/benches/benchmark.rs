@@ -1,6 +1,6 @@
 use convertible_couch_lib::func;
 use convertible_couch_testing::arrangements::{
-    builders::{ApplicationBuilder, ArgumentsBuilder},
+    builders::{application::ApplicationBuilder, arguments::ArgumentsBuilder},
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 use criterion::{BatchSize, BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
@@ -64,8 +64,7 @@ fn change_primary_display_and_default_speaker(criterion: &mut Criterion) {
 
                             let application = ApplicationBuilder::new(computer).build();
 
-                            let args = ArgumentsBuilder
-                                .change()
+                            let args = ArgumentsBuilder::change()
                                 .displays_and_speakers(
                                     &primary_display_name,
                                     &secondary_display_name,
@@ -112,8 +111,7 @@ fn change_primary_display(criterion: &mut Criterion) {
 
                         let application = ApplicationBuilder::new(computer).build();
 
-                        let args = ArgumentsBuilder
-                            .change()
+                        let args = ArgumentsBuilder::change()
                             .displays_only(&primary_display_name, &secondary_display_name)
                             .build();
 
@@ -154,8 +152,7 @@ fn change_default_speaker(criterion: &mut Criterion) {
 
                         let application = ApplicationBuilder::new(computer).build();
 
-                        let args = ArgumentsBuilder
-                            .change()
+                        let args = ArgumentsBuilder::change()
                             .speakers_only(&default_speaker_name, &alternative_speaker_name)
                             .build();
 
@@ -196,7 +193,7 @@ fn get_infos_about_displays(criterion: &mut Criterion) {
 
                         let application = ApplicationBuilder::new(computer).build();
 
-                        let args = ArgumentsBuilder.info().displays_only().build();
+                        let args = ArgumentsBuilder::info().displays_only().build();
 
                         (application, args)
                     },
@@ -235,7 +232,7 @@ fn get_infos_about_speakers(criterion: &mut Criterion) {
 
                         let application = ApplicationBuilder::new(computer).build();
 
-                        let args = ArgumentsBuilder.info().speakers_only().build();
+                        let args = ArgumentsBuilder::info().speakers_only().build();
 
                         (application, args)
                     },
@@ -289,7 +286,7 @@ fn get_infos_about_displays_and_speakers(criterion: &mut Criterion) {
 
                             let application = ApplicationBuilder::new(computer).build();
 
-                            let args = ArgumentsBuilder.info().displays_and_speakers().build();
+                            let args = ArgumentsBuilder::info().displays_and_speakers().build();
 
                             (application, args)
                         },

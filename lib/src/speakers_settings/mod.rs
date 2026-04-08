@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::application_error::ApplicationError;
+use crate::application_result::ApplicationResult;
 use crate::trace_fn;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -41,9 +41,9 @@ pub trait SpeakersSettings {
         &mut self,
         desktop_speaker_name: &str,
         couch_speaker_name: &str,
-    ) -> Result<SpeakersSettingsResult, ApplicationError>;
+    ) -> ApplicationResult<SpeakersSettingsResult>;
 
-    fn get_speakers_infos(&mut self) -> Result<Vec<SpeakerInfo>, ApplicationError>;
+    fn get_speakers_infos(&mut self) -> ApplicationResult<Vec<SpeakerInfo>>;
 }
 
 #[cfg(target_os = "windows")]

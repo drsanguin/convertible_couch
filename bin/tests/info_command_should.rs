@@ -1,7 +1,9 @@
-use convertible_couch::application::{ApplicationInfoResult, ApplicationResult};
-use convertible_couch_lib::{displays_settings::DisplayInfo, func, speakers_settings::SpeakerInfo};
+use convertible_couch_lib::func;
 use convertible_couch_testing::arrangements::{
-    builders::{ApplicationBuilder, ArgumentsBuilder},
+    builders::{
+        application::ApplicationBuilder, arguments::ArgumentsBuilder,
+        command_result::CommandResultBuilder,
+    },
     fuzzing::{ComputerBuilder, Fuzzer},
 };
 
@@ -32,47 +34,23 @@ fn get_informations_about_displays_and_speakers() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().displays_and_speakers().build();
+    let args = ArgumentsBuilder::info().displays_and_speakers().build();
 
     // Act
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(ApplicationResult::Info(
-            ApplicationInfoResult::DisplaysAndSpeakers {
-                displays_result: vec![
-                    DisplayInfo {
-                        is_primary: true,
-                        name: primary_display_name
-                    },
-                    DisplayInfo {
-                        is_primary: false,
-                        name: secondary_display_name
-                    },
-                    DisplayInfo {
-                        is_primary: false,
-                        name: secondary_display_name_2
-                    }
-                ],
-                speakers_result: vec![
-                    SpeakerInfo {
-                        is_default: true,
-                        name: default_speaker_name
-                    },
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name
-                    },
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name_2
-                    }
-                ]
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::info()
+        .displays_and_speakers()
+        .with_primary_display(&primary_display_name)
+        .with_secondary_display(&secondary_display_name)
+        .with_secondary_display(&secondary_display_name_2)
+        .with_default_speaker(&default_speaker_name)
+        .with_alternative_speaker(&alternative_speaker_name)
+        .with_alternative_speaker(&alternative_speaker_name_2)
+        .build();
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -85,21 +63,15 @@ fn get_informations_about_displays_and_speakers_when_the_computer_has_no_display
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().displays_and_speakers().build();
+    let args = ArgumentsBuilder::info().displays_and_speakers().build();
 
     // Act
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(ApplicationResult::Info(
-            ApplicationInfoResult::DisplaysAndSpeakers {
-                displays_result: Vec::new(),
-                speakers_result: Vec::new()
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::info().displays_and_speakers().build();
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -120,33 +92,20 @@ fn get_informations_about_displays_only() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().displays_only().build();
+    let args = ArgumentsBuilder::info().displays_only().build();
 
     // Act
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(ApplicationResult::Info(
-            ApplicationInfoResult::DisplaysOnly {
-                displays_result: vec![
-                    DisplayInfo {
-                        is_primary: true,
-                        name: primary_display_name
-                    },
-                    DisplayInfo {
-                        is_primary: false,
-                        name: secondary_display_name
-                    },
-                    DisplayInfo {
-                        is_primary: false,
-                        name: secondary_display_name_2
-                    }
-                ]
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::info()
+        .displays_only()
+        .with_primary_display(&primary_display_name)
+        .with_secondary_display(&secondary_display_name)
+        .with_secondary_display(&secondary_display_name_2)
+        .build();
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -168,33 +127,20 @@ fn get_informations_about_speakers_only() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().speakers_only().build();
+    let args = ArgumentsBuilder::info().speakers_only().build();
 
     // Act
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(ApplicationResult::Info(
-            ApplicationInfoResult::SpeakersOnly {
-                speakers_result: vec![
-                    SpeakerInfo {
-                        is_default: true,
-                        name: default_speaker_name
-                    },
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name
-                    },
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name_2
-                    }
-                ]
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::info()
+        .speakers_only()
+        .with_default_speaker(&default_speaker_name)
+        .with_alternative_speaker(&alternative_speaker_name)
+        .with_alternative_speaker(&alternative_speaker_name_2)
+        .build();
+
+    assert_eq!(actual_result, expected_result);
 }
 
 #[test]
@@ -215,27 +161,17 @@ fn get_informations_about_speakers_only_even_if_there_if_no_default_one() {
 
     let mut application = ApplicationBuilder::new(computer).build();
 
-    let args = ArgumentsBuilder.info().speakers_only().build();
+    let args = ArgumentsBuilder::info().speakers_only().build();
 
     // Act
     let actual_result = application.execute(&args);
 
     // Assert
-    assert_eq!(
-        actual_result,
-        Ok(ApplicationResult::Info(
-            ApplicationInfoResult::SpeakersOnly {
-                speakers_result: vec![
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name
-                    },
-                    SpeakerInfo {
-                        is_default: false,
-                        name: alternative_speaker_name_2
-                    }
-                ]
-            }
-        ))
-    );
+    let expected_result = CommandResultBuilder::info()
+        .speakers_only()
+        .with_alternative_speaker(&alternative_speaker_name)
+        .with_alternative_speaker(&alternative_speaker_name_2)
+        .build();
+
+    assert_eq!(actual_result, expected_result);
 }

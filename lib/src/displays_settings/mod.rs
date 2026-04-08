@@ -1,11 +1,10 @@
 use std::cmp::Ordering;
 
-use crate::application_error::ApplicationError;
+use crate::application_result::ApplicationResult;
 use crate::trace_fn;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct DisplaysSettingsResult {
-    pub reboot_required: bool,
     pub new_primary_display: String,
 }
 
@@ -42,9 +41,9 @@ pub trait DisplaysSettings {
         &mut self,
         desktop_display_name: &str,
         couch_display_name: &str,
-    ) -> Result<DisplaysSettingsResult, ApplicationError>;
+    ) -> ApplicationResult<DisplaysSettingsResult>;
 
-    fn get_displays_infos(&mut self) -> Result<Vec<DisplayInfo>, ApplicationError>;
+    fn get_displays_infos(&mut self) -> ApplicationResult<Vec<DisplayInfo>>;
 }
 
 #[cfg(target_os = "windows")]
