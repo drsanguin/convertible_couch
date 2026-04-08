@@ -115,7 +115,7 @@ fn overcome_query_display_config_returning_an_insufficient_buffer_error(
     let actual_result = application.execute(&args);
 
     // Assert
-    let expected_command_result = CommandResultBuilder::displays(
+    let expected_command_result = CommandResultBuilder::displays().any(
         &displays_command,
         &primary_display_name,
         &secondary_display_name,
