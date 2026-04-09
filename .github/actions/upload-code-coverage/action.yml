@@ -68,4 +68,3 @@ runs:
         file: lcov.info
         flag-name: ${{ inputs.test-type == 'unit' && 'Unit' || 'Integration' }}
         parallel: true
-        fail-on-error: false
