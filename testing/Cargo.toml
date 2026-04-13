@@ -11,6 +11,6 @@ license-file = "../LICENSE"
 [dependencies]
 convertible_couch = { path = "../bin" }
 convertible_couch_lib = { path = "../lib" }
-rand = "0.10.0"
+rand = "0.10.1"
 windows = "0.62.2"
 windows-core = "0.62.2"
