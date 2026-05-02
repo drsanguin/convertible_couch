@@ -9,19 +9,21 @@ runs:
         tool: cargo-mutants
 
     - name: Generate git.diff 🧰
-      if: github.event.pull_request.base.ref == 'develop'
+      if: >
+        !startsWith(github.event.pull_request.head.ref, 'release/')
       shell: pwsh
       run: git diff origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > git.diff
 
     - name: Run cargo-mutants on the entire codebase 🧟‍♂️
       id: run-cargo-mutants-on-the-entire-codebase
-      if: github.event.pull_request.base.ref != 'develop'
+      if: startsWith(github.event.pull_request.head.ref, 'release/')
       shell: pwsh
       run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true
 
     - name: Run cargo-mutants only on recently changed code 🧟‍♂️
       id: run-cargo-mutants-on-recently-changed-code
-      if: github.event.pull_request.base.ref == 'develop'
+      if: >
+        !startsWith(github.event.pull_request.head.ref, 'release/')
       shell: pwsh
       run: cargo mutants --all-features --no-shuffle --in-place --test-workspace=true --in-diff git.diff
 
