@@ -1,9 +1,6 @@
 name: Push main
 
 on:
-  pull_request:
-    types:
-      - closed
   workflow_dispatch:
 
 permissions:
@@ -15,11 +12,6 @@ jobs:
   release:
     name: Release New Version 🚀
     runs-on: windows-latest
-
-    if: >
-      github.event.pull_request.merged == true &&
-      startsWith(github.event.pull_request.head.ref, 'release/') &&
-      github.event.pull_request.base.ref == 'main'
 
     steps:
       - name: Checkout Repository ⬇️
