@@ -1,13 +1,12 @@
 use crate::arrangements::fuzzing::displays::{
-    settings_api::behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour,
-    video_output::FuzzedVideoOutput,
+    FuzzedDisplay, settings_api::behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour,
 };
 
 pub mod behaviour;
 
 pub trait FuzzedDisplaysSettingsApi: Default {
     fn new(
-        video_outputs: Vec<FuzzedVideoOutput>,
+        displays: Vec<FuzzedDisplay>,
         behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour,
     ) -> Self;
 }

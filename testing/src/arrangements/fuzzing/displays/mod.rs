@@ -10,11 +10,10 @@ use crate::arrangements::fuzzing::{
             CurrentFuzzedDisplaysSettingsApi, FuzzedDisplaysSettingsApi,
             behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour,
         },
-        video_output::VideoOutputFuzzer,
     },
 };
 
-use rand::{RngExt, seq::IteratorRandom};
+use rand::RngExt;
 #[cfg(target_os = "windows")]
 use windows::Win32::Foundation::WIN32_ERROR;
 
@@ -27,7 +26,6 @@ pub mod gsm_id;
 pub mod position;
 pub mod resolution;
 pub mod settings_api;
-pub mod video_output;
 
 #[derive(Clone)]
 pub struct FuzzedDisplay {
@@ -118,28 +116,8 @@ impl<'a> DisplaysFuzzer<'a> {
             "More than one primary display has been generated"
         );
 
-        let mut video_outputs = VideoOutputFuzzer::generate_several(n_video_output);
-
-        let mut video_outputs_to_plug_in_indexes = video_outputs
-            .iter()
-            .enumerate()
-            .map(|(index, _video_output)| index)
-            .sample(&mut self.computer_fuzzer.rand, n_display);
-
-        video_outputs_to_plug_in_indexes.sort();
-
-        video_outputs_to_plug_in_indexes
-            .iter()
-            .enumerate()
-            .for_each(|(display_index, video_output_index)| {
-                let display = displays[display_index].to_owned();
-
-                video_outputs[*video_output_index] =
-                    video_outputs[*video_output_index].plug_display(display);
-            });
-
         let displays_settings_api =
-            CurrentFuzzedDisplaysSettingsApi::new(video_outputs, self.behaviour.clone());
+            CurrentFuzzedDisplaysSettingsApi::new(displays, self.behaviour.clone());
 
         self.computer_fuzzer
             .set_displays_settings_api(displays_settings_api)
