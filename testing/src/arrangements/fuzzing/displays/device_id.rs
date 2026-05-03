@@ -1,7 +1,4 @@
-use std::{
-    collections::HashSet,
-    fmt::{Display, Formatter},
-};
+use std::fmt::{Display, Formatter};
 
 use rand::{
     RngExt,
@@ -63,18 +60,14 @@ impl<'a> DeviceIdFuzzer<'a> {
     }
 
     pub fn generate_one(&mut self) -> FuzzedDeviceId {
-        self.generate_several(1, &HashSet::new()).remove(0)
+        self.generate_several(1).remove(0)
     }
 
-    pub fn generate_several(
-        &mut self,
-        count: usize,
-        forbidden_device_ids: &HashSet<&FuzzedDeviceId>,
-    ) -> Vec<FuzzedDeviceId> {
+    pub fn generate_several(&mut self, count: usize) -> Vec<FuzzedDeviceId> {
         let display_id_gsm_parts = GsmIdFuzzer::new(self.rand).generate_several(count);
 
         let displays_id_common_parts =
-            DeviceIdFuzzer::new(self.rand).generate_computer_common_parts(forbidden_device_ids);
+            DeviceIdFuzzer::new(self.rand).generate_computer_common_parts();
 
         let config_mode_info_ids = ConfigModeInfoIdFuzzer::new(self.rand).generate_several(count);
 
@@ -95,20 +88,11 @@ impl<'a> DeviceIdFuzzer<'a> {
             .collect()
     }
 
-    fn generate_computer_common_parts(
-        &mut self,
-        forbidden_device_ids: &HashSet<&FuzzedDeviceId>,
-    ) -> CommonDeviceIdPartsByComputer {
-        let forbidden_uuids = HashSet::from_iter(
-            forbidden_device_ids
-                .iter()
-                .map(|forbidden_device_id| &forbidden_device_id.uuid),
-        );
-
+    fn generate_computer_common_parts(&mut self) -> CommonDeviceIdPartsByComputer {
         let part_1 = self.rand.random_range(0..=9);
         let part_2 = Alphanumeric.sample_string(self.rand, 6).to_lowercase();
         let part_3 = self.rand.random_range(0..=9);
-        let uuid = GuidFuzzer::new(self.rand).generate_one_different_than(&forbidden_uuids);
+        let uuid = GuidFuzzer::new(self.rand).generate_one();
 
         CommonDeviceIdPartsByComputer {
             part_1,

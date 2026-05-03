@@ -2,7 +2,7 @@ use crate::arrangements::fuzzing::{
     ComputerBuilder,
     computer::{ComputerFuzzer, FuzzedComputer},
     displays::{
-        device_id::{DeviceIdFuzzer, FuzzedDeviceId},
+        device_id::DeviceIdFuzzer,
         display_name::DisplayNameFuzzer,
         position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
         resolution::{FuzzedResolution, ResolutionFuzzer},
@@ -44,7 +44,6 @@ pub struct DisplaysFuzzer<'a> {
     min_n_display: usize,
     max_n_display: usize,
     includes_an_internal_display: bool,
-    forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
     primary_display_name: Option<String>,
     secondary_display_names: HashSet<String>,
     behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour,
@@ -61,7 +60,6 @@ impl<'a> DisplaysFuzzer<'a> {
             max_n_display: 0,
             min_n_display: 0,
             includes_an_internal_display: false,
-            forbidden_device_ids: HashSet::new(),
             primary_display_name: None,
             secondary_display_names: HashSet::new(),
             behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour::default(),
@@ -84,15 +82,6 @@ impl<'a> DisplaysFuzzer<'a> {
 
     pub fn including_an_internal_display(&mut self) -> &mut Self {
         self.includes_an_internal_display = true;
-
-        self
-    }
-
-    pub fn whose_device_ids_are_different_from(
-        &mut self,
-        forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
-    ) -> &mut Self {
-        self.forbidden_device_ids = forbidden_device_ids;
 
         self
     }
@@ -191,8 +180,7 @@ impl<'a> DisplaysFuzzer<'a> {
             names.swap(primary_position_source_index, primary_position_target_index);
         }
 
-        let device_ids = DeviceIdFuzzer::new(self.computer_fuzzer.rand)
-            .generate_several(n_display, &self.forbidden_device_ids);
+        let device_ids = DeviceIdFuzzer::new(self.computer_fuzzer.rand).generate_several(n_display);
 
         (0..n_display)
             .map(|display_index| {
