@@ -1,8 +1,6 @@
 use std::collections::HashSet;
 
 use rand::RngExt;
-#[cfg(target_os = "windows")]
-use windows::Win32::Foundation::WIN32_ERROR;
 
 use crate::arrangements::fuzzing::{
     ComputerBuilder,
@@ -133,154 +131,159 @@ impl<'a> ComputerBuilder<'a> for SpeakersFuzzer<'a> {
     }
 }
 
-#[cfg(target_os = "windows")]
-pub enum Function {
-    CoInitializeEx,
-    CoCreateIMMDeviceEnumerator,
-    IMMDeviceEnumeratorGetDefaultAudioEndpoint,
-    IMMDeviceEnumeratorEnumAudioEndpoints,
-    IMMDeviceGetId,
-    IMMDeviceCollectionGetCount,
-    IMMDeviceCollectionItem,
-    IMMDeviceOpenPropertyStore,
-    PropertyStoreGetValue,
-    CoCreateIPolicyConfigVista,
-    IPolicyConfigVistaSetDefaultEndpoint,
-}
+cfg_select! {
+    target_os = "windows" => {
+        use windows::Win32::Foundation::WIN32_ERROR;
 
-#[cfg(target_os = "windows")]
-impl<'a> SpeakersFuzzer<'a> {
-    pub fn for_which_function_fails_with(
-        &mut self,
-        function: Function,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        match function {
-            Function::CoInitializeEx => self.for_which_co_initialize_ex_fails_with(error),
-            Function::CoCreateIMMDeviceEnumerator => {
-                self.for_which_co_create_immdevice_enumerator_fails_with(error)
+        pub enum Function {
+            CoInitializeEx,
+            CoCreateIMMDeviceEnumerator,
+            IMMDeviceEnumeratorGetDefaultAudioEndpoint,
+            IMMDeviceEnumeratorEnumAudioEndpoints,
+            IMMDeviceGetId,
+            IMMDeviceCollectionGetCount,
+            IMMDeviceCollectionItem,
+            IMMDeviceOpenPropertyStore,
+            PropertyStoreGetValue,
+            CoCreateIPolicyConfigVista,
+            IPolicyConfigVistaSetDefaultEndpoint,
+        }
+
+        impl<'a> SpeakersFuzzer<'a> {
+            pub fn for_which_function_fails_with(
+                &mut self,
+                function: Function,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                match function {
+                    Function::CoInitializeEx => self.for_which_co_initialize_ex_fails_with(error),
+                    Function::CoCreateIMMDeviceEnumerator => {
+                        self.for_which_co_create_immdevice_enumerator_fails_with(error)
+                    }
+                    Function::IMMDeviceEnumeratorGetDefaultAudioEndpoint => {
+                        self.for_which_immdevice_enumerator_get_default_audio_endpoint_fails_with(error)
+                    }
+                    Function::IMMDeviceEnumeratorEnumAudioEndpoints => {
+                        self.for_which_immdevice_enumerator_enum_audio_endpoints_fails_with(error)
+                    }
+                    Function::IMMDeviceGetId => self.for_which_immdevice_get_id_fails_with(error),
+                    Function::IMMDeviceCollectionGetCount => {
+                        self.for_which_immdevice_collection_get_count_fails_with(error)
+                    }
+                    Function::IMMDeviceCollectionItem => {
+                        self.for_which_immdevice_collection_item_fails_with(error)
+                    }
+                    Function::IMMDeviceOpenPropertyStore => {
+                        self.for_which_immdevice_open_property_store_fails_with(error)
+                    }
+                    Function::PropertyStoreGetValue => {
+                        self.for_which_property_store_get_value_fails_with(error)
+                    }
+                    Function::CoCreateIPolicyConfigVista => {
+                        self.for_which_co_create_ipolicy_config_vista_fails_with(error)
+                    }
+                    Function::IPolicyConfigVistaSetDefaultEndpoint => {
+                        self.for_which_ipolicy_config_vista_set_default_endpoint_fails_with(error)
+                    }
+                }
             }
-            Function::IMMDeviceEnumeratorGetDefaultAudioEndpoint => {
-                self.for_which_immdevice_enumerator_get_default_audio_endpoint_fails_with(error)
+
+            pub fn for_which_co_initialize_ex_fails_with(&mut self, error: WIN32_ERROR) -> &mut Self {
+                self.behaviour.co_initialize_ex_error = Some(error);
+
+                self
             }
-            Function::IMMDeviceEnumeratorEnumAudioEndpoints => {
-                self.for_which_immdevice_enumerator_enum_audio_endpoints_fails_with(error)
+
+            pub fn for_which_co_create_immdevice_enumerator_fails_with(
+                &mut self,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour.co_create_immdevice_enumerator_error = Some(error);
+
+                self
             }
-            Function::IMMDeviceGetId => self.for_which_immdevice_get_id_fails_with(error),
-            Function::IMMDeviceCollectionGetCount => {
-                self.for_which_immdevice_collection_get_count_fails_with(error)
+
+            pub fn for_which_immdevice_enumerator_get_default_audio_endpoint_fails_with(
+                &mut self,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour
+                    .immdevice_enumerator_get_default_audio_endpoint_error = Some(error);
+
+                self
             }
-            Function::IMMDeviceCollectionItem => {
-                self.for_which_immdevice_collection_item_fails_with(error)
+
+            pub fn for_which_immdevice_enumerator_enum_audio_endpoints_fails_with(
+                &mut self,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour
+                    .immdevice_enumerator_enum_audio_endpoints_error = Some(error);
+
+                self
             }
-            Function::IMMDeviceOpenPropertyStore => {
-                self.for_which_immdevice_open_property_store_fails_with(error)
+
+            pub fn for_which_immdevice_get_id_fails_with(&mut self, error: WIN32_ERROR) -> &mut Self {
+                self.behaviour.immdevice_get_id_error = Some(error);
+
+                self
             }
-            Function::PropertyStoreGetValue => {
-                self.for_which_property_store_get_value_fails_with(error)
+
+            pub fn for_which_immdevice_collection_get_count_fails_with(
+                &mut self,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour.immdevice_collection_get_count_error = Some(error);
+
+                self
             }
-            Function::CoCreateIPolicyConfigVista => {
-                self.for_which_co_create_ipolicy_config_vista_fails_with(error)
+
+            pub fn for_which_immdevice_collection_item_fails_with(
+                &mut self,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour.immdevice_collection_item_error = Some(error);
+
+                self
             }
-            Function::IPolicyConfigVistaSetDefaultEndpoint => {
-                self.for_which_ipolicy_config_vista_set_default_endpoint_fails_with(error)
+
+            pub fn for_which_immdevice_open_property_store_fails_with(
+                &mut self,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour.immdevice_open_property_store_error = Some(error);
+
+                self
+            }
+
+            pub fn for_which_property_store_get_value_fails_with(
+                &mut self,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour.property_store_get_value_error = Some(error);
+
+                self
+            }
+
+            pub fn for_which_co_create_ipolicy_config_vista_fails_with(
+                &mut self,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour.co_create_ipolicy_config_vista_error = Some(error);
+
+                self
+            }
+
+            pub fn for_which_ipolicy_config_vista_set_default_endpoint_fails_with(
+                &mut self,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour
+                    .ipolicy_config_vista_set_default_endpoint_error = Some(error);
+
+                self
             }
         }
-    }
 
-    pub fn for_which_co_initialize_ex_fails_with(&mut self, error: WIN32_ERROR) -> &mut Self {
-        self.behaviour.co_initialize_ex_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_co_create_immdevice_enumerator_fails_with(
-        &mut self,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour.co_create_immdevice_enumerator_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_immdevice_enumerator_get_default_audio_endpoint_fails_with(
-        &mut self,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour
-            .immdevice_enumerator_get_default_audio_endpoint_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_immdevice_enumerator_enum_audio_endpoints_fails_with(
-        &mut self,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour
-            .immdevice_enumerator_enum_audio_endpoints_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_immdevice_get_id_fails_with(&mut self, error: WIN32_ERROR) -> &mut Self {
-        self.behaviour.immdevice_get_id_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_immdevice_collection_get_count_fails_with(
-        &mut self,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour.immdevice_collection_get_count_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_immdevice_collection_item_fails_with(
-        &mut self,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour.immdevice_collection_item_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_immdevice_open_property_store_fails_with(
-        &mut self,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour.immdevice_open_property_store_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_property_store_get_value_fails_with(
-        &mut self,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour.property_store_get_value_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_co_create_ipolicy_config_vista_fails_with(
-        &mut self,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour.co_create_ipolicy_config_vista_error = Some(error);
-
-        self
-    }
-
-    pub fn for_which_ipolicy_config_vista_set_default_endpoint_fails_with(
-        &mut self,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour
-            .ipolicy_config_vista_set_default_endpoint_error = Some(error);
-
-        self
     }
 }

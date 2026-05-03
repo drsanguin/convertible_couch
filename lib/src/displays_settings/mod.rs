@@ -46,17 +46,12 @@ pub trait DisplaysSettings {
     fn get_displays_infos(&mut self) -> ApplicationResult<Vec<DisplayInfo>>;
 }
 
-#[cfg(target_os = "windows")]
-pub mod windows;
-
-#[cfg(target_os = "windows")]
-pub use windows::windows_display_settings::WindowsDisplaySettings as CurrentDisplaysSettings;
-
-#[cfg(target_os = "windows")]
-pub use windows::win_32_based_windows_api::Win32BasedWindowsApi as CurrentDisplaysSettingsApi;
-
-#[cfg(target_os = "windows")]
-pub use windows::windows_api::WindowsApi as CurrentDisplaysSettingsApiTrait;
-
-#[cfg(target_os = "windows")]
-pub const INTERNAL_DISPLAY_NAME: &str = "Internal Display";
+cfg_select! {
+    target_os = "windows" => {
+        pub mod windows;
+        pub use windows::windows_display_settings::WindowsDisplaySettings as CurrentDisplaysSettings;
+        pub use windows::win_32_based_windows_api::Win32BasedWindowsApi as CurrentDisplaysSettingsApi;
+        pub use windows::windows_api::WindowsApi as CurrentDisplaysSettingsApiTrait;
+        pub const INTERNAL_DISPLAY_NAME: &str = "Internal Display";
+    }
+}
