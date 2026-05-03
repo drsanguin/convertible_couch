@@ -1,8 +1,8 @@
 use crate::arrangements::fuzzing::displays::{
+    FuzzedDisplay,
     settings_api::{
         FuzzedDisplaysSettingsApi, behaviour::windows::FuzzedWindowsDisplaysSettingsApiBehaviour,
     },
-    video_output::FuzzedVideoOutput,
 };
 use convertible_couch_lib::displays_settings::windows::windows_api::WindowsApi;
 use std::collections::HashMap;
@@ -29,7 +29,7 @@ pub struct FuzzedWindowsApi {
 
 impl FuzzedDisplaysSettingsApi for FuzzedWindowsApi {
     fn new(
-        video_outputs: Vec<FuzzedVideoOutput>,
+        displays: Vec<FuzzedDisplay>,
         behaviour: FuzzedWindowsDisplaysSettingsApiBehaviour,
     ) -> Self {
         let mut patharray: Vec<DISPLAYCONFIG_PATH_INFO> = Vec::new();
@@ -40,14 +40,6 @@ impl FuzzedDisplaysSettingsApi for FuzzedWindowsApi {
             LowPart: 62504,
             HighPart: 0,
         };
-
-        let displays = video_outputs
-            .iter()
-            .filter_map(|video_output| match &video_output.display {
-                Some(display) => Some(display),
-                None => None,
-            })
-            .collect::<Vec<_>>();
 
         for (i, display) in displays.iter().enumerate() {
             patharray.push(DISPLAYCONFIG_PATH_INFO {

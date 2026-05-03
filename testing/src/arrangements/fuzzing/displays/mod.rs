@@ -2,7 +2,7 @@ use crate::arrangements::fuzzing::{
     ComputerBuilder,
     computer::{ComputerFuzzer, FuzzedComputer},
     displays::{
-        device_id::{DeviceIdFuzzer, FuzzedDeviceId},
+        device_id::DeviceIdFuzzer,
         display_name::DisplayNameFuzzer,
         position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
         resolution::{FuzzedResolution, ResolutionFuzzer},
@@ -10,11 +10,10 @@ use crate::arrangements::fuzzing::{
             CurrentFuzzedDisplaysSettingsApi, FuzzedDisplaysSettingsApi,
             behaviour::CurrentFuzzedDisplaysSettingsApiBehaviour,
         },
-        video_output::VideoOutputFuzzer,
     },
 };
 
-use rand::{RngExt, seq::IteratorRandom};
+use rand::RngExt;
 #[cfg(target_os = "windows")]
 use windows::Win32::Foundation::WIN32_ERROR;
 
@@ -27,7 +26,6 @@ pub mod gsm_id;
 pub mod position;
 pub mod resolution;
 pub mod settings_api;
-pub mod video_output;
 
 #[derive(Clone)]
 pub struct FuzzedDisplay {
@@ -44,7 +42,6 @@ pub struct DisplaysFuzzer<'a> {
     min_n_display: usize,
     max_n_display: usize,
     includes_an_internal_display: bool,
-    forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
     primary_display_name: Option<String>,
     secondary_display_names: HashSet<String>,
     behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour,
@@ -61,7 +58,6 @@ impl<'a> DisplaysFuzzer<'a> {
             max_n_display: 0,
             min_n_display: 0,
             includes_an_internal_display: false,
-            forbidden_device_ids: HashSet::new(),
             primary_display_name: None,
             secondary_display_names: HashSet::new(),
             behaviour: CurrentFuzzedDisplaysSettingsApiBehaviour::default(),
@@ -84,15 +80,6 @@ impl<'a> DisplaysFuzzer<'a> {
 
     pub fn including_an_internal_display(&mut self) -> &mut Self {
         self.includes_an_internal_display = true;
-
-        self
-    }
-
-    pub fn whose_device_ids_are_different_from(
-        &mut self,
-        forbidden_device_ids: HashSet<&'a FuzzedDeviceId>,
-    ) -> &mut Self {
-        self.forbidden_device_ids = forbidden_device_ids;
 
         self
     }
@@ -129,28 +116,8 @@ impl<'a> DisplaysFuzzer<'a> {
             "More than one primary display has been generated"
         );
 
-        let mut video_outputs = VideoOutputFuzzer::generate_several(n_video_output);
-
-        let mut video_outputs_to_plug_in_indexes = video_outputs
-            .iter()
-            .enumerate()
-            .map(|(index, _video_output)| index)
-            .sample(&mut self.computer_fuzzer.rand, n_display);
-
-        video_outputs_to_plug_in_indexes.sort();
-
-        video_outputs_to_plug_in_indexes
-            .iter()
-            .enumerate()
-            .for_each(|(display_index, video_output_index)| {
-                let display = displays[display_index].to_owned();
-
-                video_outputs[*video_output_index] =
-                    video_outputs[*video_output_index].plug_display(display);
-            });
-
         let displays_settings_api =
-            CurrentFuzzedDisplaysSettingsApi::new(video_outputs, self.behaviour.clone());
+            CurrentFuzzedDisplaysSettingsApi::new(displays, self.behaviour.clone());
 
         self.computer_fuzzer
             .set_displays_settings_api(displays_settings_api)
@@ -191,8 +158,7 @@ impl<'a> DisplaysFuzzer<'a> {
             names.swap(primary_position_source_index, primary_position_target_index);
         }
 
-        let device_ids = DeviceIdFuzzer::new(self.computer_fuzzer.rand)
-            .generate_several(n_display, &self.forbidden_device_ids);
+        let device_ids = DeviceIdFuzzer::new(self.computer_fuzzer.rand).generate_several(n_display);
 
         (0..n_display)
             .map(|display_index| {
