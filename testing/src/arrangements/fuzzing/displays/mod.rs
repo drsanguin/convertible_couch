@@ -14,9 +14,6 @@ use crate::arrangements::fuzzing::{
 };
 
 use rand::RngExt;
-#[cfg(target_os = "windows")]
-use windows::Win32::Foundation::WIN32_ERROR;
-
 use std::collections::HashSet;
 
 pub mod config_mod_info_id;
@@ -191,70 +188,74 @@ impl<'a> ComputerBuilder<'a> for DisplaysFuzzer<'a> {
     }
 }
 
-#[cfg(target_os = "windows")]
-pub enum Function {
-    GetDisplayConfigBufferSizes,
-    QueryDisplayConfig,
-    DisplayConfigGetDeviceInfo,
-    SetDisplayConfig,
-}
+cfg_select! {
+    target_os = "windows" => {
+        use windows::Win32::Foundation::WIN32_ERROR;
 
-#[cfg(target_os = "windows")]
-impl<'a> DisplaysFuzzer<'a> {
-    pub fn for_which_function_fails_with(
-        &mut self,
-        function: Function,
-        error: WIN32_ERROR,
-    ) -> &mut Self {
-        match function {
-            Function::GetDisplayConfigBufferSizes => {
-                self.for_which_get_display_config_buffer_fails_with(error)
-            }
-            Function::QueryDisplayConfig => {
-                self.for_which_query_display_config_fails_with(vec![error])
-            }
-            Function::DisplayConfigGetDeviceInfo => {
-                self.for_which_display_config_get_device_info_fails_with(error)
-            }
-            Function::SetDisplayConfig => self.for_which_set_display_config_fails_with(error),
+        pub enum Function {
+            GetDisplayConfigBufferSizes,
+            QueryDisplayConfig,
+            DisplayConfigGetDeviceInfo,
+            SetDisplayConfig,
         }
-    }
 
-    pub fn for_which_get_display_config_buffer_fails_with(
-        &mut self,
-        get_display_config_buffer_sizes_error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour.get_display_config_buffer_sizes_error =
-            Some(get_display_config_buffer_sizes_error);
+        impl<'a> DisplaysFuzzer<'a> {
+            pub fn for_which_function_fails_with(
+                &mut self,
+                function: Function,
+                error: WIN32_ERROR,
+            ) -> &mut Self {
+                match function {
+                    Function::GetDisplayConfigBufferSizes => {
+                        self.for_which_get_display_config_buffer_fails_with(error)
+                    }
+                    Function::QueryDisplayConfig => {
+                        self.for_which_query_display_config_fails_with(vec![error])
+                    }
+                    Function::DisplayConfigGetDeviceInfo => {
+                        self.for_which_display_config_get_device_info_fails_with(error)
+                    }
+                    Function::SetDisplayConfig => self.for_which_set_display_config_fails_with(error),
+                }
+            }
 
-        self
-    }
+            pub fn for_which_get_display_config_buffer_fails_with(
+                &mut self,
+                get_display_config_buffer_sizes_error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour.get_display_config_buffer_sizes_error =
+                    Some(get_display_config_buffer_sizes_error);
 
-    pub fn for_which_query_display_config_fails_with(
-        &mut self,
-        query_display_config_errors: Vec<WIN32_ERROR>,
-    ) -> &mut Self {
-        self.behaviour.query_display_config_errors = query_display_config_errors;
+                self
+            }
 
-        self
-    }
+            pub fn for_which_query_display_config_fails_with(
+                &mut self,
+                query_display_config_errors: Vec<WIN32_ERROR>,
+            ) -> &mut Self {
+                self.behaviour.query_display_config_errors = query_display_config_errors;
 
-    pub fn for_which_display_config_get_device_info_fails_with(
-        &mut self,
-        display_config_get_device_info_error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour.display_config_get_device_info_error =
-            Some(display_config_get_device_info_error);
+                self
+            }
 
-        self
-    }
+            pub fn for_which_display_config_get_device_info_fails_with(
+                &mut self,
+                display_config_get_device_info_error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour.display_config_get_device_info_error =
+                    Some(display_config_get_device_info_error);
 
-    pub fn for_which_set_display_config_fails_with(
-        &mut self,
-        set_display_config_error: WIN32_ERROR,
-    ) -> &mut Self {
-        self.behaviour.set_display_config_error = Some(set_display_config_error);
+                self
+            }
 
-        self
+            pub fn for_which_set_display_config_fails_with(
+                &mut self,
+                set_display_config_error: WIN32_ERROR,
+            ) -> &mut Self {
+                self.behaviour.set_display_config_error = Some(set_display_config_error);
+
+                self
+            }
+        }
     }
 }

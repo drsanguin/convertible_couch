@@ -46,14 +46,11 @@ pub trait SpeakersSettings {
     fn get_speakers_infos(&mut self) -> ApplicationResult<Vec<SpeakerInfo>>;
 }
 
-#[cfg(target_os = "windows")]
-pub mod windows;
-
-#[cfg(target_os = "windows")]
-pub use windows::windows_sound_settings::WindowsSoundSettings as CurrentSpeakersSettings;
-
-#[cfg(target_os = "windows")]
-pub use windows::win_32_based_windows_api::Win32BasedWindowsApi as CurrentSpeakersSettingsApi;
-
-#[cfg(target_os = "windows")]
-pub use windows::windows_api::WindowsApi as CurrentSpeakersSettingsApiTrait;
+cfg_select! {
+    target_os = "windows" => {
+        pub mod windows;
+        pub use windows::windows_sound_settings::WindowsSoundSettings as CurrentSpeakersSettings;
+        pub use windows::win_32_based_windows_api::Win32BasedWindowsApi as CurrentSpeakersSettingsApi;
+        pub use windows::windows_api::WindowsApi as CurrentSpeakersSettingsApiTrait;
+    }
+}
