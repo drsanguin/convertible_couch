@@ -2,7 +2,7 @@ use crate::arrangements::fuzzing::{
     ComputerBuilder,
     computer::{ComputerFuzzer, FuzzedComputer},
     displays::{
-        device_id::DeviceIdFuzzer,
+        config_mod_info_id::ConfigModeInfoIdFuzzer,
         display_name::DisplayNameFuzzer,
         position::{DisplayPositionFuzzer, FuzzedDisplayPosition},
         resolution::{FuzzedResolution, ResolutionFuzzer},
@@ -17,9 +17,7 @@ use rand::RngExt;
 use std::collections::HashSet;
 
 pub mod config_mod_info_id;
-pub mod device_id;
 pub mod display_name;
-pub mod gsm_id;
 pub mod position;
 pub mod resolution;
 pub mod settings_api;
@@ -29,7 +27,6 @@ pub struct FuzzedDisplay {
     pub name: String,
     pub primary: bool,
     pub config_mode_info_id: u32,
-    pub device_id: String,
     pub resolution: FuzzedResolution,
     pub position: FuzzedDisplayPosition,
 }
@@ -155,7 +152,8 @@ impl<'a> DisplaysFuzzer<'a> {
             names.swap(primary_position_source_index, primary_position_target_index);
         }
 
-        let device_ids = DeviceIdFuzzer::new(self.computer_fuzzer.rand).generate_several(n_display);
+        let config_mode_info_ids =
+            ConfigModeInfoIdFuzzer::new(self.computer_fuzzer.rand).generate_several(n_display);
 
         (0..n_display)
             .map(|display_index| {
@@ -167,11 +165,10 @@ impl<'a> DisplaysFuzzer<'a> {
                 } else {
                     names[display_index].to_owned()
                 };
-                let device_id = device_ids[display_index].clone();
+                let config_mode_info_id = config_mode_info_ids[display_index];
 
                 FuzzedDisplay {
-                    config_mode_info_id: device_id.config_mode_info_id,
-                    device_id: device_id.full_id,
+                    config_mode_info_id,
                     name,
                     position,
                     primary,

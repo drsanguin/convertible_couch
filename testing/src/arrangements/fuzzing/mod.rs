@@ -2,13 +2,8 @@ use rand::{Rng, SeedableRng, rng, rngs::StdRng};
 use windows::Win32::Foundation::WIN32_ERROR;
 
 use crate::arrangements::fuzzing::{
-    computer::FuzzedComputer,
-    displays::{
-        device_id::{DeviceIdFuzzer, FuzzedDeviceId},
-        display_name::DisplayNameFuzzer,
-    },
-    speakers::speaker_name::SpeakerNameFuzzer,
-    win_32_error::Win32ErrorFuzzer,
+    computer::FuzzedComputer, displays::display_name::DisplayNameFuzzer,
+    speakers::speaker_name::SpeakerNameFuzzer, win_32_error::Win32ErrorFuzzer,
 };
 
 use self::computer::ComputerFuzzer;
@@ -58,10 +53,6 @@ impl Fuzzer {
 
     pub fn generate_four_display_names(&mut self) -> (String, String, String, String) {
         DisplayNameFuzzer::new(&mut self.rand).generate_four()
-    }
-
-    pub fn generate_device_id(&mut self) -> FuzzedDeviceId {
-        DeviceIdFuzzer::new(&mut self.rand).generate_one()
     }
 
     pub fn generate_two_speakers_names(&mut self) -> (String, String) {
