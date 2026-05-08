@@ -1,22 +1,5 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    allow:
-      - dependency-type: all
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
-      timezone: Europe/Paris
-    commit-message:
-      prefix: build
-      include: scope
-    groups:
-      github-actions:
-        patterns:
-          - "*"
-          
   - package-ecosystem: cargo
     allow:
       - dependency-type: all
@@ -48,5 +31,22 @@ updates:
       include: scope
     groups:
       rust-toolchain:
+        patterns:
+          - "*"
+
+  - package-ecosystem: github-actions
+    allow:
+      - dependency-type: all
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Paris
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      github-actions:
         patterns:
           - "*"
