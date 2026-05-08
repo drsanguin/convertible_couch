@@ -33,3 +33,20 @@ updates:
       cargo:
         patterns:
           - "*"
+          
+  - package-ecosystem: rust-toolchain
+    allow:
+      - dependency-type: all
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Paris
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      rust-toolchain:
+        patterns:
+          - "*"
