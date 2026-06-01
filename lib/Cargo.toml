@@ -9,7 +9,7 @@ repository = "https://github.com/drsanguin/convertible_couch"
 license-file = "../LICENSE"
 
 [dependencies]
-log = "0.4.29"
+log = "0.4.30"
 log4rs = "1.4.0"
 thiserror = "2.0.18"
 
