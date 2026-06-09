@@ -12,16 +12,14 @@ pub struct DisplaysSettingsResult {
 pub struct DisplayInfo {
     pub is_primary: bool,
     pub name: String,
+    pub number: usize,
 }
 
 impl Ord for DisplayInfo {
     fn cmp(&self, other: &Self) -> Ordering {
         trace_fn!();
 
-        other
-            .is_primary
-            .cmp(&self.is_primary)
-            .then(self.name.cmp(&other.name))
+        other.number.cmp(&self.number).reverse()
     }
 }
 

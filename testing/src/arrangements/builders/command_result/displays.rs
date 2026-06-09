@@ -44,10 +44,12 @@ impl DisplaysCommandResultBuilder {
                         DisplayInfo {
                             name: desktop_display_name.to_string(),
                             is_primary: true,
+                            number: 1,
                         },
                         DisplayInfo {
                             name: couch_display_name.to_string(),
                             is_primary: false,
+                            number: 2,
                         },
                     ],
                     speakers_result: vec![
@@ -68,10 +70,12 @@ impl DisplaysCommandResultBuilder {
                         DisplayInfo {
                             name: desktop_display_name.to_string(),
                             is_primary: true,
+                            number: 1,
                         },
                         DisplayInfo {
                             name: couch_display_name.to_string(),
                             is_primary: false,
+                            number: 2,
                         },
                     ],
                 })
