@@ -32,6 +32,7 @@ impl InfoDisplaysAndSpeakersResultBuilder {
         self.displays_result.push(DisplayInfo {
             is_primary: true,
             name: display_name.to_string(),
+            number: 1,
         });
 
         self
@@ -41,6 +42,7 @@ impl InfoDisplaysAndSpeakersResultBuilder {
         self.displays_result.push(DisplayInfo {
             is_primary: false,
             name: display_name.to_string(),
+            number: 2,
         });
 
         self
@@ -85,6 +87,7 @@ impl InfoDisplaysOnlyResultBuilder {
         self.displays_result.push(DisplayInfo {
             is_primary: true,
             name: display_name.to_string(),
+            number: 1,
         });
 
         self
@@ -94,6 +97,7 @@ impl InfoDisplaysOnlyResultBuilder {
         self.displays_result.push(DisplayInfo {
             is_primary: false,
             name: display_name.to_string(),
+            number: 2,
         });
 
         self

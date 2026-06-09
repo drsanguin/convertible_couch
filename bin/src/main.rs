@@ -79,26 +79,36 @@ fn log_change_displays_settings_result(displays_result: DisplaysSettingsResult) 
 }
 
 fn log_info_displays_settings_result(displays_result: Vec<DisplayInfo>) {
+    let number_column_name = "NUMBER";
     let primary_column_name = "PRIMARY";
     let name_column_name = "NAME";
     let column_separator = "   ";
+    let number_column_width = number_column_name.len();
     let primary_column_width = primary_column_name.len();
     let max_name_width = displays_result
         .iter()
         .map(|r| r.name.len())
         .max()
         .unwrap_or(name_column_name.len());
-    let table_width = primary_column_width + column_separator.len() + max_name_width;
+    let table_width = number_column_width
+        + column_separator.len()
+        + primary_column_width
+        + column_separator.len()
+        + max_name_width;
 
     println!("Displays");
-    println!("{primary_column_name}{column_separator}{name_column_name}");
+    println!(
+        "{number_column_name}{column_separator}{primary_column_name}{column_separator}{name_column_name}"
+    );
     println!("{}", "-".repeat(table_width));
 
     for display_result in displays_result {
         println!(
-            "{:<primary_column_width$}{column_separator}{:<name_column_width$}",
+            "{:<number_column_width$}{column_separator}{:<primary_column_width$}{column_separator}{:<name_column_width$}",
+            display_result.number,
             display_result.is_primary,
             display_result.name,
+            number_column_width = number_column_width,
             primary_column_width = primary_column_width,
             name_column_width = max_name_width
         )

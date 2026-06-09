@@ -158,7 +158,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
         let size_of_displayconfig_target_device_name =
             size_of::<DISPLAYCONFIG_TARGET_DEVICE_NAME, u32>();
 
-        for path in patharray {
+        for (index, path) in patharray.iter().enumerate() {
             let mut target_name = DISPLAYCONFIG_TARGET_DEVICE_NAME {
                 header: DISPLAYCONFIG_DEVICE_INFO_HEADER {
                     r#type: DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME,
@@ -190,6 +190,7 @@ impl DisplaysSettings for WindowsDisplaySettings {
             displays_info.push(DisplayInfo {
                 name: display_friendly_device_name.clone(),
                 is_primary: position.x == 0 && position.y == 0,
+                number: index + 1,
             });
         }
 
