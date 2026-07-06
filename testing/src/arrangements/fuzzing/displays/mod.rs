@@ -92,15 +92,10 @@ impl<'a> DisplaysFuzzer<'a> {
     }
 
     pub fn build_displays(&'a mut self) -> &'a mut ComputerFuzzer<'a> {
-        let n_video_output = self
-            .computer_fuzzer
-            .rand
-            .random_range(self.min_n_display..=self.max_n_display);
-
         let n_display = self
             .computer_fuzzer
             .rand
-            .random_range(self.min_n_display..=n_video_output);
+            .random_range(self.min_n_display..=self.max_n_display);
 
         let displays = self.generate_several(n_display);
 
